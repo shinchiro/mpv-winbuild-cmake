@@ -59,6 +59,7 @@ ExternalProject_Add(ffmpeg
         --pkg-config-flags=--static
         --enable-cross-compile
         --enable-runtime-cpudetect
+        ${ffmpeg_hardcoded_tables}
         --enable-gpl
         --enable-version3
         --enable-postproc
@@ -117,7 +118,7 @@ ExternalProject_Add(ffmpeg
         --enable-vaapi
         --disable-vdpau
         --disable-videotoolbox
-        --disable-decoder=libaom_av1
+        --disable-decoder=libaom_av1,aac_fixed,ac3_fixed
         ${ffmpeg_lto}
         --extra-cflags='-Wno-error=int-conversion'
         "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
