@@ -66,7 +66,7 @@ ExternalProject_Add(mpv-release
         -Dvulkan=enabled
         -Dvapoursynth=enabled
         -Degl-angle=enabled
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    BUILD_COMMAND ${EXEC} LTO_JOB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

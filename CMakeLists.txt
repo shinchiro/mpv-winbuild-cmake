@@ -39,6 +39,17 @@ if(CPU_COUNT EQUAL 0)
     set(CPU_COUNT 1)
 endif()
 
+if(EXISTS /usr/lib/libmimalloc.so)
+    set(MALLOC "/usr/lib/libmimalloc.so" CACHE STRING "set malloc implementation")
+elseif(EXISTS /usr/lib/libjemalloc.so)
+    set(MALLOC "/usr/lib/libjemalloc.so" CACHE STRING "set malloc implementation")
+endif()
+if(EXISTS ${MALLOC})
+    option(LLD_LTO_ALL_THREADS "Allow LLD to use all threads for ThinLTO, non-Glibc malloc implementations can improve performance." ON)
+else()
+    unset(MALLOC CACHE)
+endif()
+
 set(MAKEJOBS ${CPU_COUNT})
 # set(MAKEJOBS 5) # uncomment this line to manually change no. of cpu
 set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
@@ -51,6 +62,7 @@ set(SINGLE_SOURCE_LOCATION "" CACHE STRING "Repository or tarball stored path")
 set(RUSTUP_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/install_rustup" CACHE STRING "Rust toolchain path")
 option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful compilation." OFF)
 set(LLVM_ENABLE_LTO "OFF" CACHE STRING "OFF, ON, Thin and Full")
+option(CLANG_PACKAGES_LTO "Build each package with ThinLTO." OFF)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 set(CLANG_FLAGS "" CACHE STRING "These flags will be added to the end of the clang args")
@@ -70,6 +82,16 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exec.in ${CMAKE_CURRENT_BINARY_DIR}/e
 set(EXEC ${CMAKE_CURRENT_BINARY_DIR}/exec)
 set(MAKE ${EXEC} make -j${MAKEJOBS})
 
+if(TARGET_CPU STREQUAL "x86_64")
+    execute_process(
+        COMMAND ${EXEC} echo | ${CMAKE_C_COMPILER} -dM -E - -march=${GCC_ARCH}
+        OUTPUT_VARIABLE CC_OUTPUT
+    )
+    if(CC_OUTPUT MATCHES "__AVX")
+        set(GCC_ARCH_HAS_AVX ON)
+    endif()
+endif()
+
 string(TIMESTAMP BUILDDATE "%Y%m%d" UTC)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)
@@ -80,6 +102,7 @@ message(STATUS "MINGW_INSTALL_PREFIX dir: ${MINGW_INSTALL_PREFIX}")
 message(STATUS "SINGLE_SOURCE_LOCATION dir: ${SINGLE_SOURCE_LOCATION}")
 message(STATUS "RUSTUP_LOCATION dir: ${RUSTUP_LOCATION}")
 message(STATUS "Compiler used: ${COMPILER_TOOLCHAIN}")
+message(STATUS "Malloc: ${MALLOC}")
 message(STATUS "Target toolchain to build: ${TARGET_ARCH}")
 
 add_subdirectory(toolchain)

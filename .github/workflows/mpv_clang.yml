@@ -100,7 +100,7 @@ jobs:
       - name: Downloading source
         run: |
           if [[ $BIT == x86_64_v3 ]]; then echo "x86_64_v3_ARCH=-DGCC_ARCH=x86-64-v3" >> $GITHUB_ENV; fi
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang ${{ env.x86_64_v3_ARCH }} -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DCLANG_FLAGS="-fdata-sections -ffunction-sections" -DLLD_FLAGS="--gc-sections -Xlink=-opt:safeicf" -G Ninja -B build_$BIT -S $PWD
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang ${{ env.x86_64_v3_ARCH }} -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DCLANG_FLAGS="-fdata-sections -ffunction-sections" -DLLD_FLAGS="--gc-sections -Xlink=-opt:safeicf" -DCLANG_PACKAGES_LTO=ON -G Ninja -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
       - name: Building mpv

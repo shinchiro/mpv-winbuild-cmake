@@ -11,6 +11,7 @@ ExternalProject_Add(libdovi
     BUILD_COMMAND ${EXEC}
         CARGO_BUILD_TARGET_DIR=<BINARY_DIR>
         CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+        "RUSTFLAGS='${lto_rustflags}'"
         cargo cinstall
         --manifest-path <SOURCE_DIR>/dolby_vision/Cargo.toml
         --prefix ${MINGW_INSTALL_PREFIX}

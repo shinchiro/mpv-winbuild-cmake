@@ -4,5 +4,6 @@ export PKG_CONFIG="pkgconf --static"
 export PKG_CONFIG_LIBDIR="@MINGW_INSTALL_PREFIX@/lib/pkgconfig"
 export RUSTUP_HOME="@RUSTUP_LOCATION@/.rustup"
 export CARGO_HOME="@RUSTUP_LOCATION@/.cargo"
+export LD_PRELOAD="@MALLOC@"
 
 eval $*
