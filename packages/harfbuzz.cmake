@@ -15,10 +15,16 @@ ExternalProject_Add(harfbuzz
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
+        -Dunity=on
+        -Dunity_size=1024
+        -Dfreetype=enabled
+        -Dgdi=enabled
+        -Ddirectwrite=enabled
         -Dicu=disabled
         -Dglib=disabled
         -Dgobject=disabled
         -Dtests=disabled
+        -Dutilities=disabled
         -Ddocs=disabled
         -Dbenchmark=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
