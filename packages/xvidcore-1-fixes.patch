@@ -1,0 +1,13 @@
+--- build/generic/configure.in_	2013-09-07 19:32:23.000000000 +0200
++++ build/generic/configure.in	2013-09-07 19:32:34.574418752 +0200
+@@ -299,8 +299,8 @@
+ 	AC_MSG_RESULT([ok])
+ 	STATIC_LIB="xvidcore.\$(STATIC_EXTENSION)"
+ 	SHARED_LIB="xvidcore.\$(SHARED_EXTENSION)"
+-	SPECIFIC_LDFLAGS="-mno-cygwin -shared -Wl,--dll,--out-implib,\$@.a libxvidcore.def"
+-	SPECIFIC_CFLAGS="-mno-cygwin"
++	SPECIFIC_LDFLAGS="-shared -Wl,--dll,--out-implib,\$@.a libxvidcore.def"
++	SPECIFIC_CFLAGS=""
+ 	;;
+      darwin*|raphsody*)
+ 	STATIC_LIB="libxvidcore.\$(STATIC_EXTENSION)"

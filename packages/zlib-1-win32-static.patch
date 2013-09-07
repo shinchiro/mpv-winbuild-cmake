@@ -1,0 +1,36 @@
+This file is part of MXE.
+See index.html for further information.
+
+Contains ad hoc patches for cross building.
+
+diff -urN a/configure b/configure
+--- a/configure	2013-03-24 06:30:09.000000000 +0100
++++ b/configure	2013-04-29 12:19:25.526304670 +0200
+@@ -191,10 +191,7 @@
+   CYGWIN* | Cygwin* | cygwin* | OS/2*)
+         EXE='.exe' ;;
+   MINGW* | mingw*)
+-# temporary bypass
+         rm -f $test.[co] $test $test$shared_ext
+-        echo "Please use win32/Makefile.gcc instead." | tee -a configure.log
+-        leave 1
+         LDSHARED=${LDSHARED-"$cc -shared"}
+         LDSHAREDLIBC=""
+         EXE='.exe' ;;
+diff -urN a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2013-04-29 00:57:11.000000000 +0200
++++ b/Makefile.in	2013-04-29 12:16:08.631379491 +0200
+@@ -190,11 +190,11 @@
+ 	-@if [ ! -d $(DESTDIR)$(sharedlibdir) ]; then mkdir -p $(DESTDIR)$(sharedlibdir); fi
+ 	-@if [ ! -d $(DESTDIR)$(man3dir)      ]; then mkdir -p $(DESTDIR)$(man3dir); fi
+ 	-@if [ ! -d $(DESTDIR)$(pkgconfigdir) ]; then mkdir -p $(DESTDIR)$(pkgconfigdir); fi
+-	cp $(STATICLIB) $(DESTDIR)$(libdir)
++	[ -z '$(STATICLIB)'  ] || cp $(STATICLIB)  $(DESTDIR)$(libdir)
+ 	chmod 644 $(DESTDIR)$(libdir)/$(STATICLIB)
+ 	-@($(RANLIB) $(DESTDIR)$(libdir)/libz.a || true) >/dev/null 2>&1
+ 	-@if test -n "$(SHAREDLIBV)"; then \
+-	  cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
++	  [ -z '$(SHAREDLIBV)' ] || cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
+ 	  echo "cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir)"; \
+ 	  chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV); \
+ 	  echo "chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV)"; \

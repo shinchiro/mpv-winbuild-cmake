@@ -1,0 +1,40 @@
+From 3ccc6a365e9f65fc167620bed80503d8c5e2c5cd Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sat, 7 Sep 2013 22:56:00 +0200
+Subject: [PATCH] Add Libs.private to openal.pc
+
+---
+ CMakeLists.txt | 6 ++++++
+ openal.pc.in   | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c0db074..83bb0f9 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -783,6 +783,12 @@ ENDIF()
+ IF(LIBTYPE STREQUAL "STATIC")
+     ADD_DEFINITIONS(-DAL_LIBTYPE_STATIC)
+     SET(PKG_CONFIG_CFLAGS -DAL_LIBTYPE_STATIC ${PKG_CONFIG_CFLAGS})
++
++    FOREACH(l ${EXTRA_LIBS})
++        IF(NOT l MATCHES "^-.*")
++            SET(PKG_CONFIG_LIBS_PRIVATE "${PKG_CONFIG_LIBS_PRIVATE} -l${l}")
++        ENDIF()
++    ENDFOREACH()
+ ENDIF()
+ 
+ # Needed for openal.pc.in
+diff --git a/openal.pc.in b/openal.pc.in
+index 8bdd4f3..d8759d0 100644
+--- a/openal.pc.in
++++ b/openal.pc.in
+@@ -8,4 +8,5 @@ Description: OpenAL is a cross-platform 3D audio API
+ Requires: @PKG_CONFIG_REQUIRES@
+ Version: @PACKAGE_VERSION@
+ Libs: -L${libdir} -l@LIBNAME@ @PKG_CONFIG_LIBS@
++Libs.private: @PKG_CONFIG_LIBS_PRIVATE@
+ Cflags: -I${includedir} -I${includedir}/AL @PKG_CONFIG_CFLAGS@
+-- 
+1.8.3.4
+

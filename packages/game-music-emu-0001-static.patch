@@ -1,0 +1,15 @@
+--- gme/CMakeLists.txt~	2013-09-07 16:42:48.000000000 +0200
++++ gme/CMakeLists.txt	2013-09-07 16:43:43.404136755 +0200
+@@ -143,7 +143,11 @@
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+ # Add library to be compiled.
+-add_library(gme SHARED ${libgme_SRCS})
++if(LIBTYPE MATCHES "STATIC")
++    add_library(gme STATIC ${libgme_SRCS})
++else()
++    add_library(gme SHARED ${libgme_SRCS})
++endif()
+ 
+ # The version is the release.  The "soversion" is the API version.  As long
+ # as only build fixes are performed (i.e. no backwards-incompatible changes

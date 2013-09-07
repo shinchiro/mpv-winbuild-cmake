@@ -1,0 +1,19 @@
+This file is part of mingw-cross-env.
+See doc/index.html for further information.
+
+This patch has been taken from:
+http://sourceforge.net/tracker/?func=detail&aid=3016471&group_id=976&atid=100976
+
+diff -r f9016ca5bace include/curl/curlbuild.h.in
+--- a/include/curl/curlbuild.h.in	Tue Jun 15 13:55:53 2010 +0200
++++ b/include/curl/curlbuild.h.in	Tue Jun 15 14:00:13 2010 +0200
+@@ -111,6 +111,9 @@
+ /*  EXTERNAL INTERFACE SETTINGS FOR CONFIGURE CAPABLE SYSTEMS ONLY  */
+ /* ================================================================ */
+ 
++/* Configure process defines this to 1 when static linking is requested. */
++#undef CURL_STATICLIB
++
+ /* Configure process defines this to 1 when it finds out that system  */
+ /* header file ws2tcpip.h must be included by the external interface. */
+ #undef CURL_PULL_WS2TCPIP_H

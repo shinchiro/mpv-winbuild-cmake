@@ -1,0 +1,25 @@
+From 1ea87e54b864ed90fb797474ed9c28fa69ea713a Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sat, 7 Sep 2013 21:00:55 +0200
+Subject: [PATCH] Fix libdvdcss check
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 7a2917b..5445b88 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -186,7 +186,7 @@ dnl link with libdvdcss
+     *darwin*) CSS_LIBS="${CSS_LIBS} -Wl,-framework,CoreFoundation -Wl,-framework,IOKit"
+     ;;
+   esac
+-  AC_CHECK_LIB(dvdcss, dvdcss_interface_2,, AC_MSG_ERROR(You need libdvdcss.so.2 or later), ${CSS_LIBS})
++  AC_CHECK_LIB(dvdcss, dvdcss_open,, AC_MSG_ERROR(You need libdvdcss.so.2 or later), ${CSS_LIBS})
+   AC_CHECK_HEADERS(dvdcss/dvdcss.h,, AC_MSG_ERROR(You need libdvdcss (dvdcss.h)))
+ fi
+ 
+-- 
+1.8.3.4
+

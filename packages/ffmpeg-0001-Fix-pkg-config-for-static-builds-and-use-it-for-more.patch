@@ -1,0 +1,94 @@
+From f0227e6b3d9c282dbdec3206ce6bddd1dcc5c19c Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sat, 7 Sep 2013 19:52:05 +0200
+Subject: [PATCH] Fix pkg-config for static builds and use it for more external
+ libs
+
+---
+ configure | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
+
+diff --git a/configure b/configure
+index 4ff97b4..815fbae 100755
+--- a/configure
++++ b/configure
+@@ -2628,6 +2628,8 @@ set_default host_cc
+ if ! $pkg_config --version >/dev/null 2>&1; then
+     warn "$pkg_config not found, library detection may fail."
+     pkg_config=false
++elif enabled static; then
++    pkg_config="$pkg_config --static"
+ fi
+ 
+ exesuf() {
+@@ -4190,26 +4192,26 @@ enabled gnutls            && require_pkg_config gnutls gnutls/gnutls.h gnutls_gl
+ enabled libiec61883       && require libiec61883 libiec61883/iec61883.h iec61883_cmp_connect -lraw1394 -lavc1394 -lrom1394 -liec61883
+ enabled libaacplus        && require "libaacplus >= 2.0.0" aacplus.h aacplusEncOpen -laacplus
+ enabled libass            && require_pkg_config libass ass/ass.h ass_library_init
+-enabled libbluray         && require libbluray libbluray/bluray.h bd_open -lbluray
++enabled libbluray         && require_pkg_config libbluray libbluray/bluray.h bd_open
+ enabled libcelt           && require libcelt celt/celt.h celt_decode -lcelt0 &&
+                              { check_lib celt/celt.h celt_decoder_create_custom -lcelt0 ||
+                                die "ERROR: libcelt must be installed and version must be >= 0.11.0."; }
+ enabled libcaca           && require_pkg_config caca caca.h caca_create_canvas
+ enabled libfaac           && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
+-enabled libfdk_aac        && require libfdk_aac fdk-aac/aacenc_lib.h aacEncOpen -lfdk-aac
++enabled libfdk_aac        && require_pkg_config fdk-aac fdk-aac/aacenc_lib.h aacEncOpen
+ flite_libs="-lflite_cmu_time_awb -lflite_cmu_us_awb -lflite_cmu_us_kal -lflite_cmu_us_kal16 -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite"
+ enabled libflite          && require2 libflite "flite/flite.h" flite_init $flite_libs
+ enabled libfreetype       && require_pkg_config freetype2 "ft2build.h freetype/freetype.h" FT_Init_FreeType
+-enabled libgme            && require  libgme gme/gme.h gme_new_emu -lgme -lstdc++
++enabled libgme            && require_pkg_config  libgme gme/gme.h gme_new_emu
+ enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
+                                    check_lib "${gsm_hdr}" gsm_create -lgsm && break;
+                                done || die "ERROR: libgsm not found"; }
+ enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -lilbc
+-enabled libmodplug        && require libmodplug libmodplug/modplug.h ModPlug_Load -lmodplug
++enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
+ enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
+ enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
+-enabled libopencore_amrnb && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
+-enabled libopencore_amrwb && require libopencore_amrwb opencore-amrwb/dec_if.h D_IF_init -lopencore-amrwb
++enabled libopencore_amrnb && require_pkg_config opencore-amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init
++enabled libopencore_amrwb && require_pkg_config opencore-amrwb opencore-amrwb/dec_if.h D_IF_init
+ enabled libopencv         && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
+ enabled libopenjpeg       && { check_lib openjpeg-1.5/openjpeg.h opj_version -lopenjpeg ||
+                                check_lib openjpeg.h opj_version -lopenjpeg ||
+@@ -4221,11 +4223,11 @@ enabled librtmp           && require_pkg_config librtmp librtmp/rtmp.h RTMP_Sock
+ enabled libschroedinger   && require_pkg_config schroedinger-1.0 schroedinger/schro.h schro_init
+ enabled libshine          && require_pkg_config shine shine/layer3.h shine_encode_buffer
+ enabled libsoxr           && require libsoxr soxr.h soxr_create -lsoxr
+-enabled libspeex          && require libspeex speex/speex.h speex_decoder_init -lspeex
++enabled libspeex          && require_pkg_config speex speex/speex.h speex_decoder_init
+ enabled libstagefright_h264 && require_cpp libstagefright_h264 "binder/ProcessState.h media/stagefright/MetaData.h
+     media/stagefright/MediaBufferGroup.h media/stagefright/MediaDebug.h media/stagefright/MediaDefs.h
+     media/stagefright/OMXClient.h media/stagefright/OMXCodec.h" android::OMXClient -lstagefright -lmedia -lutils -lbinder -lgnustl_static
+-enabled libtheora         && require libtheora theora/theoraenc.h th_info_init -ltheoraenc -ltheoradec -logg
++enabled libtheora         && require_pkg_config theoraenc theora/theoraenc.h th_info_init
+ enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame &&
+                              { check_lib twolame.h twolame_encode_buffer_float32_interleaved -ltwolame ||
+                                die "ERROR: libtwolame must be installed and version must be >= 0.3.10"; }
+@@ -4234,7 +4236,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
+ enabled libvidstab        && require_pkg_config vidstab vid.stab/libvidstab.h vsMotionDetectInit
+ enabled libvo_aacenc      && require libvo_aacenc vo-aacenc/voAAC.h voGetAACEncAPI -lvo-aacenc
+ enabled libvo_amrwbenc    && require libvo_amrwbenc vo-amrwbenc/enc_if.h E_IF_init -lvo-amrwbenc
+-enabled libvorbis         && require libvorbis vorbis/vorbisenc.h vorbis_info_init -lvorbisenc -lvorbis -logg
++enabled libvorbis         && require_pkg_config vorbisenc vorbis/vorbisenc.h vorbis_info_init
+ enabled libvpx            && {
+     enabled libvpx_vp8_decoder && { check_lib2 "vpx/vpx_decoder.h vpx/vp8dx.h" vpx_codec_dec_init_ver -lvpx ||
+                                     die "ERROR: libvpx decoder version must be >=0.9.1"; }
+@@ -4263,10 +4265,7 @@ enabled opencl            && { check_lib2 OpenCL/cl.h clEnqueueNDRangeKernel -Wl
+                              { check_cpp_condition "OpenCL/cl.h" "defined(CL_VERSION_1_2)" ||
+                                check_cpp_condition "CL/cl.h" "defined(CL_VERSION_1_2)" ||
+                                die "ERROR: opencl must be installed and version must be 1.2 or compatible"; }
+-enabled openssl           && { check_lib openssl/ssl.h SSL_library_init -lssl -lcrypto ||
+-                               check_lib openssl/ssl.h SSL_library_init -lssl32 -leay32 ||
+-                               check_lib openssl/ssl.h SSL_library_init -lssl -lcrypto -lws2_32 -lgdi32 ||
+-                               die "ERROR: openssl not found"; }
++enabled openssl           && require_pkg_config openssl openssl/ssl.h SSL_library_init
+ 
+ if enabled gnutls; then
+     { check_lib nettle/bignum.h nettle_mpz_get_str_256 -lnettle -lhogweed -lgmp && enable nettle; } ||
+-- 
+1.8.3.4
+

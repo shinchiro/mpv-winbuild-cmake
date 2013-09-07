@@ -1,0 +1,22 @@
+From 0d4458c7c891640a26b921241e5520f167c21c1e Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Thu, 5 Sep 2013 13:41:33 +0200
+Subject: [PATCH] libbluray.pc: Add libxml2 and freetype2 to Libs.private
+
+---
+ src/libbluray.pc.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libbluray.pc.in b/src/libbluray.pc.in
+index ce256e2..6d4bbf8 100644
+--- a/src/libbluray.pc.in
++++ b/src/libbluray.pc.in
+@@ -7,5 +7,5 @@ Name: libbluray
+ Description: library supporting Blu-ray playback
+ Version: @PACKAGE_VERSION@
+ Libs: -L${libdir} -lbluray
+-Libs.private: @DLOPEN_LIBS@
++Libs.private: @DLOPEN_LIBS@ @LIBXML2_LIBS@ @FT2_LIBS@
+ Cflags: -I${includedir}
+-- 
+1.8.3.4

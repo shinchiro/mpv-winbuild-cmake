@@ -1,0 +1,184 @@
+From 428961aaa351425bc15011df633faba8d3ff246b Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sat, 7 Sep 2013 22:48:18 +0200
+Subject: [PATCH] Require pthreads on Windows too
+
+---
+ Alc/helpers.c             | 44 ++++----------------------------------------
+ CMakeLists.txt            | 45 ++++++++++++++++++++++-----------------------
+ OpenAL32/Include/alMain.h | 15 +--------------
+ 3 files changed, 27 insertions(+), 77 deletions(-)
+
+diff --git a/Alc/helpers.c b/Alc/helpers.c
+index fe1318c..6d65354 100644
+--- a/Alc/helpers.c
++++ b/Alc/helpers.c
+@@ -265,44 +265,12 @@ void RestoreFPUMode(const FPUCtl *ctl)
+ #endif
+ }
+ 
++#include <pthread.h>
++#ifdef HAVE_PTHREAD_NP_H
++#include <pthread_np.h>
++#endif
+ 
+ #ifdef _WIN32
+-void pthread_once(pthread_once_t *once, void (*callback)(void))
+-{
+-    LONG ret;
+-    while((ret=InterlockedExchange(once, 1)) == 1)
+-        sched_yield();
+-    if(ret == 0)
+-        callback();
+-    InterlockedExchange(once, 2);
+-}
+-
+-
+-int pthread_key_create(pthread_key_t *key, void (*callback)(void*))
+-{
+-    *key = TlsAlloc();
+-    if(callback)
+-        InsertUIntMapEntry(&TlsDestructor, *key, callback);
+-    return 0;
+-}
+-
+-int pthread_key_delete(pthread_key_t key)
+-{
+-    InsertUIntMapEntry(&TlsDestructor, key, NULL);
+-    TlsFree(key);
+-    return 0;
+-}
+-
+-void *pthread_getspecific(pthread_key_t key)
+-{ return TlsGetValue(key); }
+-
+-int pthread_setspecific(pthread_key_t key, void *val)
+-{
+-    TlsSetValue(key, val);
+-    return 0;
+-}
+-
+-
+ void *LoadLib(const char *name)
+ { return LoadLibraryA(name); }
+ void CloseLib(void *handle)
+@@ -335,10 +303,6 @@ WCHAR *strdupW(const WCHAR *str)
+ 
+ #else
+ 
+-#include <pthread.h>
+-#ifdef HAVE_PTHREAD_NP_H
+-#include <pthread_np.h>
+-#endif
+ #include <sched.h>
+ 
+ void InitializeCriticalSection(CRITICAL_SECTION *cs)
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 354a5ae..c0db074 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -380,6 +380,28 @@ IF(ALSOFT_DLOPEN)
+     ENDIF()
+ ENDIF()
+ 
++CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
++IF(NOT HAVE_PTHREAD_H)
++    MESSAGE(FATAL_ERROR "PThreads is required!")
++ENDIF()
++# Some systems need pthread_np.h to get recursive mutexes
++CHECK_INCLUDE_FILES("pthread.h;pthread_np.h" HAVE_PTHREAD_NP_H)
++
++CHECK_SYMBOL_EXISTS(pthread_setschedparam pthread.h HAVE_PTHREAD_SETSCHEDPARAM)
++
++CHECK_C_COMPILER_FLAG(-pthread HAVE_PTHREAD)
++IF(HAVE_PTHREAD)
++    ADD_DEFINITIONS(-pthread)
++    SET(EXTRA_LIBS ${EXTRA_LIBS} -pthread)
++ENDIF()
++
++# _GNU_SOURCE is needed on some systems for extra attributes
++ADD_DEFINITIONS(-D_GNU_SOURCE=1)
++CHECK_LIBRARY_EXISTS(pthread pthread_create "" HAVE_LIBPTHREAD)
++IF(HAVE_LIBPTHREAD)
++    SET(EXTRA_LIBS pthread ${EXTRA_LIBS})
++ENDIF()
++
+ # Check if we have Windows headers
+ CHECK_INCLUDE_FILE(windows.h HAVE_WINDOWS_H -D_WIN32_WINNT=0x0501)
+ IF(NOT HAVE_WINDOWS_H)
+@@ -393,29 +415,6 @@ IF(NOT HAVE_WINDOWS_H)
+         MESSAGE(FATAL_ERROR "No sleep function found!")
+     ENDIF()
+ 
+-    # We need pthreads outside of Windows
+-    CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
+-    IF(NOT HAVE_PTHREAD_H)
+-        MESSAGE(FATAL_ERROR "PThreads is required for non-Windows builds!")
+-    ENDIF()
+-    # Some systems need pthread_np.h to get recursive mutexes
+-    CHECK_INCLUDE_FILES("pthread.h;pthread_np.h" HAVE_PTHREAD_NP_H)
+-
+-    CHECK_SYMBOL_EXISTS(pthread_setschedparam pthread.h HAVE_PTHREAD_SETSCHEDPARAM)
+-
+-    CHECK_C_COMPILER_FLAG(-pthread HAVE_PTHREAD)
+-    IF(HAVE_PTHREAD)
+-        ADD_DEFINITIONS(-pthread)
+-        SET(EXTRA_LIBS ${EXTRA_LIBS} -pthread)
+-    ENDIF()
+-
+-    # _GNU_SOURCE is needed on some systems for extra attributes
+-    ADD_DEFINITIONS(-D_GNU_SOURCE=1)
+-    CHECK_LIBRARY_EXISTS(pthread pthread_create "" HAVE_LIBPTHREAD)
+-    IF(HAVE_LIBPTHREAD)
+-        SET(EXTRA_LIBS pthread ${EXTRA_LIBS})
+-    ENDIF()
+-
+     CHECK_LIBRARY_EXISTS(rt clock_gettime "" HAVE_LIBRT)
+     IF(HAVE_LIBRT)
+         SET(EXTRA_LIBS rt ${EXTRA_LIBS})
+diff --git a/OpenAL32/Include/alMain.h b/OpenAL32/Include/alMain.h
+index 2e18201..e7ee694 100644
+--- a/OpenAL32/Include/alMain.h
++++ b/OpenAL32/Include/alMain.h
+@@ -91,18 +91,13 @@ static const union {
+     }                                                                         \
+ } while(0)
+ 
++#include <pthread.h>
+ 
+ #ifdef _WIN32
+ 
+ #define WIN32_LEAN_AND_MEAN
+ #include <windows.h>
+ 
+-typedef DWORD pthread_key_t;
+-int pthread_key_create(pthread_key_t *key, void (*callback)(void*));
+-int pthread_key_delete(pthread_key_t key);
+-void *pthread_getspecific(pthread_key_t key);
+-int pthread_setspecific(pthread_key_t key, void *val);
+-
+ #define HAVE_DYNLOAD 1
+ void *LoadLib(const char *name);
+ void CloseLib(void *handle);
+@@ -110,18 +105,10 @@ void *GetSymbol(void *handle, const char *name);
+ 
+ WCHAR *strdupW(const WCHAR *str);
+ 
+-typedef LONG pthread_once_t;
+-#define PTHREAD_ONCE_INIT 0
+-void pthread_once(pthread_once_t *once, void (*callback)(void));
+-
+-static inline int sched_yield(void)
+-{ SwitchToThread(); return 0; }
+-
+ #else
+ 
+ #include <unistd.h>
+ #include <assert.h>
+-#include <pthread.h>
+ #include <sys/time.h>
+ #include <time.h>
+ #include <errno.h>
+-- 
+1.8.3.4
+

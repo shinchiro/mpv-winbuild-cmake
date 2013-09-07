@@ -1,0 +1,13 @@
+ExternalProject_Add(gettext
+    DEPENDS libiconv
+    GIT_REPOSITORY "git://git.sv.gnu.org/gettext.git"
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+        --host=${TARGET_ARCH}
+        --prefix=${MINGW_INSTALL_PREFIX}
+        --disable-shared
+        --without-expat-prefix
+        --without-libxml2-prefix
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND ${MAKE} install
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)

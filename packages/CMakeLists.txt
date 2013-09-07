@@ -1,0 +1,52 @@
+foreach(package
+    winpthreads
+    zlib
+    bzip2
+    libjpeg
+    lame
+    ogg
+    vorbis
+    theora
+    opus
+    speex
+    wavpack
+    libmodplug
+    libvpx
+    xvidcore
+    opencore-amr
+    fdk-aac
+    game-music-emu
+    libgpg_error
+    libgcrypt
+    openssl
+    libpng
+    libxml2
+    x264
+    libdvdcss
+    libdvdread
+    libdvdnav
+    libcurl
+    lua
+    libquvi_scripts
+    libquvi
+    openal-soft
+    portaudio
+    fribidi
+    expat
+    freetype2
+    libbluray
+    fontconfig
+    libsdl
+    libsdl2
+    libiconv
+    enca
+    gettext
+    glib
+    harfbuzz
+    libass
+    ffmpeg
+    mpv
+)
+    include(${package}.cmake)
+    message(STATUS "Parsing package ${package}")
+endforeach()

@@ -1,0 +1,54 @@
+This file is part of MXE.
+See index.html for further information.
+
+diff -uNr bzip2-1.0.6.orig/bzip2.c bzip2-1.0.6/bzip2.c
+--- bzip2-1.0.6.orig/bzip2.c	2010-09-11 01:04:53.000000000 +0200
++++ bzip2-1.0.6/bzip2.c	2013-01-30 16:24:00.170396872 +0100
+@@ -128,7 +128,7 @@
+ #if BZ_LCCWIN32
+ #   include <io.h>
+ #   include <fcntl.h>
+-#   include <sys\stat.h>
++#   include <sys/stat.h>
+ 
+ #   define NORETURN       /**/
+ #   define PATH_SEP       '\\'
+diff -uNr bzip2-1.0.6.orig/bzlib.h bzip2-1.0.6/bzlib.h
+--- bzip2-1.0.6.orig/bzlib.h	2010-09-11 01:08:42.000000000 +0200
++++ bzip2-1.0.6/bzlib.h	2013-01-30 16:22:10.514401460 +0100
+@@ -75,7 +75,7 @@
+ #include <stdio.h>
+ #endif
+ 
+-#ifdef _WIN32
++#if 0
+ #   include <windows.h>
+ #   ifdef small
+       /* windows.h define small to char */
+@@ -116,7 +116,7 @@
+ BZ_EXTERN int BZ_API(BZ2_bzDecompressInit) ( 
+       bz_stream *strm, 
+       int       verbosity, 
+-      int       small
++      int       small_
+    );
+ 
+ BZ_EXTERN int BZ_API(BZ2_bzDecompress) ( 
+@@ -140,7 +140,7 @@
+       int*  bzerror,   
+       FILE* f, 
+       int   verbosity, 
+-      int   small,
++      int   small_,
+       void* unused,    
+       int   nUnused 
+    );
+@@ -216,7 +216,7 @@
+       unsigned int* destLen,
+       char*         source, 
+       unsigned int  sourceLen,
+-      int           small, 
++      int           small_, 
+       int           verbosity 
+    );
+ 
