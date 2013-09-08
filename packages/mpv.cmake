@@ -1,5 +1,15 @@
 ExternalProject_Add(mpv
-    DEPENDS winpthreads ffmpeg fribidi libass libdvdnav openal-soft libpng libjpeg libquvi libiconv portaudio
+    DEPENDS
+        ffmpeg
+        fribidi
+        libass
+        libiconv
+        libjpeg
+        libpng
+        libquvi
+        openal-soft
+        portaudio
+        winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     #GIT_TAG lua_experiment
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
