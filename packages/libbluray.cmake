@@ -1,7 +1,7 @@
 ExternalProject_Add(libbluray
     DEPENDS libxml2 freetype2
     GIT_REPOSITORY "git://git.videolan.org/libbluray.git"
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libbluray-*.patch
+    #PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libbluray-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
