@@ -52,7 +52,7 @@ ExternalProject_Add_Step(mpv copy-font-stuff
     DEPENDEES build
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/DroidSansFallbackFull.ttf ${CMAKE_CURRENT_BINARY_DIR}/fonts/DroidSansFallbackFull.ttf
     COMMENT "Copying font stuff"
@@ -61,7 +61,7 @@ ExternalProject_Add_Step(mpv copy-font-stuff
 ExternalProject_Add_Step(mpv pack-binary
     DEPENDEES copy-binary copy-libquvi-scripts copy-font-stuff
     COMMAND ${CMAKE_COMMAND} -E remove ../mpv-${TARGET_CPU}-${BUILDDATE}.7z
-    COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe libquvi-scripts mpv fonts
+    COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe libquvi-scripts fonts fonts.conf
     COMMENT "Packing mpv binary"
 )
 
