@@ -1,5 +1,6 @@
 ExternalProject_Add(mpv
     DEPENDS
+        enca
         ffmpeg
         fribidi
         libass
