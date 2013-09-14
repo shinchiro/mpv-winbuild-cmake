@@ -1,0 +1,39 @@
+From afe17e8cfb7034cf6d5172c4e6587d5c69a5f5f4 Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sat, 14 Sep 2013 03:06:08 +0200
+Subject: [PATCH] Fix install rules
+
+---
+ Makefile.am     | 2 +-
+ src/Makefile.am | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index c9f203a..b460f0e 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -55,7 +55,7 @@ install-data-hook:
+ 	cd $(DESTDIR)$(man1dir); \
+ 	inst1=`echo enca | sed '$(transform)'`.1; \
+ 	inst2=`echo enconv | sed '$(transform)'`.1; \
+-	$(LN_S) $$inst1 $$inst2
++	$(LN_S) -f $$inst1 $$inst2
+ 
+ uninstall-hook:
+ 	inst=`echo enconv | sed '$(transform)'`.1; \
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 2f01a12..3885137 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -47,7 +47,7 @@ install-exec-hook:
+ 	cd $(DESTDIR)$(bindir); \
+ 	inst1=`echo enca | sed '$(transform)'`; \
+ 	inst2=`echo enconv | sed '$(transform)'`; \
+-	$(LN_S) $$inst1$(EXEEXT) $$inst2$(EXEEXT)
++	$(LN_S) -f $$inst1$(EXEEXT) $$inst2$(EXEEXT)
+ 
+ uninstall-hook:
+ 	inst=`echo enconv | sed '$(transform)'`; \
+-- 
+1.8.4
+

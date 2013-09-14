@@ -26,14 +26,3 @@ ExternalProject_Add_Step(enca fix-configure
     COMMAND chmod +x iconvcap
     WORKING_DIRECTORY <BINARY_DIR>
 )
-
-if(EXISTS ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/enca.pc)
-    ExternalProject_Add_Step(enca uninstall-previous
-        ALWAYS 1
-        DEPENDEES build
-        DEPENDERS install
-        COMMAND ${MAKE} uninstall
-        WORKING_DIRECTORY <BINARY_DIR>
-        LOG 1
-    )
-endif()
