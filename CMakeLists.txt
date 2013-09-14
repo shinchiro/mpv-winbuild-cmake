@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.11)
 include(ExternalProject)
+include(ProcessorCount)
 
 if(NOT ${CMAKE_GENERATOR} MATCHES "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
@@ -7,7 +8,12 @@ endif()
 
 set(TARGET_ARCH "x86_64-w64-mingw32" CACHE STRING "The target architecture for this toolchain.")
 string(REGEX MATCH "^[^-]+" TARGET_CPU ${TARGET_ARCH})
-set(MAKEJOBS "1" CACHE STRING "The number of parallel make jobs to use for each package.")
+
+processorcount(MAKEJOBS)
+if(MAKEJOBS EQUAL 0)
+    set(MAKEJOBS 1)
+endif()
+set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
 
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
