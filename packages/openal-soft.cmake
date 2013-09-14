@@ -12,3 +12,11 @@ ExternalProject_Add(openal-soft
     INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+ExternalProject_Add_Step(openal-soft force-update
+    DEPENDEES download
+    COMMAND git pull --rebase
+    WORKING_DIRECTORY <SOURCE_DIR>
+    ALWAYS 1
+    LOG 1
+)

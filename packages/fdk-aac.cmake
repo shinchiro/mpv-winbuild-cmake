@@ -1,6 +1,7 @@
 ExternalProject_Add(fdk-aac
     DEPENDS gcc
     GIT_REPOSITORY "git://git.code.sf.net/p/opencore-amr/fdk-aac"
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -16,5 +17,13 @@ ExternalProject_Add_Step(fdk-aac autoreconf
     DEPENDERS configure
     COMMAND ${EXEC} autoreconf -fi
     WORKING_DIRECTORY <SOURCE_DIR>
+    LOG 1
+)
+
+ExternalProject_Add_Step(fdk-aac force-update
+    DEPENDEES download
+    COMMAND git pull --rebase
+    WORKING_DIRECTORY <SOURCE_DIR>
+    ALWAYS 1
     LOG 1
 )

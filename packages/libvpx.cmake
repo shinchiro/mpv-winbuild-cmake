@@ -7,6 +7,7 @@ endif()
 ExternalProject_Add(libvpx
     DEPENDS winpthreads
     GIT_REPOSITORY "http://git.chromium.org/webm/libvpx.git"
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --target=${libvpx_target}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -18,4 +19,12 @@ ExternalProject_Add(libvpx
     INSTALL_COMMAND ${MAKE} install
         COMMAND ${EXEC} ${TARGET_ARCH}-ranlib ${MINGW_INSTALL_PREFIX}/lib/libvpx.a
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+ExternalProject_Add_Step(libvpx force-update
+    DEPENDEES download
+    COMMAND git pull --rebase
+    WORKING_DIRECTORY <SOURCE_DIR>
+    ALWAYS 1
+    LOG 1
 )

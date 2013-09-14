@@ -1,6 +1,7 @@
 ExternalProject_Add(harfbuzz
     DEPENDS freetype2 libpng
     GIT_REPOSITORY "git://anongit.freedesktop.org/harfbuzz"
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -10,6 +11,14 @@ ExternalProject_Add(harfbuzz
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+ExternalProject_Add_Step(harfbuzz force-update
+    DEPENDEES download
+    COMMAND git pull --rebase
+    WORKING_DIRECTORY <SOURCE_DIR>
+    ALWAYS 1
+    LOG 1
 )
 
 ExternalProject_Add_Step(harfbuzz autogen
