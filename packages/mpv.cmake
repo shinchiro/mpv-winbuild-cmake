@@ -70,6 +70,7 @@ ExternalProject_Add_Step(mpv pack-binary
     COMMAND ${CMAKE_COMMAND} -E remove ../mpv-${TARGET_CPU}-${BUILDDATE}.7z
     COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe libquvi-scripts fonts fonts.conf
     COMMENT "Packing mpv binary"
+    LOG 1
 )
 
 ExternalProject_Add_Step(mpv download-font
@@ -77,4 +78,5 @@ ExternalProject_Add_Step(mpv download-font
     DEPENDERS pack-binary
     COMMAND wget "https://github.com/android/platform_frameworks_base/raw/master/data/fonts/DroidSansFallbackFull.ttf"
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/fonts
+    LOG 1
 )
