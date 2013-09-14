@@ -28,7 +28,6 @@ ExternalProject_Add(mpv
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-file(DOWNLOAD "https://github.com/android/platform_frameworks_base/raw/master/data/fonts/DroidSansFallbackFull.ttf" ${CMAKE_CURRENT_BINARY_DIR}/DroidSansFallbackFull.ttf SHOW_PROGRESS)
 
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build
@@ -55,7 +54,6 @@ ExternalProject_Add_Step(mpv copy-font-stuff
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv ${CMAKE_CURRENT_BINARY_DIR}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/DroidSansFallbackFull.ttf ${CMAKE_CURRENT_BINARY_DIR}/fonts/DroidSansFallbackFull.ttf
     COMMENT "Copying font stuff"
 )
 
@@ -66,3 +64,9 @@ ExternalProject_Add_Step(mpv pack-binary
     COMMENT "Packing mpv binary"
 )
 
+ExternalProject_Add_Step(mpv download-font
+    DEPENDEES copy-font-stuff
+    DEPENDERS pack-binary
+    COMMAND wget "https://github.com/android/platform_frameworks_base/raw/master/data/fonts/DroidSansFallbackFull.ttf"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/fonts
+)
