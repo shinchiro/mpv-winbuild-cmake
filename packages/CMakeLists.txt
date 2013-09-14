@@ -40,8 +40,6 @@ foreach(package
     libsdl2
     libiconv
     enca
-    gettext
-    glib
     harfbuzz
     libass
     ffmpeg
