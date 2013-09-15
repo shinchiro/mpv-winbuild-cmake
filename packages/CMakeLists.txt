@@ -12,7 +12,7 @@ endfunction()
 
 function(force_rebuild_git _name)
     ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download
+        DEPENDEES download patch
         COMMAND git reset --hard
         COMMAND git pull --rebase
         WORKING_DIRECTORY <SOURCE_DIR>
@@ -25,7 +25,7 @@ endfunction()
 
 function(force_rebuild_svn _name)
     ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download
+        DEPENDEES download patch
         COMMAND svn up
         WORKING_DIRECTORY <SOURCE_DIR>
         ALWAYS 1
