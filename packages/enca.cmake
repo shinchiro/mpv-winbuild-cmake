@@ -12,22 +12,8 @@ ExternalProject_Add(enca
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(enca force-update
-    DEPENDEES download
-    COMMAND git reset --hard
-    COMMAND git pull --rebase
-    WORKING_DIRECTORY <SOURCE_DIR>
-    ALWAYS 1
-    LOG 1
-)
-
-ExternalProject_Add_Step(enca autoreconf
-    DEPENDEES download update patch
-    DEPENDERS configure
-    COMMAND ${EXEC} autoreconf -fi
-    WORKING_DIRECTORY <SOURCE_DIR>
-    LOG 1
-)
+force_rebuild_git(enca)
+autoreconf(enca)
 
 ExternalProject_Add_Step(enca fix-configure
     DEPENDEES patch

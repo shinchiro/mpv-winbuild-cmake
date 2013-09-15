@@ -1,6 +1,7 @@
 ExternalProject_Add(portaudio
     DEPENDS gcc
     SVN_REPOSITORY "https://subversion.assembla.com/svn/portaudio/portaudio/trunk/"
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -10,3 +11,5 @@ ExternalProject_Add(portaudio
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
     BUILD_IN_SOURCE 1
 )
+
+force_rebuild_svn(portaudio)

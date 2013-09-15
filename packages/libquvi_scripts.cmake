@@ -15,10 +15,4 @@ ExternalProject_Add(libquvi_scripts
     BUILD_IN_SOURCE 1
 )
 
-ExternalProject_Add_Step(libquvi_scripts autogen
-    DEPENDEES download update
-    DEPENDERS configure
-    COMMAND ${EXEC} ./autogen.sh -V
-    WORKING_DIRECTORY <SOURCE_DIR>
-    LOG 1
-)
+autogen(libquvi_scripts)

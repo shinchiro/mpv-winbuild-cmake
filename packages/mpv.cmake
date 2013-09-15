@@ -29,13 +29,7 @@ ExternalProject_Add(mpv
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(mpv force-update
-    DEPENDEES download
-    COMMAND git pull --rebase
-    WORKING_DIRECTORY <SOURCE_DIR>
-    ALWAYS 1
-    LOG 1
-)
+force_rebuild_git(mpv)
 
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build

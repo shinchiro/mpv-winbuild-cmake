@@ -12,18 +12,5 @@ ExternalProject_Add(theora
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(theora force-update
-    DEPENDEES download
-    COMMAND git pull --rebase
-    WORKING_DIRECTORY <SOURCE_DIR>
-    ALWAYS 1
-    LOG 1
-)
-
-ExternalProject_Add_Step(theora autogen
-    DEPENDEES download update
-    DEPENDERS configure
-    COMMAND ${EXEC} ./autogen.sh -V
-    WORKING_DIRECTORY <SOURCE_DIR>
-    LOG 1
-)
+force_rebuild_git(theora)
+autogen(theora)
