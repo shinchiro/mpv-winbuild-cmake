@@ -29,7 +29,7 @@ ExternalProject_Add_Step(binutils basedirs
 
 ExternalProject_Add(mingw-w64-headers
     DEPENDS binutils
-    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-headers@6009"
+    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-headers"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
@@ -111,7 +111,7 @@ ExternalProject_Add(gcc-base
 
 ExternalProject_Add(mingw-w64-crt
     DEPENDS gcc-base
-    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-crt@6009"
+    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-crt"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
