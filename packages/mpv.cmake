@@ -22,7 +22,6 @@ ExternalProject_Add(mpv
         --enable-cross-compile
         --enable-static
         --enable-openal
-        --disable-sdl2
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE 1

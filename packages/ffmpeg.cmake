@@ -8,7 +8,6 @@ ExternalProject_Add(ffmpeg
         libbluray
         libmodplug
         libpng
-        libsdl
         libvpx
         opencore-amr
         openssl

@@ -93,8 +93,6 @@ foreach(package
     freetype2
     libbluray
     fontconfig
-    libsdl
-    libsdl2
     libiconv
     enca
     harfbuzz
