@@ -1,7 +1,7 @@
-From a8bc2a52b2b74d5c6d1fbfc9228c671a751381f9 Mon Sep 17 00:00:00 2001
+From e7d075f88428ef74baaae1720a107230db4b6e4e Mon Sep 17 00:00:00 2001
 From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Sat, 7 Sep 2013 14:38:49 +0200
-Subject: [PATCH 2/2] Fix mktemp_s
+Date: Sat, 2 Nov 2013 01:16:25 +0100
+Subject: [PATCH] Fix mktemp_s
 
 ---
  configure.ac   | 2 +-
@@ -9,23 +9,23 @@ Subject: [PATCH 2/2] Fix mktemp_s
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 952e737..5cb96d7 100644
+index 4478914..44ab993 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -148,7 +148,7 @@ AC_TYPE_PID_T
  # Checks for library functions.
  AC_FUNC_VPRINTF
  AC_FUNC_MMAP
--AC_CHECK_FUNCS([link mkstemp mkostemp _mktemp_s getopt getopt_long getprogname getexecname rand random lrand48 random_r rand_r regcomp regerror regexec regfree fstatvfs fstatfs lstat])
-+AC_CHECK_FUNCS([link mkstemp mkostemp _mktemp getopt getopt_long getprogname getexecname rand random lrand48 random_r rand_r regcomp regerror regexec regfree fstatvfs fstatfs lstat])
+-AC_CHECK_FUNCS([link mkstemp mkostemp _mktemp_s mkdtemp getopt getopt_long getprogname getexecname rand random lrand48 random_r rand_r regcomp regerror regexec regfree fstatvfs fstatfs lstat])
++AC_CHECK_FUNCS([link mkstemp mkostemp _mktemp mkdtemp getopt getopt_long getprogname getexecname rand random lrand48 random_r rand_r regcomp regerror regexec regfree fstatvfs fstatfs lstat])
  
  dnl AC_CHECK_FUNCS doesn't check for header files.
  dnl posix_fadvise() may be not available in older libc.
 diff --git a/src/fccompat.c b/src/fccompat.c
-index d4f88c8..8761b8b 100644
+index 1c2ba8b..1a42c91 100644
 --- a/src/fccompat.c
 +++ b/src/fccompat.c
-@@ -156,8 +156,8 @@ FcMakeTempfile (char *template)
+@@ -152,8 +152,8 @@ FcMakeTempfile (char *template)
  	fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
      }
  #  endif
@@ -37,5 +37,5 @@ index d4f88c8..8761b8b 100644
     fd = FcOpen(template, O_RDWR | O_EXCL | O_CREAT, 0600);
  #endif
 -- 
-1.8.3.4
+1.8.0.1
 
