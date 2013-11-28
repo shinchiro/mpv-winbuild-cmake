@@ -57,6 +57,7 @@ endfunction()
 
 foreach(package
     winpthreads
+#    pthreads-w32
     zlib
     bzip2
     libjpeg
