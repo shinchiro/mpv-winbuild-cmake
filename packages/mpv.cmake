@@ -12,17 +12,17 @@ ExternalProject_Add(mpv
         portaudio
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
-    #GIT_TAG lua_experiment
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
-        --target=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --windres=${TARGET_ARCH}-windres
-        "--pkg-config='pkg-config --static'"
-        --enable-cross-compile
-        --enable-static
+    CONFIGURE_COMMAND ${EXEC}
+        PKG_CONFIG=pkg-config
+        TARGET=${TARGET_ARCH}
+        DEST_OS=win32
+        <SOURCE_DIR>/waf configure
+        --enable-static-build
         --enable-openal
-    BUILD_COMMAND ${MAKE}
+        --enable-pdf-build
+        --prefix=${MINGW_INSTALL_PREFIX}
+    BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
@@ -30,15 +30,23 @@ ExternalProject_Add(mpv
 
 force_rebuild_git(mpv)
 
+ExternalProject_Add_Step(mpv bootstrap
+    DEPENDEES download
+    DEPENDERS configure
+    COMMAND <SOURCE_DIR>/bootstrap.py
+    WORKING_DIRECTORY <SOURCE_DIR>
+    LOG 1
+)
+
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build
-    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/mpv.exe
+    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.exe
     COMMENT "Stripping mpv binary"
 )
 
 ExternalProject_Add_Step(mpv copy-binary
     DEPENDEES strip-binary
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv.exe
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv.exe
     COMMENT "Copying mpv binary"
 )
 
