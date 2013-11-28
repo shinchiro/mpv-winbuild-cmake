@@ -24,8 +24,8 @@ includedir=${prefix}/include
 Name: Lua
 Description: An Extensible Extension Language
 Version: 5.1.5
-Requires: 
-Libs: -llua -lm
+Requires:
+Libs: -llua -liconv -lm
 Cflags: -I${includedir}
 
 # (end of lua.pc)

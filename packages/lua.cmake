@@ -1,7 +1,9 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lua.pc.in ${CMAKE_CURRENT_BINARY_DIR}/lua.pc @ONLY)
 
 ExternalProject_Add(lua
-    DEPENDS gcc
+    DEPENDS
+        gcc
+        libiconv
     URL "http://www.lua.org/ftp/lua-5.1.5.tar.gz"
     URL_MD5 2e115fe26e435e33b0d5c022e4490567
     CONFIGURE_COMMAND ""

@@ -29,5 +29,9 @@ execute_process(COMMAND date --rfc-3339=date
 )
 string(REGEX REPLACE "-" "" BUILDDATE ${RFCDATE})
 
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/publish.in ${CMAKE_CURRENT_BINARY_DIR}/publish)
+endif()
+
 add_subdirectory(toolchain)
 add_subdirectory(packages)
