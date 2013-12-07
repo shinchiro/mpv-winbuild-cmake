@@ -2,7 +2,9 @@ ExternalProject_Add(speex
     DEPENDS ogg
     GIT_REPOSITORY "http://git.xiph.org/speex.git"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC}
+        LIBS=-lwinmm 
+        <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
