@@ -84,6 +84,7 @@ foreach(package
     libdvdread
     libdvdnav
     libcurl
+    libiconv
     lua
     libquvi_scripts
     libquvi
@@ -94,7 +95,6 @@ foreach(package
     freetype2
     libbluray
     fontconfig
-    libiconv
     enca
     harfbuzz
     libass
