@@ -3,6 +3,7 @@ ExternalProject_Add(mpv
         enca
         ffmpeg
         fribidi
+        lcms2
         libass
         libiconv
         libjpeg

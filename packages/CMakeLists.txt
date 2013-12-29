@@ -61,6 +61,7 @@ foreach(package
     zlib
     bzip2
     libjpeg
+    lcms2
     lame
     ogg
     vorbis
