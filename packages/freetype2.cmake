@@ -5,6 +5,7 @@ ExternalProject_Add(freetype2
     GIT_REPOSITORY "git://git.sv.gnu.org/freetype/freetype2.git"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ft2exec <SOURCE_DIR>/configure
+        --build=${HOST_ARCH}
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared

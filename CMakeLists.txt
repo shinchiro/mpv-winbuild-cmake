@@ -9,6 +9,9 @@ endif()
 set(TARGET_ARCH "x86_64-w64-mingw32" CACHE STRING "The target architecture for this toolchain.")
 string(REGEX MATCH "^[^-]+" TARGET_CPU ${TARGET_ARCH})
 
+execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE HOST_ARCH)
+string(REGEX MATCH "^[^-]+" HOST_CPU ${HOST_ARCH})
+
 processorcount(MAKEJOBS)
 if(MAKEJOBS EQUAL 0)
     set(MAKEJOBS 1)

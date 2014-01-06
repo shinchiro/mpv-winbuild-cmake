@@ -4,6 +4,7 @@ ExternalProject_Add(fontconfig
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/fontconfig-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+        --build=${HOST_ARCH}
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-arch=${TARGET_ARCH}
