@@ -42,13 +42,15 @@ ExternalProject_Add_Step(mpv bootstrap
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.exe
-    COMMENT "Stripping mpv binary"
+    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.com
+    COMMENT "Stripping mpv binaries"
 )
 
 ExternalProject_Add_Step(mpv copy-binary
     DEPENDEES strip-binary
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv.exe
-    COMMENT "Copying mpv binary"
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv.com
+    COMMENT "Copying mpv binaries"
 )
 
 ExternalProject_Add_Step(mpv copy-libquvi-scripts
@@ -70,7 +72,7 @@ ExternalProject_Add_Step(mpv copy-font-stuff
 ExternalProject_Add_Step(mpv pack-binary
     DEPENDEES copy-binary copy-libquvi-scripts copy-font-stuff
     COMMAND ${CMAKE_COMMAND} -E remove ../mpv-${TARGET_CPU}-${BUILDDATE}.7z
-    COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe libquvi-scripts mpv fonts
+    COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe mpv.com libquvi-scripts mpv fonts
     COMMENT "Packing mpv binary"
     LOG 1
 )
