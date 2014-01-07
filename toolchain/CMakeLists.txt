@@ -78,8 +78,8 @@ ExternalProject_Add(gcc-base
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
     DEPENDS mingw-w64-headers # gcc-mpfr gcc-mpc gcc-gmp
-    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-4.8.1/gcc-4.8.1.tar.bz2"
-    URL_MD5 3b2386c114cd74185aa3754b58a79304
+    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-4.8.2/gcc-4.8.2.tar.bz2"
+    URL_MD5 a3d7d63b9cb6b6ea049469a0c4a43c9d
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
