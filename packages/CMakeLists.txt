@@ -87,6 +87,7 @@ foreach(package
     libcurl
     libiconv
     lua
+    luajit
     libquvi_scripts
     libquvi
     openal-soft

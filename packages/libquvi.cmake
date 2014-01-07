@@ -1,5 +1,5 @@
 ExternalProject_Add(libquvi
-    DEPENDS lua libquvi_scripts libcurl
+    DEPENDS luajit libquvi_scripts libcurl
     GIT_REPOSITORY "git://github.com/lachs0r/libquvi.git"
     #GIT_REPOSITORY "git://repo.or.cz/libquvi.git"
     UPDATE_COMMAND ""

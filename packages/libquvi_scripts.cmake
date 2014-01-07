@@ -1,5 +1,5 @@
 ExternalProject_Add(libquvi_scripts
-    DEPENDS lua
+    DEPENDS luajit
     GIT_REPOSITORY "git://repo.or.cz/libquvi-scripts.git"
     GIT_TAG v0.4.18
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
