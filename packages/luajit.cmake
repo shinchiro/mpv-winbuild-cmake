@@ -6,8 +6,10 @@ else()
     set(LUAJIT_HOST_GCC gcc)
 endif()
 
-if(${TARGET_ARCH} MATCHES "^i686-.*")
+if(${TARGET_CPU} MATCHES "i686")
     set(LUAJIT_GCC_ARGS "-m32")
+else()
+    set(LUAJIT_GCC_ARGS "-m64")
 endif()
 
 # luajit ships with a broken pkg-config file
