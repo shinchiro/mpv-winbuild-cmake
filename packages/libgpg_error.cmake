@@ -2,6 +2,7 @@ ExternalProject_Add(libgpg_error
     DEPENDS gcc
     URL "ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-1.12.tar.bz2"
     URL_MD5 8f0eb41a344d19ac2aa9bd101dfb9ce6
+    PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/libgpg_error-0001-Fix-potomo-hang-on-Cygwin.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
