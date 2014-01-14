@@ -1,7 +1,7 @@
 ExternalProject_Add(libquvi_scripts
     DEPENDS luajit
     GIT_REPOSITORY "git://repo.or.cz/libquvi-scripts.git"
-    GIT_TAG v0.4.18
+    GIT_TAG v0.4.21
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
