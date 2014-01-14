@@ -1,6 +1,6 @@
 ExternalProject_Add(libass
     DEPENDS harfbuzz freetype2 fontconfig fribidi enca
-    GIT_REPOSITORY "https://code.google.com/p/libass/"
+    GIT_REPOSITORY "https://github.com/libass/libass.git"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
