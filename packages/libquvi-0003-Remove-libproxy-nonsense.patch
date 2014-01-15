@@ -1,0 +1,134 @@
+From a4ff1ad84ee29680df5509d1eb8a258744c808c8 Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Wed, 15 Jan 2014 13:04:33 +0100
+Subject: [PATCH 3/6] Remove libproxy nonsense
+
+---
+ configure.ac         |  1 -
+ src/api/Makefile.am  |  2 --
+ src/api/free.c       |  2 --
+ src/api/new.c        |  7 -------
+ src/curl/autoproxy.c | 23 +----------------------
+ 5 files changed, 1 insertion(+), 34 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 337789a..1ffa838 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -90,7 +90,6 @@ PKG_CHECK_MODULES([liblua], [luajit >= 2.0], [], [
+     ])
+   ])
+ ])
+-PKG_CHECK_MODULES([libproxy], [libproxy-1.0 >= 0.3.1])
+ PKG_CHECK_MODULES([libcurl], [libcurl >= 7.21])
+ PKG_CHECK_MODULES([glib], [glib-2.0 >= 2.24])
+ AM_PATH_LIBGCRYPT
+diff --git a/src/api/Makefile.am b/src/api/Makefile.am
+index d4d6f09..9c2f90a 100644
+--- a/src/api/Makefile.am
++++ b/src/api/Makefile.am
+@@ -73,7 +73,6 @@ libconvenience_api_la_CPPFLAGS=\
+   -DLOCALEDIR=\""$(localedir)"\"\
+   -I$(top_srcdir)/src/quvi-0.9/\
+   -I$(top_srcdir)/src/\
+-  $(libproxy_CFLAGS)\
+   $(liblua_CFLAGS)\
+   $(glib_CFLAGS)\
+   $(AM_CPPFLAGS)
+@@ -84,7 +83,6 @@ libconvenience_api_la_LDFLAGS=\
+   $(AM_LDFLAGS)
+ 
+ libconvenience_api_la_LIBADD=\
+-  $(libproxy_LIBS)\
+   $(liblua_LIBS)\
+   $(glib_LIBS)
+ 
+diff --git a/src/api/free.c b/src/api/free.c
+index df4af5b..4ec10fb 100644
+--- a/src/api/free.c
++++ b/src/api/free.c
+@@ -23,7 +23,6 @@
+ #include "config.h"
+ 
+ #include <lualib.h>
+-#include <proxy.h>
+ #include <glib.h>
+ 
+ #include "quvi.h"
+@@ -90,7 +89,6 @@ void quvi_free(quvi_t handle)
+ 
+   if (q->handle.proxy != NULL)
+     {
+-      px_proxy_factory_free(q->handle.proxy);
+       q->handle.proxy = NULL;
+     }
+ 
+diff --git a/src/api/new.c b/src/api/new.c
+index 54864b2..fb30c95 100644
+--- a/src/api/new.c
++++ b/src/api/new.c
+@@ -25,7 +25,6 @@
+ #include <glib/gi18n-lib.h>
+ #include <glib.h>
+ #include <string.h>
+-#include <proxy.h>
+ 
+ #include "quvi.h"
+ /* -- */
+@@ -70,12 +69,6 @@ quvi_t quvi_new()
+   if (q->status.rc == QUVI_OK)
+     q->status.rc = g_init();
+ 
+-  if (q->status.rc == QUVI_OK)
+-    {
+-      q->handle.proxy = px_proxy_factory_new();
+-      if (q->handle.proxy == NULL)
+-        q->status.rc = QUVI_ERROR_PROXY_INIT;
+-    }
+   return (q);
+ }
+ 
+diff --git a/src/curl/autoproxy.c b/src/curl/autoproxy.c
+index 4044187..8be9089 100644
+--- a/src/curl/autoproxy.c
++++ b/src/curl/autoproxy.c
+@@ -21,35 +21,14 @@
+ #include "config.h"
+ 
+ #include <glib.h>
+-#include <proxy.h>
+-#include <curl/curl.h>
+ 
+ #include "quvi.h"
+ /* -- */
+ #include "_quvi_s.h"
+ 
+-static void _set_proxy(_quvi_t q, const gchar *url)
+-{
+-  pxProxyFactory *pf = (pxProxyFactory*) q->handle.proxy;
+-  gchar **r = px_proxy_factory_get_proxies(pf, (gchar*) url);
+-  if (r != NULL)
+-    {
+-      gint i = 0;
+-
+-      for (; r[i] != NULL; ++i)
+-        curl_easy_setopt(q->handle.curl, CURLOPT_PROXY, r[i]);
+-
+-      g_strfreev(r);
+-      r = NULL;
+-    }
+-}
+-
+ void c_autoproxy(_quvi_t q, const gchar *url)
+ {
+-  if (q->opt.autoproxy != QUVI_TRUE || q->handle.proxy == NULL)
+-    return;
+-
+-  _set_proxy(q, url);
++  return;
+ }
+ 
+ /* vim: set ts=2 sw=2 tw=72 expandtab: */
+-- 
+1.8.5
+

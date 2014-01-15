@@ -1,0 +1,33 @@
+From c9c8d0f2da0eebb018551e1cc0cee0e1457b5b4a Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Tue, 14 Jan 2014 16:21:36 +0100
+Subject: [PATCH 1/6] configure: check for luajit
+
+---
+ configure.ac | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index ac84b29..bb82d53 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -82,10 +82,12 @@ AM_CONDITIONAL([HAVE_VALGRIND], [test x"$VALGRIND" != "xno"])
+ AC_SUBST([VALGRIND])
+ 
+ # Checks for libraries.
+-PKG_CHECK_MODULES([liblua], [lua >= 5.1], [], [
+-  PKG_CHECK_MODULES([liblua], [lua51 >= 5.1], [], [
+-    PKG_CHECK_MODULES([liblua], [lua5.1 >= 5.1], [], [
+-      PKG_CHECK_MODULES(liblua, [lua-5.1 >= 5.1])])
++PKG_CHECK_MODULES([liblua], [luajit >= 2.0], [], [
++  PKG_CHECK_MODULES([liblua], [lua >= 5.1], [], [
++    PKG_CHECK_MODULES([liblua], [lua51 >= 5.1], [], [
++      PKG_CHECK_MODULES([liblua], [lua5.1 >= 5.1], [], [
++        PKG_CHECK_MODULES(liblua, [lua-5.1 >= 5.1])])
++    ])
+   ])
+ ])
+ PKG_CHECK_MODULES([libproxy], [libproxy-1.0 >= 0.3.1])
+-- 
+1.8.5
+

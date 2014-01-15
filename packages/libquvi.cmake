@@ -1,17 +1,22 @@
 ExternalProject_Add(libquvi
-    DEPENDS luajit libquvi_scripts libcurl
-    GIT_REPOSITORY "git://github.com/lachs0r/libquvi.git"
-    #GIT_REPOSITORY "git://repo.or.cz/libquvi.git"
+    DEPENDS luajit libquvi_scripts libcurl glib luasocket luaexpat
+    GIT_REPOSITORY "git://repo.or.cz/libquvi.git"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libquvi-*.patch
+    CONFIGURE_COMMAND ${EXEC}
+        CFLAGS=-DCURL_STATICLIB
+        <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
+        --enable-static
         --with-scriptsdir=libquvi-scripts
+        --without-manual
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+    BUILD_IN_SOURCE 1
 )
 
 force_rebuild_git(libquvi)
-autogen(libquvi)
+autoreconf(libquvi)
