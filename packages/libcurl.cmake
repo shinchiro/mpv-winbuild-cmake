@@ -1,8 +1,7 @@
 ExternalProject_Add(libcurl
     DEPENDS gcc
-    URL "http://curl.haxx.se/download/curl-7.32.0.tar.bz2"
-    URL_MD5 30d04b0a8c43c6770039d1bf033dfe79
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/curl-1-fix-static.patch
+    URL "http://curl.haxx.se/download/curl-7.34.0.tar.bz2"
+    URL_MD5 88491df2bb32e9146e776ae6ac2f8327
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
