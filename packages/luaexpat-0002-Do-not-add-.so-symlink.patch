@@ -1,0 +1,24 @@
+From 9ff2320fc36ae48af494c38f99f825a313b7e110 Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Wed, 15 Jan 2014 17:38:14 +0100
+Subject: [PATCH 2/2] Do not add .so symlink
+
+---
+ makefile | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/makefile b/makefile
+index e84dc5a..07fbdd0 100644
+--- a/makefile
++++ b/makefile
+@@ -20,7 +20,6 @@ $(COMPAT_DIR)/compat-5.1.o: $(COMPAT_DIR)/compat-5.1.c
+ install:
+ 	mkdir -p $(LUA_LIBDIR)
+ 	cp src/$(LIBNAME) $(LUA_LIBDIR)
+-	cd $(LUA_LIBDIR); ln -f -s $(LIBNAME) $T.so
+ 	mkdir -p $(LUA_DIR)/$T
+ 	cp src/$T/lom.lua $(LUA_DIR)/$T
+ 
+-- 
+1.8.5
+

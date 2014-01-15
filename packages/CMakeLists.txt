@@ -89,6 +89,7 @@ foreach(package
     lua
     luajit
     luasocket
+    luaexpat
     openal-soft
     portaudio
     fribidi

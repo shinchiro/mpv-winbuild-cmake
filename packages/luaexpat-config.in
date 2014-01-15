@@ -1,0 +1,25 @@
+LUA_LIBDIR=@MINGW_INSTALL_PREFIX@/lua/5.1
+LUA_DIR=$(LUA_LIBDIR)/lua
+LUA_INC=@MINGW_INSTALL_PREFIX@/include/luajit-2.0
+EXPAT_INC=@MINGW_INSTALL_PREFIX@/include
+
+LIBS=-lluajit-5.1
+LIB_OPTION= -shared
+LIBNAME= $T.dll
+
+LUA_VERSION_NUM= 501
+COMPAT_DIR= ../compat/src
+
+CWARNS = -Wall -pedantic \
+        -Waggregate-return \
+        -Wcast-align \
+        -Wmissing-prototypes \
+        -Wstrict-prototypes \
+        -Wnested-externs \
+        -Wpointer-arith \
+        -Wshadow \
+        -Wwrite-strings
+
+CFLAGS = $(CWARNS) -ansi -O2 -I$(LUA_INC) \
+   -I$(COMPAT_DIR) -I$(EXPAT_INC)
+CC = @TARGET_ARCH@-gcc
