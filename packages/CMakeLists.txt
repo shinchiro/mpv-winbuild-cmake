@@ -37,7 +37,7 @@ endfunction()
 
 function(autogen _name)
     ExternalProject_Add_Step(${_name} autogen
-        DEPENDEES download update
+        DEPENDEES download update patch
         DEPENDERS configure
         COMMAND ${EXEC} ./autogen.sh -V
         WORKING_DIRECTORY <SOURCE_DIR>
