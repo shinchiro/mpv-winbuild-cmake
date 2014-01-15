@@ -1,0 +1,24 @@
+From e0bd024786a4bb0149a91b5119c7eeddf77c0069 Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Wed, 15 Jan 2014 15:14:57 +0100
+Subject: [PATCH 8/8] Always use -lintl
+
+---
+ configure.ac | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configure.ac b/configure.ac
+index 101c970..e60c27f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -455,6 +455,7 @@ if test "$gt_cv_have_gettext" != "yes" ; then
+ ])
+ fi
+ 
++INTLLIBS="-lintl $INTLLIBS"
+ LIBS="$INTLLIBS $LIBS"
+ 
+ GETTEXT_PACKAGE=glib20
+-- 
+1.8.5
+

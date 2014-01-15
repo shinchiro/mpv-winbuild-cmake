@@ -1,0 +1,29 @@
+From b16cab2ca15c96caf88ae14889eacdca83ccdc89 Mon Sep 17 00:00:00 2001
+From: MXE <mxe@mxe.cc>
+Date: Thu, 23 Sep 2010 21:42:46 +0200
+Subject: [PATCH 2/8] fix tool paths
+
+---
+ glib-2.0.pc.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/glib-2.0.pc.in b/glib-2.0.pc.in
+index 4a8898e..5164bae 100644
+--- a/glib-2.0.pc.in
++++ b/glib-2.0.pc.in
+@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
+ libdir=@libdir@
+ includedir=@includedir@
+ 
+-glib_genmarshal=glib-genmarshal
+-gobject_query=gobject-query
+-glib_mkenums=glib-mkenums
++glib_genmarshal=@bindir@/glib-genmarshal
++gobject_query=@bindir@/gobject-query
++glib_mkenums=@bindir@/glib-mkenums
+ 
+ Name: GLib
+ Description: C Utility Library
+-- 
+1.8.5
+

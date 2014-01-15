@@ -1,0 +1,64 @@
+From 5df3bab4c353aced4cad8941d0c8a4e41869dd14 Mon Sep 17 00:00:00 2001
+From: MXE <mxe@mxe.cc>
+Date: Fri, 15 Jun 2012 15:25:01 +0200
+Subject: [PATCH 3/8] Avoid DllMain symbol conflict when linking statically
+
+---
+ gio/giomodule.c  | 8 ++------
+ glib/glib-init.c | 4 ++--
+ 2 files changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/gio/giomodule.c b/gio/giomodule.c
+index 2498659..e4f2862 100644
+--- a/gio/giomodule.c
++++ b/gio/giomodule.c
+@@ -906,14 +906,12 @@ extern GType g_gtk_notification_backend_get_type (void);
+ 
+ static HMODULE gio_dll = NULL;
+ 
+-#ifdef DLL_EXPORT
+-
+-BOOL WINAPI DllMain (HINSTANCE hinstDLL,
++BOOL WINAPI gio_DllMain (HINSTANCE hinstDLL,
+                      DWORD     fdwReason,
+                      LPVOID    lpvReserved);
+ 
+ BOOL WINAPI
+-DllMain (HINSTANCE hinstDLL,
++gio_DllMain (HINSTANCE hinstDLL,
+ 	 DWORD     fdwReason,
+ 	 LPVOID    lpvReserved)
+ {
+@@ -923,8 +921,6 @@ DllMain (HINSTANCE hinstDLL,
+   return TRUE;
+ }
+ 
+-#endif
+-
+ void *
+ _g_io_win32_get_module (void)
+ {
+diff --git a/glib/glib-init.c b/glib/glib-init.c
+index ceb9395..951e762 100644
+--- a/glib/glib-init.c
++++ b/glib/glib-init.c
+@@ -224,14 +224,14 @@ glib_init (void)
+ 
+ #if defined (G_OS_WIN32)
+ 
+-BOOL WINAPI DllMain (HINSTANCE hinstDLL,
++BOOL WINAPI glib_DllMain (HINSTANCE hinstDLL,
+                      DWORD     fdwReason,
+                      LPVOID    lpvReserved);
+ 
+ HMODULE glib_dll;
+ 
+ BOOL WINAPI
+-DllMain (HINSTANCE hinstDLL,
++glib_DllMain (HINSTANCE hinstDLL,
+          DWORD     fdwReason,
+          LPVOID    lpvReserved)
+ {
+-- 
+1.8.5
+

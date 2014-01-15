@@ -1,0 +1,37 @@
+From da3fb100dc7f6873592aad27e388f285ded4c5d3 Mon Sep 17 00:00:00 2001
+From: MXE <mxe@mxe.cc>
+Date: Fri, 15 Jun 2012 15:27:22 +0200
+Subject: [PATCH 4/8] Allow building without inotify support
+
+---
+ configure.ac | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 0d43ca4..1f947b1 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1663,11 +1663,17 @@ dnl *****************************
+ dnl ** Check for inotify (GIO) **
+ dnl *****************************
+ inotify_support=no
+-AC_CHECK_HEADERS([sys/inotify.h],
+-[
++AC_ARG_ENABLE(inotify,
++              AC_HELP_STRING([--disable-inotify],
++                             [build without inotify support]))
++
++if test "x$enable_inotify" != "xno"; then
++  AC_CHECK_HEADERS([sys/inotify.h],
++  [
+ 	inotify_support=yes
+ 	AC_CHECK_FUNCS(inotify_init1)
+-])
++  ])
++fi
+ 
+ AM_CONDITIONAL(HAVE_INOTIFY, [test "$inotify_support" = "yes"])
+ 
+-- 
+1.8.5
+

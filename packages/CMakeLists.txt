@@ -88,8 +88,6 @@ foreach(package
     libiconv
     lua
     luajit
-    libquvi_scripts
-    libquvi
     openal-soft
     portaudio
     fribidi
@@ -101,6 +99,9 @@ foreach(package
     gettext
     libffi
     pcre
+    glib
+    libquvi_scripts
+    libquvi
     harfbuzz
     libass
     ffmpeg
