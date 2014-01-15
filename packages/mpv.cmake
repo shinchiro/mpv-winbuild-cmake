@@ -46,33 +46,43 @@ ExternalProject_Add_Step(mpv strip-binary
     COMMENT "Stripping mpv binaries"
 )
 
+ExternalProject_Add_Step(mpv clean-package-dir
+    DEPENDEES build
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
+)
+
 ExternalProject_Add_Step(mpv copy-binary
-    DEPENDEES strip-binary
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv.exe
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv.com
+    DEPENDEES strip-binary clean-package-dir
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
     COMMENT "Copying mpv binaries"
 )
 
+ExternalProject_Add_Step(mpv copy-lua-modules
+    DEPENDEES clean-package-dir
+    COMMAND ${EXEC} cp -r ${MINGW_INSTALL_PREFIX}/lua/5.1/* ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
+    COMMENT "Copying Lua modules"
+)
+
 ExternalProject_Add_Step(mpv copy-libquvi-scripts
-    DEPENDEES build
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/libquvi-scripts
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MINGW_INSTALL_PREFIX}/share/libquvi-scripts ${CMAKE_CURRENT_BINARY_DIR}/libquvi-scripts
+    DEPENDEES clean-package-dir
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MINGW_INSTALL_PREFIX}/share/libquvi-scripts ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/libquvi-scripts
     COMMENT "Copying libquvi scripts"
 )
 
 ExternalProject_Add_Step(mpv copy-font-stuff
-    DEPENDEES build
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/fonts
+    DEPENDEES clean-package-dir
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/fonts
     COMMENT "Copying font stuff"
 )
 
 ExternalProject_Add_Step(mpv pack-binary
-    DEPENDEES copy-binary copy-libquvi-scripts copy-font-stuff
-    COMMAND ${CMAKE_COMMAND} -E remove ../mpv-${TARGET_CPU}-${BUILDDATE}.7z
-    COMMAND 7z a -m0=lzma2 -mx=9 -ms=on ../mpv-${TARGET_CPU}-${BUILDDATE}.7z mpv.exe mpv.com libquvi-scripts mpv fonts
+    DEPENDEES copy-binary copy-lua-modules copy-libquvi-scripts copy-font-stuff
+    COMMAND ${CMAKE_COMMAND} -E remove ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z
+    COMMAND ${EXEC} 7z a -m0=lzma2 -mx=9 -ms=on ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z *
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
     COMMENT "Packing mpv binary"
     LOG 1
 )
@@ -81,6 +91,6 @@ ExternalProject_Add_Step(mpv download-font
     DEPENDEES copy-font-stuff
     DEPENDERS pack-binary
     COMMAND wget "https://github.com/android/platform_frameworks_base/raw/master/data/fonts/DroidSansFallbackFull.ttf"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/fonts
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/fonts
     LOG 1
 )
