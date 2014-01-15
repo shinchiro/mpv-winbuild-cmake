@@ -7,6 +7,8 @@ ExternalProject_Add(harfbuzz
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
         --with-icu=no
+        --with-glib=no
+        --with-gobject=no
         --disable-gtk-doc-html
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
