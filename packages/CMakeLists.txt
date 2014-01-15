@@ -99,6 +99,7 @@ foreach(package
     fontconfig
     enca
     gettext
+    libffi
     harfbuzz
     libass
     ffmpeg
