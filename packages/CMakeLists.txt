@@ -100,6 +100,7 @@ foreach(package
     enca
     gettext
     libffi
+    pcre
     harfbuzz
     libass
     ffmpeg
