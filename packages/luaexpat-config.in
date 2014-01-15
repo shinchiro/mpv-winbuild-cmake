@@ -4,7 +4,7 @@ LUA_INC=@MINGW_INSTALL_PREFIX@/include/luajit-2.0
 EXPAT_INC=@MINGW_INSTALL_PREFIX@/include
 
 LIBS=-lluajit-5.1
-LIB_OPTION= -shared
+LIB_OPTION=-s -shared
 LIBNAME= $T.dll
 
 LUA_VERSION_NUM= 501
