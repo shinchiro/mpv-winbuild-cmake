@@ -8,6 +8,7 @@ ExternalProject_Add(gettext
         --disable-shared
         --without-expat-prefix
         --without-libxml2-prefix
+        --enable-threads=windows
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
