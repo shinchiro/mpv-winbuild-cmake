@@ -13,3 +13,13 @@ ExternalProject_Add(gettext
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+ExternalProject_Get_Property(libiconv CONFIGURE_COMMAND BUILD_COMMAND INSTALL_COMMAND)
+ExternalProject_Add_Step(gettext rebuild-iconv
+    DEPENDEES install
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libiconv-prefix/src/libiconv-build
+    COMMAND ${CONFIGURE_COMMAND}
+    COMMAND ${BUILD_COMMAND}
+    COMMAND ${INSTALL_COMMAND}
+    LOG 1
+)

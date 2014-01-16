@@ -88,6 +88,7 @@ foreach(package
     libdvdnav
     libcurl
     libiconv
+    gettext
     lua
     luajit
     luasocket
@@ -100,7 +101,6 @@ foreach(package
     libbluray
     fontconfig
     enca
-    gettext
     libffi
     pcre
     glib
