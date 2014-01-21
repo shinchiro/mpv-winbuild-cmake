@@ -10,7 +10,7 @@ ExternalProject_Add(ffmpeg
         libpng
         libvpx
         opencore-amr
-        openssl
+        gnutls
         opus
         speex
         theora
@@ -52,7 +52,7 @@ ExternalProject_Add(ffmpeg
     --enable-libwavpack
     --enable-libx264
     --enable-libxvid
-    --enable-openssl
+    --enable-gnutls
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
