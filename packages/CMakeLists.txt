@@ -105,6 +105,7 @@ foreach(package
     pcre
     gmp
     nettle
+    gnutls
     glib
     libquvi_scripts
     libquvi
