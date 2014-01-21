@@ -1,5 +1,5 @@
 ExternalProject_Add(libquvi
-    DEPENDS luajit libquvi_scripts libcurl glib luasocket luaexpat
+    DEPENDS luajit libquvi_scripts libcurl glib luasocket luaexpat libgcrypt
     GIT_REPOSITORY "git://repo.or.cz/libquvi.git"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libquvi-*.patch
