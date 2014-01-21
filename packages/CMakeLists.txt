@@ -79,7 +79,6 @@ foreach(package
     game-music-emu
     libgpg_error
     libgcrypt
-    openssl
     libpng
     libxml2
     x264
