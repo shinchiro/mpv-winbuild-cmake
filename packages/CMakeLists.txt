@@ -104,6 +104,7 @@ foreach(package
     libffi
     pcre
     gmp
+    nettle
     glib
     libquvi_scripts
     libquvi
