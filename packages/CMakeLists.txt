@@ -103,6 +103,7 @@ foreach(package
     enca
     libffi
     pcre
+    gmp
     glib
     libquvi_scripts
     libquvi
