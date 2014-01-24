@@ -9,6 +9,11 @@ ExternalProject_Add(x264
         --enable-static
         --enable-win32thread
         --disable-interlaced
+        --disable-swscale
+        --disable-lavf
+        --disable-ffms
+        --disable-gpac
+        --disable-lsmash
         --bit-depth=8
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
