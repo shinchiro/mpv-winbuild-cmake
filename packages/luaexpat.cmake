@@ -5,7 +5,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/luaexpat-config.in
 set(LUAEXPAT_MFLAGS CONFIG=${CMAKE_CURRENT_BINARY_DIR}/luaexpat-config)
 
 ExternalProject_Add(luaexpat
-    DEPENDS luajit
+    DEPENDS luajit expat
     GIT_REPOSITORY "https://github.com/LuaDist/luaexpat.git"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/luaexpat-*.patch

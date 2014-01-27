@@ -91,11 +91,11 @@ foreach(package
     lua
     luajit
     luasocket
-    luaexpat
     openal-soft
     portaudio
     fribidi
     expat
+    luaexpat
     freetype2
     libbluray
     fontconfig
