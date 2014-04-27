@@ -5,6 +5,8 @@ ExternalProject_Add(mpv
         fribidi
         lcms2
         libass
+        libdvdnav
+        libdvdread
         libiconv
         libjpeg
         libpng

@@ -1,0 +1,25 @@
+From a4ecd1e1e25ad5c9f69ac60e565dd5eda9e0da60 Mon Sep 17 00:00:00 2001
+From: James Ross-Gowan <rossymiles@gmail.com>
+Date: Sat, 26 Apr 2014 23:43:55 +1000
+Subject: [PATCH] ifo_types: fix struct packing for MinGW
+
+---
+ src/dvdread/ifo_types.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/dvdread/ifo_types.h b/src/dvdread/ifo_types.h
+index aa4c9d3..10bdab5 100644
+--- a/src/dvdread/ifo_types.h
++++ b/src/dvdread/ifo_types.h
+@@ -32,7 +32,7 @@
+
+ #if defined(__GNUC__)
+ #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 95)
+-#define ATTRIBUTE_PACKED __attribute__ ((packed))
++#define ATTRIBUTE_PACKED __attribute__ ((packed,gcc_struct))
+ #define PRAGMA_PACK 0
+ #endif
+ #endif
+--
+1.7.9
+
