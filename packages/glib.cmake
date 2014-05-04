@@ -1,7 +1,6 @@
 ExternalProject_Add(glib
     DEPENDS gettext libffi pcre
-    GIT_REPOSITORY "git://git.gnome.org/glib"
-    GIT_TAG 2.39.3
+    GIT_REPOSITORY "https://github.com/GNOME/glib.git"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/glib-*.patch
     CONFIGURE_COMMAND ${EXEC}

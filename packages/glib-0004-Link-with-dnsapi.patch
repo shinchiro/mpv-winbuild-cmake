@@ -1,14 +1,14 @@
-From 3bfb2ef16ca58d361fbc97a900b008e7d1fda4b4 Mon Sep 17 00:00:00 2001
+From 04c0847158e853c34895cc3e4b376216246ccdf6 Mon Sep 17 00:00:00 2001
 From: MXE <mxe@mxe.cc>
 Date: Fri, 15 Jun 2012 15:29:06 +0200
-Subject: [PATCH 5/8] Link with dnsapi
+Subject: [PATCH 4/7] Link with dnsapi
 
 ---
  gio-2.0.pc.in | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/gio-2.0.pc.in b/gio-2.0.pc.in
-index a61eaaf..11fb6f4 100644
+index 899af0c..b8308f8 100644
 --- a/gio-2.0.pc.in
 +++ b/gio-2.0.pc.in
 @@ -13,6 +13,6 @@ Description: glib I/O library
@@ -17,7 +17,7 @@ index a61eaaf..11fb6f4 100644
  Requires.private: gmodule-no-export-2.0
 -Libs: -L${libdir} -lgio-2.0
 +Libs: -L${libdir} -lgio-2.0 -ldnsapi -liphlpapi
- Libs.private: @ZLIB_LIBS@ @NETWORK_LIBS@ @SELINUX_LIBS@
+ Libs.private: @ZLIB_LIBS@ @NETWORK_LIBS@ @SELINUX_LIBS@ @COCOA_LIBS@ @CARBON_LIBS@
  Cflags:
 -- 
 1.8.5
