@@ -1,6 +1,6 @@
 ExternalProject_Add(nettle
     DEPENDS gmp
-    GIT_REPOSITORY "git://git.lysator.liu.se/nettle/nettle.git"
+    GIT_REPOSITORY "https://git.lysator.liu.se/nettle/nettle.git"
     GIT_TAG "nettle_2.7.1_release_20130528" # required due to API/ABI breakage
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
