@@ -1,6 +1,6 @@
-From 2bba0e4374c38925aa40fa0db7ac32e9032c0356 Mon Sep 17 00:00:00 2001
+From 0b74b758f23533a041b58c94cde6e5f361bb5852 Mon Sep 17 00:00:00 2001
 From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Sat, 14 Jun 2014 17:11:47 +0200
+Date: Tue, 24 Jun 2014 05:42:48 +0200
 Subject: [PATCH] =?UTF-8?q?Changes=20for=20lachs0r=E2=80=99s=20Windows=20b?=
  =?UTF-8?q?uilds?=
 MIME-Version: 1.0
@@ -9,15 +9,15 @@ Content-Transfer-Encoding: 8bit
 
 ---
  src/fcdir.c  | 30 +++++++++++++++++++++---------
- src/fcinit.c | 35 +++++++++++++++++++++++++++++++++++
+ src/fcinit.c | 36 ++++++++++++++++++++++++++++++++++++
  src/fcxml.c  |  2 --
- 3 files changed, 56 insertions(+), 11 deletions(-)
+ 3 files changed, 57 insertions(+), 11 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index 49259c1..cf044fa 100644
+index 593382f..1542ea4 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
-@@ -77,14 +77,7 @@ FcFileScanFontConfig (FcFontSet		*set,
+@@ -78,14 +78,7 @@ FcFileScanFontConfig (FcFontSet		*set,
  	/*
  	 * Nothing in the cache, scan the file
  	 */
@@ -29,10 +29,10 @@ index 49259c1..cf044fa 100644
  	font = FcFreeTypeQuery (file, id, blanks, &count);
 -	if (FcDebug () & FC_DBG_SCAN)
 -	    printf ("done\n");
- 
  	/*
- 	 * Edit pattern with user-defined rules
-@@ -196,8 +189,8 @@ FcDirScanConfig (FcFontSet	*set,
+ 	 * Get rid of sysroot here so that targeting scan rule may contains FC_FILE pattern
+ 	 * and they should usually expect without sysroot.
+@@ -237,8 +230,8 @@ FcDirScanConfig (FcFontSet	*set,
      base = file + strlen ((char *) file);
  
      if (FcDebug () & FC_DBG_SCAN)
@@ -43,7 +43,7 @@ index 49259c1..cf044fa 100644
      d = opendir ((char *) dir);
      if (!d)
      {
-@@ -233,8 +226,24 @@ FcDirScanConfig (FcFontSet	*set,
+@@ -274,8 +267,24 @@ FcDirScanConfig (FcFontSet	*set,
      /*
       * Scan file files to build font patterns
       */
@@ -68,7 +68,7 @@ index 49259c1..cf044fa 100644
  	if (scanOnly)
  	{
  	    if (FcFileIsDir (files->strs[i]))
-@@ -246,6 +255,9 @@ FcDirScanConfig (FcFontSet	*set,
+@@ -287,6 +296,9 @@ FcDirScanConfig (FcFontSet	*set,
  	}
      }
  
@@ -79,7 +79,7 @@ index 49259c1..cf044fa 100644
      FcStrSetDestroy (files);
  bail1:
 diff --git a/src/fcinit.c b/src/fcinit.c
-index b8d5d06..1a25b97 100644
+index 1e23c1f..18a6785 100644
 --- a/src/fcinit.c
 +++ b/src/fcinit.c
 @@ -35,6 +35,12 @@
@@ -93,9 +93,9 @@ index b8d5d06..1a25b97 100644
 +#endif
 +
  static FcConfig *
- FcInitFallbackConfig (void)
+ FcInitFallbackConfig (const FcChar8 *sysroot)
  {
-@@ -43,12 +49,41 @@ FcInitFallbackConfig (void)
+@@ -43,13 +49,43 @@ FcInitFallbackConfig (const FcChar8 *sysroot)
      config = FcConfigCreate ();
      if (!config)
  	goto bail0;
@@ -120,11 +120,13 @@ index b8d5d06..1a25b97 100644
 +	    goto bail3;
 +    }
 +#else
+     FcConfigSetSysRoot (config, sysroot);
      if (!FcConfigAddDir (config, (FcChar8 *) FC_DEFAULT_FONTS))
  	goto bail1;
      if (!FcConfigAddCacheDir (config, (FcChar8 *) FC_CACHEDIR))
  	goto bail1;
 +#endif
++
      return config;
  
 +#ifdef _WIN32
@@ -138,10 +140,10 @@ index b8d5d06..1a25b97 100644
      FcConfigDestroy (config);
  bail0:
 diff --git a/src/fcxml.c b/src/fcxml.c
-index c68b0cf..c0d978b 100644
+index 3dc1357..4ff28dd 100644
 --- a/src/fcxml.c
 +++ b/src/fcxml.c
-@@ -3261,8 +3261,6 @@ bail0:
+@@ -3267,8 +3267,6 @@ bail0:
      {
  	if (name)
  	    FcConfigMessage (0, FcSevereError, "Cannot load config file \"%s\"", name);
