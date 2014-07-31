@@ -58,7 +58,8 @@ ExternalProject_Add_Step(mpv copy-binary
     DEPENDEES strip-binary clean-package-dir
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
-    COMMENT "Copying mpv binaries"
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/DOCS/man/mpv.pdf ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/manual.pdf
+    COMMENT "Copying mpv binaries and manual"
 )
 
 ExternalProject_Add_Step(mpv copy-lua-modules
