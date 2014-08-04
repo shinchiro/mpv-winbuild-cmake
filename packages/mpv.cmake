@@ -11,7 +11,6 @@ ExternalProject_Add(mpv
         libjpeg
         libpng
         libquvi
-        openal-soft
         portaudio
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
@@ -22,7 +21,6 @@ ExternalProject_Add(mpv
         DEST_OS=win32
         <SOURCE_DIR>/waf configure
         --enable-static-build
-        --enable-openal
         --enable-pdf-build
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
