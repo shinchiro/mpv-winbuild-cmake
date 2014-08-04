@@ -93,7 +93,9 @@ ExternalProject_Add_Step(mpv pack-binary
 ExternalProject_Add_Step(mpv download-font
     DEPENDEES copy-font-stuff
     DEPENDERS pack-binary
-    COMMAND wget "https://github.com/android/platform_frameworks_base/raw/master/data/fonts/DroidSansFallbackFull.ttf"
+    COMMAND wget "http://srsfckn.biz/noto-mpv.7z"
+    COMMAND 7z x noto-mpv.7z
+    COMMAND ${CMAKE_COMMAND} -E remove noto-mpv.7z
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/fonts
     LOG 1
 )
