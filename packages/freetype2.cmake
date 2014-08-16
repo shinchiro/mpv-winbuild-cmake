@@ -12,7 +12,7 @@ ExternalProject_Add(freetype2
         --with-sysroot=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
-        COMMAND ${CMAKE_COMMAND} -E create_symlink ${MINGW_INSTALL_PREFIX}/bin/freetype-config ${CMAKE_INSTALL_PREFIX}/bin
+        COMMAND ${CMAKE_COMMAND} -E create_symlink ${MINGW_INSTALL_PREFIX}/bin/freetype-config ${CMAKE_INSTALL_PREFIX}/bin/freetype-config
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
