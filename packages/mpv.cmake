@@ -10,7 +10,7 @@ ExternalProject_Add(mpv
         libiconv
         libjpeg
         libpng
-        libquvi
+        luajit
         portaudio
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
@@ -60,18 +60,6 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMENT "Copying mpv binaries and manual"
 )
 
-ExternalProject_Add_Step(mpv copy-lua-modules
-    DEPENDEES clean-package-dir
-    COMMAND ${EXEC} cp -r ${MINGW_INSTALL_PREFIX}/lua/5.1/* ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
-    COMMENT "Copying Lua modules"
-)
-
-ExternalProject_Add_Step(mpv copy-libquvi-scripts
-    DEPENDEES clean-package-dir
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${MINGW_INSTALL_PREFIX}/share/libquvi-scripts ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/libquvi-scripts
-    COMMENT "Copying libquvi scripts"
-)
-
 ExternalProject_Add_Step(mpv copy-font-stuff
     DEPENDEES clean-package-dir
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
@@ -80,7 +68,7 @@ ExternalProject_Add_Step(mpv copy-font-stuff
 )
 
 ExternalProject_Add_Step(mpv pack-binary
-    DEPENDEES copy-binary copy-lua-modules copy-libquvi-scripts copy-font-stuff
+    DEPENDEES copy-binary copy-font-stuff
     COMMAND ${CMAKE_COMMAND} -E remove ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z
     COMMAND ${EXEC} 7z a -m0=lzma2 -mx=9 -ms=on ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z *
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
