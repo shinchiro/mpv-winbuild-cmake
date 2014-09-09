@@ -2,7 +2,6 @@ ExternalProject_Add(libdvdread
     DEPENDS libdvdcss
     GIT_REPOSITORY "git://git.videolan.org/libdvdread.git"
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libdvdread-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
