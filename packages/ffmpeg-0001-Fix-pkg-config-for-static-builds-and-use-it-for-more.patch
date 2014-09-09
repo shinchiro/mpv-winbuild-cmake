@@ -1,18 +1,18 @@
-From 658afc65ff08b24629ec952bad68d97d20d5b026 Mon Sep 17 00:00:00 2001
+From 37c2533c9dd7e5cd700bc93059d931e9dfc10699 Mon Sep 17 00:00:00 2001
 From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Thu, 31 Jul 2014 00:47:30 +0200
+Date: Tue, 9 Sep 2014 03:23:13 +0200
 Subject: [PATCH] Fix pkg-config for static builds and use it for more external
  libs
 
 ---
- configure | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ configure | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/configure b/configure
-index 1b3f7f2..45f1afd 100755
+index e66519d..b878cb4 100755
 --- a/configure
 +++ b/configure
-@@ -3033,6 +3033,8 @@ set_default host_cc
+@@ -3052,6 +3052,8 @@ set_default host_cc
  if ! $pkg_config --version >/dev/null 2>&1; then
      warn "$pkg_config not found, library detection may fail."
      pkg_config=false
@@ -21,7 +21,7 @@ index 1b3f7f2..45f1afd 100755
  fi
  
  if test $doxygen != $doxygen_default && \
-@@ -4744,23 +4746,23 @@ enabled libcelt           && require libcelt celt/celt.h celt_decode -lcelt0 &&
+@@ -4805,14 +4807,14 @@ enabled libcelt           && require libcelt celt/celt.h celt_decode -lcelt0 &&
                                 die "ERROR: libcelt must be installed and version must be >= 0.11.0."; }
  enabled libcaca           && require_pkg_config caca caca.h caca_create_canvas
  enabled libfaac           && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
@@ -38,9 +38,8 @@ index 1b3f7f2..45f1afd 100755
  enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
                                     check_lib "${gsm_hdr}" gsm_create -lgsm && break;
                                 done || die "ERROR: libgsm not found"; }
- enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -lilbc
--enabled libmodplug        && require libmodplug libmodplug/modplug.h ModPlug_Load -lmodplug
-+enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
+@@ -4820,8 +4822,8 @@ enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -li
+ enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
  enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
  enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
 -enabled libopencore_amrnb && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
@@ -50,7 +49,7 @@ index 1b3f7f2..45f1afd 100755
  enabled libopencv         && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
  enabled libopenjpeg       && { check_lib openjpeg-1.5/openjpeg.h opj_version -lopenjpeg -DOPJ_STATIC ||
                                 check_lib openjpeg.h opj_version -lopenjpeg -DOPJ_STATIC ||
-@@ -4780,7 +4782,7 @@ enabled libspeex          && require_pkg_config speex speex/speex.h speex_decode
+@@ -4841,7 +4843,7 @@ enabled libspeex          && require_pkg_config speex speex/speex.h speex_decode
  enabled libstagefright_h264 && require_cpp libstagefright_h264 "binder/ProcessState.h media/stagefright/MetaData.h
      media/stagefright/MediaBufferGroup.h media/stagefright/MediaDebug.h media/stagefright/MediaDefs.h
      media/stagefright/OMXClient.h media/stagefright/OMXCodec.h" android::OMXClient -lstagefright -lmedia -lutils -lbinder -lgnustl_static
@@ -59,7 +58,7 @@ index 1b3f7f2..45f1afd 100755
  enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame &&
                               { check_lib twolame.h twolame_encode_buffer_float32_interleaved -ltwolame ||
                                 die "ERROR: libtwolame must be installed and version must be >= 0.3.10"; }
-@@ -4789,7 +4791,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
+@@ -4850,7 +4852,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
  enabled libvidstab        && require_pkg_config "vidstab >= 0.98" vid.stab/libvidstab.h vsMotionDetectInit
  enabled libvo_aacenc      && require libvo_aacenc vo-aacenc/voAAC.h voGetAACEncAPI -lvo-aacenc
  enabled libvo_amrwbenc    && require libvo_amrwbenc vo-amrwbenc/enc_if.h E_IF_init -lvo-amrwbenc
@@ -68,7 +67,7 @@ index 1b3f7f2..45f1afd 100755
  enabled libvpx            && {
      enabled libvpx_vp8_decoder && { check_lib2 "vpx/vpx_decoder.h vpx/vp8dx.h" vpx_codec_dec_init_ver -lvpx ||
                                      die "ERROR: libvpx decoder version must be >=0.9.1"; }
-@@ -4826,10 +4828,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
+@@ -4889,10 +4891,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
                                 check_lib2 ES2/gl.h glGetError "-isysroot=${sysroot} -Wl,-framework,OpenGLES" ||
                                 die "ERROR: opengl not found."
                               }
@@ -81,5 +80,5 @@ index 1b3f7f2..45f1afd 100755
  
  if enabled gnutls; then
 -- 
-1.9.3
+2.0.4
 
