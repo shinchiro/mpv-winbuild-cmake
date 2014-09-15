@@ -58,6 +58,7 @@ function(autoreconf _name)
 endfunction()
 
 foreach(package
+    libwaio
     winpthreads
 #    pthreads-w32
     zlib

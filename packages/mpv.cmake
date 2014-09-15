@@ -10,6 +10,7 @@ ExternalProject_Add(mpv
         libiconv
         libjpeg
         libpng
+        libwaio
         luajit
         portaudio
         winpthreads
