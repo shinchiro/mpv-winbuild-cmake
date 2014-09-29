@@ -96,7 +96,6 @@ foreach(package
     libbluray
     fontconfig
     enca
-    libffi
     pcre
     gmp
     nettle
