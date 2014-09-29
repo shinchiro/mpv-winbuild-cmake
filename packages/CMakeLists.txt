@@ -107,8 +107,6 @@ foreach(package
     nettle
     gnutls
     glib
-    libquvi_scripts
-    libquvi
     harfbuzz
     libass
     ffmpeg
