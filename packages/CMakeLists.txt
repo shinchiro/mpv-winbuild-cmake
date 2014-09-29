@@ -91,7 +91,6 @@ foreach(package
     gettext
     lua
     luajit
-    luasocket
     openal-soft
     portaudio
     fribidi
