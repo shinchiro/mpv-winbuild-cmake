@@ -95,7 +95,6 @@ foreach(package
     portaudio
     fribidi
     expat
-    luaexpat
     freetype2
     libbluray
     fontconfig
