@@ -86,7 +86,6 @@ foreach(package
     libdvdcss
     libdvdread
     libdvdnav
-    libcurl
     libiconv
     gettext
     lua
