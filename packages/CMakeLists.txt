@@ -101,7 +101,6 @@ foreach(package
     gmp
     nettle
     gnutls
-    glib
     harfbuzz
     libass
     ffmpeg
