@@ -79,7 +79,6 @@ foreach(package
     fdk-aac
     game-music-emu
     libgpg_error
-    libgcrypt
     libpng
     libxml2
     x264
