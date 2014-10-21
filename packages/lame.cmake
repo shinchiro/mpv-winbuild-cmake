@@ -1,7 +1,8 @@
 ExternalProject_Add(lame
     DEPENDS gcc
-    URL "http://download.sourceforge.net/lame/lame-3.99.5.tar.gz"
-    URL_MD5 84835b313d4a8b68f5349816d33e07ce
+    GIT_REPOSITORY "git://anonscm.debian.org/pkg-multimedia/lame.git"
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -11,3 +12,6 @@ ExternalProject_Add(lame
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+force_rebuild_git(lame)
+autoreconf(lame)
