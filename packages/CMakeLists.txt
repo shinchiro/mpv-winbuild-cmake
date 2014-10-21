@@ -59,8 +59,6 @@ endfunction()
 
 foreach(package
     libwaio
-    winpthreads
-#    pthreads-w32
     zlib
     bzip2
     libjpeg

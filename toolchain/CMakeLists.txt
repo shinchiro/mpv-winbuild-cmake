@@ -28,10 +28,14 @@ ExternalProject_Add_Step(binutils basedirs
 )
 
 ExternalProject_Add(mingw-w64-headers
+    PREFIX mingw-w64-prefix
+    STAMP_DIR mingw-w64-prefix/src/mingw-w64-stamp
+    SOURCE_DIR mingw-w64-prefix/src/mingw-w64
+    BINARY_DIR mingw-w64-prefix/src/mingw-w64-headers-build
     DEPENDS binutils
-    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-headers"
+    GIT_REPOSITORY "git://git.code.sf.net/p/mingw-w64/mingw-w64/"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND <SOURCE_DIR>/mingw-w64-headers/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --enable-sdk=all
@@ -39,47 +43,14 @@ ExternalProject_Add(mingw-w64-headers
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-# ExternalProject_Add(gcc-mpfr
-#     PREFIX gcc-prefix
-#     STAMP_DIR gcc-prefix/src/gcc-mpfr-stamp
-#     SOURCE_DIR gcc-prefix/src/gcc/mpfr
-#     URL "ftp://ftp.gnu.org/pub/gnu/mpfr/mpfr-3.1.2.tar.bz2"
-#     CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ""
-#     INSTALL_COMMAND ""
-#     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-# )
-#
-# ExternalProject_Add(gcc-mpc
-#     PREFIX gcc-prefix
-#     STAMP_DIR gcc-prefix/src/gcc-mpc-stamp
-#     SOURCE_DIR gcc-prefix/src/gcc/mpc
-#     URL "ftp://ftp.gnu.org/pub/gnu/mpc/mpc-1.0.1.tar.gz"
-#     CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ""
-#     INSTALL_COMMAND ""
-#     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-# )
-#
-# ExternalProject_Add(gcc-gmp
-#     PREFIX gcc-prefix
-#     STAMP_DIR gcc-prefix/src/gcc-gmp-stamp
-#     SOURCE_DIR gcc-prefix/src/gcc/gmp
-#     URL "ftp://ftp.gnu.org/pub/gnu/gmp/gmp-5.1.2.tar.bz2"
-#     CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ""
-#     INSTALL_COMMAND ""
-#     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-# )
-
 ExternalProject_Add(gcc-base
     PREFIX gcc-prefix
     STAMP_DIR gcc-prefix/src/gcc-stamp
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
-    DEPENDS mingw-w64-headers # gcc-mpfr gcc-mpc gcc-gmp
-    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-4.8.2/gcc-4.8.2.tar.bz2"
-    URL_MD5 a3d7d63b9cb6b6ea049469a0c4a43c9d
+    DEPENDS mingw-w64-headers
+    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-4.9.1/gcc-4.9.1.tar.bz2"
+    URL_HASH SHA256=d334781a124ada6f38e63b545e2a3b8c2183049515a1abab6d513f109f1d717e
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
@@ -95,25 +66,11 @@ ExternalProject_Add(gcc-base
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-# ExternalProject_Add_Step(gcc-base unpack-deps
-#     DEPENDERS configure
-#     DEPENDEES download
-#     COMMAND tar xf <SOURCE_DIR>/../gmp-*.tar.bz2
-#     COMMAND mv gmp-* gmp
-#     COMMAND tar xf <SOURCE_DIR>/../mpc-*.tar.gz
-#     COMMAND mv mpc-* mpc
-#     COMMAND tar xf <SOURCE_DIR>/../mpfr-*.tar.bz2
-#     COMMAND mv mpfr-* mpfr
-#     WORKING_DIRECTORY <SOURCE_DIR>
-#     COMMENT "Unpacking GCC dependencies"
-#     LOG 1
-# )
-
 ExternalProject_Add(mingw-w64-crt
+    PREFIX mingw-w64-prefix
+    SOURCE_DIR mingw-w64-prefix/src
     DEPENDS gcc-base
-    SVN_REPOSITORY "http://svn.code.sf.net/p/mingw-w64/code/trunk/mingw-w64-crt"
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64/mingw-w64-crt/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
@@ -129,4 +86,18 @@ ExternalProject_Add(gcc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_BUILD 1 LOG_INSTALL 1
+)
+
+ExternalProject_Add(winpthreads
+    PREFIX mingw-w64-prefix
+    SOURCE_DIR mingw-w64-prefix/src
+    DEPENDS gcc
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64/mingw-w64-libraries/winpthreads/configure
+        --host=${TARGET_ARCH}
+        --prefix=${MINGW_INSTALL_PREFIX}
+        --disable-shared
+        --enable-static
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND ${MAKE} install
+    LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
