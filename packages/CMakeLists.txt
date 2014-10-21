@@ -28,6 +28,7 @@ function(force_rebuild_svn _name)
     ExternalProject_Add_Step(${_name} force-update
         DEPENDEES download
         DEPENDERS update patch
+        COMMAND svn revert -R .
         COMMAND svn up
         WORKING_DIRECTORY <SOURCE_DIR>
         ALWAYS 1
