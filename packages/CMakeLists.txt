@@ -6,16 +6,16 @@ function(force_rebuild _name)
             "<SOURCE_DIR>-stamp/*-autogen"
             "<SOURCE_DIR>-stamp/*-configure"
             "<SOURCE_DIR>-stamp/*-build"
+            "<SOURCE_DIR>-stamp/*-patch"
         ALWAYS 1
     )
 endfunction()
 
 function(force_rebuild_git _name)
     ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download patch
-        DEPENDERS update
-        COMMAND git reset --hard
-        COMMAND git pull --rebase
+        DEPENDEES download
+        DEPENDERS update patch
+        COMMAND git reset --hard @{u}
         WORKING_DIRECTORY <SOURCE_DIR>
         ALWAYS 1
         LOG 1
@@ -26,8 +26,8 @@ endfunction()
 
 function(force_rebuild_svn _name)
     ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download patch
-        DEPENDERS update
+        DEPENDEES download
+        DEPENDERS update patch
         COMMAND svn up
         WORKING_DIRECTORY <SOURCE_DIR>
         ALWAYS 1
