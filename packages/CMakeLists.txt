@@ -77,6 +77,7 @@ foreach(package
     opencore-amr
     fdk-aac
     game-music-emu
+    libgpg_error
     libpng
     libxml2
     x264
