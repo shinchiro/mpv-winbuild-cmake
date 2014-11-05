@@ -100,7 +100,6 @@ foreach(package
     enca
     pcre
     gmp
-    nettle
     harfbuzz
     libass
     ffmpeg
