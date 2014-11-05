@@ -1,7 +1,7 @@
 ExternalProject_Add(wavpack
     DEPENDS gcc
-    URL "http://www.wavpack.com/wavpack-4.60.1.tar.bz2"
-    URL_MD5 7bb1528f910e4d0003426c02db856063
+    URL "http://www.wavpack.com/wavpack-4.70.0.tar.bz2"
+    URL_HASH SHA256=2cade379b0aba99fbc4e442ccc6dac6c609f6212e46516a083e24c8c364430a4
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
