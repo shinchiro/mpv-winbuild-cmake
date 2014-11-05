@@ -1,8 +1,7 @@
 ExternalProject_Add(xvidcore
     DEPENDS winpthreads
-    URL "http://downloads.xvid.org/downloads/xvidcore-1.3.2.tar.gz"
-    URL_MD5 87c8cf7b69ebed93c2d82ea5709d098a
-    PATCH_COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/xvidcore-1-fixes.patch
+    URL "http://downloads.xvid.org/downloads/xvidcore-1.3.3.tar.gz"
+    URL_HASH SHA256=9e6bb7f7251bca4615c2221534d4699709765ff019ab0366609f219b0158499d
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/generic && ./configure # running configure outside that directory will make it happily ignore --host while building
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
