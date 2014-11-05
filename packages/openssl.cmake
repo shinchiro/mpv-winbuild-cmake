@@ -6,10 +6,9 @@ endif()
 
 ExternalProject_Add(openssl
     DEPENDS zlib libgcrypt
-    URL "ftp://ftp.openssl.org/source/openssl-1.0.1e.tar.gz"
-    URL_MD5 66bf6f10f060d561929de96f9dfe5b8c
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/openssl-1-winsock2.patch
-        COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/openssl-2-pod.patch
+    URL "https://www.openssl.org/source/openssl-1.0.1j.tar.gz"
+    URL_HASH SHA1=cff86857507624f0ad42d922bb6f77c4f1c2b819
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/openssl-1-fixes.patch
     CONFIGURE_COMMAND ${EXEC} CC=${TARGET_ARCH}-gcc <SOURCE_DIR>/Configure
         ${openssl_target}
         zlib

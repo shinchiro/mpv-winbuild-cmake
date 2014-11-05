@@ -1,0 +1,633 @@
+This file is part of MXE.
+See index.html for further information.
+
+From 27c7c56780a801db21ba49139239ecafd0e8fb88 Mon Sep 17 00:00:00 2001
+From: Mark Brand <mabrand@mabrand.nl>
+Date: Wed, 8 Jan 2014 02:19:10 +0100
+Subject: [PATCH 1/2] winsock2
+
+-This patch has been taken from:
+-http://rt.openssl.org/Ticket/Display.html?id=2285&user=guest&pass=guest
+
+diff --git a/e_os.h b/e_os.h
+index 6a0aad1..4928713 100644
+--- a/e_os.h
++++ b/e_os.h
+@@ -499,7 +499,7 @@ static unsigned int _strlen31(const char *str)
+ #      endif
+ #      if !defined(IPPROTO_IP)
+          /* winsock[2].h was included already? */
+-#        include <winsock.h>
++#        include <winsock2.h>
+ #      endif
+ #      ifdef getservbyname
+ #        undef getservbyname
+diff --git a/ssl/dtls1.h b/ssl/dtls1.h
+index e65d501..7762089 100644
+--- a/ssl/dtls1.h
++++ b/ssl/dtls1.h
+@@ -68,7 +68,7 @@
+ #endif
+ #ifdef OPENSSL_SYS_WIN32
+ /* Needed for struct timeval */
+-#include <winsock.h>
++#include <winsock2.h>
+ #elif defined(OPENSSL_SYS_NETWARE) && !defined(_WINSOCK2API_)
+ #include <sys/timeval.h>
+ #else
+diff --git a/ssl/ssltest.c b/ssl/ssltest.c
+index 4f80be8..af5f1be 100644
+--- a/ssl/ssltest.c
++++ b/ssl/ssltest.c
+@@ -193,7 +193,7 @@
+ 				  */
+ 
+ #ifdef OPENSSL_SYS_WINDOWS
+-#include <winsock.h>
++#include <winsock2.h>
+ #else
+ #include OPENSSL_UNISTD
+ #endif
+-- 
+1.8.4.5
+
+
+From 8f930a5f4b18990cf24383fde0e493afbb240c8b Mon Sep 17 00:00:00 2001
+From: Tom Molesworth <tom@entitymodel.com>
+Date: Wed, 8 Jan 2014 02:20:21 +0100
+Subject: [PATCH 2/2] Patch OpenSSL POD docs for perl-5.16+
+
+Stricter validation in recent Perl versions means the install
+stage fails without these applied.
+
+Should be harmless for earlier versions of perl.
+
+diff --git a/doc/apps/cms.pod b/doc/apps/cms.pod
+index a76b3e0..9a05fa4 100644
+--- a/doc/apps/cms.pod
++++ b/doc/apps/cms.pod
+@@ -465,28 +465,28 @@ with caution. For a fuller description see L<CMS_decrypt(3)|CMS_decrypt(3)>).
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ the operation was completely successfully.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ an error occurred parsing the command options.
+ 
+-=item Z<>2
++=item * Z<>2
+ 
+ one of the input files could not be read.
+ 
+-=item Z<>3
++=item * Z<>3
+ 
+ an error occurred creating the CMS file or when reading the MIME
+ message.
+ 
+-=item Z<>4
++=item * Z<>4
+ 
+ an error occurred decrypting or verifying the message.
+ 
+-=item Z<>5
++=item * Z<>5
+ 
+ the message was verified correctly but an error occurred writing out
+ the signers certificates.
+diff --git a/doc/apps/smime.pod b/doc/apps/smime.pod
+index d39a59a..1a5cfa6 100644
+--- a/doc/apps/smime.pod
++++ b/doc/apps/smime.pod
+@@ -308,28 +308,28 @@ remains DER.
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ the operation was completely successfully.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ an error occurred parsing the command options.
+ 
+-=item Z<>2
++=item * Z<>2
+ 
+ one of the input files could not be read.
+ 
+-=item Z<>3
++=item * Z<>3
+ 
+ an error occurred creating the PKCS#7 file or when reading the MIME
+ message.
+ 
+-=item Z<>4
++=item * Z<>4
+ 
+ an error occurred decrypting or verifying the message.
+ 
+-=item Z<>5
++=item * Z<>5
+ 
+ the message was verified correctly but an error occurred writing out
+ the signers certificates.
+diff --git a/doc/crypto/rand.pod b/doc/crypto/rand.pod
+index 1c068c8..8477fda 100644
+--- a/doc/crypto/rand.pod
++++ b/doc/crypto/rand.pod
+@@ -74,16 +74,16 @@ First up I will state the things I believe I need for a good RNG.
+ 
+ =over 4
+ 
+-=item 1
++=item * 1
+ 
+ A good hashing algorithm to mix things up and to convert the RNG 'state'
+ to random numbers.
+ 
+-=item 2
++=item * 2
+ 
+ An initial source of random 'state'.
+ 
+-=item 3
++=item * 3
+ 
+ The state should be very large.  If the RNG is being used to generate
+ 4096 bit RSA keys, 2 2048 bit random strings are required (at a minimum).
+@@ -93,13 +93,13 @@ carried away on this last point but it does indicate that it may not be
+ a bad idea to keep quite a lot of RNG state.  It should be easier to
+ break a cipher than guess the RNG seed data.
+ 
+-=item 4
++=item * 4
+ 
+ Any RNG seed data should influence all subsequent random numbers
+ generated.  This implies that any random seed data entered will have
+ an influence on all subsequent random numbers generated.
+ 
+-=item 5
++=item * 5
+ 
+ When using data to seed the RNG state, the data used should not be
+ extractable from the RNG state.  I believe this should be a
+@@ -108,12 +108,12 @@ data would be a private key or a password.  This data must
+ not be disclosed by either subsequent random numbers or a
+ 'core' dump left by a program crash.
+ 
+-=item 6
++=item * 6
+ 
+ Given the same initial 'state', 2 systems should deviate in their RNG state
+ (and hence the random numbers generated) over time if at all possible.
+ 
+-=item 7
++=item * 7
+ 
+ Given the random number output stream, it should not be possible to determine
+ the RNG state or the next random number.
+diff --git a/doc/ssl/SSL_COMP_add_compression_method.pod b/doc/ssl/SSL_COMP_add_compression_method.pod
+index f4d191c..5f2a3f1 100644
+--- a/doc/ssl/SSL_COMP_add_compression_method.pod
++++ b/doc/ssl/SSL_COMP_add_compression_method.pod
+@@ -53,11 +53,11 @@ SSL_COMP_add_compression_method() may return the following values:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The operation succeeded.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation failed. Check the error queue to find out the reason.
+ 
+diff --git a/doc/ssl/SSL_CTX_add_session.pod b/doc/ssl/SSL_CTX_add_session.pod
+index 8e0abd3..f5a487c 100644
+--- a/doc/ssl/SSL_CTX_add_session.pod
++++ b/doc/ssl/SSL_CTX_add_session.pod
+@@ -52,13 +52,13 @@ The following values are returned by all functions:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+  The operation failed. In case of the add operation, it was tried to add
+  the same (identical) session twice. In case of the remove operation, the
+  session was not found in the cache.
+ 
+-=item Z<>1
++=item * Z<>1
+  
+  The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_CTX_load_verify_locations.pod b/doc/ssl/SSL_CTX_load_verify_locations.pod
+index d1d8977..449c8c9 100644
+--- a/doc/ssl/SSL_CTX_load_verify_locations.pod
++++ b/doc/ssl/SSL_CTX_load_verify_locations.pod
+@@ -100,13 +100,13 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The operation failed because B<CAfile> and B<CApath> are NULL or the
+ processing at one of the locations specified failed. Check the error
+ stack to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_CTX_set_client_CA_list.pod b/doc/ssl/SSL_CTX_set_client_CA_list.pod
+index 5e97392..6b04440 100644
+--- a/doc/ssl/SSL_CTX_set_client_CA_list.pod
++++ b/doc/ssl/SSL_CTX_set_client_CA_list.pod
+@@ -66,13 +66,13 @@ values:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ A failure while manipulating the STACK_OF(X509_NAME) object occurred or
+ the X509_NAME could not be extracted from B<cacert>. Check the error stack
+ to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_CTX_set_session_id_context.pod b/doc/ssl/SSL_CTX_set_session_id_context.pod
+index 7c9e515..ea36746 100644
+--- a/doc/ssl/SSL_CTX_set_session_id_context.pod
++++ b/doc/ssl/SSL_CTX_set_session_id_context.pod
+@@ -64,13 +64,13 @@ return the following values:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The length B<sid_ctx_len> of the session id context B<sid_ctx> exceeded
+ the maximum allowed length of B<SSL_MAX_SSL_SESSION_ID_LENGTH>. The error
+ is logged to the error stack.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_CTX_set_ssl_version.pod b/doc/ssl/SSL_CTX_set_ssl_version.pod
+index e254f96..c15f86e 100644
+--- a/doc/ssl/SSL_CTX_set_ssl_version.pod
++++ b/doc/ssl/SSL_CTX_set_ssl_version.pod
+@@ -42,11 +42,11 @@ and SSL_set_ssl_method():
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The new choice failed, check the error stack to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_CTX_use_psk_identity_hint.pod b/doc/ssl/SSL_CTX_use_psk_identity_hint.pod
+index 9da7201..a60d041 100644
+--- a/doc/ssl/SSL_CTX_use_psk_identity_hint.pod
++++ b/doc/ssl/SSL_CTX_use_psk_identity_hint.pod
+@@ -83,7 +83,7 @@ Return values from the server callback are interpreted as follows:
+ 
+ =over 4
+ 
+-=item > 0
++=item * > 0
+ 
+ PSK identity was found and the server callback has provided the PSK
+ successfully in parameter B<psk>. Return value is the length of
+@@ -96,7 +96,7 @@ data to B<psk> and return the length of the random data, so the
+ connection will fail with decryption_error before it will be finished
+ completely.
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ PSK identity was not found. An "unknown_psk_identity" alert message
+ will be sent and the connection setup fails.
+diff --git a/doc/ssl/SSL_accept.pod b/doc/ssl/SSL_accept.pod
+index 2239444..5e032e6 100644
+--- a/doc/ssl/SSL_accept.pod
++++ b/doc/ssl/SSL_accept.pod
+@@ -44,18 +44,18 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The TLS/SSL handshake was not successful but was shut down controlled and
+ by the specifications of the TLS/SSL protocol. Call SSL_get_error() with the
+ return value B<ret> to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The TLS/SSL handshake was successfully completed, a TLS/SSL connection has been
+ established.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ The TLS/SSL handshake was not successful because a fatal error occurred either
+ at the protocol level or a connection failure occurred. The shutdown was
+diff --git a/doc/ssl/SSL_clear.pod b/doc/ssl/SSL_clear.pod
+index ba192bd..479f97f 100644
+--- a/doc/ssl/SSL_clear.pod
++++ b/doc/ssl/SSL_clear.pod
+@@ -56,12 +56,12 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The SSL_clear() operation could not be performed. Check the error stack to
+ find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The SSL_clear() operation was successful.
+ 
+diff --git a/doc/ssl/SSL_connect.pod b/doc/ssl/SSL_connect.pod
+index 68e2b82..52c4aa9 100644
+--- a/doc/ssl/SSL_connect.pod
++++ b/doc/ssl/SSL_connect.pod
+@@ -41,18 +41,18 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The TLS/SSL handshake was not successful but was shut down controlled and
+ by the specifications of the TLS/SSL protocol. Call SSL_get_error() with the
+ return value B<ret> to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The TLS/SSL handshake was successfully completed, a TLS/SSL connection has been
+ established.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ The TLS/SSL handshake was not successful, because a fatal error occurred either
+ at the protocol level or a connection failure occurred. The shutdown was
+diff --git a/doc/ssl/SSL_do_handshake.pod b/doc/ssl/SSL_do_handshake.pod
+index b35ddf5..871f15c 100644
+--- a/doc/ssl/SSL_do_handshake.pod
++++ b/doc/ssl/SSL_do_handshake.pod
+@@ -45,18 +45,18 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The TLS/SSL handshake was not successful but was shut down controlled and
+ by the specifications of the TLS/SSL protocol. Call SSL_get_error() with the
+ return value B<ret> to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The TLS/SSL handshake was successfully completed, a TLS/SSL connection has been
+ established.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ The TLS/SSL handshake was not successful because a fatal error occurred either
+ at the protocol level or a connection failure occurred. The shutdown was
+diff --git a/doc/ssl/SSL_get_ex_data_X509_STORE_CTX_idx.pod b/doc/ssl/SSL_get_ex_data_X509_STORE_CTX_idx.pod
+index 165c6a5..073e99c 100644
+--- a/doc/ssl/SSL_get_ex_data_X509_STORE_CTX_idx.pod
++++ b/doc/ssl/SSL_get_ex_data_X509_STORE_CTX_idx.pod
+@@ -36,11 +36,11 @@ before the SSL index is created.
+ 
+ =over 4
+ 
+-=item E<gt>=0
++=item * E<gt>=0
+ 
+ The index value to access the pointer.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ An error occurred, check the error stack for a detailed error message.
+ 
+diff --git a/doc/ssl/SSL_get_fd.pod b/doc/ssl/SSL_get_fd.pod
+index 89260b5..1207658 100644
+--- a/doc/ssl/SSL_get_fd.pod
++++ b/doc/ssl/SSL_get_fd.pod
+@@ -26,12 +26,12 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item -1
++=item * -1
+ 
+ The operation failed, because the underlying BIO is not of the correct type
+ (suitable for file descriptors).
+ 
+-=item E<gt>=0
++=item * E<gt>=0
+ 
+ The file descriptor linked to B<ssl>.
+ 
+diff --git a/doc/ssl/SSL_read.pod b/doc/ssl/SSL_read.pod
+index 8ca0ce5..14c472f 100644
+--- a/doc/ssl/SSL_read.pod
++++ b/doc/ssl/SSL_read.pod
+@@ -81,12 +81,12 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item E<gt>0
++=item * E<gt>0
+ 
+ The read operation was successful; the return value is the number of
+ bytes actually read from the TLS/SSL connection.
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The read operation was not successful. The reason may either be a clean
+ shutdown due to a "close notify" alert sent by the peer (in which case
+@@ -103,7 +103,7 @@ only be detected, whether the underlying connection was closed. It cannot
+ be checked, whether the closure was initiated by the peer or by something
+ else.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ The read operation was not successful, because either an error occurred
+ or action must be taken by the calling process. Call SSL_get_error() with the
+diff --git a/doc/ssl/SSL_session_reused.pod b/doc/ssl/SSL_session_reused.pod
+index b09d8a7..7f49da1 100644
+--- a/doc/ssl/SSL_session_reused.pod
++++ b/doc/ssl/SSL_session_reused.pod
+@@ -27,11 +27,11 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ A new session was negotiated.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ A session was reused.
+ 
+diff --git a/doc/ssl/SSL_set_fd.pod b/doc/ssl/SSL_set_fd.pod
+index 1480871..bfc39ed 100644
+--- a/doc/ssl/SSL_set_fd.pod
++++ b/doc/ssl/SSL_set_fd.pod
+@@ -35,11 +35,11 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The operation failed. Check the error stack to find out why.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_set_session.pod b/doc/ssl/SSL_set_session.pod
+index 197b521..fbdee4c 100644
+--- a/doc/ssl/SSL_set_session.pod
++++ b/doc/ssl/SSL_set_session.pod
+@@ -37,11 +37,11 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The operation failed; check the error stack to find out the reason.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The operation succeeded.
+ 
+diff --git a/doc/ssl/SSL_set_shutdown.pod b/doc/ssl/SSL_set_shutdown.pod
+index fe01308..879a33a 100644
+--- a/doc/ssl/SSL_set_shutdown.pod
++++ b/doc/ssl/SSL_set_shutdown.pod
+@@ -24,16 +24,16 @@ The shutdown state of an ssl connection is a bitmask of:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ No shutdown setting, yet.
+ 
+-=item SSL_SENT_SHUTDOWN
++=item * SSL_SENT_SHUTDOWN
+ 
+ A "close notify" shutdown alert was sent to the peer, the connection is being
+ considered closed and the session is closed and correct.
+ 
+-=item SSL_RECEIVED_SHUTDOWN
++=item * SSL_RECEIVED_SHUTDOWN
+ 
+ A shutdown alert was received form the peer, either a normal "close notify"
+ or a fatal error.
+diff --git a/doc/ssl/SSL_shutdown.pod b/doc/ssl/SSL_shutdown.pod
+index 85d4a64..9fe029b 100644
+--- a/doc/ssl/SSL_shutdown.pod
++++ b/doc/ssl/SSL_shutdown.pod
+@@ -92,19 +92,19 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The shutdown is not yet finished. Call SSL_shutdown() for a second time,
+ if a bidirectional shutdown shall be performed.
+ The output of L<SSL_get_error(3)|SSL_get_error(3)> may be misleading, as an
+ erroneous SSL_ERROR_SYSCALL may be flagged even though no error occurred.
+ 
+-=item Z<>1
++=item * Z<>1
+ 
+ The shutdown was successfully completed. The "close notify" alert was sent
+ and the peer's "close notify" alert was received.
+ 
+-=item -1
++=item * -1
+ 
+ The shutdown was not successful because a fatal error occurred either
+ at the protocol level or a connection failure occurred. It can also occur if
+diff --git a/doc/ssl/SSL_write.pod b/doc/ssl/SSL_write.pod
+index a57617f..70c1630 100644
+--- a/doc/ssl/SSL_write.pod
++++ b/doc/ssl/SSL_write.pod
+@@ -74,12 +74,12 @@ The following return values can occur:
+ 
+ =over 4
+ 
+-=item E<gt>0
++=item * E<gt>0
+ 
+ The write operation was successful, the return value is the number of
+ bytes actually written to the TLS/SSL connection.
+ 
+-=item Z<>0
++=item * Z<>0
+ 
+ The write operation was not successful. Probably the underlying connection
+ was closed. Call SSL_get_error() with the return value B<ret> to find out,
+@@ -90,7 +90,7 @@ SSLv2 (deprecated) does not support a shutdown alert protocol, so it can
+ only be detected, whether the underlying connection was closed. It cannot
+ be checked, why the closure happened.
+ 
+-=item E<lt>0
++=item * E<lt>0
+ 
+ The write operation was not successful, because either an error occurred
+ or action must be taken by the calling process. Call SSL_get_error() with the
+-- 
+1.8.4.5
+
