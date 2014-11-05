@@ -98,7 +98,6 @@ foreach(package
     libbluray
     fontconfig
     enca
-    gmp
     harfbuzz
     libass
     ffmpeg
