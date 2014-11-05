@@ -88,7 +88,6 @@ foreach(package
     libdvdnav
     libiconv
     gettext
-    lua
     luajit
     openal-soft
     portaudio
