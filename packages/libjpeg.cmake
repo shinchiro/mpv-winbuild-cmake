@@ -1,7 +1,7 @@
 ExternalProject_Add(libjpeg
     DEPENDS gcc
-    URL "http://www.ijg.org/files/jpegsrc.v9.tar.gz"
-    URL_MD5 b397211ddfd506b92cd5e02a22ac924d
+    URL "http://www.ijg.org/files/jpegsrc.v9a.tar.gz"
+    URL_HASH SHA256=3a753ea48d917945dd54a2d97de388aa06ca2eb1066cbfdc6652036349fe05a7
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
