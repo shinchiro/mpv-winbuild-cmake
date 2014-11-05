@@ -101,7 +101,6 @@ foreach(package
     pcre
     gmp
     nettle
-    gnutls
     harfbuzz
     libass
     ffmpeg
