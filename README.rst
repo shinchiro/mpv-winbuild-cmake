@@ -6,20 +6,20 @@ This thing’s primary use is to build Windows binaries of mpv.
 Prerequisites
 -------------
 
-.. warning::
-    As a general rule, make sure your stuff is *recent*. I don’t want to hear
-    any complaints about stuff not building on outdated systems.
-
 In addition to CMake, you need the usual development stuff (Git, Subversion,
-GCC, Binutils, headers for GMP, MPFR and MPC) as well as some things required
-by the packages you want to build, like glib-genmarshal for glib, gtkdocize for
-harfbuzz, and probably others.
+GCC, Binutils, headers for GMP, MPFR and MPC).
 
 .. note::
     You should also install Ninja and use CMake’s Ninja build file generator.
     It’s not only much faster than GNU Make, but also far less error-prone,
     which is important for this project because CMake’s ExternalProject module
     tends to generate makefiles which confuse GNU Make’s jobserver thingy.
+
+.. note::
+    As a build environment, any modern Linux distribution *should* work,
+    however I am only testing this on openSUSE, which (as of November 2014)
+    is using a 4.8 series GCC by default. Feel free to contribute fixes for
+    other environments.
 
 
 Building Software
@@ -32,7 +32,7 @@ To set up the build environment, create a directory to store build files in::
 
 Once you’ve changed into that directory, run CMake, e.g.::
 
-    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=../prefix-64 -DMAKEJOBS=2 -G Ninja ..
+    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
 Once that’s done, you’re ready to build stuff. For example, to build mpv and
 all of its dependencies::
