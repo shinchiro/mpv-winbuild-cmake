@@ -28,6 +28,7 @@ ExternalProject_Add(ffmpeg
     --arch=${TARGET_CPU}
     --target-os=mingw32
     --target-exec=wine
+    --pkg-config-flags=--static
     --enable-cross-compile
     --enable-runtime-cpudetect
     --enable-gpl
