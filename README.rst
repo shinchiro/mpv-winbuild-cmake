@@ -7,7 +7,7 @@ Prerequisites
 -------------
 
 In addition to CMake, you need the usual development stuff (Git, Subversion,
-GCC, Binutils, headers for GMP, MPFR and MPC).
+GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
 
 .. note::
     You should also install Ninja and use CMake’s Ninja build file generator.
