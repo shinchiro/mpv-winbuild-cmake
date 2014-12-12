@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8.11)
+project(mpv-cross C)
 include(ExternalProject)
 include(ProcessorCount)
 
