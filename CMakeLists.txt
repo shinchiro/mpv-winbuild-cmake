@@ -27,10 +27,10 @@ set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for e
 
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exec.in ${CMAKE_CURRENT_BINARY_DIR}/exec)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exec.in ${CMAKE_CURRENT_BINARY_DIR}/exec @ONLY)
 set(EXEC ${CMAKE_CURRENT_BINARY_DIR}/exec)
 set(MAKE ${EXEC} make -j${MAKEJOBS})
 set(DEBPATCH ${CMAKE_CURRENT_SOURCE_DIR}/debpatch)
