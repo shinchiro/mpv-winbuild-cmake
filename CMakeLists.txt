@@ -3,7 +3,7 @@ project(mpv-cross C)
 include(ExternalProject)
 include(ProcessorCount)
 
-if(NOT ${CMAKE_GENERATOR} MATCHES "Ninja")
+if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
 endif()
 
@@ -13,7 +13,7 @@ string(REGEX MATCH "^[^-]+" TARGET_CPU ${TARGET_ARCH})
 execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE HOST_ARCH)
 string(REGEX MATCH "^[^-]+" HOST_CPU ${HOST_ARCH})
 
-if(${TARGET_CPU} MATCHES "x86_64")
+if(TARGET_CPU MATCHES "x86_64")
     set(TARGET_BITS 64)
 else()
     set(TARGET_BITS 32)
