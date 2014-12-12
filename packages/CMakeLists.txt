@@ -101,6 +101,6 @@ foreach(package
     ffmpeg
     mpv
 )
-    include(${package}.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
     message(STATUS "Parsing package ${package}")
 endforeach()
