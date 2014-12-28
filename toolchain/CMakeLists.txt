@@ -34,6 +34,7 @@ ExternalProject_Add(mingw-w64-headers
     BINARY_DIR mingw-w64-prefix/src/mingw-w64-headers-build
     DEPENDS binutils
     GIT_REPOSITORY "git://git.code.sf.net/p/mingw-w64/mingw-w64/"
+    GIT_TAG 3403da3708720e90ca3d165fd067b631fc0bcc1c
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND <SOURCE_DIR>/mingw-w64-headers/configure
         --host=${TARGET_ARCH}
