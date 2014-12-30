@@ -89,7 +89,6 @@ foreach(package
     libiconv
     luajit
     openal-soft
-    portaudio
     fribidi
     expat
     freetype2
