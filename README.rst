@@ -21,6 +21,9 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     is using a 4.8 series GCC by default. Feel free to contribute fixes for
     other environments.
 
+    If you are looking for VM images with everything set up to work with this:
+    `<https://github.com/lachs0r/mingw-w64-env>`_
+
 
 Building Software
 -----------------
