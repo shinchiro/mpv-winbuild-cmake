@@ -1,6 +1,6 @@
-From b5f2a1f1589dd6a2c642bd7d4b240d705008f072 Mon Sep 17 00:00:00 2001
+From 25cd19c260a17ec5b394aef87c741aa648017d77 Mon Sep 17 00:00:00 2001
 From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Mon, 8 Dec 2014 13:01:34 +0100
+Date: Thu, 8 Jan 2015 18:19:37 +0100
 Subject: [PATCH] Use pkg-config for more external libs
 
 ---
@@ -8,10 +8,10 @@ Subject: [PATCH] Use pkg-config for more external libs
  1 file changed, 7 insertions(+), 10 deletions(-)
 
 diff --git a/configure b/configure
-index 40d5428..32c5bc1 100755
+index a39a63f..47ef721 100755
 --- a/configure
 +++ b/configure
-@@ -4859,14 +4859,14 @@ enabled libcelt           && require libcelt celt/celt.h celt_decode -lcelt0 &&
+@@ -4871,14 +4871,14 @@ enabled libcelt           && require libcelt celt/celt.h celt_decode -lcelt0 &&
                                 die "ERROR: libcelt must be installed and version must be >= 0.11.0."; }
  enabled libcaca           && require_pkg_config caca caca.h caca_create_canvas
  enabled libfaac           && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
@@ -28,7 +28,7 @@ index 40d5428..32c5bc1 100755
  enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
                                     check_lib "${gsm_hdr}" gsm_create -lgsm && break;
                                 done || die "ERROR: libgsm not found"; }
-@@ -4874,8 +4874,8 @@ enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -li
+@@ -4886,8 +4886,8 @@ enabled libilbc           && require libilbc ilbc.h WebRtcIlbcfix_InitDecode -li
  enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
  enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
  enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
@@ -37,9 +37,9 @@ index 40d5428..32c5bc1 100755
 +enabled libopencore_amrnb && require_pkg_config opencore-amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init
 +enabled libopencore_amrwb && require_pkg_config opencore-amrwb opencore-amrwb/dec_if.h D_IF_init
  enabled libopencv         && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
+ enabled libopenh264       && require_pkg_config openh264 wels/codec_api.h WelsGetCodecVersion
  enabled libopenjpeg       && { check_lib openjpeg.h opj_version -lopenmj2 -DOPJ_STATIC ||
-                                check_lib openjpeg-1.5/openjpeg.h opj_version -lopenjpeg -DOPJ_STATIC ||
-@@ -4895,7 +4895,7 @@ enabled libspeex          && require_pkg_config speex speex/speex.h speex_decode
+@@ -4908,7 +4908,7 @@ enabled libspeex          && require_pkg_config speex speex/speex.h speex_decode
  enabled libstagefright_h264 && require_cpp libstagefright_h264 "binder/ProcessState.h media/stagefright/MetaData.h
      media/stagefright/MediaBufferGroup.h media/stagefright/MediaDebug.h media/stagefright/MediaDefs.h
      media/stagefright/OMXClient.h media/stagefright/OMXCodec.h" android::OMXClient -lstagefright -lmedia -lutils -lbinder -lgnustl_static
@@ -48,7 +48,7 @@ index 40d5428..32c5bc1 100755
  enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame &&
                               { check_lib twolame.h twolame_encode_buffer_float32_interleaved -ltwolame ||
                                 die "ERROR: libtwolame must be installed and version must be >= 0.3.10"; }
-@@ -4904,7 +4904,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
+@@ -4917,7 +4917,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
  enabled libvidstab        && require_pkg_config "vidstab >= 0.98" vid.stab/libvidstab.h vsMotionDetectInit
  enabled libvo_aacenc      && require libvo_aacenc vo-aacenc/voAAC.h voGetAACEncAPI -lvo-aacenc
  enabled libvo_amrwbenc    && require libvo_amrwbenc vo-amrwbenc/enc_if.h E_IF_init -lvo-amrwbenc
@@ -57,7 +57,7 @@ index 40d5428..32c5bc1 100755
  enabled libvpx            && {
      enabled libvpx_vp8_decoder && { check_lib2 "vpx/vpx_decoder.h vpx/vp8dx.h" vpx_codec_dec_init_ver -lvpx ||
                                      die "ERROR: libvpx decoder version must be >=0.9.1"; }
-@@ -4943,10 +4943,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
+@@ -4958,10 +4958,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
                                 check_lib2 ES2/gl.h glGetError "-isysroot=${sysroot} -Wl,-framework,OpenGLES" ||
                                 die "ERROR: opengl not found."
                               }
