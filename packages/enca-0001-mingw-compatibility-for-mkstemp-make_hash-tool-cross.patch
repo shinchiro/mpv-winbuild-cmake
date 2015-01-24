@@ -24,7 +24,7 @@ index 0a47b79..66f8d3f 100644
 +
 +	filename = mktemp(template);
 +	if (filename == NULL)
-+		return 1;
++		return -1;
 +	return open(filename, O_RDWR | O_CREAT, 0600);
 +}
 +#endif
