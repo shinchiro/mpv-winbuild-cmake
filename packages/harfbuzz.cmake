@@ -1,3 +1,9 @@
+find_program(RAGEL ragel)
+
+if(NOT RAGEL)
+    message(FATAL_ERROR "Ragel is required to build Harfbuzz")
+endif()
+
 ExternalProject_Add(harfbuzz
     DEPENDS freetype2 libpng
     GIT_REPOSITORY "git://anongit.freedesktop.org/harfbuzz"
