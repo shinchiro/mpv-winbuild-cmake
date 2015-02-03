@@ -1,3 +1,8 @@
+if(${TARGET_CPU} MATCHES "x86_64")
+    # allow HEASLR
+    set(MPV_LDFLAGS "LDFLAGS=-Wl,--image-base,0x140000000,--high-entropy-va")
+endif()
+
 ExternalProject_Add(mpv
     DEPENDS
         enca
@@ -19,6 +24,7 @@ ExternalProject_Add(mpv
         PKG_CONFIG=pkg-config
         TARGET=${TARGET_ARCH}
         DEST_OS=win32
+        ${MPV_LDFLAGS}
         <SOURCE_DIR>/waf configure
         --enable-static-build
         --enable-pdf-build
