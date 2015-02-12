@@ -59,6 +59,7 @@ function(autoreconf _name)
 endfunction()
 
 foreach(package
+    rubberband
     libwaio
     zlib
     bzip2

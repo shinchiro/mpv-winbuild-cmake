@@ -17,6 +17,7 @@ ExternalProject_Add(mpv
         libpng
         libwaio
         luajit
+        rubberband
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
