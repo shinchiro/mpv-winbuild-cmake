@@ -29,6 +29,17 @@ ExternalProject_Add(mpv
         <SOURCE_DIR>/waf configure
         --enable-static-build
         --enable-pdf-build
+        --disable-manpage-build
+        --disable-debug-build
+        --enable-waio
+        --enable-lua
+        --enable-libass
+        --enable-libbluray
+        --enable-dvdread
+        --enable-dvdnav
+        --enable-enca
+        --enable-rubberband
+        --enable-lcms2
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
