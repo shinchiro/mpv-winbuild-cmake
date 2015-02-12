@@ -8,6 +8,7 @@ ExternalProject_Add(libbluray
         --disable-shared
         --disable-examples
         --disable-doxygen-doc
+        --disable-bdjava
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
