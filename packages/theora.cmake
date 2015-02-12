@@ -1,6 +1,7 @@
 ExternalProject_Add(theora
     DEPENDS gcc ogg vorbis
-    GIT_REPOSITORY "git://git.xiph.org/mirrors/theora.git"
+    URL "http://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.bz2"
+    URL_HASH SHA256=b6ae1ee2fa3d42ac489287d3ec34c5885730b1296f0801ae577a35193d3affbc
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
@@ -11,6 +12,3 @@ ExternalProject_Add(theora
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
-
-force_rebuild_git(theora)
-autogen(theora)
