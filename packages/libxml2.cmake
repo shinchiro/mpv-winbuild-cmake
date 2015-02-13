@@ -1,5 +1,5 @@
 ExternalProject_Add(libxml2
-    DEPENDS gcc
+    DEPENDS gcc zlib
     URL "ftp://xmlsoft.org/libxml2/libxml2-2.9.2.tar.gz"
     URL_HASH SHA256=5178c30b151d044aefb1b08bf54c3003a0ac55c59c866763997529d60770d5bc
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
