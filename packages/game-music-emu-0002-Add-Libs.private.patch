@@ -1,7 +1,0 @@
---- gme/libgme.pc.in_	2013-09-07 19:57:44.000000000 +0200
-+++ gme/libgme.pc.in	2013-09-07 19:58:03.045197979 +0200
-@@ -13,3 +13,4 @@
- Version: @GME_VERSION@
- Cflags: -I${includedir}
- Libs: -L${libdir} -lgme
-+Libs.private: -lstdc++
