@@ -1,6 +1,7 @@
 ExternalProject_Add(ffmpeg
     DEPENDS
         bzip2
+        dcadec
         fdk-aac
         game-music-emu
         lame
@@ -39,6 +40,7 @@ ExternalProject_Add(ffmpeg
     --enable-avisynth
     --enable-libass
     --enable-libbluray
+    --enable-libdcadec
     --enable-libfdk-aac
     --enable-libgme
     --enable-libmodplug

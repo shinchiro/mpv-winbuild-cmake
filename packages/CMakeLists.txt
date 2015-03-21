@@ -99,6 +99,7 @@ foreach(package
     enca
     harfbuzz
     libass
+    dcadec
     ffmpeg
     mpv
 )
