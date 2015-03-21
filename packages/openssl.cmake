@@ -6,8 +6,8 @@ endif()
 
 ExternalProject_Add(openssl
     DEPENDS zlib libgcrypt
-    URL "https://github.com/openssl/openssl/archive/OpenSSL_1_0_2.tar.gz"
-    URL_HASH SHA256=ebf32352a37978cdf6483cffa4bebdd743f59d64455dd53df42485c7836f6510
+    URL "https://github.com/openssl/openssl/archive/OpenSSL_1_0_2a.tar.gz"
+    URL_HASH SHA256=1966e463640f1bd099e2da77620c9e3b9ff986f426d83b328f2719e328ad079f
     PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/openssl-1-no-docs.patch
     CONFIGURE_COMMAND ${EXEC} CC=${TARGET_ARCH}-gcc <SOURCE_DIR>/Configure
         ${openssl_target}
