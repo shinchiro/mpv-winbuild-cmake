@@ -16,6 +16,7 @@ function(force_rebuild_git _name)
         DEPENDEES download
         DEPENDERS update patch
         COMMAND git reset --hard @{u}
+            COMMAND git pull
         WORKING_DIRECTORY <SOURCE_DIR>
         ALWAYS 1
         LOG 1
