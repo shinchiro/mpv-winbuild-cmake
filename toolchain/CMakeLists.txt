@@ -51,8 +51,8 @@ ExternalProject_Add(gcc-base
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
     DEPENDS mingw-w64-headers
-    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-4.9.2/gcc-4.9.2.tar.bz2"
-    URL_HASH SHA256=2020c98295856aa13fda0f2f3a4794490757fc24bcca918d52cc8b4917b972dd
+    URL "ftp://ftp.gwdg.de/pub/misc/gcc/releases/gcc-5.1.0/gcc-5.1.0.tar.bz2"
+    URL_HASH SHA512=30f6a94d3adb25bc51fcaddf32a6c41429f569eeb9ed64330445b1296f99998fbfa03277b375be4f7b2b80f519910ef88e4149db7cd9031e2c61a49f501bde94
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
