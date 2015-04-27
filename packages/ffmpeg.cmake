@@ -16,7 +16,6 @@ ExternalProject_Add(ffmpeg
         speex
         theora
         vorbis
-        wavpack
         x264
         xvidcore
 #     GIT_REPOSITORY "git://source.ffmpeg.org/ffmpeg.git"
@@ -52,7 +51,6 @@ ExternalProject_Add(ffmpeg
     --enable-libtheora
     --enable-libvorbis
     --enable-libvpx
-    --enable-libwavpack
     --enable-libx264
     --enable-libxvid
     --enable-openssl

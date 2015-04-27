@@ -72,7 +72,6 @@ foreach(package
     theora
     opus
     speex
-    wavpack
     libmodplug
     libvpx
     xvidcore
