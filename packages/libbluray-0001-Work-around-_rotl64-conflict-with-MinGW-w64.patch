@@ -1,0 +1,28 @@
+From 6e66180af639132260680e2e3ce98e8f1c6397b5 Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Mon, 27 Apr 2015 22:21:24 +0200
+Subject: [PATCH] Work around _rotl64 conflict with MinGW-w64
+
+---
+ src/libbluray/disc/disc.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/src/libbluray/disc/disc.c b/src/libbluray/disc/disc.c
+index 4c33f6f..316a836 100644
+--- a/src/libbluray/disc/disc.c
++++ b/src/libbluray/disc/disc.c
+@@ -516,11 +516,6 @@ void disc_event(BD_DISC *disc, uint32_t event, uint32_t param)
+  * This is used when AACS disc ID is not available
+  */
+ 
+-static uint64_t _rotl64(uint64_t k, int n)
+-{
+-    return (k << n) | (k >> (64 - n));
+-}
+-
+ static uint64_t _fmix64(uint64_t k)
+ {
+     k ^= k >> 33;
+-- 
+2.3.3
+
