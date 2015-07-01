@@ -1,6 +1,7 @@
 if(${TARGET_CPU} MATCHES "x86_64")
     # allow HEASLR
     set(MPV_LDFLAGS "LDFLAGS=-Wl,--image-base,0x140000000,--high-entropy-va")
+    set(MPV_INTERNAL_PTHREADS "--enable-win32-internal-pthreads")
 endif()
 
 ExternalProject_Add(mpv
@@ -32,6 +33,7 @@ ExternalProject_Add(mpv
         --disable-manpage-build
         --disable-debug-build
         --enable-libmpv-shared
+        ${MPV_INTERNAL_PTHREADS}
         --enable-waio
         --enable-lua
         --enable-libass
