@@ -81,6 +81,7 @@ foreach(package
     libgpg_error
     libgcrypt
     openssl
+    librtmp
     libpng
     libxml2
     x264

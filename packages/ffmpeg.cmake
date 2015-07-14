@@ -9,6 +9,7 @@ ExternalProject_Add(ffmpeg
         libbluray
         libmodplug
         libpng
+        librtmp
         libvpx
         opencore-amr
         openssl
@@ -47,6 +48,7 @@ ExternalProject_Add(ffmpeg
     --enable-libopencore-amrnb
     --enable-libopencore-amrwb
     --enable-libopus
+    --enable-librtmp
     --enable-libspeex
     --enable-libtheora
     --enable-libvorbis
