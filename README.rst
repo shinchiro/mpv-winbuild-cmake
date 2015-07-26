@@ -48,6 +48,11 @@ This will take a while (about 20 minutes on my machine).
     The mpv package has some additional steps to generate a 7zip archive ready
     for distribution instead of installing it to the prefix.
 
+.. note::
+    If you wish to disable automatic updates of packages pulled from
+    development sources, use ``-DENABLE_VCS_UPDATES=false`` on the CMake
+    command line.
+
 
 Unpackaged Stuff
 ~~~~~~~~~~~~~~~~

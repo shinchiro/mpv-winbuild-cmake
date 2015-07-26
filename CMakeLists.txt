@@ -27,6 +27,8 @@ set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for e
 
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
+set(ENABLE_VCS_UPDATES true CACHE STRING "Enable automatic updates and forced rebuilds for packages built from git/svn sources")
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 
