@@ -6,7 +6,6 @@ endif()
 
 ExternalProject_Add(mpv
     DEPENDS
-        enca
         ffmpeg
         fribidi
         lcms2
@@ -40,7 +39,6 @@ ExternalProject_Add(mpv
         --enable-libbluray
         --enable-dvdread
         --enable-dvdnav
-        --enable-enca
         --enable-rubberband
         --enable-lcms2
         --prefix=${MINGW_INSTALL_PREFIX}

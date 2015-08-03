@@ -100,7 +100,6 @@ foreach(package
     freetype2
     libbluray
     fontconfig
-    enca
     harfbuzz
     libass
     dcadec
