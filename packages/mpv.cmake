@@ -18,6 +18,7 @@ ExternalProject_Add(mpv
         libwaio
         luajit
         rubberband
+        uchardet
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
@@ -39,6 +40,7 @@ ExternalProject_Add(mpv
         --enable-libbluray
         --enable-dvdread
         --enable-dvdnav
+        --enable-uchardet
         --enable-rubberband
         --enable-lcms2
         --prefix=${MINGW_INSTALL_PREFIX}
