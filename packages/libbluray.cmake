@@ -1,5 +1,5 @@
 ExternalProject_Add(libbluray
-    DEPENDS libxml2 freetype2
+    DEPENDS freetype2
     GIT_REPOSITORY "git://git.videolan.org/libbluray.git"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -9,6 +9,7 @@ ExternalProject_Add(libbluray
         --disable-examples
         --disable-doxygen-doc
         --disable-bdjava
+        --without-libxml2
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1

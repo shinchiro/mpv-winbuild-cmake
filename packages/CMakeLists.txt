@@ -88,7 +88,6 @@ foreach(package
     openssl
     librtmp
     libpng
-    libxml2
     x264
     libdvdcss
     libdvdread
