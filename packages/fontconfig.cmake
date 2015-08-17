@@ -3,7 +3,9 @@ ExternalProject_Add(fontconfig
     GIT_REPOSITORY "git://anongit.freedesktop.org/fontconfig"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/fontconfig-*.patch
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC}
+        PYTHON=python2
+        <SOURCE_DIR>/configure
         --build=${HOST_ARCH}
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
