@@ -10,6 +10,7 @@ ExternalProject_Add(libbluray
         --disable-doxygen-doc
         --disable-bdjava
         --without-libxml2
+        --without-fontconfig
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
