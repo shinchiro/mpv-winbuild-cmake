@@ -9,10 +9,10 @@ ExternalProject_Add(ffmpeg
         libbluray
         libmodplug
         libpng
+	libressl
         librtmp
         libvpx
         opencore-amr
-        openssl
         opus
         speex
         theora

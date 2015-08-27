@@ -1,7 +1,7 @@
 set(LIBRTMP_MAKE_PARAMS "-C librtmp prefix=${MINGW_INSTALL_PREFIX} CROSS_COMPILE=${TARGET_ARCH}- SYS=mingw SHARED=no")
 
 ExternalProject_Add(librtmp
-    DEPENDS openssl
+    DEPENDS libressl
     GIT_REPOSITORY "git://git.ffmpeg.org/rtmpdump"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""

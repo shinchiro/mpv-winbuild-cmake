@@ -84,9 +84,6 @@ foreach(package
     opencore-amr
     fdk-aac
     game-music-emu
-    libgpg_error
-    libgcrypt
-    openssl
     librtmp
     libpng
     x264
