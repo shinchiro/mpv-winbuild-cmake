@@ -65,6 +65,7 @@ endfunction()
 
 foreach(package
     xz
+    lzo
     libressl
     uchardet
     rubberband
