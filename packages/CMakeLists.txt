@@ -64,6 +64,7 @@ function(autoreconf _name)
 endfunction()
 
 foreach(package
+    libressl
     uchardet
     rubberband
     libwaio
