@@ -1,7 +1,7 @@
 ExternalProject_Add(fribidi
     DEPENDS gcc
-    URL "http://fribidi.org/download/fribidi-0.19.6.tar.bz2"
-    URL_HASH SHA256=cba8b7423c817e5adf50d28ec9079d14eafcec9127b9e8c8f1960c5ad585e17d
+    URL "http://fribidi.org/download/fribidi-0.19.7.tar.bz2"
+    URL_HASH SHA256=08222a6212bbc2276a2d55c3bf370109ae4a35b689acbc66571ad2a670595a8e
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
