@@ -97,6 +97,7 @@ foreach(package
     openal-soft
     fribidi
     expat
+    libarchive
     freetype2
     libbluray
     fontconfig

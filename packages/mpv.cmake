@@ -9,6 +9,7 @@ ExternalProject_Add(mpv
         ffmpeg
         fribidi
         lcms2
+        libarchive
         libass
         libdvdnav
         libdvdread
@@ -36,6 +37,7 @@ ExternalProject_Add(mpv
         ${MPV_INTERNAL_PTHREADS}
         --enable-waio
         --enable-lua
+        --enable-libarchive
         --enable-libass
         --enable-libbluray
         --enable-dvdread
