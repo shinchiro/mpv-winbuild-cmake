@@ -22,6 +22,7 @@ ExternalProject_Add(mpv
         uchardet
         winpthreads
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
+    GIT_TAG v0.10.0
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
         PKG_CONFIG=pkg-config
