@@ -86,7 +86,6 @@ foreach(package
     opencore-amr
     fdk-aac
     game-music-emu
-    librtmp
     libpng
     x264
     libdvdcss
