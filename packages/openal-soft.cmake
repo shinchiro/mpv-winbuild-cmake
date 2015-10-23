@@ -1,6 +1,6 @@
 ExternalProject_Add(openal-soft
     DEPENDS winpthreads
-    DOWNLOAD_COMMAND git clone https://github.com/mirror/openal-soft.git --depth 1
+    GIT_REPOSITORY https://github.com/mirror/openal-soft.git
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-*.patch
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
