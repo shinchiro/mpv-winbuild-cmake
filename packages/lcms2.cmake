@@ -1,6 +1,6 @@
 ExternalProject_Add(lcms2
     DEPENDS libjpeg zlib
-    DOWNLOAD_COMMAND git clone https://github.com/mm2/Little-CMS.git --depth 1
+    GIT_REPOSITORY https://github.com/mm2/Little-CMS.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
