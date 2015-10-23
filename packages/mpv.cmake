@@ -30,7 +30,7 @@ ExternalProject_Add(mpv
         ${MPV_LDFLAGS}
         <SOURCE_DIR>/waf configure
         --enable-static-build
-        --enable-pdf-build
+        --disable-pdf-build
         --disable-manpage-build
         --disable-debug-build
         --enable-libmpv-shared
