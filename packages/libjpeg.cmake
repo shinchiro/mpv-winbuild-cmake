@@ -1,6 +1,6 @@
 ExternalProject_Add(libjpeg
     DEPENDS gcc
-	DOWNLOAD_COMMAND git clone https://github.com/mozilla/mozjpeg.git --depth 1
+  	DOWNLOAD_COMMAND git clone https://github.com/mozilla/mozjpeg.git --depth 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libjpeg-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

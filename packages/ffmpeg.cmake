@@ -9,7 +9,7 @@ ExternalProject_Add(ffmpeg
         libbluray
         libmodplug
         libpng
-		libressl
+	      libressl
         libvpx
         opencore-amr
         opus
@@ -18,7 +18,7 @@ ExternalProject_Add(ffmpeg
         vorbis
         x264
         xvidcore
-	DOWNLOAD_COMMAND git clone git://github.com/FFmpeg/FFmpeg.git --depth 1
+    DOWNLOAD_COMMAND git clone git://github.com/FFmpeg/FFmpeg.git --depth 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

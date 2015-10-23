@@ -11,7 +11,7 @@ ExternalProject_Add(libass
         ${ASS_USE_FONTCONFIG}
         fribidi
         libiconv
-	DOWNLOAD_COMMAND git clone https://github.com/libass/libass.git --depth 1
+    DOWNLOAD_COMMAND git clone https://github.com/libass/libass.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

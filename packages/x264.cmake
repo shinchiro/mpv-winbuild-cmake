@@ -1,6 +1,6 @@
 ExternalProject_Add(x264
     DEPENDS gcc
-	DOWNLOAD_COMMAND git clone git://git.videolan.org/x264.git --depth 1
+	  DOWNLOAD_COMMAND git clone git://git.videolan.org/x264.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

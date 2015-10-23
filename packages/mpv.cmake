@@ -21,7 +21,7 @@ ExternalProject_Add(mpv
         rubberband
         uchardet
         winpthreads
-	DOWNLOAD_COMMAND git clone git://github.com/mpv-player/mpv.git --depth 1
+  	DOWNLOAD_COMMAND git clone git://github.com/mpv-player/mpv.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
         PKG_CONFIG=pkg-config
