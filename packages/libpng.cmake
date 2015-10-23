@@ -1,6 +1,6 @@
 ExternalProject_Add(libpng
     DEPENDS zlib
-    GIT_REPOSITORY "git://git.code.sf.net/p/libpng/code"
+	DOWNLOAD_COMMAND git clone git://git.code.sf.net/p/libpng/code --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

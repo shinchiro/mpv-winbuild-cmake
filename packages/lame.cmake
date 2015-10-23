@@ -1,6 +1,6 @@
 ExternalProject_Add(lame
     DEPENDS gcc
-    GIT_REPOSITORY "git://anonscm.debian.org/pkg-multimedia/lame.git"
+	DOWNLOAD_COMMAND git clone git://anonscm.debian.org/pkg-multimedia/lame.git --depth 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

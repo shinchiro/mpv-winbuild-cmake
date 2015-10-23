@@ -1,6 +1,6 @@
 ExternalProject_Add(xz
     DEPENDS gcc
-    GIT_REPOSITORY "http://git.tukaani.org/xz.git"
+	DOWNLOAD_COMMAND git clone http://git.tukaani.org/xz.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

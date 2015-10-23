@@ -1,6 +1,6 @@
 ExternalProject_Add(uchardet
     DEPENDS gcc
-    GIT_REPOSITORY "https://github.com/BYVoid/uchardet.git"
+	DOWNLOAD_COMMAND git clone https://github.com/BYVoid/uchardet.git --depth 1
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} -DBUILD_SHARED_LIBS=OFF
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}

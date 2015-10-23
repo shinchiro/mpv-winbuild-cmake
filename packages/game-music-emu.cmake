@@ -1,6 +1,6 @@
 ExternalProject_Add(game-music-emu
     DEPENDS gcc
-    GIT_REPOSITORY "https://bitbucket.org/mpyne/game-music-emu.git"
+	DOWNLOAD_COMMAND git clone https://bitbucket.org/mpyne/game-music-emu.git --depth 1
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} -DBUILD_SHARED_LIBS=OFF
     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}

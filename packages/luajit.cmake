@@ -19,7 +19,7 @@ ExternalProject_Add(luajit
     DEPENDS
         gcc
         libiconv
-    GIT_REPOSITORY "http://luajit.org/git/luajit-2.0.git"
+	DOWNLOAD_COMMAND git clone http://luajit.org/git/luajit-2.0.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} "HOST_CC='${LUAJIT_HOST_GCC} ${LUAJIT_GCC_ARGS}'" CROSS=${TARGET_ARCH}- TARGET_SYS=Windows BUILDMODE=static amalg
