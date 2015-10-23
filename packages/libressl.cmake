@@ -1,6 +1,6 @@
 ExternalProject_Add(libressl
     DEPENDS gcc
-    DOWNLOAD_COMMAND git clone https://github.com/libressl-portable/portable.git --depth 1
+    GIT_REPOSITORY https://github.com/libressl-portable/portable.git
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libressl-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
