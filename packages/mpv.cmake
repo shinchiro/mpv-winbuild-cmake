@@ -95,6 +95,7 @@ ExternalProject_Add_Step(mpv copy-binary
 
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
     #COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/DOCS/man/mpv.pdf ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/manual.pdf
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv-config/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
     COMMENT "Copying mpv binaries and manual"
 )
 
