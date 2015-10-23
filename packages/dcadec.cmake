@@ -1,6 +1,6 @@
 ExternalProject_Add(dcadec
     DEPENDS gcc
-	  DOWNLOAD_COMMAND git clone https://github.com/foo86/dcadec.git --depth 1
+    DOWNLOAD_COMMAND git clone https://github.com/foo86/dcadec.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} clean

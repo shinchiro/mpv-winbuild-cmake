@@ -6,7 +6,7 @@ endif()
 
 ExternalProject_Add(libvpx
     DEPENDS winpthreads
-  	DOWNLOAD_COMMAND git clone https://chromium.googlesource.com/webm/libvpx.git --depth 1
+    DOWNLOAD_COMMAND git clone https://chromium.googlesource.com/webm/libvpx.git --depth 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --target=${libvpx_target}
