@@ -65,7 +65,7 @@ endfunction()
 
 function(clean_build_dir _name)
     ExternalProject_Add_Step(${_name} clean_build_dir
-        DEPENDEES install
+        DEPENDEES download update patch configure build install
         COMMAND ${EXEC} rm -rf "<BINARY_DIR>/*"
         ALWAYS 1
     )
