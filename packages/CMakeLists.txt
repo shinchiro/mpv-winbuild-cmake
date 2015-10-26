@@ -17,7 +17,7 @@ function(force_rebuild_git _name)
             DEPENDEES download
             DEPENDERS update patch
             COMMAND git reset --hard @{u}
-                COMMAND git pull
+            COMMAND git pull
             WORKING_DIRECTORY <SOURCE_DIR>
             ALWAYS 1
             LOG 1
@@ -60,6 +60,14 @@ function(autoreconf _name)
         COMMAND ${EXEC} autoreconf -fi
         WORKING_DIRECTORY <SOURCE_DIR>
         LOG 1
+    )
+endfunction()
+
+function(clean_build_dir _name)
+    ExternalProject_Add_Step(${_name} clean_build_dir
+        DEPENDEES install
+        COMMAND ${EXEC} rm -rf "<BINARY_DIR>/*"
+        ALWAYS 1
     )
 endfunction()
 

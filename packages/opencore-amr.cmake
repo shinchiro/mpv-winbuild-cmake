@@ -12,5 +12,6 @@ ExternalProject_Add(opencore-amr
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+clean_build_dir(opencore-amr)
 force_rebuild_git(opencore-amr)
 autoreconf(opencore-amr)

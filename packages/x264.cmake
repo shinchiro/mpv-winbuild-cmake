@@ -20,4 +20,5 @@ ExternalProject_Add(x264
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+clean_build_dir(x264)
 force_rebuild_git(x264)

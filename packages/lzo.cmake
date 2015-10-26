@@ -11,3 +11,5 @@ ExternalProject_Add(lzo
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+clean_build_dir(lzo)
