@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(mpv-cross C)
-include(ExternalProject)
+# Add custom cmake module (cmake/ExternalProject.cmake)
+LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+INCLUDE(ExternalProject)
 include(ProcessorCount)
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
