@@ -11,8 +11,7 @@ function(force_rebuild _name)
                 "<SOURCE_DIR>-stamp/*-download"
             ALWAYS 1
         )
-endif()
-
+    endif()
 endfunction()
 
 function(force_rebuild_git _name)
