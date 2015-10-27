@@ -7,6 +7,8 @@ function(force_rebuild _name)
             "<SOURCE_DIR>-stamp/*-configure"
             "<SOURCE_DIR>-stamp/*-build"
             "<SOURCE_DIR>-stamp/*-patch"
+            "<SOURCE_DIR>-stamp/*-download"
+
         ALWAYS 1
     )
 endfunction()
