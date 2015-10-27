@@ -7,9 +7,9 @@ ExternalProject_Add(xvidcore
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE} -C build/generic BUILD_DIR=build SHARED_LIB=
     INSTALL_COMMAND install -d ${MINGW_INSTALL_PREFIX}/include
-        COMMAND install -m644 src/xvid.h ${MINGW_INSTALL_PREFIX}/include/
-        COMMAND install -d ${MINGW_INSTALL_PREFIX}/lib
-        COMMAND install -m644 build/generic/build/xvidcore.a ${MINGW_INSTALL_PREFIX}/lib/libxvidcore.a
+    COMMAND install -m644 src/xvid.h ${MINGW_INSTALL_PREFIX}/include/
+    COMMAND install -d ${MINGW_INSTALL_PREFIX}/lib
+    COMMAND install -m644 build/generic/build/xvidcore.a ${MINGW_INSTALL_PREFIX}/lib/libxvidcore.a
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

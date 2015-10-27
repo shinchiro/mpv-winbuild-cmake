@@ -14,3 +14,5 @@ ExternalProject_Add(fribidi
     INSTALL_COMMAND ${MAKE} -j1 install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+clean_build_dir(fribidi)
