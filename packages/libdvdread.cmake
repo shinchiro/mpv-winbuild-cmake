@@ -1,6 +1,7 @@
 ExternalProject_Add(libdvdread
     DEPENDS libdvdcss
-    DOWNLOAD_COMMAND git clone git://git.videolan.org/libdvdread.git --depth 1
+    GIT_REPOSITORY git://git.videolan.org/libdvdread.git
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

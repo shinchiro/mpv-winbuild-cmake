@@ -1,6 +1,7 @@
 ExternalProject_Add(opencore-amr
     DEPENDS gcc
     GIT_REPOSITORY git://git.code.sf.net/p/opencore-amr/code
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/opencore-amr-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

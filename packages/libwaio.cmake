@@ -1,6 +1,7 @@
 ExternalProject_Add(libwaio
     DEPENDS gcc
     GIT_REPOSITORY "git://midipix.org/waio"
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${EXEC} ./build-mingw-nt${TARGET_BITS} lib-static

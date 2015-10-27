@@ -1,6 +1,7 @@
 ExternalProject_Add(fdk-aac
     DEPENDS gcc
     GIT_REPOSITORY git://git.code.sf.net/p/opencore-amr/fdk-aac
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
