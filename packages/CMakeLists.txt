@@ -3,12 +3,14 @@ function(force_rebuild _name)
         ExternalProject_Add_Step(${_name} force-rebuild
             DEPENDEES build
             COMMAND ${EXEC} rm -f
-                "<SOURCE_DIR>-stamp/*-autoreconf"
-                "<SOURCE_DIR>-stamp/*-autogen"
-                "<SOURCE_DIR>-stamp/*-configure"
                 "<SOURCE_DIR>-stamp/*-build"
-                "<SOURCE_DIR>-stamp/*-patch"
+                "<SOURCE_DIR>-stamp/*-configure"
+                "<SOURCE_DIR>-stamp/*-done"
                 "<SOURCE_DIR>-stamp/*-download"
+                "<SOURCE_DIR>-stamp/*-install"
+                "<SOURCE_DIR>-stamp/*-mkdir"
+                "<SOURCE_DIR>-stamp/*-patch"
+                "<SOURCE_DIR>-stamp/*-update"
             ALWAYS 1
         )
     endif()
