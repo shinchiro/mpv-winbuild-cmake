@@ -16,3 +16,4 @@ ExternalProject_Add(fribidi
 )
 
 clean_build_dir(fribidi)
+force_rebuild(fribidi)

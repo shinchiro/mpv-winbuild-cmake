@@ -13,3 +13,4 @@ ExternalProject_Add(opus
 )
 
 clean_build_dir(opus)
+force_rebuild(opus)

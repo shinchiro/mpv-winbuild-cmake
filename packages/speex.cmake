@@ -16,3 +16,4 @@ ExternalProject_Add(speex
 )
 
 clean_build_dir(speex)
+force_rebuild(speex)

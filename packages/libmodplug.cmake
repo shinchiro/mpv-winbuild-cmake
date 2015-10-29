@@ -12,3 +12,4 @@ ExternalProject_Add(libmodplug
 )
 
 clean_build_dir(libmodplug)
+force_rebuild(libmodplug)

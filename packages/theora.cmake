@@ -14,3 +14,4 @@ ExternalProject_Add(theora
 )
 
 clean_build_dir(theora)
+force_rebuild(theora)
