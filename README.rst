@@ -25,6 +25,13 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     `<https://github.com/lachs0r/mingw-w64-env>`_
 
 
+Prerequisites for Manjaro Linux
+--------------------------------
+These packages need to be installed first before compiling mpv:
+
+    pacman -S ragel yasm asciidoc enca gperf python-docutils python2-rst2pdf python2-lxml p7zip gcc-multilib
+
+
 Building Software
 -----------------
 
