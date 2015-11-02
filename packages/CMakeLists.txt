@@ -14,6 +14,7 @@ function(force_rebuild _name)
                 "<SOURCE_DIR>-stamp/*-patch"
                 "<SOURCE_DIR>-stamp/*-update"
                 "<SOURCE_DIR>-stamp/*-done"
+                "<SOURCE_DIR>-stamp/*.log"
             ALWAYS 1
         )
     endif()
