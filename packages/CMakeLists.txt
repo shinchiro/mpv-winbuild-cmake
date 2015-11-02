@@ -24,7 +24,6 @@ function(force_rebuild_git _name)
         ExternalProject_Add_Step(${_name} force-update
             DEPENDEES download
             DEPENDERS update patch
-            COMMAND git clean -dfx
             COMMAND git reset --hard @{u}
             COMMAND git pull
             WORKING_DIRECTORY <SOURCE_DIR>
@@ -41,7 +40,6 @@ function(force_rebuild_svn _name)
         ExternalProject_Add_Step(${_name} force-update
             DEPENDEES download
             DEPENDERS update patch
-            COMMAND svn cleanup --remove-unversioned --remove-ignored
             COMMAND svn revert -R .
             COMMAND svn up
             WORKING_DIRECTORY <SOURCE_DIR>
