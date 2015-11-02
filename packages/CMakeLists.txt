@@ -13,6 +13,7 @@ function(force_rebuild _name)
                 "<SOURCE_DIR>-stamp/*-mkdir"
                 "<SOURCE_DIR>-stamp/*-patch"
                 "<SOURCE_DIR>-stamp/*-update"
+                "<SOURCE_DIR>-stamp/*-done"
             ALWAYS 1
         )
     endif()
