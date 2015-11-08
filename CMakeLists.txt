@@ -3,7 +3,6 @@ project(mpv-cross C)
 # Add custom cmake module (cmake/ExternalProject.cmake)
 LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 INCLUDE(ExternalProject)
-include(ProcessorCount)
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
@@ -21,10 +20,8 @@ else()
     set(TARGET_BITS 32)
 endif()
 
-processorcount(MAKEJOBS)
-if(MAKEJOBS EQUAL 0)
-    set(MAKEJOBS 1)
-endif()
+set(MAKEJOBS 2)
+
 set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
 
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
