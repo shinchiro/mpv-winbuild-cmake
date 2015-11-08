@@ -29,8 +29,11 @@ Prerequisites for Manjaro Linux
 --------------------------------
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git ninja cmake ragel yasm asciidoc enca gperf python-docutils python2-rst2pdf python2-lxml p7zip gcc-multilib
+    pacman -S git ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib
 
+For building pdf, these packages are needed:
+
+    pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
 Building Software
 -----------------
