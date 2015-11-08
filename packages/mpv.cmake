@@ -31,7 +31,7 @@ ExternalProject_Add(mpv
         ${MPV_LDFLAGS}
         <SOURCE_DIR>/waf configure
         --enable-static-build
-        --disable-pdf-build
+        --enable-pdf-build
         --disable-manpage-build
         --disable-debug-build
         --enable-libmpv-shared
@@ -95,8 +95,8 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/libmpv.dll.a ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
 
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
-    #COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/DOCS/man/mpv.pdf ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/manual.pdf
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv-config/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/DOCS/man/mpv.pdf ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/manual.pdf
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv-config/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
     COMMENT "Copying mpv binaries and manual"
 )
 
