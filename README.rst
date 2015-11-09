@@ -35,6 +35,13 @@ For building pdf, these packages are needed:
 
     pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
+Parallel Build
+--------------
+
+By default, this script set up MAKEJOBS value to 2 by default. This follow the rule,
+1 core + 1. If your pc has more cores, you can increase the MAKEJOBS value in CMakeLists.
+For example, if you have quad core cpu, the MAKEJOBS value should be 5.
+
 Building Software
 -----------------
 
