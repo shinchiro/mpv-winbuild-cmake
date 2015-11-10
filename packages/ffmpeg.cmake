@@ -18,7 +18,8 @@ ExternalProject_Add(ffmpeg
         vorbis
         x264
         xvidcore
-    GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
+    #GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
+    GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
     GIT_DEPTH 1
     DOWNLOAD_NAME "ffmpeg"
     UPDATE_COMMAND ""
