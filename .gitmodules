@@ -1,0 +1,3 @@
+[submodule "vendor/angle"]
+	path = vendor/angle
+	url = https://chromium.googlesource.com/angle/angle
