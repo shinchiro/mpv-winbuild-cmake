@@ -1,7 +1,7 @@
 ExternalProject_Add(libjpeg
     DEPENDS gcc
-    URL "http://download.sourceforge.net/libjpeg-turbo/libjpeg-turbo-1.4.0.tar.gz"
-    URL_HASH SHA256=d93ad8546b510244f863b39b4c0da0fa4c0d53a77b61a8a3880f258c232bbbee
+    URL "http://download.sourceforge.net/libjpeg-turbo/libjpeg-turbo-1.4.2.tar.gz"
+    URL_HASH SHA256=521bb5d3043e7ac063ce3026d9a59cc2ab2e9636c655a2515af5f4706122233e
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
