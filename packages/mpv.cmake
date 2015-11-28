@@ -123,32 +123,11 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMENT "Copying mpv binaries and manual"
 )
 
-if(${TARGET_CPU} MATCHES "i686")
-    ExternalProject_Add_Step(mpv copy-font-stuff
-        DEPENDEES clean-package-dir
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/fonts
-        COMMENT "Copying font stuff"
-    )
-endif()
-
 ExternalProject_Add_Step(mpv pack-binary
-    DEPENDEES copy-binary copy-font-stuff
+    DEPENDEES copy-binary
     COMMAND ${CMAKE_COMMAND} -E remove ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z
     COMMAND ${EXEC} 7z a -m0=lzma2 -mx=9 -ms=on ../../mpv-${TARGET_CPU}-${BUILDDATE}.7z *
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
     COMMENT "Packing mpv binary"
     LOG 1
 )
-
-if(${TARGET_CPU} MATCHES "i686")
-    ExternalProject_Add_Step(mpv download-font
-        DEPENDEES copy-font-stuff
-        DEPENDERS pack-binary
-        COMMAND wget "http://srsfckn.biz/noto-mpv.7z"
-        COMMAND 7z x noto-mpv.7z
-        COMMAND ${CMAKE_COMMAND} -E remove noto-mpv.7z
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/fonts
-        LOG 1
-    )
-endif()
