@@ -172,18 +172,18 @@ index 0000000..0229cbe
 +#pragma pack(pop)
 +#endif
 diff --git a/configure b/configure
-index 49983e4..3f87553 100755
+index beace68..d6f0ffb 100755
 --- a/configure
 +++ b/configure
-@@ -1872,6 +1872,7 @@
- 
+@@ -1881,6 +1881,7 @@ TOOLCHAIN_FEATURES="
+
  TYPES_LIST="
      CONDITION_VARIABLE_Ptr
 +    DXVA_PicParams_HEVC
      socklen_t
      struct_addrinfo
-     struct_dcadec_exss_info_matrix_encoding
-@@ -2459,9 +2460,9 @@
+     struct_group_source_req
+@@ -2463,9 +2464,9 @@ h264_vdpau_hwaccel_deps="vdpau"
  h264_vdpau_hwaccel_select="h264_decoder"
  h264_videotoolbox_hwaccel_deps="videotoolbox"
  h264_videotoolbox_hwaccel_select="h264_decoder"
@@ -202,22 +202,22 @@ index 79d2d28..2705caa 100644
 @@ -29,6 +29,10 @@
  // potentially newer version.
  #include "dxva2_internal.h"
- 
+
 +#if !HAVE_DXVA_PICPARAMS_HEVC
 +#include "compat/windows/dxva_hevc.h"
 +#endif
 +
  #define MAX_SLICES 256
- 
+
  struct hevc_dxva2_picture_context {
 diff --git a/libavcodec/hevc.c b/libavcodec/hevc.c
 index 09043e4..9f77b2e 100644
 --- a/libavcodec/hevc.c
 +++ b/libavcodec/hevc.c
 @@ -345,7 +345,9 @@ static int set_sps(HEVCContext *s, const HEVCSPS *sps, enum AVPixelFormat pix_fm
- 
+
      export_stream_params(s->avctx, &s->ps, sps);
- 
+
 -    if (sps->pix_fmt == AV_PIX_FMT_YUV420P || sps->pix_fmt == AV_PIX_FMT_YUVJ420P) {
 +    switch (sps->pix_fmt) {
 +    case AV_PIX_FMT_YUV420P:
@@ -239,5 +239,5 @@ index 09043e4..9f77b2e 100644
 +#endif
 +        break;
      }
- 
+
      if (pix_fmt == AV_PIX_FMT_NONE) {
