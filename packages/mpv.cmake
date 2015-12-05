@@ -35,6 +35,7 @@ ExternalProject_Add(mpv
         --disable-manpage-build
         --disable-debug-build
         --enable-libmpv-shared
+        --enable-gpl3
         ${MPV_INTERNAL_PTHREADS}
         --enable-waio
         --enable-lua
