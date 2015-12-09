@@ -1,17 +1,17 @@
-From 146e21177f73a3ad6e46ba788650466ec9c22866 Mon Sep 17 00:00:00 2001
-From: che <che27012011@googlemail.com>
-Date: Tue, 1 Dec 2015 13:55:51 +0100
-Subject: [PATCH] Use pkg-config for more external libs
+From 8cdbec81fc8f2ece4b20241a43f780c97fe5a58a Mon Sep 17 00:00:00 2001
+From: Martin Herkt <lachs0r@srsfckn.biz>
+Date: Sun, 6 Dec 2015 08:24:15 +0100
+Subject: [PATCH 1/2] Use pkg-config for more external libs
 
 ---
  configure | 15 ++++++---------
  1 file changed, 6 insertions(+), 9 deletions(-)
 
 diff --git a/configure b/configure
-index a30d831..beace68 100755
+index d61c2aa..40c79cf 100755
 --- a/configure
 +++ b/configure
-@@ -5358,7 +5358,7 @@ enabled fontconfig        && enable libfontconfig
+@@ -5399,7 +5399,7 @@ enabled fontconfig        && enable libfontconfig
  enabled libfontconfig     && require_pkg_config fontconfig "fontconfig/fontconfig.h" FcInit
  enabled libfreetype       && require_libfreetype
  enabled libfribidi        && require_pkg_config fribidi fribidi.h fribidi_version_info
@@ -20,7 +20,7 @@ index a30d831..beace68 100755
  enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
                                     check_lib "${gsm_hdr}" gsm_create -lgsm && break;
                                 done || die "ERROR: libgsm not found"; }
-@@ -5368,8 +5368,8 @@ enabled libmfx            && require_pkg_config libmfx "mfx/mfxvideo.h" MFXInit
+@@ -5409,8 +5409,8 @@ enabled libmfx            && require_pkg_config libmfx "mfx/mfxvideo.h" MFXInit
  enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
  enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
  enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
@@ -31,7 +31,7 @@ index a30d831..beace68 100755
  enabled libopencv         && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
  enabled libopenh264       && require_pkg_config openh264 wels/codec_api.h WelsGetCodecVersion
  enabled libopenjpeg       && { check_lib openjpeg.h opj_version -lopenmj2 -DOPJ_STATIC ||
-@@ -5393,7 +5393,7 @@ enabled libstagefright_h264 && require_cpp libstagefright_h264 "binder/ProcessSt
+@@ -5434,7 +5434,7 @@ enabled libstagefright_h264 && require_cpp libstagefright_h264 "binder/ProcessSt
      media/stagefright/MediaBufferGroup.h media/stagefright/MediaDebug.h media/stagefright/MediaDefs.h
      media/stagefright/OMXClient.h media/stagefright/OMXCodec.h" android::OMXClient -lstagefright -lmedia -lutils -lbinder -lgnustl_static
  enabled libtesseract      && require_pkg_config tesseract tesseract/capi.h TessBaseAPICreate
@@ -40,7 +40,7 @@ index a30d831..beace68 100755
  enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame &&
                               { check_lib twolame.h twolame_encode_buffer_float32_interleaved -ltwolame ||
                                 die "ERROR: libtwolame must be installed and version must be >= 0.3.10"; }
-@@ -5402,7 +5402,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
+@@ -5443,7 +5443,7 @@ enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
  enabled libvidstab        && require_pkg_config "vidstab >= 0.98" vid.stab/libvidstab.h vsMotionDetectInit
  enabled libvo_aacenc      && require libvo_aacenc vo-aacenc/voAAC.h voGetAACEncAPI -lvo-aacenc
  enabled libvo_amrwbenc    && require libvo_amrwbenc vo-amrwbenc/enc_if.h E_IF_init -lvo-amrwbenc
@@ -49,7 +49,7 @@ index a30d831..beace68 100755
  
  enabled libvpx            && {
      enabled libvpx_vp8_decoder && {
-@@ -5477,10 +5477,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
+@@ -5518,10 +5518,7 @@ enabled opengl            && { check_lib GL/glx.h glXGetProcAddress "-lGL" ||
                                 check_lib2 ES2/gl.h glGetError "-isysroot=${sysroot} -Wl,-framework,OpenGLES" ||
                                 die "ERROR: opengl not found."
                               }
@@ -58,9 +58,9 @@ index a30d831..beace68 100755
 -                               check_lib openssl/ssl.h SSL_library_init -lssl -lcrypto -lws2_32 -lgdi32 ||
 -                               die "ERROR: openssl not found"; }
 +enabled openssl           && require_pkg_config openssl openssl/ssl.h SSL_library_init
- enabled qtkit_indev      && { check_header_oc QTKit/QTKit.h || disable qtkit_indev; }
+ enabled qtkit_indev      && { check_header_objcc QTKit/QTKit.h || disable qtkit_indev; }
  
  # libdc1394 check
 -- 
-2.5.2
+2.6.3
 
