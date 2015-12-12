@@ -43,6 +43,8 @@ ExternalProject_Add(ffmpeg
     --enable-libbluray
     --enable-libdcadec
     --enable-libfdk-aac
+    --enable-libfreetype
+    --enable-libfribidi
     --enable-libgme
     --enable-libmodplug
     --enable-libmp3lame
