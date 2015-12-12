@@ -19,7 +19,8 @@ ExternalProject_Add(ffmpeg
         x264
         xvidcore
     #GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
-    GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
+    #GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
+    GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
     GIT_DEPTH 1
     DOWNLOAD_NAME "ffmpeg"
     UPDATE_COMMAND ""
