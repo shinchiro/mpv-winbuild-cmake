@@ -62,25 +62,6 @@ ExternalProject_Add_Step(mpv bootstrap
     LOG 1
 )
 
-ExternalProject_Add_Step(mpv copy_angle
-    DEPENDEES download
-    DEPENDERS configure
-    # copy ANGLE headers
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/extras/angle_include/EGL ${MINGW_INSTALL_PREFIX}/include/EGL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/extras/angle_include/GLES2 ${MINGW_INSTALL_PREFIX}/include/GLES2
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/extras/angle_include/GLES3 ${MINGW_INSTALL_PREFIX}/include/GLES3
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/extras/angle_include/GLSLANG ${MINGW_INSTALL_PREFIX}/include/GLSLANG
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/extras/angle_include/KHR ${MINGW_INSTALL_PREFIX}/include/KHR
-    # copy ANGLE dll library
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libEGL.dll ${MINGW_INSTALL_PREFIX}/lib
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libEGL.dll ${MINGW_INSTALL_PREFIX}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libGLESv2.dll ${MINGW_INSTALL_PREFIX}/lib    
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libGLESv2.dll ${MINGW_INSTALL_PREFIX}/bin
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/D3DCompiler_47.dll ${MINGW_INSTALL_PREFIX}/lib
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/D3DCompiler_47.dll ${MINGW_INSTALL_PREFIX}/bin
-    COMMENT "Copy ANGLE headers and libraries"                     
-)
-
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build
     COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --only-keep-debug <SOURCE_DIR>/build/mpv.exe <SOURCE_DIR>/build/mpv.exe.debug
@@ -115,10 +96,6 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/DOCS/man/mpv.pdf ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/manual.pdf
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/mpv-config/mpv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv
-    # copy ANGLE dll library
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libEGL.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/libGLESv2.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/extras/angle_lib-${TARGET_CPU}/D3DCompiler_47.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-package
     COMMENT "Copying mpv binaries and manual"
 )
 
