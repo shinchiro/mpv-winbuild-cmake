@@ -81,6 +81,7 @@ function(clean_build_dir _name)
 endfunction()
 
 foreach(package
+    angle
     xz
     lzo
     libressl
