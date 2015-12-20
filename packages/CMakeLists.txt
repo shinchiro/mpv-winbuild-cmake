@@ -85,8 +85,7 @@ foreach(package
     lzo
     libressl
     uchardet
-    rubberband
-    libwaio
+    rubberband    
     zlib
     bzip2
     libjpeg
@@ -105,6 +104,7 @@ foreach(package
     game-music-emu
     libpng
     x264
+    angle
     libdvdcss
     libdvdread
     libdvdnav
