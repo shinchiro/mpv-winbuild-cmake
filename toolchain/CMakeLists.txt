@@ -33,8 +33,8 @@ ExternalProject_Add(mingw-w64-headers
     SOURCE_DIR mingw-w64-prefix/src/mingw-w64
     BINARY_DIR mingw-w64-prefix/src/mingw-w64-headers-build
     DEPENDS binutils
-    URL "http://downloads.sourceforge.net/project/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v4.0.4.tar.bz2"
-    URL_HASH SHA256=89356a0aa8cf9f8b9dc8d92bc8dd01a131d4750c3acb30c6350a406316c42199
+    GIT_REPOSITORY git://git.code.sf.net/p/mingw-w64/mingw-w64
+    GIT_DEPTH 1
     PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/mingw-w64-1.patch
     CONFIGURE_COMMAND <SOURCE_DIR>/mingw-w64-headers/configure
         --host=${TARGET_ARCH}
