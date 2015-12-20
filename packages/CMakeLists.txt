@@ -81,7 +81,6 @@ function(clean_build_dir _name)
 endfunction()
 
 foreach(package
-    angle
     xz
     lzo
     libressl
@@ -106,6 +105,7 @@ foreach(package
     game-music-emu
     libpng
     x264
+    angle
     libdvdcss
     libdvdread
     libdvdnav
