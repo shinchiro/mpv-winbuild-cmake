@@ -15,8 +15,7 @@ ExternalProject_Add(mpv
         libdvdread
         libiconv
         libjpeg
-        libpng
-        libwaio
+        libpng        
         luajit
         rubberband
         uchardet
