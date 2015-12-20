@@ -37,7 +37,6 @@ ExternalProject_Add(mpv
         --disable-debug-build
         --enable-libmpv-shared
         --enable-gpl3
-        --enable-waio
         --enable-lua
         --enable-libarchive
         --enable-libass
