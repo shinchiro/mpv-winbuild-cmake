@@ -1,9 +1,8 @@
-From bb6076d81fe7cecd3822f4e65eb42f34d74871f0 Mon Sep 17 00:00:00 2001
-From: shinchiro <ihsanapps@gmail.com>
-Date: Sun, 20 Dec 2015 23:03:28 +0800
+From 38228a03545b2a50a9ae342aa341fc50803cf1a4 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Wed, 23 Dec 2015 13:57:49 +0800
 Subject: [PATCH] Simplify secure API functions workaround for MinGW
 
-Signed-off-by: shinchiro <ihsanapps@gmail.com>
 ---
  src/libANGLE/renderer/d3d/RendererD3D.cpp | 4 ++++
  1 file changed, 4 insertions(+)
