@@ -1,0 +1,157 @@
+From 9960effc58fd6e197df9fa3084d96f2b87cddd5e Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Sun, 27 Dec 2015 16:50:03 +0800
+Subject: [PATCH] Add P010 pixel format and basic swscale support
+
+All patches come from:
+https://github.com/mpc-hc/FFmpeg.git
+---
+ libavutil/pixdesc.c           | 24 ++++++++++++++++++++++++
+ libavutil/pixfmt.h            |  4 ++++
+ libswscale/input.c            | 30 ++++++++++++++++++++++++++++++
+ libswscale/swscale_unscaled.c |  4 ++--
+ libswscale/utils.c            |  1 +
+ 5 files changed, 61 insertions(+), 2 deletions(-)
+
+diff --git a/libavutil/pixdesc.c b/libavutil/pixdesc.c
+index 72d0470..39207de 100644
+--- a/libavutil/pixdesc.c
++++ b/libavutil/pixdesc.c
+@@ -1966,6 +1966,30 @@ static const AVPixFmtDescriptor av_pix_fmt_descriptors[AV_PIX_FMT_NB] = {
+         },
+         .flags = AV_PIX_FMT_FLAG_PLANAR | AV_PIX_FMT_FLAG_BE,
+     },
++    [AV_PIX_FMT_P010LE] = {
++        .name = "p010le",
++        .nb_components = 3,
++        .log2_chroma_w = 1,
++        .log2_chroma_h = 1,
++        .comp = {
++            { 0, 1, 1, 6, 9 },        /* Y */
++            { 1, 3, 1, 6, 9 },        /* U */
++            { 1, 3, 3, 6, 9 },        /* V */
++        },
++        .flags = AV_PIX_FMT_FLAG_PLANAR,
++    },
++    [AV_PIX_FMT_P010BE] = {
++        .name = "p010be",
++        .nb_components = 3,
++        .log2_chroma_w = 1,
++        .log2_chroma_h = 1,
++        .comp = {
++            { 0, 1, 1, 6, 9 },        /* Y */
++            { 1, 3, 1, 6, 9 },        /* U */
++            { 1, 3, 3, 6, 9 },        /* V */
++        },
++        .flags = AV_PIX_FMT_FLAG_PLANAR | AV_PIX_FMT_FLAG_BE,
++    },
+     [AV_PIX_FMT_VDA] = {
+         .name = "vda",
+         .flags = AV_PIX_FMT_FLAG_HWACCEL,
+diff --git a/libavutil/pixfmt.h b/libavutil/pixfmt.h
+index 32044f0..a05582c 100644
+--- a/libavutil/pixfmt.h
++++ b/libavutil/pixfmt.h
+@@ -289,6 +289,9 @@ enum AVPixelFormat {
+ 
+     AV_PIX_FMT_VIDEOTOOLBOX, ///< hardware decoding through Videotoolbox
+ 
++    AV_PIX_FMT_P010BE, ///< like NV12, with 10bpp per component, data in the high bits, zeros in the low bits
++    AV_PIX_FMT_P010LE,
++
+     AV_PIX_FMT_NB,        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
+ };
+ 
+@@ -365,6 +368,7 @@ enum AVPixelFormat {
+ #define AV_PIX_FMT_XYZ12      AV_PIX_FMT_NE(XYZ12BE, XYZ12LE)
+ #define AV_PIX_FMT_NV20       AV_PIX_FMT_NE(NV20BE,  NV20LE)
+ #define AV_PIX_FMT_AYUV64     AV_PIX_FMT_NE(AYUV64BE, AYUV64LE)
++#define AV_PIX_FMT_P010       AV_PIX_FMT_NE(P010BE,  P010LE)
+ 
+ /**
+   * Chromaticity coordinates of the source primaries.
+diff --git a/libswscale/input.c b/libswscale/input.c
+index 5906ea8..15a56af 100644
+--- a/libswscale/input.c
++++ b/libswscale/input.c
+@@ -679,6 +679,30 @@ static void nv21ToUV_c(uint8_t *dstU, uint8_t *dstV,
+     nvXXtoUV_c(dstV, dstU, src1, width);
+ }
+ 
++static void p010ToUV_c(uint8_t *dstU, uint8_t *dstV,
++                       const uint8_t *unused0, const uint8_t *src1, const uint8_t *src2,
++                       int width, uint32_t *unused)
++{
++    uint16_t *dstU16 = (uint16_t *)dstU, *dstV16 = (uint16_t *)dstV;
++    const uint16_t *src16 = (uint16_t *)src1;
++    int i;
++    for (i = 0; i < width; i++) {
++        dstU16[i] = src16[2 * i + 0] >> 6;
++        dstV16[i] = src16[2 * i + 1] >> 6;
++    }
++}
++
++static void p010ToY_c(uint8_t *_dst, const uint8_t *_src, const uint8_t *unused1, const uint8_t *unused2, int width,
++                      uint32_t *unused)
++{
++    uint16_t *dst = (uint16_t *)_dst;
++    const uint16_t *src = (uint16_t *)_src;
++    int i;
++    for (i = 0; i < width; i++) {
++        dst[i] = src[i] >> 6;
++    }
++}
++
+ #define input_pixel(pos) (isBE(origin) ? AV_RB16(pos) : AV_RL16(pos))
+ 
+ static void bgr24ToY_c(uint8_t *_dst, const uint8_t *src, const uint8_t *unused1, const uint8_t *unused2,
+@@ -910,6 +934,9 @@ av_cold void ff_sws_init_input_funcs(SwsContext *c)
+     case AV_PIX_FMT_NV21:
+         c->chrToYV12 = nv21ToUV_c;
+         break;
++    case AV_PIX_FMT_P010:
++        c->chrToYV12 = p010ToUV_c;
++        break;
+     case AV_PIX_FMT_RGB8:
+     case AV_PIX_FMT_BGR8:
+     case AV_PIX_FMT_PAL8:
+@@ -1226,6 +1253,9 @@ av_cold void ff_sws_init_input_funcs(SwsContext *c)
+     case AV_PIX_FMT_GBRP:
+         c->readLumPlanar = planar_rgb_to_y;
+         break;
++    case AV_PIX_FMT_P010:
++        c->lumToYV12 = p010ToY_c;
++        break;
+ #if HAVE_BIGENDIAN
+     case AV_PIX_FMT_YUV444P9LE:
+     case AV_PIX_FMT_YUV422P9LE:
+diff --git a/libswscale/swscale_unscaled.c b/libswscale/swscale_unscaled.c
+index 89cb90d..9b99c2b 100644
+--- a/libswscale/swscale_unscaled.c
++++ b/libswscale/swscale_unscaled.c
+@@ -1751,8 +1751,8 @@ void ff_get_unscaled_swscale(SwsContext *c)
+         (isPlanarYUV(srcFormat) && isPlanarYUV(dstFormat) &&
+          c->chrDstHSubSample == c->chrSrcHSubSample &&
+          c->chrDstVSubSample == c->chrSrcVSubSample &&
+-         dstFormat != AV_PIX_FMT_NV12 && dstFormat != AV_PIX_FMT_NV21 &&
+-         srcFormat != AV_PIX_FMT_NV12 && srcFormat != AV_PIX_FMT_NV21))
++         dstFormat != AV_PIX_FMT_NV12 && dstFormat != AV_PIX_FMT_NV21 && dstFormat != AV_PIX_FMT_P010 &&
++         srcFormat != AV_PIX_FMT_NV12 && srcFormat != AV_PIX_FMT_NV21 && srcFormat != AV_PIX_FMT_P010))
+     {
+         if (isPacked(c->srcFormat))
+             c->swscale = packedCopyWrapper;
+diff --git a/libswscale/utils.c b/libswscale/utils.c
+index e5593af..da73ab8 100644
+--- a/libswscale/utils.c
++++ b/libswscale/utils.c
+@@ -228,6 +228,7 @@ static const FormatEntry format_entries[AV_PIX_FMT_NB] = {
+     [AV_PIX_FMT_XYZ12BE]     = { 1, 1, 1 },
+     [AV_PIX_FMT_XYZ12LE]     = { 1, 1, 1 },
+     [AV_PIX_FMT_AYUV64LE]    = { 1, 1},
++    [AV_PIX_FMT_P010]        = { 1, 0 },
+ };
+ 
+ int sws_isSupportedInput(enum AVPixelFormat pix_fmt)
+-- 
+2.6.3
+
