@@ -1,7 +1,7 @@
 ExternalProject_Add(opus
     DEPENDS gcc
-    URL "http://downloads.xiph.org/releases/opus/opus-1.1.1.tar.gz"
-    URL_HASH SHA256=9b84ff56bd7720d5554103c557664efac2b8b18acc4bbcc234cb881ab9a3371e
+    GIT_REPOSITORY git://git.xiph.org/opus.git
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
