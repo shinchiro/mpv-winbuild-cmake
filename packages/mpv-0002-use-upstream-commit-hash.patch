@@ -1,0 +1,25 @@
+From 840d9c11fb3157b1060fc92fcac334b6b246c31c Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Tue, 5 Jan 2016 19:40:10 +0800
+Subject: [PATCH] Use upstream's commit hash
+
+---
+ version.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/version.sh b/version.sh
+index 674c6a1..b53b7f9 100755
+--- a/version.sh
++++ b/version.sh
+@@ -33,7 +33,7 @@ fi
+ # Extract revision number from file used by daily tarball snapshots
+ # or from "git describe" output
+ git_revision=$(cat snapshot_version 2> /dev/null)
+-test "$git_revision" || test ! -e .git || git_revision="$(git rev-parse --short HEAD)"
++test "$git_revision" || test ! -e .git || git_revision="$(git rev-parse --short @{u})"
+ test "$git_revision" && git_revision="git-$git_revision"
+ version="$git_revision"
+ 
+-- 
+2.6.3
+
