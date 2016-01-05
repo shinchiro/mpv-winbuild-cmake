@@ -1,7 +1,7 @@
 ExternalProject_Add(angle
     DEPENDS gcc
     GIT_REPOSITORY https://chromium.googlesource.com/angle/angle
-    GIT_DEPTH 1
+    #GIT_DEPTH 1
     GIT_TAG 444922662a59a45ad8f86ec9480b180571337f4e
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/angle-*.patch
