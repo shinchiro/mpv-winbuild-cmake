@@ -1813,7 +1813,7 @@ function(_ep_add_download_command name)
     # The script will delete the source directory and then call git clone.
     #
     _ep_write_gitclone_script(${tmp_dir}/${name}-gitclone.cmake ${source_dir}
-      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} ${git_depth} "${git_submodules}" ${src_name} ${work_dir}
+      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} \"${git_depth}\" "${git_submodules}" ${src_name} ${work_dir}
       ${stamp_dir}/${name}-gitinfo.txt ${stamp_dir}/${name}-gitclone-lastrun.txt
       )
     set(comment "Performing download step (git clone) for '${name}'")
@@ -2042,7 +2042,7 @@ function(_ep_add_update_command name)
             set(git_depth "--depth=${git_depth}")
         endif()
     _ep_write_gitupdate_script(${tmp_dir}/${name}-gitupdate.cmake
-      ${GIT_EXECUTABLE} ${git_tag} ${git_depth} "${git_submodules}" ${git_repository} ${work_dir}
+      ${GIT_EXECUTABLE} ${git_tag} \"${git_depth}\" "${git_submodules}" ${git_repository} ${work_dir}
       )
     set(cmd ${CMAKE_COMMAND} -P ${tmp_dir}/${name}-gitupdate.cmake)
     set(always 1)
