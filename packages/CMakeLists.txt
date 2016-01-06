@@ -21,19 +21,27 @@ function(force_rebuild _name)
 endfunction()
 
 function(force_rebuild_git _name)
+    get_property(git_tag TARGET ${_name} PROPERTY _EP_GIT_TAG)
+    if(NOT git_tag)
+      set(git_tag "@{u}")
+      set(pull COMMAND git pull)    
+    else()
+      set(git_tag ${git_tag})
+      set(pull "")
+    endif()
+    
     if(ENABLE_VCS_UPDATES)
         ExternalProject_Add_Step(${_name} force-update
             DEPENDEES download
             DEPENDERS update patch
-            COMMAND git reset --hard @{u}
-            COMMAND git pull
+            COMMAND git reset --hard ${git_tag}
+            ${pull}
             WORKING_DIRECTORY <SOURCE_DIR>
             ALWAYS 1
             LOG 1
         )
-
-        force_rebuild(${_name})
     endif()
+    force_rebuild(${_name})    
 endfunction()
 
 function(force_rebuild_svn _name)
