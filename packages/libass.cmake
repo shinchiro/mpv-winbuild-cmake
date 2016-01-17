@@ -2,7 +2,6 @@ ExternalProject_Add(libass
     DEPENDS
         harfbuzz
         freetype2
-        ${ASS_USE_FONTCONFIG}
         fribidi
         libiconv
     GIT_REPOSITORY https://github.com/libass/libass.git
