@@ -89,9 +89,9 @@ function(clean_build_dir _name)
 endfunction()
 
 foreach(package
+    gmp
     xz
     lzo
-    libressl
     uchardet
     rubberband    
     zlib
@@ -101,14 +101,11 @@ foreach(package
     lame
     ogg
     vorbis
-    theora
     opus
     speex
     libmodplug
     libvpx
     xvidcore
-    opencore-amr
-    fdk-aac
     game-music-emu
     libpng
     x264

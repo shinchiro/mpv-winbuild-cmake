@@ -2,7 +2,6 @@ ExternalProject_Add(libarchive
     DEPENDS
         bzip2
         expat
-        libressl
         lzo
         xz
         zlib
@@ -18,6 +17,7 @@ ExternalProject_Add(libarchive
         --disable-bsdcpio
         --without-xml2
         --without-nettle
+        --without-openssl
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
