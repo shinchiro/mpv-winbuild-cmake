@@ -29,7 +29,6 @@ Information about packages
 - Git
     - ANGLE (=444922662a59a45ad8f86ec9480b180571337f4e)
     - FFmpeg
-    - FDK-aac
     - dcadec
     - xz
     - x264
