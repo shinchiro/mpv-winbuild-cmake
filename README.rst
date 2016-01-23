@@ -24,6 +24,50 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     If you are looking for VM images with everything set up to work with this:
     `<https://github.com/lachs0r/mingw-w64-env>`_
 
+Information about packages
+--------------------------
+    - Git
+        - ANGLE (=444922662a59a45ad8f86ec9480b180571337f4e)
+        - FFmpeg
+        - FDK-aac
+        - dcadec
+        - xz
+        - x264
+        - uchardet
+        - rubberband
+        - opus
+        - openal-soft
+        - mpv
+        - luajit
+        - libvpx (=5232326716af469eafa6d98fba64f8154c69d9f8)
+        - libpng
+        - libdvdread
+        - libdvdnav
+        - libdvdcss
+        - libbluray (=66cbb03cf2486b2732f353ab6ce69fe9b297d9b7)
+        - libass
+        - lcms2
+        - lame
+        - harfbuzz
+        - game-music-emu
+        - freetype2 (=2e09812c5121413fa29692a46b310983cb3de3e8)
+
+    - Zip
+        - expat
+        - bzip
+        - zlib
+        - xvidcore
+        - vorbis
+        - speex
+        - ogg
+        - lzo
+        - libmodplug
+        - libjpeg
+        - libiconv
+        - libarchive
+        - gmp
+        - fribidi
+        
 
 Prerequisites for Manjaro Linux
 --------------------------------
