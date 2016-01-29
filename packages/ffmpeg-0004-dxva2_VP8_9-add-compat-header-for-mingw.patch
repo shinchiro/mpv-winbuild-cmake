@@ -1,6 +1,6 @@
-From 4812518b1ab98ef142c4601e95a9b068d9f9bd14 Mon Sep 17 00:00:00 2001
+From d0eeb74224e80c8fa55848fcc177c88abbe776f1 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Sun, 27 Dec 2015 17:34:47 +0800
+Date: Fri, 29 Jan 2016 21:50:19 +0800
 Subject: [PATCH] Add compat header for DXVA2 VP8/9
 
 All patches come from:
@@ -204,10 +204,10 @@ index 0000000..5a6a309
 +#pragma pack(pop)
 +#endif
 diff --git a/configure b/configure
-index fe8306e..90b629a 100755
+index f7491fa..6b0382c 100755
 --- a/configure
 +++ b/configure
-@@ -1924,6 +1924,7 @@ TOOLCHAIN_FEATURES="
+@@ -1923,6 +1923,7 @@ TOOLCHAIN_FEATURES="
  TYPES_LIST="
      CONDITION_VARIABLE_Ptr
      DXVA_PicParams_HEVC
@@ -215,10 +215,10 @@ index fe8306e..90b629a 100755
      socklen_t
      struct_addrinfo
      struct_group_source_req
-@@ -2576,9 +2577,9 @@ vc1_mmal_hwaccel_deps="mmal"
- vc1_mmal_decoder_select="vc1_decoder"
- vc1_qsv_hwaccel_deps="libmfx"
- vc1_qsv_hwaccel_select="qsvdec_vc1"
+@@ -2580,9 +2581,9 @@ vc1_vdpau_decoder_deps="vdpau"
+ vc1_vdpau_decoder_select="vc1_decoder"
+ vc1_vdpau_hwaccel_deps="vdpau"
+ vc1_vdpau_hwaccel_select="vc1_decoder"
 -vp9_d3d11va_hwaccel_deps="d3d11va DXVA_PicParams_VP9"
 +vp9_d3d11va_hwaccel_deps="d3d11va"
  vp9_d3d11va_hwaccel_select="vp9_decoder"
@@ -243,5 +243,5 @@ index 0c4996c..65256a3 100644
      DXVA_PicParams_VP9    pp;
      DXVA_Slice_VPx_Short  slice;
 -- 
-2.6.3
+2.7.0
 
