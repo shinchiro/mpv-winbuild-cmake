@@ -7,9 +7,9 @@ endif()
 ExternalProject_Add(libvpx
     DEPENDS winpthreads
     GIT_REPOSITORY https://chromium.googlesource.com/webm/libvpx.git
-    #GIT_DEPTH 1
-    GIT_TAG 5232326716af469eafa6d98fba64f8154c69d9f8
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libvpx-*.patch
     CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --target=${libvpx_target}
         --prefix=${MINGW_INSTALL_PREFIX}

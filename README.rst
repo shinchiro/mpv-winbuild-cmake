@@ -38,7 +38,7 @@ Information about packages
     - openal-soft
     - mpv
     - luajit
-    - libvpx (=5232326716af469eafa6d98fba64f8154c69d9f8)
+    - libvpx
     - libpng
     - libdvdread
     - libdvdnav
