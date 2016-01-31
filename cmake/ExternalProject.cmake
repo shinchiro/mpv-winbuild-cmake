@@ -57,6 +57,8 @@ Create custom targets to build projects in external trees
     URL of git repo
   ``GIT_TAG <tag>``
     Git branch name, commit id or tag
+  ``GIT_REMOTE_NAME <name>``
+    The optional name of the remote, default to ``origin``    
   ``GIT_SUBMODULES <module>...``
     Git submodules that shall be updated, all if empty
   ``GIT_DEPTH <depth>``
@@ -496,7 +498,7 @@ define_property(DIRECTORY PROPERTY "EP_UPDATE_DISCONNECTED" INHERITED
   "ExternalProject module."
   )
 
-function(_ep_write_gitclone_script script_filename source_dir git_EXECUTABLE git_repository git_tag git_depth git_submodules src_name work_dir gitclone_infofile gitclone_stampfile)
+function(_ep_write_gitclone_script script_filename source_dir git_EXECUTABLE git_repository git_tag git_remote_name git_depth git_submodules src_name work_dir gitclone_infofile gitclone_stampfile)
   file(WRITE ${script_filename}
 "if(\"${git_tag}\" STREQUAL \"\")
   message(FATAL_ERROR \"Tag for git checkout should not be empty.\")
@@ -527,13 +529,13 @@ set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
   if(${git_depth} STREQUAL \"\")
       execute_process(
-          COMMAND \"${git_EXECUTABLE}\" clone \"${git_repository}\" \"${src_name}\"
+          COMMAND \"${git_EXECUTABLE}\" clone --origin \"${git_remote_name}\" \"${git_repository}\" \"${src_name}\"
           WORKING_DIRECTORY \"${work_dir}\"
           RESULT_VARIABLE error_code
           )
   else()
       execute_process(
-          COMMAND \"${git_EXECUTABLE}\" clone ${git_depth} \"${git_repository}\" \"${src_name}\"
+          COMMAND \"${git_EXECUTABLE}\" clone --origin \"${git_remote_name}\" ${git_depth} \"${git_repository}\" \"${src_name}\"
           WORKING_DIRECTORY \"${work_dir}\"
           RESULT_VARIABLE error_code
           )
@@ -663,7 +665,7 @@ endif()
 endfunction()
 
 
-function(_ep_write_gitupdate_script script_filename git_EXECUTABLE git_tag git_depth git_submodules git_repository work_dir)
+function(_ep_write_gitupdate_script script_filename git_EXECUTABLE git_tag git_remote_name git_depth git_submodules git_repository work_dir)
   if(NOT GIT_VERSION_STRING VERSION_LESS 1.7.6)
     set(git_stash_save_options --all --quiet)
   else()
@@ -705,7 +707,7 @@ if(\"\${show_ref_output}\" MATCHES \"refs/remotes/${git_tag}\")
   set(git_remote \"\${CMAKE_MATCH_1}\")
   set(git_tag \"\${CMAKE_MATCH_2}\")
 else()
-  set(git_remote \"origin\")
+  set(git_remote \"${git_remote_name}\")
   set(git_tag \"${git_tag}\")
 endif()
 
@@ -1262,9 +1264,9 @@ function(_ep_get_build_command name step cmd_var)
           set(cmd "${CMAKE_COMMAND}")
         endif()
         set(args --build ".")
-        if (CMAKE_CFG_INTDIR AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
-          list(APPEND args --config "${CMAKE_CFG_INTDIR}")
-        endif ()
+        if(CMAKE_CONFIGURATION_TYPES)
+          list(APPEND args --config $<CONFIG>)
+        endif()
         if(step STREQUAL "INSTALL")
           list(APPEND args --target install)
         endif()
@@ -1272,6 +1274,9 @@ function(_ep_get_build_command name step cmd_var)
         if("x${step}x" STREQUAL "xTESTx")
           string(REGEX REPLACE "^(.*/)cmake([^/]*)$" "\\1ctest\\2" cmd "${cmd}")
           set(args "")
+          if(CMAKE_CONFIGURATION_TYPES)
+            list(APPEND args -C $<CONFIG>)
+          endif()          
         endif()
       endif()
     else()
@@ -1781,6 +1786,7 @@ function(_ep_add_download_command name)
     if(NOT git_tag)
       set(git_tag "master")
     endif()
+    
     get_property(git_submodules TARGET ${name} PROPERTY _EP_GIT_SUBMODULES)
 
     get_property(git_depth TARGET ${name} PROPERTY _EP_GIT_DEPTH)
@@ -1788,6 +1794,10 @@ function(_ep_add_download_command name)
         set(git_depth "")
     else()
         set(git_depth "--depth=${git_depth}")
+    endif()    
+    get_property(git_remote_name TARGET ${name} PROPERTY _EP_GIT_REMOTE_NAME)
+    if(NOT git_remote_name)
+      set(git_remote_name "origin")        
     endif()
 
     # For the download step, and the git clone operation, only the repository
@@ -1813,7 +1823,7 @@ function(_ep_add_download_command name)
     # The script will delete the source directory and then call git clone.
     #
     _ep_write_gitclone_script(${tmp_dir}/${name}-gitclone.cmake ${source_dir}
-      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} \"${git_depth}\" "${git_submodules}" ${src_name} ${work_dir}
+      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} ${git_remote_name} \"${git_depth}\" "${git_submodules}" ${src_name} ${work_dir}
       ${stamp_dir}/${name}-gitinfo.txt ${stamp_dir}/${name}-gitclone-lastrun.txt
       )
     set(comment "Performing download step (git clone) for '${name}'")
@@ -2034,6 +2044,10 @@ function(_ep_add_update_command name)
     if(NOT git_tag)
       set(git_tag "master")
     endif()
+    get_property(git_remote_name TARGET ${name} PROPERTY _EP_GIT_REMOTE_NAME)
+    if(NOT git_remote_name)
+      set(git_remote_name "origin")
+    endif()    
     get_property(git_submodules TARGET ${name} PROPERTY _EP_GIT_SUBMODULES)
     get_property(git_depth TARGET ${name} PROPERTY _EP_GIT_DEPTH)
         if(NOT git_depth)
@@ -2042,7 +2056,7 @@ function(_ep_add_update_command name)
             set(git_depth "--depth=${git_depth}")
         endif()
     _ep_write_gitupdate_script(${tmp_dir}/${name}-gitupdate.cmake
-      ${GIT_EXECUTABLE} ${git_tag} \"${git_depth}\" "${git_submodules}" ${git_repository} ${work_dir}
+      ${GIT_EXECUTABLE} ${git_tag} ${git_remote_name} \"${git_depth}\" "${git_submodules}" ${git_repository} ${work_dir}
       )
     set(cmd ${CMAKE_COMMAND} -P ${tmp_dir}/${name}-gitupdate.cmake)
     set(always 1)
