@@ -1,6 +1,6 @@
 ExternalProject_Add(openal-soft
     DEPENDS winpthreads
-    GIT_REPOSITORY https://github.com/mirror/openal-soft.git
+    GIT_REPOSITORY git://repo.or.cz/openal-soft.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-*.patch
