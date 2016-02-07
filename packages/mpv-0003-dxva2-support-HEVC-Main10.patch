@@ -1,6 +1,6 @@
-From c2c80806d213a4abe134b8189f832e35cb7c2ac3 Mon Sep 17 00:00:00 2001
-From: wm4 <wm4@nowhere>
-Date: Mon, 11 Jan 2016 16:23:57 +0100
+From 23371fdf743b5fd6a269056df93cf0a99415fd2c Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Mon, 8 Feb 2016 07:51:25 +0800
 Subject: [PATCH] dxva2: support HEVC Main 10
 
 Untested. Requires a FFmpeg patch for whitelisting the profile and for
@@ -11,18 +11,18 @@ but let's not bother.)
  1 file changed, 37 insertions(+), 9 deletions(-)
 
 diff --git a/video/decode/dxva2.c b/video/decode/dxva2.c
-index 2dfbae3..01b8645 100644
+index 952727d..8c4f11d 100644
 --- a/video/decode/dxva2.c
 +++ b/video/decode/dxva2.c
-@@ -57,6 +57,7 @@ DEFINE_GUID(DXVADDI_Intel_ModeH264_E, 0x604F8E68, 0x4951,0x4C54,0x88,0xFE,0xAB,0
+@@ -60,6 +60,7 @@ DEFINE_GUID(DXVADDI_Intel_ModeH264_E, 0x604F8E68, 0x4951,0x4C54,0x88,0xFE,0xAB,0
  DEFINE_GUID(DXVA2_ModeVC1_D,          0x1b81beA3, 0xa0c7,0x11d3,0xb9,0x84,0x00,0xc0,0x4f,0x2e,0x73,0xc5);
  DEFINE_GUID(DXVA2_ModeVC1_D2010,      0x1b81beA4, 0xa0c7,0x11d3,0xb9,0x84,0x00,0xc0,0x4f,0x2e,0x73,0xc5);
  DEFINE_GUID(DXVA2_ModeHEVC_VLD_Main,  0x5b11d51b, 0x2f4c,0x4452,0xbc,0xc3,0x09,0xf2,0xa1,0x16,0x0c,0xc0);
 +DEFINE_GUID(DXVA2_ModeHEVC_VLD_Main10,0x107af0e0, 0xef1a,0x4d19,0xab,0xa8,0x67,0xa1,0x63,0x07,0x3d,0x13);
  DEFINE_GUID(DXVA2_NoEncrypt,          0x1b81beD0, 0xa0c7,0x11d3,0xb9,0x84,0x00,0xc0,0x4f,0x2e,0x73,0xc5);
- DEFINE_GUID(GUID_NULL,                0x00000000, 0x0000,0x0000,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00);
  
-@@ -67,6 +68,7 @@ typedef struct dxva2_mode {
+ typedef IDirect3D9* WINAPI pDirect3DCreate9(UINT);
+@@ -69,6 +70,7 @@ typedef struct dxva2_mode {
    const GUID     *guid;
    const char     *name;
    enum AVCodecID codec;
@@ -30,7 +30,7 @@ index 2dfbae3..01b8645 100644
  } dxva2_mode;
  
  #define MODE(id) &MP_CONCAT(DXVA2_Mode, id), # id
-@@ -89,6 +91,7 @@ static const dxva2_mode dxva2_modes[] = {
+@@ -91,6 +93,7 @@ static const dxva2_mode dxva2_modes[] = {
      { MODE(VC1_D),          AV_CODEC_ID_WMV3 },
  
      { MODE(HEVC_VLD_Main),  AV_CODEC_ID_HEVC },
@@ -38,7 +38,7 @@ index 2dfbae3..01b8645 100644
  
      { NULL,                 0 },
  };
-@@ -122,7 +125,9 @@ typedef struct DXVA2Context {
+@@ -124,7 +127,9 @@ typedef struct DXVA2Context {
      uint32_t                    num_surfaces;
      uint64_t                    surface_age;
  
@@ -49,7 +49,7 @@ index 2dfbae3..01b8645 100644
  
      struct dxva_context         *av_dxva_ctx;
  } DXVA2Context;
-@@ -249,7 +254,7 @@ static void copy_nv12(struct mp_image *dest, uint8_t *src_bits,
+@@ -251,7 +256,7 @@ static void copy_nv12(struct mp_image *dest, uint8_t *src_bits,
                        unsigned src_pitch, unsigned surf_height)
  {
      struct mp_image buf = {0};
@@ -58,7 +58,7 @@ index 2dfbae3..01b8645 100644
      mp_image_set_size(&buf, dest->w, dest->h);
  
      buf.planes[0] = src_bits;
-@@ -273,8 +278,9 @@ static struct mp_image *dxva2_retrieve_image(struct lavc_ctx *s,
+@@ -275,8 +280,9 @@ static struct mp_image *dxva2_retrieve_image(struct lavc_ctx *s,
      if (surfaceDesc.Width < img->w || surfaceDesc.Height < img->h)
          return img;
  
@@ -70,7 +70,7 @@ index 2dfbae3..01b8645 100644
  
      if (!sw_img)
          return img;
-@@ -519,6 +525,7 @@ static int dxva2_create_decoder(struct lavc_ctx *s, int w, int h,
+@@ -521,6 +527,7 @@ static int dxva2_create_decoder(struct lavc_ctx *s, int w, int h,
          D3DFORMAT *target_list = NULL;
          unsigned target_count = 0;
          const dxva2_mode *mode = &dxva2_modes[i];
@@ -78,7 +78,7 @@ index 2dfbae3..01b8645 100644
          if (mode->codec != codec_id)
              continue;
  
-@@ -529,19 +536,38 @@ static int dxva2_create_decoder(struct lavc_ctx *s, int w, int h,
+@@ -531,19 +538,38 @@ static int dxva2_create_decoder(struct lavc_ctx *s, int w, int h,
          if (j == guid_count)
              continue;
  
@@ -121,7 +121,7 @@ index 2dfbae3..01b8645 100644
              device_guid = *mode->guid;
              break;
          }
-@@ -639,7 +665,9 @@ static int dxva2_init_decoder(struct lavc_ctx *s, int w, int h)
+@@ -641,7 +667,9 @@ static int dxva2_init_decoder(struct lavc_ctx *s, int w, int h)
          MP_ERR(ctx, "Unsupported H.264 profile for DXVA2 HWAccel: %d\n", profile);
          return -1;
      }
@@ -132,3 +132,6 @@ index 2dfbae3..01b8645 100644
          MP_ERR(ctx, "Unsupported H.265 profile for DXVA2 HWAccel: %d\n", profile);
          return -1;
      }
+-- 
+2.7.0
+
