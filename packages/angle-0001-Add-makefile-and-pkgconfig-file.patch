@@ -1,23 +1,23 @@
-From 71a9b6248a9e0d6b5e7513186c8d780f2d76f947 Mon Sep 17 00:00:00 2001
+From 86dc62ef73a68df2f08ada4709c7dc0821c28b27 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Tue, 5 Jan 2016 19:26:40 +0800
+Date: Thu, 11 Feb 2016 22:43:26 +0800
 Subject: [PATCH] Add makefile and pkgconfig file for ANGLE
 
-Custom Mkefile originally made by rossy & RiCON  in
+Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 341 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 340 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 351 insertions(+)
+ 2 files changed, 350 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..ec3650b
+index 0000000..498d448
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,341 @@
+@@ -0,0 +1,340 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -162,7 +162,6 @@ index 0000000..ec3650b
 +	src/libANGLE/Platform.o \
 +	src/libANGLE/Program.o \
 +	src/libANGLE/Query.o \
-+	src/libANGLE/RefCountObject.o \
 +	src/libANGLE/Renderbuffer.o \
 +	src/libANGLE/ResourceManager.o \
 +	src/libANGLE/Sampler.o \
@@ -377,5 +376,5 @@ index 0000000..dd4e52a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
-2.6.3
+2.7.0
 
