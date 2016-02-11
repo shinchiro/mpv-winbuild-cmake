@@ -27,7 +27,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
 Information about packages
 --------------------------
 - Git
-    - ANGLE (=444922662a59a45ad8f86ec9480b180571337f4e)
+    - ANGLE
     - FFmpeg
     - dcadec
     - xz
