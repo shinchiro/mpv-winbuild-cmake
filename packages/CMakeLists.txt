@@ -108,8 +108,7 @@ foreach(package
     xvidcore
     game-music-emu
     libpng
-    x264
-    angle
+    x264    
     libdvdcss
     libdvdread
     libdvdnav
@@ -125,6 +124,7 @@ foreach(package
     libass
     dcadec
     ffmpeg
+    angle
     mpv
 )
     include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
