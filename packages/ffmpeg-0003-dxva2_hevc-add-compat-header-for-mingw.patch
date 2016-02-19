@@ -1,19 +1,16 @@
-From 0a4f8dd1f41ccab2ce7a225be6c7cb470335e085 Mon Sep 17 00:00:00 2001
-From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Sun, 6 Dec 2015 08:25:44 +0100
-Subject: [PATCH 2/2] dxva2_hevc: add compat header for mingw
+From f9eba803608276cf106323473bb64a6172796932 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Fri, 19 Feb 2016 16:24:57 +0800
+Subject: [PATCH] dxva2_hevc: add compat header for mingw
 
-All patches come from
+All patches come from:
 http://git.1f0.de/gitweb?p=ffmpeg.git;a=summary;js=1
-
-dxva2_hevc: add compat header for mingw
-hevc: add dxva2 support for main10
+https://github.com/mpc-hc/FFmpeg.git
 ---
  compat/windows/dxva_hevc.h | 150 +++++++++++++++++++++++++++++++++++++++++++++
  configure                  |   5 +-
  libavcodec/dxva2_hevc.c    |   4 ++
- libavcodec/hevc.c          |  13 +++-
- 4 files changed, 169 insertions(+), 3 deletions(-)
+ 3 files changed, 157 insertions(+), 2 deletions(-)
  create mode 100644 compat/windows/dxva_hevc.h
 
 diff --git a/compat/windows/dxva_hevc.h b/compat/windows/dxva_hevc.h
@@ -173,7 +170,7 @@ index 0000000..0229cbe
 +#pragma pack(pop)
 +#endif
 diff --git a/configure b/configure
-index 40c79cf..6e26ecf 100755
+index 287896f..8e949ee 100755
 --- a/configure
 +++ b/configure
 @@ -1918,6 +1918,7 @@ TOOLCHAIN_FEATURES="
@@ -184,7 +181,7 @@ index 40c79cf..6e26ecf 100755
      socklen_t
      struct_addrinfo
      struct_group_source_req
-@@ -2502,9 +2503,9 @@ h264_vdpau_hwaccel_deps="vdpau"
+@@ -2507,9 +2508,9 @@ h264_vdpau_hwaccel_deps="vdpau"
  h264_vdpau_hwaccel_select="h264_decoder"
  h264_videotoolbox_hwaccel_deps="videotoolbox"
  h264_videotoolbox_hwaccel_select="h264_decoder"
@@ -211,37 +208,6 @@ index 5a312ea..a7d0f09 100644
  #define MAX_SLICES 256
  
  struct hevc_dxva2_picture_context {
-diff --git a/libavcodec/hevc.c b/libavcodec/hevc.c
-index 21435da..94a6f0a 100644
---- a/libavcodec/hevc.c
-+++ b/libavcodec/hevc.c
-@@ -345,7 +345,9 @@ static int set_sps(HEVCContext *s, const HEVCSPS *sps, enum AVPixelFormat pix_fm
- 
-     export_stream_params(s->avctx, &s->ps, sps);
- 
--    if (sps->pix_fmt == AV_PIX_FMT_YUV420P || sps->pix_fmt == AV_PIX_FMT_YUVJ420P) {
-+    switch (sps->pix_fmt) {
-+    case AV_PIX_FMT_YUV420P:
-+    case AV_PIX_FMT_YUVJ420P:
- #if CONFIG_HEVC_DXVA2_HWACCEL
-         *fmt++ = AV_PIX_FMT_DXVA2_VLD;
- #endif
-@@ -358,6 +360,15 @@ static int set_sps(HEVCContext *s, const HEVCSPS *sps, enum AVPixelFormat pix_fm
- #if CONFIG_HEVC_VDPAU_HWACCEL
-         *fmt++ = AV_PIX_FMT_VDPAU;
- #endif
-+        break;
-+    case AV_PIX_FMT_YUV420P10:
-+#if CONFIG_HEVC_DXVA2_HWACCEL
-+        *fmt++ = AV_PIX_FMT_DXVA2_VLD;
-+#endif
-+#if CONFIG_HEVC_D3D11VA_HWACCEL
-+        *fmt++ = AV_PIX_FMT_D3D11VA_VLD;
-+#endif
-+        break;
-     }
- 
-     if (pix_fmt == AV_PIX_FMT_NONE) {
 -- 
-2.6.3
+2.7.0
 
