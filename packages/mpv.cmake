@@ -15,6 +15,7 @@ ExternalProject_Add(mpv
         rubberband
         uchardet
         winpthreads
+        openal-soft
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
@@ -38,6 +39,7 @@ ExternalProject_Add(mpv
         --enable-uchardet
         --enable-rubberband
         --enable-lcms2
+        --enable-openal
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
