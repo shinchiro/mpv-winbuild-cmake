@@ -1,23 +1,23 @@
-From b205030bf3588dcc542fb785d4f4b42d0a4a9012 Mon Sep 17 00:00:00 2001
+From 4d8107dc53e7206cec4b9ad5335be3b24d6df3b8 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Fri, 12 Feb 2016 12:20:26 +0800
-Subject: [PATCH] Add makefile and pkgconfig file for ANGLE
+Date: Sat, 27 Feb 2016 18:25:17 +0800
+Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 397 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 395 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 407 insertions(+)
+ 2 files changed, 405 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..99ab1f4
+index 0000000..089245a
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,397 @@
+@@ -0,0 +1,395 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -249,7 +249,6 @@ index 0000000..99ab1f4
 +	src/libANGLE/renderer/d3d/d3d11/Image11.o \
 +	src/libANGLE/renderer/d3d/d3d11/IndexBuffer11.o \
 +	src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.o \
-+	src/libANGLE/renderer/d3d/d3d11/internal_format_initializer_table.o \
 +	src/libANGLE/renderer/d3d/d3d11/load_functions_table_autogen.o \
 +	src/libANGLE/renderer/d3d/d3d11/PixelTransfer11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Query11.o \
@@ -260,7 +259,6 @@ index 0000000..99ab1f4
 +	src/libANGLE/renderer/d3d/d3d11/ShaderExecutable11.o \
 +	src/libANGLE/renderer/d3d/d3d11/StateManager11.o \
 +	src/libANGLE/renderer/d3d/d3d11/SwapChain11.o \
-+	src/libANGLE/renderer/d3d/d3d11/swizzle_format_info_autogen.o \
 +	src/libANGLE/renderer/d3d/d3d11/TextureStorage11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Trim11.o \
 +	src/libANGLE/renderer/d3d/d3d11/texture_format_table_autogen.o \
@@ -322,7 +320,7 @@ index 0000000..99ab1f4
 +	$(libangle_d3d11_win32_sources) \
 +	$(libglesv2_sources) \
 +	$(libangle_gl_sources) \
-+	$(libangle_gl_wgl_sources) \
++	$(libangle_gl_wgl_sources)
 +
 +LIBGLESv2_DEP = $(LIBGLESv2_OBJ:.o=.d)
 +LIBEGL_OBJ = src/libEGL/libEGL.egl.o
