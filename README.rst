@@ -43,7 +43,7 @@ Information about packages
     - libdvdread
     - libdvdnav
     - libdvdcss
-    - libbluray (=6f16e18bd09284db04a79d3bd001bb2c06c013fd)
+    - libbluray
     - libass
     - lcms2
     - lame
