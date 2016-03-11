@@ -49,7 +49,7 @@ Information about packages
     - lame
     - harfbuzz
     - game-music-emu
-    - freetype2 (=2e09812c5121413fa29692a46b310983cb3de3e8)
+    - freetype2
 
 - Zip
     - expat
