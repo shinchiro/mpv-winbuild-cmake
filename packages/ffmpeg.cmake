@@ -1,7 +1,6 @@
 ExternalProject_Add(ffmpeg
     DEPENDS
         bzip2
-        dcadec
         game-music-emu
         gmp
         lame
@@ -40,7 +39,6 @@ ExternalProject_Add(ffmpeg
     --enable-gmp
     --enable-libass
     --enable-libbluray
-    --enable-libdcadec
     --enable-libfreetype
     --enable-libfribidi
     --enable-libgme
