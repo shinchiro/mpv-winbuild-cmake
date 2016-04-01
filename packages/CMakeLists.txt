@@ -122,7 +122,6 @@ foreach(package
     libbluray
     harfbuzz
     libass
-    dcadec
     ffmpeg
     angle
     mpv
