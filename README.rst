@@ -2,6 +2,7 @@ CMake-based MinGW-w64 Cross Toolchain
 =====================================
 
 This thing’s primary use is to build Windows binaries of mpv.
+Alternatively, you can download the builds from [here](https://sourceforge.net/projects/mpv-player-windows/files)
 
 Prerequisites
 -------------
@@ -21,15 +22,15 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     is using a 4.8 series GCC by default. Feel free to contribute fixes for
     other environments.
 
-    If you are looking for VM images with everything set up to work with this:
-    `<https://github.com/lachs0r/mingw-w64-env>`_
+.. note::
+    You cannot use this cmake script on **MSYS2** due to various problems.
+
 
 Information about packages
 --------------------------
 - Git
     - ANGLE
     - FFmpeg
-    - dcadec
     - xz
     - x264
     - uchardet
@@ -80,10 +81,13 @@ For building pdf, these packages are needed:
 
 Parallel Build
 --------------
+ProcessorCount didn't return correct no of physical core so we set the MAKEJOBS value manually for safety.
 
 By default, this script set up MAKEJOBS value to 2 by default. This follow the rule,
 1 core + 1. If your pc has more cores, you can increase the MAKEJOBS value in CMakeLists.
 For example, if you have quad core cpu, the MAKEJOBS value should be 5.
+
+
 
 Building Software
 -----------------
