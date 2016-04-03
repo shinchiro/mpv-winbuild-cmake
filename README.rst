@@ -2,6 +2,7 @@ CMake-based MinGW-w64 Cross Toolchain
 =====================================
 
 This thing’s primary use is to build Windows binaries of mpv.
+
 Alternatively, you can download the builds from [here](https://sourceforge.net/projects/mpv-player-windows/files)
 
 Prerequisites
