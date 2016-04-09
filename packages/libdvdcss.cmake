@@ -1,5 +1,4 @@
 ExternalProject_Add(libdvdcss
-    DEPENDS gcc
     GIT_REPOSITORY git://git.videolan.org/libdvdcss
     GIT_DEPTH 1
     UPDATE_COMMAND ""

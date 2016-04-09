@@ -1,5 +1,4 @@
 ExternalProject_Add(lame
-    DEPENDS gcc
     GIT_REPOSITORY git://anonscm.debian.org/pkg-multimedia/lame.git
     UPDATE_COMMAND ""
     PATCH_COMMAND ${DEBPATCH}

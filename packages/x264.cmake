@@ -1,5 +1,4 @@
 ExternalProject_Add(x264
-    DEPENDS gcc
     GIT_REPOSITORY git://git.videolan.org/x264.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""

@@ -1,5 +1,4 @@
 ExternalProject_Add(rubberband
-    DEPENDS gcc
     GIT_REPOSITORY https://github.com/lachs0r/rubberband.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""

@@ -1,6 +1,5 @@
 ExternalProject_Add(angle
     DEPENDS 
-        gcc
         ffmpeg
     GIT_REPOSITORY https://chromium.googlesource.com/angle/angle
     GIT_DEPTH 1

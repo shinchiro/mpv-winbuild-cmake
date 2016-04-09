@@ -14,7 +14,6 @@ ExternalProject_Add(mpv
         luajit
         rubberband
         uchardet
-        winpthreads
         openal-soft
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     GIT_DEPTH 1

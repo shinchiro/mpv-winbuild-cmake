@@ -1,5 +1,4 @@
 ExternalProject_Add(xz
-    DEPENDS gcc
     GIT_REPOSITORY http://git.tukaani.org/xz.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

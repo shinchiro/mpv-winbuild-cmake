@@ -1,5 +1,4 @@
 ExternalProject_Add(opus
-    DEPENDS gcc
     GIT_REPOSITORY git://git.xiph.org/opus.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""

@@ -1,5 +1,4 @@
 ExternalProject_Add(zlib
-    DEPENDS gcc
     URL "http://zlib.net/zlib-1.2.8.tar.gz"
     URL_MD5 44d667c142d7cda120332623eab69f40
     PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/zlib-1-win32-static.patch

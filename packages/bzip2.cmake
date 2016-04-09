@@ -1,5 +1,4 @@
 ExternalProject_Add(bzip2
-    DEPENDS gcc
     URL "http://bzip.org/1.0.6/bzip2-1.0.6.tar.gz"
     URL_MD5 00b516f4704d4a7cb50a1d97e6e8e15b
     PATCH_COMMAND patch -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/bzip2-1-fixes.patch

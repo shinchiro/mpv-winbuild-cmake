@@ -1,5 +1,4 @@
 ExternalProject_Add(game-music-emu
-    DEPENDS gcc
     GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""

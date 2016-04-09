@@ -1,5 +1,4 @@
 ExternalProject_Add(xvidcore
-    DEPENDS winpthreads
     URL "http://downloads.xvid.org/downloads/xvidcore-1.3.4.tar.gz"
     URL_HASH SHA256=4e9fd62728885855bc5007fe1be58df42e5e274497591fec37249e1052ae316f
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/generic && ./configure # running configure outside that directory will make it happily ignore --host while building

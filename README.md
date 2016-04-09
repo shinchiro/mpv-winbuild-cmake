@@ -102,8 +102,11 @@ Once you’ve changed into that directory, run CMake, e.g.::
 
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
-Once that’s done, you’re ready to build stuff. For example, to build mpv and
-all of its dependencies::
+First, you need to build toolchain. By default, it will be installed in 'prefix' folder.
+
+    ninja gcc winpthreads
+
+After it done, you're ready to build mpv and all its dependencies:
 
     ninja mpv
 

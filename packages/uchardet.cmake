@@ -1,5 +1,4 @@
 ExternalProject_Add(uchardet
-    DEPENDS gcc
     GIT_REPOSITORY https://github.com/BYVoid/uchardet.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""

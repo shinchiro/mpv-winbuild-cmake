@@ -1,5 +1,4 @@
 ExternalProject_Add(libmodplug
-    DEPENDS gcc
     URL "http://download.sourceforge.net/modplug-xmms/libmodplug-0.8.8.4.tar.gz"
     URL_MD5 fddc3c704c5489de2a3cf0fedfec59db
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

@@ -17,7 +17,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/luajit.pc.in ${CMAKE_CURRENT_BINARY_D
 
 ExternalProject_Add(luajit
     DEPENDS
-        gcc
         libiconv
     #GIT_REPOSITORY http://luajit.org/git/luajit-2.0.git
     GIT_REPOSITORY git://repo.or.cz/luajit-2.0.git
