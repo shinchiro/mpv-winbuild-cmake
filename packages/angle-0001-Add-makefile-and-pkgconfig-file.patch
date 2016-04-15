@@ -1,23 +1,23 @@
-From f445fd443ef85dc05f8257cbed8a515db58c72cf Mon Sep 17 00:00:00 2001
+From 5bb3ef2e38ed6018ca87ea73e813664de86277a1 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Fri, 1 Apr 2016 16:32:02 +0800
+Date: Fri, 15 Apr 2016 18:51:54 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 399 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 401 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 409 insertions(+)
+ 2 files changed, 411 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..b82121d
+index 0000000..f157947
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,399 @@
+@@ -0,0 +1,401 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -50,6 +50,7 @@ index 0000000..b82121d
 +	src/compiler/translator/CallDAG.o \
 +	src/compiler/translator/CodeGen.o \
 +	src/compiler/translator/Compiler.o \
++	src/compiler/translator/DeferGlobalInitializers.o \
 +	src/compiler/translator/Diagnostics.o \
 +	src/compiler/translator/DirectiveHandler.o \
 +	src/compiler/translator/EmulatePrecision.o \
@@ -119,6 +120,7 @@ index 0000000..b82121d
 +	src/compiler/translator/SeparateDeclarations.o \
 +	src/compiler/translator/SeparateExpressionsReturningArrays.o \
 +	src/compiler/translator/StructureHLSL.o \
++	src/compiler/translator/TextureFunctionHLSL.o \
 +	src/compiler/translator/TranslatorHLSL.o \
 +	src/compiler/translator/UnfoldShortCircuitToIf.o \
 +	src/compiler/translator/UniformHLSL.o \
