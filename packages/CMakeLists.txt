@@ -122,6 +122,7 @@ foreach(package
     libbluray
     harfbuzz
     libsoxr
+    libzimg
     libass
     ffmpeg
     angle

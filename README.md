@@ -43,6 +43,7 @@ Information about packages
     - libvpx (=654d2163c9c654f90267708c2d1d146f762a9e48)
     - libpng
     - libsoxr
+    - libzimg
     - libdvdread
     - libdvdnav
     - libdvdcss

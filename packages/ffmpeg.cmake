@@ -10,6 +10,7 @@ ExternalProject_Add(ffmpeg
         libpng
         libsoxr
         libvpx
+        libzimg
         opus
         speex
         vorbis
@@ -52,6 +53,7 @@ ExternalProject_Add(ffmpeg
     --enable-libvpx
     --enable-libx264
     --enable-libxvid
+    --enable-libzimg
     --enable-schannel
     "--extra-libs='-lsecurity -lschannel'" # ffmpeg’s build system is retarded
     BUILD_COMMAND ${MAKE}
