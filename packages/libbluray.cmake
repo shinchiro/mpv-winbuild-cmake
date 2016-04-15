@@ -11,7 +11,7 @@ ExternalProject_Add(libbluray
         --disable-bdjava
         --without-libxml2
         --without-fontconfig
-        --disable-udf
+        --enable-udf
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
