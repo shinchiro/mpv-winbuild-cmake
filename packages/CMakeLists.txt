@@ -121,6 +121,7 @@ foreach(package
     freetype2
     libbluray
     harfbuzz
+    libsoxr
     libass
     ffmpeg
     angle
