@@ -1,23 +1,23 @@
-From 5bb3ef2e38ed6018ca87ea73e813664de86277a1 Mon Sep 17 00:00:00 2001
+From e614e01a782cab0e0da28f4c0c70796027e6d5db Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Fri, 15 Apr 2016 18:51:54 +0800
+Date: Sat, 23 Apr 2016 00:01:03 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 401 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 403 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 411 insertions(+)
+ 2 files changed, 413 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..f157947
+index 0000000..b806fec
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,401 @@
+@@ -0,0 +1,403 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -210,6 +210,7 @@ index 0000000..f157947
 +	src/libANGLE/renderer/d3d/loadimage.o \
 +	src/libANGLE/renderer/d3d/loadimageSSE2.o \
 +	src/libANGLE/renderer/d3d/loadimage_etc.o \
++	src/libANGLE/renderer/d3d/NativeWindowD3D.o \
 +	src/libANGLE/renderer/d3d/ProgramD3D.o \
 +	src/libANGLE/renderer/d3d/RenderbufferD3D.o \
 +	src/libANGLE/renderer/d3d/RendererD3D.o \
@@ -231,6 +232,7 @@ index 0000000..f157947
 +	src/libANGLE/renderer/d3d/d3d9/Framebuffer9.o \
 +	src/libANGLE/renderer/d3d/d3d9/Image9.o \
 +	src/libANGLE/renderer/d3d/d3d9/IndexBuffer9.o \
++	src/libANGLE/renderer/d3d/d3d9/NativeWindow9.o \
 +	src/libANGLE/renderer/d3d/d3d9/Query9.o \
 +	src/libANGLE/renderer/d3d/d3d9/Renderer9.o \
 +	src/libANGLE/renderer/d3d/d3d9/renderer9_utils.o \
@@ -270,7 +272,7 @@ index 0000000..f157947
 +	src/libANGLE/renderer/d3d/d3d11/VertexArray11.o \
 +	src/libANGLE/renderer/d3d/d3d11/VertexBuffer11.o
 +libangle_d3d11_win32_sources = \
-+	src/libANGLE/renderer/d3d/d3d11/win32/NativeWindow.o \
++	src/libANGLE/renderer/d3d/d3d11/win32/NativeWindow11Win32.o \
 +	src/third_party/systeminfo/SystemInfo.o
 +libglesv2_sources = \
 +	src/libGLESv2/entry_points_egl.o \
@@ -436,5 +438,5 @@ index 0000000..dd4e52a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
-2.7.3
+2.8.1
 
