@@ -36,7 +36,7 @@ index 0000000..404f59d
 +LIBEGL_DEFS = -DLIBEGL_IMPLEMENTATION
 +LIBGLESv2_DEFS = -DLIBGLESV2_IMPLEMENTATION
 +CPPFLAGS := -Isrc -Iinclude -Isrc/third_party/khronos $(CPPFLAGS)
-+CXXFLAGS := -std=c++11 -fpermissive -msse2 -O2 -Wno-deprecated-declarations \
++CXXFLAGS := -std=gnu++14 -fpermissive -msse2 -O2 -Wno-deprecated-declarations \
 +            -Wno-conversion-null $(CXXFLAGS)
 +DEPFLAGS = -MMD -MP
 +LIBGLESv2_LIBS = -ldxguid -ld3d9
