@@ -1,5 +1,5 @@
 ExternalProject_Add(opus
-    GIT_REPOSITORY git://git.xiph.org/opus.git
+    GIT_REPOSITORY https://github.com/xiph/opus.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh
