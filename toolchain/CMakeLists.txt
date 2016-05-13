@@ -64,6 +64,8 @@ ExternalProject_Add(gcc-base
         --disable-nls
         --disable-shared
         --disable-win32-registry
+        --with-arch=core2
+        --with-tune=generic
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-gcc
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
