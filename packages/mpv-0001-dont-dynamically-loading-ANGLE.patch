@@ -1,0 +1,247 @@
+From 4df3d371e1b0f1fda0daf5379d2fce1dfdca1ec5 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@nowhere.com>
+Date: Fri, 13 May 2016 17:42:55 +0800
+Subject: [PATCH] mpv: Dont dynamically loading ANGLE
+
+This revert commit fde20d10bcacebf61aff42ab1f48ac72023a2aa5
+---
+ video/out/opengl/angle_dynamic.c  | 33 ----------------
+ video/out/opengl/angle_dynamic.h  | 82 ---------------------------------------
+ video/out/opengl/context_angle.c  |  7 ----
+ video/out/opengl/hwdec_d3d11egl.c |  5 ---
+ video/out/opengl/hwdec_dxva2egl.c |  5 ---
+ wscript                           |  5 ++-
+ wscript_build.py                  |  1 -
+ 7 files changed, 3 insertions(+), 135 deletions(-)
+ delete mode 100644 video/out/opengl/angle_dynamic.c
+ delete mode 100644 video/out/opengl/angle_dynamic.h
+
+diff --git a/video/out/opengl/angle_dynamic.c b/video/out/opengl/angle_dynamic.c
+deleted file mode 100644
+index f4540c4..0000000
+--- a/video/out/opengl/angle_dynamic.c
++++ /dev/null
+@@ -1,33 +0,0 @@
+-#include <pthread.h>
+-#include <windows.h>
+-
+-#define ANGLE_NO_ALIASES
+-#include "angle_dynamic.h"
+-
+-#include "common/common.h"
+-
+-#define ANGLE_DECL(NAME, VAR) \
+-    VAR;
+-ANGLE_FNS(ANGLE_DECL)
+-
+-static bool angle_loaded;
+-static pthread_once_t angle_load_once = PTHREAD_ONCE_INIT;
+-
+-static void angle_do_load(void)
+-{
+-    // Note: we let this handle "leak", as the functions remain valid forever.
+-    HANDLE angle_dll = LoadLibraryW(L"LIBEGL.DLL");
+-    if (!angle_dll)
+-        return;
+-#define ANGLE_LOAD_ENTRY(NAME, VAR) \
+-    MP_CONCAT(PFN_, NAME) = (void *)GetProcAddress(angle_dll, #NAME); \
+-    if (!MP_CONCAT(PFN_, NAME)) return;
+-    ANGLE_FNS(ANGLE_LOAD_ENTRY)
+-    angle_loaded = true;
+-}
+-
+-bool angle_load(void)
+-{
+-    pthread_once(&angle_load_once, angle_do_load);
+-    return angle_loaded;
+-}
+diff --git a/video/out/opengl/angle_dynamic.h b/video/out/opengl/angle_dynamic.h
+deleted file mode 100644
+index 87ad85c..0000000
+--- a/video/out/opengl/angle_dynamic.h
++++ /dev/null
+@@ -1,82 +0,0 @@
+-// Based on Khronos headers, thus MIT licensed.
+-
+-#ifndef MP_ANGLE_DYNAMIC_H
+-#define MP_ANGLE_DYNAMIC_H
+-
+-#include <stdbool.h>
+-
+-#include <EGL/egl.h>
+-#include <EGL/eglext.h>
+-
+-#define ANGLE_FNS(FN) \
+-    FN(eglBindAPI, EGLBoolean (*EGLAPIENTRY PFN_eglBindAPI)(EGLenum)) \
+-    FN(eglBindTexImage, EGLBoolean (*EGLAPIENTRY PFN_eglBindTexImage) \
+-        (EGLDisplay, EGLSurface, EGLint)) \
+-    FN(eglChooseConfig, EGLBoolean (*EGLAPIENTRY PFN_eglChooseConfig) \
+-        (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *)) \
+-    FN(eglCreateContext, EGLContext (*EGLAPIENTRY PFN_eglCreateContext) \
+-        (EGLDisplay, EGLConfig, EGLContext, const EGLint *)) \
+-    FN(eglCreatePbufferFromClientBuffer, EGLSurface (*EGLAPIENTRY \
+-        PFN_eglCreatePbufferFromClientBuffer)(EGLDisplay, EGLenum, \
+-        EGLClientBuffer, EGLConfig, const EGLint *)) \
+-    FN(eglCreateWindowSurface, EGLSurface (*EGLAPIENTRY \
+-        PFN_eglCreateWindowSurface)(EGLDisplay, EGLConfig, \
+-        EGLNativeWindowType, const EGLint *)) \
+-    FN(eglDestroyContext, EGLBoolean (*EGLAPIENTRY PFN_eglDestroyContext) \
+-        (EGLDisplay, EGLContext)) \
+-    FN(eglDestroySurface, EGLBoolean (*EGLAPIENTRY PFN_eglDestroySurface) \
+-        (EGLDisplay, EGLSurface)) \
+-    FN(eglGetConfigAttrib, EGLBoolean (*EGLAPIENTRY PFN_eglGetConfigAttrib) \
+-        (EGLDisplay, EGLConfig, EGLint, EGLint *)) \
+-    FN(eglGetCurrentContext, EGLContext (*EGLAPIENTRY \
+-        PFN_eglGetCurrentContext)(void)) \
+-    FN(eglGetCurrentDisplay, EGLDisplay (*EGLAPIENTRY \
+-        PFN_eglGetCurrentDisplay)(void)) \
+-    FN(eglGetDisplay, EGLDisplay (*EGLAPIENTRY PFN_eglGetDisplay) \
+-        (EGLNativeDisplayType)) \
+-    FN(eglGetError, EGLint (*EGLAPIENTRY PFN_eglGetError)(void)) \
+-    FN(eglGetProcAddress, void *(*EGLAPIENTRY \
+-        PFN_eglGetProcAddress)(const char *)) \
+-    FN(eglInitialize, EGLBoolean (*EGLAPIENTRY PFN_eglInitialize) \
+-        (EGLDisplay, EGLint *, EGLint *)) \
+-    FN(eglMakeCurrent, EGLBoolean (*EGLAPIENTRY PFN_eglMakeCurrent) \
+-        (EGLDisplay, EGLSurface, EGLSurface, EGLContext)) \
+-    FN(eglQueryString, const char *(*EGLAPIENTRY PFN_eglQueryString) \
+-        (EGLDisplay, EGLint)) \
+-    FN(eglSwapBuffers, EGLBoolean (*EGLAPIENTRY PFN_eglSwapBuffers) \
+-        (EGLDisplay, EGLSurface)) \
+-    FN(eglReleaseTexImage, EGLBoolean (*EGLAPIENTRY PFN_eglReleaseTexImage) \
+-        (EGLDisplay, EGLSurface, EGLint)) \
+-    FN(eglTerminate, EGLBoolean (*EGLAPIENTRY PFN_eglTerminate)(EGLDisplay))
+-
+-#define ANGLE_EXT_DECL(NAME, VAR) \
+-    extern VAR;
+-ANGLE_FNS(ANGLE_EXT_DECL)
+-
+-bool angle_load(void);
+-
+-// Source compatibility to statically linked ANGLE.
+-#ifndef ANGLE_NO_ALIASES
+-#define eglBindAPI                      PFN_eglBindAPI
+-#define eglBindTexImage                 PFN_eglBindTexImage
+-#define eglChooseConfig                 PFN_eglChooseConfig
+-#define eglCreateContext                PFN_eglCreateContext
+-#define eglCreatePbufferFromClientBuffer PFN_eglCreatePbufferFromClientBuffer
+-#define eglCreateWindowSurface          PFN_eglCreateWindowSurface
+-#define eglDestroyContext               PFN_eglDestroyContext
+-#define eglDestroySurface               PFN_eglDestroySurface
+-#define eglGetConfigAttrib              PFN_eglGetConfigAttrib
+-#define eglGetCurrentContext            PFN_eglGetCurrentContext
+-#define eglGetCurrentDisplay            PFN_eglGetCurrentDisplay
+-#define eglGetDisplay                   PFN_eglGetDisplay
+-#define eglGetError                     PFN_eglGetError
+-#define eglGetProcAddress               PFN_eglGetProcAddress
+-#define eglInitialize                   PFN_eglInitialize
+-#define eglMakeCurrent                  PFN_eglMakeCurrent
+-#define eglQueryString                  PFN_eglQueryString
+-#define eglReleaseTexImage              PFN_eglReleaseTexImage
+-#define eglSwapBuffers                  PFN_eglSwapBuffers
+-#define eglTerminate                    PFN_eglTerminate
+-#endif
+-
+-#endif
+diff --git a/video/out/opengl/context_angle.c b/video/out/opengl/context_angle.c
+index ef498f2..fb2fb4b 100644
+--- a/video/out/opengl/context_angle.c
++++ b/video/out/opengl/context_angle.c
+@@ -19,8 +19,6 @@
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+-#include "angle_dynamic.h"
+-
+ #include "common/common.h"
+ #include "video/out/w32_common.h"
+ #include "context.h"
+@@ -111,11 +109,6 @@ static int angle_init(struct MPGLContext *ctx, int flags)
+     struct priv *p = ctx->priv;
+     struct vo *vo = ctx->vo;
+ 
+-    if (!angle_load()) {
+-        MP_VERBOSE(vo, "Failed to load LIBEGL.DLL\n");
+-        goto fail;
+-    }
+-
+     if (!vo_w32_init(vo))
+         goto fail;
+ 
+diff --git a/video/out/opengl/hwdec_d3d11egl.c b/video/out/opengl/hwdec_d3d11egl.c
+index bd4c050..3ac848d 100644
+--- a/video/out/opengl/hwdec_d3d11egl.c
++++ b/video/out/opengl/hwdec_d3d11egl.c
+@@ -23,8 +23,6 @@
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+-#include "angle_dynamic.h"
+-
+ #include "common/common.h"
+ #include "osdep/timer.h"
+ #include "osdep/windows_utils.h"
+@@ -149,9 +147,6 @@ static void destroy(struct gl_hwdec *hw)
+ 
+ static int create(struct gl_hwdec *hw)
+ {
+-    if (!angle_load())
+-        return -1;
+-
+     EGLDisplay egl_display = eglGetCurrentDisplay();
+     if (!egl_display)
+         return -1;
+diff --git a/video/out/opengl/hwdec_dxva2egl.c b/video/out/opengl/hwdec_dxva2egl.c
+index be4c4d7..3a4ee60 100644
+--- a/video/out/opengl/hwdec_dxva2egl.c
++++ b/video/out/opengl/hwdec_dxva2egl.c
+@@ -22,8 +22,6 @@
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+-#include "angle_dynamic.h"
+-
+ #include "common/common.h"
+ #include "osdep/timer.h"
+ #include "osdep/windows_utils.h"
+@@ -97,9 +95,6 @@ static void destroy(struct gl_hwdec *hw)
+ 
+ static int create(struct gl_hwdec *hw)
+ {
+-    if (!angle_load())
+-        return -1;
+-
+     EGLDisplay egl_display = eglGetCurrentDisplay();
+     if (!egl_display)
+         return -1;
+diff --git a/wscript b/wscript
+index 6ff38d6..e1646da 100644
+--- a/wscript
++++ b/wscript
+@@ -699,8 +699,9 @@ video_output_features = [
+         'desc': 'OpenGL Win32 ANGLE Backend',
+         'deps_any': [ 'os-win32', 'os-cygwin' ],
+         'groups': [ 'gl' ],
+-        'func': check_statement(['EGL/egl.h', 'EGL/eglext.h'],
+-                                'int x = EGL_D3D_TEXTURE_2D_SHARE_HANDLE_ANGLE')
++        'func': check_statement(['EGL/egl.h'],
++                                'eglCreateWindowSurface(0, 0, 0, 0)',
++                                lib='EGL')
+     } , {
+         'name': '--vdpau',
+         'desc': 'VDPAU acceleration',
+diff --git a/wscript_build.py b/wscript_build.py
+index 87713ff..df0fc13 100644
+--- a/wscript_build.py
++++ b/wscript_build.py
+@@ -329,7 +329,6 @@ def build(ctx):
+         ( "video/out/cocoa_common.m",            "cocoa" ),
+         ( "video/out/dither.c" ),
+         ( "video/out/filter_kernels.c" ),
+-        ( "video/out/opengl/angle_dynamic.c",    "egl-angle" ),
+         ( "video/out/opengl/common.c",           "gl" ),
+         ( "video/out/opengl/context.c",          "gl" ),
+         ( "video/out/opengl/context_angle.c",    "egl-angle" ),
+-- 
+2.8.1
+
