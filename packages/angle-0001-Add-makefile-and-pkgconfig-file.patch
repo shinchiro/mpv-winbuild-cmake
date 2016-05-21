@@ -1,23 +1,23 @@
-From b91408f502969d2d12c10c2c29517cfc9a0be38c Mon Sep 17 00:00:00 2001
+From 33b08b2e63d28d9f1bebce749ac87c4bc52dccb5 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Fri, 29 Apr 2016 19:50:29 +0800
+Date: Sat, 21 May 2016 12:54:54 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 403 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 406 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 413 insertions(+)
+ 2 files changed, 416 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..404f59d
+index 0000000..2e6d4c7
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,403 @@
+@@ -0,0 +1,406 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -184,9 +184,9 @@ index 0000000..404f59d
 +	src/libANGLE/angletypes.o \
 +	src/libANGLE/formatutils.o \
 +	src/libANGLE/queryconversions.o \
++	src/libANGLE/renderer/ContextImpl.o \
 +	src/libANGLE/renderer/DeviceImpl.o \
 +	src/libANGLE/renderer/DisplayImpl.o \
-+	src/libANGLE/renderer/Renderer.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
 +	src/libANGLE/validationEGL.o \
 +	src/libANGLE/validationES.o \
@@ -226,6 +226,7 @@ index 0000000..404f59d
 +libangle_d3d9_sources = \
 +	src/libANGLE/renderer/d3d/d3d9/Blit9.o \
 +	src/libANGLE/renderer/d3d/d3d9/Buffer9.o \
++	src/libANGLE/renderer/d3d/d3d9/Context9.o \
 +	src/libANGLE/renderer/d3d/d3d9/DebugAnnotator9.o \
 +	src/libANGLE/renderer/d3d/d3d9/Fence9.o \
 +	src/libANGLE/renderer/d3d/d3d9/formatutils9.o \
@@ -247,6 +248,7 @@ index 0000000..404f59d
 +	src/libANGLE/renderer/d3d/d3d11/Blit11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Buffer11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Clear11.o \
++	src/libANGLE/renderer/d3d/d3d11/Context11.o \
 +	src/libANGLE/renderer/d3d/d3d11/DebugAnnotator11.o \
 +	src/libANGLE/renderer/d3d/d3d11/dxgi_support_table.o \
 +	src/libANGLE/renderer/d3d/d3d11/Fence11.o \
@@ -286,6 +288,7 @@ index 0000000..404f59d
 +	src/libANGLE/renderer/gl/BlitGL.o \
 +	src/libANGLE/renderer/gl/BufferGL.o \
 +	src/libANGLE/renderer/gl/CompilerGL.o \
++	src/libANGLE/renderer/gl/ContextGL.o \
 +	src/libANGLE/renderer/gl/DisplayGL.o \
 +	src/libANGLE/renderer/gl/FenceNVGL.o \
 +	src/libANGLE/renderer/gl/FenceSyncGL.o \
