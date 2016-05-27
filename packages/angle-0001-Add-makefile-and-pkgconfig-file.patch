@@ -1,23 +1,23 @@
-From 33b08b2e63d28d9f1bebce749ac87c4bc52dccb5 Mon Sep 17 00:00:00 2001
+From 5bd5d433fa421e2f7707d2cd7f3a85109dfe83e1 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@nowhere.com>
-Date: Sat, 21 May 2016 12:54:54 +0800
+Date: Fri, 27 May 2016 16:51:34 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 406 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 426 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 416 insertions(+)
+ 2 files changed, 436 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..2e6d4c7
+index 0000000..c3865cf
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,406 @@
+@@ -0,0 +1,426 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -314,6 +314,26 @@ index 0000000..2e6d4c7
 +	src/libANGLE/renderer/gl/wgl/PbufferSurfaceWGL.o \
 +	src/libANGLE/renderer/gl/wgl/WindowSurfaceWGL.o \
 +	src/libANGLE/renderer/gl/wgl/wgl_utils.o
++libangle_vulkan_sources = \
++	src/libANGLE/renderer/vulkan/BufferVk.o \
++	src/libANGLE/renderer/vulkan/CompilerVk.o \
++	src/libANGLE/renderer/vulkan/ContextVk.o \
++	src/libANGLE/renderer/vulkan/DeviceVk.o \
++	src/libANGLE/renderer/vulkan/DisplayVk.o \
++	src/libANGLE/renderer/vulkan/FenceNVVk.o \
++	src/libANGLE/renderer/vulkan/FenceSyncVk.o \
++	src/libANGLE/renderer/vulkan/FramebufferVk.o \
++	src/libANGLE/renderer/vulkan/ImageVk.o \
++	src/libANGLE/renderer/vulkan/ProgramVk.o \
++	src/libANGLE/renderer/vulkan/QueryVk.o \
++	src/libANGLE/renderer/vulkan/RenderbufferVk.o \
++	src/libANGLE/renderer/vulkan/RendererVk.o \
++	src/libANGLE/renderer/vulkan/SamplerVk.o \
++	src/libANGLE/renderer/vulkan/ShaderVk.o \
++	src/libANGLE/renderer/vulkan/SurfaceVk.o \
++	src/libANGLE/renderer/vulkan/TextureVk.o \
++	src/libANGLE/renderer/vulkan/TransformFeedbackVk.o \
++	src/libANGLE/renderer/vulkan/VertexArrayVk.o \
 +
 +LIBGLESv2_OBJ = \
 +	src/compiler/translator/ShaderLang.o \
