@@ -1,3 +1,9 @@
+if(${TARGET_CPU} MATCHES "x86_64")
+    set(gcc_arch "x86-64")
+else()
+    set(gcc_arch "i686")
+endif()
+
 ExternalProject_Add(binutils
     URL "http://ftp.gnu.org/gnu/binutils/binutils-2.26.tar.bz2"
     URL_HASH SHA256=c2ace41809542f5237afc7e3b8f32bb92bc7bc53c6232a84463c423b0714ecd9
@@ -64,6 +70,8 @@ ExternalProject_Add(gcc-base
         --disable-nls
         --disable-shared
         --disable-win32-registry
+        --with-arch=${gcc_arch}
+        --with-tune=generic
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-gcc
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
