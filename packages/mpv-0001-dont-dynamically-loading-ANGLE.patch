@@ -1,6 +1,6 @@
-From b0bcc4d5d65d364482840df73bcf436406715d8f Mon Sep 17 00:00:00 2001
+From 5c5408be71a5b7fcd51a4f6b2db396b7c827a440 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 3 Jun 2016 19:59:32 +0800
+Date: Tue, 7 Jun 2016 23:12:40 +0800
 Subject: [PATCH] mpv: Dont dynamically loading ANGLE
 
 This revert commit fde20d10bcacebf61aff42ab1f48ac72023a2aa5
@@ -9,11 +9,11 @@ This revert commit fde20d10bcacebf61aff42ab1f48ac72023a2aa5
  video/out/opengl/angle_dynamic.h     | 82 ------------------------------------
  video/out/opengl/context_angle.c     |  7 ---
  video/out/opengl/hwdec_d3d11egl.c    |  5 ---
- video/out/opengl/hwdec_d3d11eglrgb.c |  6 +--
+ video/out/opengl/hwdec_d3d11eglrgb.c |  3 --
  video/out/opengl/hwdec_dxva2egl.c    |  5 ---
  wscript                              |  5 ++-
  wscript_build.py                     |  1 -
- 8 files changed, 6 insertions(+), 138 deletions(-)
+ 8 files changed, 3 insertions(+), 138 deletions(-)
  delete mode 100644 video/out/opengl/angle_dynamic.c
  delete mode 100644 video/out/opengl/angle_dynamic.h
 
@@ -145,19 +145,19 @@ index 87ad85c..0000000
 -
 -#endif
 diff --git a/video/out/opengl/context_angle.c b/video/out/opengl/context_angle.c
-index cc8617c..e15729d 100644
+index cc14fc3..9177c32 100644
 --- a/video/out/opengl/context_angle.c
 +++ b/video/out/opengl/context_angle.c
-@@ -19,8 +19,6 @@
- #include <EGL/egl.h>
- #include <EGL/eglext.h>
+@@ -21,8 +21,6 @@
+ #include <d3d11.h>
+ #include <dxgi.h>
  
 -#include "angle_dynamic.h"
 -
  #include "common/common.h"
  #include "video/out/w32_common.h"
  #include "context.h"
-@@ -111,11 +109,6 @@ static int angle_init(struct MPGLContext *ctx, int flags)
+@@ -181,11 +179,6 @@ static int angle_init(struct MPGLContext *ctx, int flags)
      struct priv *p = ctx->priv;
      struct vo *vo = ctx->vo;
  
@@ -193,26 +193,23 @@ index cd4a0f0..a76b24d 100644
      if (!egl_display)
          return -1;
 diff --git a/video/out/opengl/hwdec_d3d11eglrgb.c b/video/out/opengl/hwdec_d3d11eglrgb.c
-index 10470c2..f2f39db 100644
+index 10470c2..68e4806 100644
 --- a/video/out/opengl/hwdec_d3d11eglrgb.c
 +++ b/video/out/opengl/hwdec_d3d11eglrgb.c
-@@ -23,7 +23,7 @@
+@@ -23,7 +23,6 @@
  #include <EGL/egl.h>
  #include <EGL/eglext.h>
  
 -#include "angle_dynamic.h"
-+
  
  #include "common/common.h"
  #include "osdep/timer.h"
-@@ -103,8 +103,8 @@ static void destroy(struct gl_hwdec *hw)
+@@ -103,8 +102,6 @@ static void destroy(struct gl_hwdec *hw)
  
  static int create(struct gl_hwdec *hw)
  {
 -    if (!angle_load())
 -        return -1;
-+
-+
  
      EGLDisplay egl_display = eglGetCurrentDisplay();
      if (!egl_display)
