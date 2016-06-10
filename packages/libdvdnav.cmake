@@ -1,6 +1,6 @@
 ExternalProject_Add(libdvdnav
     DEPENDS libdvdread
-    GIT_REPOSITORY git://git.videolan.org/libdvdnav.git
+    GIT_REPOSITORY https://code.videolan.org/videolan/libdvdnav.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

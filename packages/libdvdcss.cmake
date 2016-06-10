@@ -1,5 +1,5 @@
 ExternalProject_Add(libdvdcss
-    GIT_REPOSITORY git://git.videolan.org/libdvdcss
+    GIT_REPOSITORY https://code.videolan.org/videolan/libdvdcss.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

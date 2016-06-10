@@ -1,6 +1,6 @@
 ExternalProject_Add(libdvdread
     DEPENDS libdvdcss
-    GIT_REPOSITORY git://git.videolan.org/libdvdread.git
+    GIT_REPOSITORY https://code.videolan.org/videolan/libdvdread.git
     GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
