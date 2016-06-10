@@ -90,18 +90,14 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMENT "Copying mpv binaries and manual"
 )
 
+set(RENAME_SCRIPT ${PROJECT_SOURCE_DIR}/packages/mpv-rename.sh)
 ExternalProject_Add_Step(mpv copy-package-dir
     DEPENDEES copy-binary
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package ${CMAKE_BINARY_DIR}/mpv-${TARGET_CPU}-${BUILDDATE}-git-${GIT_MPV}
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev ${CMAKE_BINARY_DIR}/mpv-dev-${TARGET_CPU}-${BUILDDATE}-git-${GIT_MPV}
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-package ${CMAKE_BINARY_DIR}/mpv-${TARGET_CPU}-${BUILDDATE}
+    COMMAND bash ${RENAME_SCRIPT} <SOURCE_DIR> ${CMAKE_BINARY_DIR}/mpv-${TARGET_CPU}-${BUILDDATE}
+
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev ${CMAKE_BINARY_DIR}/mpv-dev-${TARGET_CPU}-${BUILDDATE}
+    COMMAND bash ${RENAME_SCRIPT} <SOURCE_DIR> ${CMAKE_BINARY_DIR}/mpv-dev-${TARGET_CPU}-${BUILDDATE}
     COMMENT "Copying mpv package folder"
     LOG 1
 )
-
-ExternalProject_Get_Property(mpv SOURCE_DIR)
-execute_process(
-    WORKING_DIRECTORY ${SOURCE_DIR}
-    COMMAND ${GIT_EXECUTABLE} rev-parse --short @{u}
-    OUTPUT_VARIABLE OUTPUT
-)
-set(GIT_MPV ${OUTPUT} CACHE STRING "Getting mpv's commit hash")
