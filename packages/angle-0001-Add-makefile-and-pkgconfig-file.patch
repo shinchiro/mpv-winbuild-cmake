@@ -1,23 +1,23 @@
-From 5bd5d433fa421e2f7707d2cd7f3a85109dfe83e1 Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@nowhere.com>
-Date: Fri, 27 May 2016 16:51:34 +0800
+From 7a0bc462f11cad91f2bb551533df969b4d7f9443 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 10 Jun 2016 12:39:58 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 426 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 427 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 436 insertions(+)
+ 2 files changed, 437 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..c3865cf
+index 0000000..6310247
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,426 @@
+@@ -0,0 +1,427 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -188,6 +188,9 @@ index 0000000..c3865cf
 +	src/libANGLE/renderer/DeviceImpl.o \
 +	src/libANGLE/renderer/DisplayImpl.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
++	src/libANGLE/renderer/copyimage.o \
++	src/libANGLE/renderer/renderer_utils.o \
++	src/libANGLE/signal_utils.o \
 +	src/libANGLE/validationEGL.o \
 +	src/libANGLE/validationES.o \
 +	src/libANGLE/validationES2.o \
@@ -196,12 +199,10 @@ index 0000000..c3865cf
 +libangle_d3d_shared_sources = \
 +	src/libANGLE/renderer/d3d/BufferD3D.o \
 +	src/libANGLE/renderer/d3d/CompilerD3D.o \
-+	src/libANGLE/renderer/d3d/copyimage.o \
 +	src/libANGLE/renderer/d3d/DeviceD3D.o \
 +	src/libANGLE/renderer/d3d/DisplayD3D.o \
 +	src/libANGLE/renderer/d3d/DynamicHLSL.o \
 +	src/libANGLE/renderer/d3d/EGLImageD3D.o \
-+	src/libANGLE/renderer/d3d/formatutilsD3D.o \
 +	src/libANGLE/renderer/d3d/FramebufferD3D.o \
 +	src/libANGLE/renderer/d3d/HLSLCompiler.o \
 +	src/libANGLE/renderer/d3d/ImageD3D.o \
@@ -461,5 +462,5 @@ index 0000000..dd4e52a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
-2.8.1
+2.8.2
 
