@@ -1,23 +1,23 @@
-From 7a0bc462f11cad91f2bb551533df969b4d7f9443 Mon Sep 17 00:00:00 2001
+From b50506cf079ae1a6bd173f6a90e881ad988ad762 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 10 Jun 2016 12:39:58 +0800
+Date: Fri, 24 Jun 2016 15:47:58 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 427 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 430 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 437 insertions(+)
+ 2 files changed, 440 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..6310247
+index 0000000..9e86d24
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,427 @@
+@@ -0,0 +1,430 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -163,9 +163,11 @@ index 0000000..6310247
 +	src/libANGLE/Framebuffer.o \
 +	src/libANGLE/FramebufferAttachment.o \
 +	src/libANGLE/HandleAllocator.o \
++	src/libANGLE/HandleRangeAllocator.o \
 +	src/libANGLE/Image.o \
 +	src/libANGLE/ImageIndex.o \
 +	src/libANGLE/IndexRangeCache.o \
++	src/libANGLE/Path.o \
 +	src/libANGLE/Platform.o \
 +	src/libANGLE/Program.o \
 +	src/libANGLE/Query.o \
@@ -295,6 +297,7 @@ index 0000000..6310247
 +	src/libANGLE/renderer/gl/FenceSyncGL.o \
 +	src/libANGLE/renderer/gl/FramebufferGL.o \
 +	src/libANGLE/renderer/gl/FunctionsGL.o \
++	src/libANGLE/renderer/gl/PathGL.o \
 +	src/libANGLE/renderer/gl/ProgramGL.o \
 +	src/libANGLE/renderer/gl/QueryGL.o \
 +	src/libANGLE/renderer/gl/RenderbufferGL.o \
