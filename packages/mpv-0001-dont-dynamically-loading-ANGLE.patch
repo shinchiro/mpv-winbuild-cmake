@@ -1,6 +1,6 @@
-From d079cf179aacc5aebf4642da1d96e2f07f1c09aa Mon Sep 17 00:00:00 2001
+From 71b1a377fef75840ad196ea2647bef544f2c9b5f Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 9 Jun 2016 18:12:47 +0800
+Date: Fri, 1 Jul 2016 15:39:51 +0800
 Subject: [PATCH] mpv: Dont dynamically loading ANGLE
 
 This revert commit fde20d10bcacebf61aff42ab1f48ac72023a2aa5
@@ -8,12 +8,12 @@ This revert commit fde20d10bcacebf61aff42ab1f48ac72023a2aa5
  video/out/opengl/angle_dynamic.c     | 33 ---------------
  video/out/opengl/angle_dynamic.h     | 82 ------------------------------------
  video/out/opengl/context_angle.c     |  7 ---
- video/out/opengl/hwdec_d3d11egl.c    |  4 --
- video/out/opengl/hwdec_d3d11eglrgb.c |  3 --
- video/out/opengl/hwdec_dxva2egl.c    |  5 ---
+ video/out/opengl/hwdec_d3d11egl.c    |  5 ---
+ video/out/opengl/hwdec_d3d11eglrgb.c |  4 --
+ video/out/opengl/hwdec_dxva2egl.c    |  4 --
  wscript                              |  5 ++-
  wscript_build.py                     |  1 -
- 8 files changed, 3 insertions(+), 137 deletions(-)
+ 8 files changed, 3 insertions(+), 138 deletions(-)
  delete mode 100644 video/out/opengl/angle_dynamic.c
  delete mode 100644 video/out/opengl/angle_dynamic.h
 
@@ -170,18 +170,19 @@ index cc14fc3..9177c32 100644
          goto fail;
  
 diff --git a/video/out/opengl/hwdec_d3d11egl.c b/video/out/opengl/hwdec_d3d11egl.c
-index 26d992d..0bbb56f 100644
+index 07333c3..8d48ef8 100644
 --- a/video/out/opengl/hwdec_d3d11egl.c
 +++ b/video/out/opengl/hwdec_d3d11egl.c
-@@ -24,7 +24,6 @@
+@@ -23,8 +23,6 @@
+ #include <EGL/egl.h>
  #include <EGL/eglext.h>
  
- #include "angle_common.h"
 -#include "angle_dynamic.h"
- 
+-
  #include "common/common.h"
  #include "osdep/timer.h"
-@@ -99,9 +98,6 @@ static void destroy(struct gl_hwdec *hw)
+ #include "osdep/windows_utils.h"
+@@ -99,9 +97,6 @@ static void destroy(struct gl_hwdec *hw)
  
  static int create(struct gl_hwdec *hw)
  {
@@ -192,28 +193,29 @@ index 26d992d..0bbb56f 100644
      if (!egl_display)
          return -1;
 diff --git a/video/out/opengl/hwdec_d3d11eglrgb.c b/video/out/opengl/hwdec_d3d11eglrgb.c
-index 9e83ac4..977d7a8 100644
+index be8057c..880cb14 100644
 --- a/video/out/opengl/hwdec_d3d11eglrgb.c
 +++ b/video/out/opengl/hwdec_d3d11eglrgb.c
-@@ -24,7 +24,6 @@
+@@ -23,8 +23,6 @@
+ #include <EGL/egl.h>
  #include <EGL/eglext.h>
  
- #include "angle_common.h"
 -#include "angle_dynamic.h"
- 
+-
  #include "common/common.h"
  #include "osdep/timer.h"
-@@ -101,8 +100,6 @@ static void destroy(struct gl_hwdec *hw)
+ #include "osdep/windows_utils.h"
+@@ -84,8 +82,6 @@ static void destroy(struct gl_hwdec *hw)
  
  static int create(struct gl_hwdec *hw)
  {
 -    if (!angle_load())
 -        return -1;
  
-     EGLDisplay egl_display = eglGetCurrentDisplay();
-     if (!egl_display)
+     d3d_load_dlls();
+ 
 diff --git a/video/out/opengl/hwdec_dxva2egl.c b/video/out/opengl/hwdec_dxva2egl.c
-index d67a85b..59d482e 100644
+index f206b96..309fe75 100644
 --- a/video/out/opengl/hwdec_dxva2egl.c
 +++ b/video/out/opengl/hwdec_dxva2egl.c
 @@ -22,8 +22,6 @@
@@ -225,21 +227,20 @@ index d67a85b..59d482e 100644
  #include "common/common.h"
  #include "osdep/timer.h"
  #include "osdep/windows_utils.h"
-@@ -96,9 +94,6 @@ static void destroy(struct gl_hwdec *hw)
+@@ -93,8 +91,6 @@ static void destroy(struct gl_hwdec *hw)
  
  static int create(struct gl_hwdec *hw)
  {
 -    if (!angle_load())
 -        return -1;
--
-     EGLDisplay egl_display = eglGetCurrentDisplay();
-     if (!egl_display)
-         return -1;
+ 
+     d3d_load_dlls();
+ 
 diff --git a/wscript b/wscript
-index 4b510f0..2296d00 100644
+index e29d1ab..667b644 100644
 --- a/wscript
 +++ b/wscript
-@@ -729,8 +729,9 @@ video_output_features = [
+@@ -704,8 +704,9 @@ video_output_features = [
          'desc': 'OpenGL Win32 ANGLE Backend',
          'deps_any': [ 'os-win32', 'os-cygwin' ],
          'groups': [ 'gl' ],
@@ -252,17 +253,17 @@ index 4b510f0..2296d00 100644
          'name': '--vdpau',
          'desc': 'VDPAU acceleration',
 diff --git a/wscript_build.py b/wscript_build.py
-index 6ed412a..4de85f3 100644
+index 8f2b85c..5f1e988 100644
 --- a/wscript_build.py
 +++ b/wscript_build.py
-@@ -330,7 +330,6 @@ def build(ctx):
+@@ -326,7 +326,6 @@ def build(ctx):
          ( "video/out/cocoa_common.m",            "cocoa" ),
          ( "video/out/dither.c" ),
          ( "video/out/filter_kernels.c" ),
 -        ( "video/out/opengl/angle_dynamic.c",    "egl-angle" ),
-         ( "video/out/opengl/angle_common.c",     "egl-angle" ),
          ( "video/out/opengl/common.c",           "gl" ),
          ( "video/out/opengl/context.c",          "gl" ),
+         ( "video/out/opengl/context_angle.c",    "egl-angle" ),
 -- 
 2.8.2
 
