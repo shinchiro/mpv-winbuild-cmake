@@ -1,23 +1,23 @@
-From b50506cf079ae1a6bd173f6a90e881ad988ad762 Mon Sep 17 00:00:00 2001
+From 85be149aa671c5288c04c0b8eb1ddf3c91e041e6 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 24 Jun 2016 15:47:58 +0800
+Date: Tue, 5 Jul 2016 11:27:16 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 430 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 433 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 440 insertions(+)
+ 2 files changed, 443 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..9e86d24
+index 0000000..806ef49
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,430 @@
+@@ -0,0 +1,433 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -146,6 +146,12 @@ index 0000000..9e86d24
 +	src/common/string_utils.o \
 +	src/common/tls.o \
 +	src/common/utilities.o
++libangle_image_util_sources = \
++	src/image_util/copyimage.o \
++	src/image_util/imageformats.o \
++	src/image_util/loadimage.o \
++	src/image_util/loadimage_etc.o \
++	src/image_util/loadimage_sse2.o
 +libangle_sources = \
 +	src/common/event_tracer.o \
 +	src/libANGLE/AttributeMap.o \
@@ -190,7 +196,6 @@ index 0000000..9e86d24
 +	src/libANGLE/renderer/DeviceImpl.o \
 +	src/libANGLE/renderer/DisplayImpl.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
-+	src/libANGLE/renderer/copyimage.o \
 +	src/libANGLE/renderer/renderer_utils.o \
 +	src/libANGLE/signal_utils.o \
 +	src/libANGLE/validationEGL.o \
@@ -210,9 +215,6 @@ index 0000000..9e86d24
 +	src/libANGLE/renderer/d3d/ImageD3D.o \
 +	src/libANGLE/renderer/d3d/IndexBuffer.o \
 +	src/libANGLE/renderer/d3d/IndexDataManager.o \
-+	src/libANGLE/renderer/d3d/loadimage.o \
-+	src/libANGLE/renderer/d3d/loadimageSSE2.o \
-+	src/libANGLE/renderer/d3d/loadimage_etc.o \
 +	src/libANGLE/renderer/d3d/NativeWindowD3D.o \
 +	src/libANGLE/renderer/d3d/ProgramD3D.o \
 +	src/libANGLE/renderer/d3d/RenderbufferD3D.o \
@@ -348,6 +350,7 @@ index 0000000..9e86d24
 +	$(angle_translator_lib_hlsl_sources) \
 +	$(angle_preprocessor_sources) \
 +	$(libangle_common_sources) \
++	$(libangle_image_util_sources) \
 +	$(libangle_sources) \
 +	$(libangle_d3d_shared_sources) \
 +	$(libangle_d3d9_sources) \
@@ -465,5 +468,5 @@ index 0000000..dd4e52a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
-2.8.2
+2.9.0
 
