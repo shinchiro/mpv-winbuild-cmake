@@ -1,23 +1,23 @@
-From 85be149aa671c5288c04c0b8eb1ddf3c91e041e6 Mon Sep 17 00:00:00 2001
+From 7992307421a009eac041b3ae320e8f3562b3ace0 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Tue, 5 Jul 2016 11:27:16 +0800
+Date: Fri, 8 Jul 2016 22:02:18 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 433 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 432 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 443 insertions(+)
+ 2 files changed, 442 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..806ef49
+index 0000000..a72ffbc
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,433 @@
+@@ -0,0 +1,432 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -150,8 +150,7 @@ index 0000000..806ef49
 +	src/image_util/copyimage.o \
 +	src/image_util/imageformats.o \
 +	src/image_util/loadimage.o \
-+	src/image_util/loadimage_etc.o \
-+	src/image_util/loadimage_sse2.o
++	src/image_util/loadimage_etc.o
 +libangle_sources = \
 +	src/common/event_tracer.o \
 +	src/libANGLE/AttributeMap.o \
