@@ -67,7 +67,7 @@ Information about packages
     - libmodplug
     - libjpeg (1.5.0)
     - libiconv
-    - libarchive
+    - libarchive (3.2.1)
     - gmp
     - fribidi
     
