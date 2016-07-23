@@ -1,6 +1,6 @@
 ExternalProject_Add(gmp
-    URL "https://gmplib.org/download/gmp/gmp-6.1.0.tar.bz2"
-    URL_HASH SHA256=498449a994efeba527885c10405993427995d3f86b8768d8cdf8d9dd7c6b73e8
+    URL "https://gmplib.org/download/gmp/gmp-6.1.1.tar.bz2"
+    URL_HASH SHA256=a8109865f2893f1373b0a8ed5ff7429de8db696fc451b1036bd7bdf95bbeffd6
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}

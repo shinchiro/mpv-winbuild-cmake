@@ -68,7 +68,7 @@ Information about packages
     - libjpeg (1.5.0)
     - libiconv
     - libarchive (3.2.1)
-    - gmp
+    - gmp (6.1.1)
     - fribidi
     
 
