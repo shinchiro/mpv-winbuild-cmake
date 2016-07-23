@@ -40,7 +40,7 @@ Information about packages
     - openal-soft
     - mpv
     - luajit
-    - libvpx (=654d2163c9c654f90267708c2d1d146f762a9e48)
+    - libvpx
     - libpng
     - libsoxr
     - libzimg

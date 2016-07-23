@@ -6,8 +6,7 @@ endif()
 
 ExternalProject_Add(libvpx
     GIT_REPOSITORY https://chromium.googlesource.com/webm/libvpx.git
-    #GIT_DEPTH 1
-    GIT_TAG 654d2163c9c654f90267708c2d1d146f762a9e48
+    GIT_DEPTH 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --target=${libvpx_target}
