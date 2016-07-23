@@ -1,34 +1,29 @@
-CMake-based MinGW-w64 Cross Toolchain
-=====================================
+# CMake-based MinGW-w64 Cross Toolchain
 
 This thing’s primary use is to build Windows binaries of mpv.
 
 Alternatively, you can download the builds from [here](https://sourceforge.net/projects/mpv-player-windows/files/).
 
-Prerequisites
--------------
+## Prerequisites
 
 In addition to CMake, you need the usual development stuff (Git, Subversion,
 GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
 
-.. note::
-    You should also install Ninja and use CMake’s Ninja build file generator.
+ -  You should also install Ninja and use CMake’s Ninja build file generator.
     It’s not only much faster than GNU Make, but also far less error-prone,
     which is important for this project because CMake’s ExternalProject module
     tends to generate makefiles which confuse GNU Make’s jobserver thingy.
 
-.. note::
-    As a build environment, any modern Linux distribution *should* work,
+ -  As a build environment, any modern Linux distribution *should* work,
     however I am only testing this on openSUSE, which (as of November 2014)
     is using a 4.8 series GCC by default. Feel free to contribute fixes for
     other environments.
 
-.. note::
-    You cannot use this cmake script on **MSYS2** due to various problems.
+-   You cannot use this cmake script on **MSYS2** due to various problems.
 
 
-Information about packages
---------------------------
+## Information about packages
+
 - Git
     - ANGLE
     - FFmpeg
@@ -72,8 +67,8 @@ Information about packages
     - fribidi (0.19.7)
     
 
-Prerequisites for Manjaro Linux
---------------------------------
+### Prerequisites for Manjaro / Arch Linux
+
 These packages need to be installed first before compiling mpv:
 
     pacman -S git ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib
@@ -82,8 +77,12 @@ For building pdf, these packages are needed:
 
     pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
-Parallel Build
---------------
+### Prerequisites for Ubuntu Linux / WSL(Windows10) -Untested-
+
+    apt-get install git ninja-build cmake g++ yasm automake autoconf libtool gcc-multilib g++-multilib subversion libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev texinfo gperf ragel asciidoc autopoint python-docutils rst2pdf re2c
+
+### Parallel Build
+
 ProcessorCount didn't return correct no of physical core so we set the MAKEJOBS value manually for safety.
 
 By default, this script set up MAKEJOBS value to 2 by default. This follow the rule,
@@ -92,19 +91,22 @@ For example, if you have quad core cpu, the MAKEJOBS value should be 5.
 
 
 
-Building Software
------------------
+### Building Software
 
 To set up the build environment, create a directory to store build files in::
 
     mkdir build-64
     cd build-64
 
-Once you’ve changed into that directory, run CMake, e.g.::
+Once you’ve changed into that directory, run CMake, e.g.
 
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
-First, you need to build toolchain. By default, it will be installed in 'prefix' folder.
+or for 32bit:
+
+    cmake -DTARGET_ARCH=i686-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
+
+First, you need to build toolchain. By default, it will be installed in 'prefix' folder. This take ~20 minutes in my 4-core machine.
 
     ninja gcc winpthreads
 
@@ -112,20 +114,11 @@ After it done, you're ready to build mpv and all its dependencies:
 
     ninja mpv
 
-This will take a while (about 20 minutes on my machine).
-
-.. note::
-    The mpv package has some additional steps to generate a 7zip archive ready
-    for distribution instead of installing it to the prefix.
-
-.. note::
-    If you wish to disable automatic updates of packages pulled from
-    development sources, use ``-DENABLE_VCS_UPDATES=false`` on the CMake
-    command line.
+This will take a while (about 10 minutes on my machine).
 
 
-Unpackaged Stuff
-~~~~~~~~~~~~~~~~
+
+### Unpackaged Stuff
 
 Using the toolchain to build stuff which doesn’t have a package is usually
 very easy. There are two generated files in your build directory to help with
@@ -149,14 +142,12 @@ configure scripts.
 
 CMake doesn’t have a standard way to achieve this, so you’re on your own.
 
-.. note::
-    It’s usually easy to make CMake projects link statically if they don’t have
+-   It’s usually easy to make CMake projects link statically if they don’t have
     an option for it already. If you need an example, look at the patches for
     ``game-music-emu``.
 
 
-Creating Packages
-~~~~~~~~~~~~~~~~~
+### Creating Packages
 
 To add a new package, create a new ``.cmake`` file in the ``packages``
 directory (just look at how the existing packages work) and add it to the
