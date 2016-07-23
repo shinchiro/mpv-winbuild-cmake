@@ -56,7 +56,7 @@ Information about packages
     - freetype2
 
 - Zip
-    - expat
+    - expat (2.2.0)
     - bzip
     - zlib
     - xvidcore
