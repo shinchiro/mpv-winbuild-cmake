@@ -57,19 +57,19 @@ Information about packages
 
 - Zip
     - expat (2.2.0)
-    - bzip
-    - zlib
-    - xvidcore
-    - vorbis
-    - speex
-    - ogg
-    - lzo
+    - bzip (1.0.6)
+    - zlib (1.2.8)
+    - xvidcore (1.3.4)
+    - vorbis (1.3.5)
+    - speex (1.2rc2)
+    - ogg (1.3.2)
+    - lzo (2.09)
     - libmodplug
     - libjpeg (1.5.0)
-    - libiconv
+    - libiconv (1.14)
     - libarchive (3.2.1)
     - gmp (6.1.1)
-    - fribidi
+    - fribidi (0.19.7)
     
 
 Prerequisites for Manjaro Linux
