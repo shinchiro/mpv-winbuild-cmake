@@ -64,7 +64,7 @@ Information about packages
     - speex (1.2rc2)
     - ogg (1.3.2)
     - lzo (2.09)
-    - libmodplug
+    - libmodplug (0.8.8.5)
     - libjpeg (1.5.0)
     - libiconv (1.14)
     - libarchive (3.2.1)
