@@ -1,23 +1,23 @@
-From 4d56f090728a163aad6d98b2f42e5ffdfb2b2473 Mon Sep 17 00:00:00 2001
+From 11c5ff6ceaa673d01d6790db371601e5b65c0bdc Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 22 Jul 2016 16:14:15 +0800
+Date: Sat, 23 Jul 2016 09:47:56 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 434 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 435 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 444 insertions(+)
+ 2 files changed, 445 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..f9c7aee
+index 0000000..7486f76
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,434 @@
+@@ -0,0 +1,435 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -108,6 +108,7 @@ index 0000000..f9c7aee
 +	src/compiler/translator/TranslatorGLSL.o \
 +	src/compiler/translator/VersionGLSL.o
 +angle_translator_lib_hlsl_sources = \
++	src/compiler/translator/AddDefaultReturnStatements.o \
 +	src/compiler/translator/ArrayReturnValueToOutParameter.o \
 +	src/compiler/translator/ASTMetadataHLSL.o \
 +	src/compiler/translator/blocklayoutHLSL.o \
@@ -469,5 +470,5 @@ index 0000000..dd4e52a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
-2.9.0
+2.9.1
 
