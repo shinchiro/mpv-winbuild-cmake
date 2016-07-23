@@ -65,7 +65,7 @@ Information about packages
     - ogg
     - lzo
     - libmodplug
-    - libjpeg
+    - libjpeg (1.5.0)
     - libiconv
     - libarchive
     - gmp
