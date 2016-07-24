@@ -77,9 +77,11 @@ For building pdf, these packages are needed:
 
     pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
-### Prerequisites for Ubuntu Linux / WSL(Windows10) -Untested-
+### Prerequisites for Ubuntu Linux / WSL (Windows 10)
 
-    apt-get install git ninja-build cmake g++ yasm automake autoconf libtool gcc-multilib g++-multilib subversion libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev texinfo gperf ragel asciidoc autopoint python-docutils rst2pdf re2c
+    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build cmake yasm automake libtool gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf
+
+**Note:** Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
 
 ### Parallel Build
 
@@ -87,8 +89,7 @@ ProcessorCount didn't return correct no of physical core so we set the MAKEJOBS 
 
 By default, this script set up MAKEJOBS value to 2 by default. This follow the rule,
 1 core + 1. If your pc has more cores, you can increase the MAKEJOBS value in CMakeLists.
-For example, if you have quad core cpu, the MAKEJOBS value should be 5.
-
+For example, if you have 4-core cpu, the MAKEJOBS value should be 5.
 
 
 ### Building Software
@@ -106,7 +107,7 @@ or for 32bit:
 
     cmake -DTARGET_ARCH=i686-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
-First, you need to build toolchain. By default, it will be installed in 'prefix' folder. This take ~20 minutes in my 4-core machine.
+First, you need to build toolchain. By default, it will be installed in 'prefix' folder. This take ~20 minutes on my 4-core machine.
 
     ninja gcc winpthreads
 
@@ -114,7 +115,7 @@ After it done, you're ready to build mpv and all its dependencies:
 
     ninja mpv
 
-This will take a while (about 10 minutes on my machine).
+This will take a while (about ~10 minutes on my machine).
 
 
 
