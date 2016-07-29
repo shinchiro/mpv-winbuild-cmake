@@ -1,29 +1,30 @@
-From 11c5ff6ceaa673d01d6790db371601e5b65c0bdc Mon Sep 17 00:00:00 2001
+From 54757aa8ffdf87da30bfbe433134118db7ce940b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 23 Jul 2016 09:47:56 +0800
+Date: Fri, 29 Jul 2016 18:48:41 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 435 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 438 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 445 insertions(+)
+ 2 files changed, 448 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..7486f76
+index 0000000..487c595
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,435 @@
+@@ -0,0 +1,438 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
 +RANLIB ?= ranlib
 +INSTALL ?= install
 +
++SHELL ?= /bin/bash
 +PREFIX ?= /usr/local
 +BINDIR ?= $(PREFIX)/bin
 +LIBDIR ?= $(PREFIX)/lib
@@ -39,7 +40,7 @@ index 0000000..7486f76
 +CXXFLAGS := -std=c++11 -fpermissive -msse2 -O2 -Wno-deprecated-declarations \
 +            -Wno-conversion-null $(CXXFLAGS)
 +DEPFLAGS = -MMD -MP
-+LIBGLESv2_LIBS = -ldxguid -ld3d9
++LIBGLESv2_LIBS = -ldxguid -ld3d9 -lsetupapi -lcfgmgr32
 +LIBEGL_LIBS =
 +LIBGLESv2_LDFLAGS = -Wl,--out-implib,libGLESv2.dll.a
 +LIBEGL_LDFLAGS = -Wl,--out-implib,libEGL.dll.a
@@ -54,6 +55,7 @@ index 0000000..7486f76
 +	src/compiler/translator/Diagnostics.o \
 +	src/compiler/translator/DirectiveHandler.o \
 +	src/compiler/translator/EmulatePrecision.o \
++	src/compiler/translator/ExpandIntegerPowExpressions.o \
 +	src/compiler/translator/FlagStd140Structs.o \
 +	src/compiler/translator/ForLoopUnroll.o \
 +	src/compiler/translator/InfoSink.o \
@@ -289,6 +291,7 @@ index 0000000..7486f76
 +	src/libGLESv2/entry_points_gles_2_0.o \
 +	src/libGLESv2/entry_points_gles_2_0_ext.o \
 +	src/libGLESv2/entry_points_gles_3_0.o \
++	src/libGLESv2/entry_points_gles_3_1.o \
 +	src/libGLESv2/global_state.o \
 +	src/libGLESv2/libGLESv2.o
 +libangle_gl_sources = \
@@ -455,7 +458,7 @@ index 0000000..7486f76
 +.PHONY: test
 diff --git a/libEGL.pc.in b/libEGL.pc.in
 new file mode 100644
-index 0000000..dd4e52a
+index 0000000..45a3719
 --- /dev/null
 +++ b/libEGL.pc.in
 @@ -0,0 +1,10 @@
@@ -467,7 +470,7 @@ index 0000000..dd4e52a
 +Description: A conformant OpenGL ES 2 implementation for Windows.
 +Version: %VERSION%
 +Libs: -L${libdir} -lEGL
-+Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
++Libs.private: -lGLESv2 -ldxguid -ld3d9 -lsetupapi -lcfgmgr32 -lstdc++
 +Cflags: %CFLAGS%
 -- 
 2.9.1
