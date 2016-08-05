@@ -5,8 +5,8 @@ else()
 endif()
 
 ExternalProject_Add(binutils
-    URL "http://ftp.gnu.org/gnu/binutils/binutils-2.26.tar.bz2"
-    URL_HASH SHA256=c2ace41809542f5237afc7e3b8f32bb92bc7bc53c6232a84463c423b0714ecd9
+    URL "http://ftp.gnu.org/gnu/binutils/binutils-2.27.tar.bz2"
+    URL_HASH SHA256=369737ce51587f92466041a97ab7d2358c6d9e1b6490b3940eb09fb0a9a6ac88
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
