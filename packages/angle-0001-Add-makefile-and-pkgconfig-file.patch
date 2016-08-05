@@ -1,23 +1,23 @@
-From 54757aa8ffdf87da30bfbe433134118db7ce940b Mon Sep 17 00:00:00 2001
+From c6309a54c9eaa1786bf3b1da9cd5dcf013c57f87 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 29 Jul 2016 18:48:41 +0800
+Date: Sat, 6 Aug 2016 05:35:30 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON  in
 https://gist.github.com/rossy/a73d58faa15b8db19b57
 ---
- Makefile     | 438 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 441 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 448 insertions(+)
+ 2 files changed, 451 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..487c595
+index 0000000..cfbb9f0
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,438 @@
+@@ -0,0 +1,441 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -123,6 +123,7 @@ index 0000000..487c595
 +	src/compiler/translator/SeparateArrayInitialization.o \
 +	src/compiler/translator/SeparateDeclarations.o \
 +	src/compiler/translator/SeparateExpressionsReturningArrays.o \
++	src/compiler/translator/SimplifyLoopConditions.o \
 +	src/compiler/translator/SplitSequenceOperator.o \
 +	src/compiler/translator/StructureHLSL.o \
 +	src/compiler/translator/TextureFunctionHLSL.o \
@@ -200,12 +201,14 @@ index 0000000..487c595
 +	src/libANGLE/renderer/DeviceImpl.o \
 +	src/libANGLE/renderer/DisplayImpl.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
++	src/libANGLE/renderer/TextureImpl.o \
 +	src/libANGLE/renderer/renderer_utils.o \
 +	src/libANGLE/signal_utils.o \
 +	src/libANGLE/validationEGL.o \
 +	src/libANGLE/validationES.o \
 +	src/libANGLE/validationES2.o \
 +	src/libANGLE/validationES3.o \
++	src/libANGLE/validationES31.o \
 +	src/third_party/murmurhash/MurmurHash3.o
 +libangle_d3d_shared_sources = \
 +	src/libANGLE/renderer/d3d/BufferD3D.o \
