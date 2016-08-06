@@ -81,7 +81,7 @@ For building pdf, these packages are needed:
 
 ### Prerequisites for Ubuntu Linux / WSL (Windows 10)
 
-    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build cmake yasm automake pkg-config libtool gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf
+    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build cmake yasm automake pkg-config libtool libtool-bin gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf docbook2x
 
 **Note:** Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
 
