@@ -25,3 +25,4 @@ ExternalProject_Add(libarchive
 
 clean_build_dir(libarchive)
 force_rebuild(libarchive)
+autoreconf(libarchive)
