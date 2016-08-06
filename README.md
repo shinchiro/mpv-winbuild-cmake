@@ -50,6 +50,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - game-music-emu
     - freetype2
     - flac
+    - opus-tools
 
 - Zip
     - expat (2.2.0)

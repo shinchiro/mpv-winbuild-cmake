@@ -128,6 +128,7 @@ foreach(package
     angle
     mpv
     flac
+    opus-tools
 )
     include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
     message(STATUS "Parsing package ${package}")
