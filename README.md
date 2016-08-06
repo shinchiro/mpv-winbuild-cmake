@@ -49,6 +49,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - harfbuzz
     - game-music-emu
     - freetype2
+    - flac
 
 - Zip
     - expat (2.2.0)

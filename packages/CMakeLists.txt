@@ -127,6 +127,7 @@ foreach(package
     ffmpeg
     angle
     mpv
+    flac
 )
     include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
     message(STATUS "Parsing package ${package}")
