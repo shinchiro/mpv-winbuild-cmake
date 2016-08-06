@@ -1,7 +1,7 @@
 ExternalProject_Add(libbluray
     DEPENDS freetype2
     GIT_REPOSITORY http://git.videolan.org/git/libbluray.git
-	GIT_TAG 6a86556953fe84694ba25db3306640a1191afc01
+    GIT_TAG 6a86556953fe84694ba25db3306640a1191afc01
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
