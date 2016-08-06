@@ -85,6 +85,7 @@ For building pdf, these packages are needed:
 
 ### Parallel Build
 
+By default, this script set MAKEJOBS value based on total number of cpu (+HyperThreading). If your compilation always failed for unknown reason,
 consider manually set MAKEJOBS value in the `CMakeLists` file. Basic rule is 1 core + 1. 
 If you have 4-core cpu, the MAKEJOBS value should be 5.
 
@@ -98,13 +99,13 @@ To set up the build environment, create a directory to store build files in::
 
 Once you’ve changed into that directory, run CMake, e.g.
 
-    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
+    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja ..
 
 or for 32bit:
 
-    cmake -DTARGET_ARCH=i686-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
+    cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
 
-First, you need to build toolchain. By default, it will be installed in 'prefix' folder. This take ~20 minutes on my 4-core machine.
+First, you need to build toolchain. By default, it will be installed in `install` folder. This take ~20 minutes on my 4-core machine.
 
     ninja gcc winpthreads
 

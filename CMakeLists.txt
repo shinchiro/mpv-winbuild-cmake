@@ -29,6 +29,9 @@ set(MAKEJOBS ${CPU_COUNT})
 # set(MAKEJOBS 5) # uncomment this line to manually change no. of cpu
 set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
 
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set (CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "Default install path" FORCE )
+endif()
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
 set(ENABLE_VCS_UPDATES true CACHE STRING "Enable automatic updates and forced rebuilds for packages built from git/svn sources")
