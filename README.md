@@ -85,9 +85,8 @@ For building pdf, these packages are needed:
 
 ### Parallel Build
 
-By default, this script set up MAKEJOBS value to 2 by default. This follow the rule,
-1 core + 1. If your pc has more cores, you can increase the MAKEJOBS value in CMakeLists.
-For example, if you have 4-core cpu, the MAKEJOBS value should be 5.
+consider manually set MAKEJOBS value in the `CMakeLists` file. Basic rule is 1 core + 1. 
+If you have 4-core cpu, the MAKEJOBS value should be 5.
 
 
 ### Building Software
@@ -99,11 +98,11 @@ To set up the build environment, create a directory to store build files in::
 
 Once you’ve changed into that directory, run CMake, e.g.
 
-    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -DMAKEJOBS=2 -G Ninja ..
+    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
 or for 32bit:
 
-    cmake -DTARGET_ARCH=i686-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -DMAKEJOBS=2 -G Ninja ..
+    cmake -DTARGET_ARCH=i686-w64-mingw32 -DCMAKE_INSTALL_PREFIX=prefix -G Ninja ..
 
 First, you need to build toolchain. By default, it will be installed in 'prefix' folder. This take ~20 minutes on my 4-core machine.
 

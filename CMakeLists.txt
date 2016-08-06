@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 project(mpv-cross C)
-# Add custom cmake module (cmake/ExternalProject.cmake)
-LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
-INCLUDE(ExternalProject)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+include(ExternalProject)
+include(ProcessorCount)
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
@@ -20,8 +20,13 @@ else()
     set(TARGET_BITS 32)
 endif()
 
-set(MAKEJOBS 2)
+processorcount(CPU_COUNT)
+if(CPU_COUNT EQUAL 0)
+    set(CPU_COUNT 1)
+endif()
 
+set(MAKEJOBS ${CPU_COUNT}) 
+# set(MAKEJOBS 5) # uncomment this line to manually change no. of cpu
 set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
 
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
