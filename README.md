@@ -87,7 +87,8 @@ For building pdf, these packages are needed:
 **Note:** 
 
 * Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. For WSL, upgrade with [this](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-230551101) [step](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-234695431)
-* Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.    
+* Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
+* It is advised to use bash over dash. Set `sudo ln -sf /bin/bash /bin/sh`. Revert back by `sudo ln -sf /bin/dash /bin/sh`.
 * For WSL, some packages will fail when compiling to 32bit. This is because WSL [doesn't support multilib ABI](https://github.com/Microsoft/BashOnWindows/issues/711/) yet.
 
 
