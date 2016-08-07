@@ -69,7 +69,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - fribidi (0.19.7)
     
 
-### Prerequisites for Manjaro / Arch Linux
+## Prerequisites for Manjaro / Arch Linux
 
 These packages need to be installed first before compiling mpv:
 
@@ -79,20 +79,26 @@ For building pdf, these packages are needed:
 
     pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
-### Prerequisites for Ubuntu Linux / WSL (Windows 10)
+
+## Prerequisites for Ubuntu Linux / WSL (Windows 10)
 
     apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build cmake yasm automake pkg-config libtool libtool-bin gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf docbook2x
 
-**Note:** Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
+**Note:** 
 
-### Parallel Build
+* Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. For WSL, upgrade with [this](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-230551101) [step](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-234695431)
+* Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.    
+* For WSL, some packages will fail when compiling to 32bit. This is because WSL [doesn't support multilib ABI](https://github.com/Microsoft/BashOnWindows/issues/711/) yet.
+
+
+## Parallel Build
 
 By default, this script set MAKEJOBS value based on total number of cpu (+HyperThreading). If your compilation always failed for unknown reason,
 consider manually set MAKEJOBS value in the `CMakeLists` file. Basic rule is 1 core + 1. 
 If you have 4-core cpu, the MAKEJOBS value should be 5.
 
 
-### Building Software
+## Building Software
 
 To set up the build environment, create a directory to store build files in::
 
