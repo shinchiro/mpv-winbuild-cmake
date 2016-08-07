@@ -1,6 +1,7 @@
 ExternalProject_Add(opus-tools
     DEPENDS
         ogg
+        opus
         flac
     GIT_REPOSITORY https://github.com/xiph/opus-tools.git
     GIT_DEPTH 1
