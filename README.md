@@ -42,7 +42,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - libdvdread
     - libdvdnav
     - libdvdcss
-    - libbluray (=6a86556953fe84694ba25db3306640a1191afc01)
+    - libbluray
     - libass
     - lcms2
     - lame
