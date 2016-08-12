@@ -1,23 +1,22 @@
-From f25338284fd39323eed6a7b4b43e6c5ca692a974 Mon Sep 17 00:00:00 2001
+From 4dad1ffd06c87b5bc48eaf041d0bc839f552c465 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 6 Aug 2016 09:26:18 +0800
+Date: Fri, 12 Aug 2016 16:09:21 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
-Custom Makefile originally made by rossy & RiCON  in
-https://gist.github.com/rossy/a73d58faa15b8db19b57
+Custom Makefile originally made by rossy & RiCON
 ---
- Makefile     | 442 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 443 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 452 insertions(+)
+ 2 files changed, 453 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..14f3d13
+index 0000000..c59ef61
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,442 @@
+@@ -0,0 +1,443 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -200,6 +199,8 @@ index 0000000..14f3d13
 +	src/libANGLE/renderer/ContextImpl.o \
 +	src/libANGLE/renderer/DeviceImpl.o \
 +	src/libANGLE/renderer/DisplayImpl.o \
++	src/libANGLE/renderer/Format_autogen.o \
++	src/libANGLE/renderer/Format.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
 +	src/libANGLE/renderer/TextureImpl.o \
 +	src/libANGLE/renderer/renderer_utils.o \
@@ -282,7 +283,6 @@ index 0000000..14f3d13
 +	src/libANGLE/renderer/d3d/d3d11/TextureStorage11.o \
 +	src/libANGLE/renderer/d3d/d3d11/TransformFeedback11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Trim11.o \
-+	src/libANGLE/renderer/d3d/d3d11/texture_format_table_autogen.o \
 +	src/libANGLE/renderer/d3d/d3d11/texture_format_table.o \
 +	src/libANGLE/renderer/d3d/d3d11/VertexArray11.o \
 +	src/libANGLE/renderer/d3d/d3d11/VertexBuffer11.o
