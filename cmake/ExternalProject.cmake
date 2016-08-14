@@ -58,17 +58,19 @@ Create custom targets to build projects in external trees
   ``GIT_TAG <tag>``
     Git branch name, commit id or tag
   ``GIT_REMOTE_NAME <name>``
-    The optional name of the remote, default to ``origin``    
+    The optional name of the remote, default to ``origin``
   ``GIT_SUBMODULES <module>...``
     Git submodules that shall be updated, all if empty
-  ``GIT_DEPTH <depth>``
-    Create shallow clones with git, truncated at depth number of revisions, all if empty
+  ``GIT_SHALLOW 1``
+    Tell Git to clone with ``--depth 1``.   Use when ``GIT_TAG`` is not
+    specified or when it names a branch in order to download only the
+    tip of the branch without the rest of its history.
   ``HG_REPOSITORY <url>``
     URL of mercurial repo
   ``HG_TAG <tag>``
     Mercurial branch name, commit id or tag
-  ``URL /.../src.tgz``
-    Full path or URL of source
+  ``URL /.../src.tgz [/.../src.tgz]...``
+    Full path or URL(s) of source.  Multiple URLs are allowed as mirrors.
   ``URL_HASH ALGO=value``
     Hash of file at URL
   ``URL_MD5 md5``
@@ -79,6 +81,9 @@ Create custom targets to build projects in external trees
     Path to a certificate authority file
   ``TIMEOUT <seconds>``
     Time allowed for file download operations
+  ``DOWNLOAD_NO_EXTRACT 1``
+    Just download the file and do not extract it; the full path to the
+    downloaded file is available as ``<DOWNLOADED_FILE>``.
 
   Update/Patch step options are:
 
@@ -115,7 +120,7 @@ Create custom targets to build projects in external trees
   ``CMAKE_CACHE_ARGS <arg>...``
     Initial cache arguments, of the form ``-Dvar:string=on``.
     These arguments are written in a pre-load a script that populates
-    CMake cache, see also :manual:`cmake -C <cmake(1)>`. This allows to
+    CMake cache, see also :manual:`cmake -C <cmake(1)>`. This allows one to
     overcome command line length limits.
     These arguments are :command:`set` using the ``FORCE`` argument,
     and therefore cannot be changed by the user.
@@ -124,7 +129,7 @@ Create custom targets to build projects in external trees
   ``CMAKE_CACHE_DEFAULT_ARGS <arg>...``
     Initial default cache arguments, of the form ``-Dvar:string=on``.
     These arguments are written in a pre-load a script that populates
-    CMake cache, see also :manual:`cmake -C <cmake(1)>`. This allows to
+    CMake cache, see also :manual:`cmake -C <cmake(1)>`. This allows one to
     overcome command line length limits.
     These arguments can be used as default value that will be set if no
     previous value is found in the cache, and that the user can change
@@ -240,7 +245,7 @@ Create custom targets to build projects in external trees
   If ``UPDATE_DISCONNECTED`` is set, the update step is not executed
   automatically when building the main target. The update step can still
   be added as a step target and called manually. This is useful if you
-  want to allow to build the project when you are disconnected from the
+  want to allow one to build the project when you are disconnected from the
   network (you might still need the network for the download step).
   This is disabled by default.
   The directory property ``EP_UPDATE_DISCONNECTED`` can be used to change
@@ -372,6 +377,7 @@ file::
 
 #=============================================================================
 # Copyright 2008-2013 Kitware, Inc.
+# Copyright 2016 Ruslan Baratov
 #
 # Distributed under the OSI-approved BSD License (the "License");
 # see accompanying file Copyright.txt for details.
@@ -412,6 +418,9 @@ endif()
 # Save regex matching supported hash algorithm names.
 set(_ep_hash_algos "MD5|SHA1|SHA224|SHA256|SHA384|SHA512")
 set(_ep_hash_regex "^(${_ep_hash_algos})=([0-9A-Fa-f]+)$")
+
+set(_ExternalProject_SELF "${CMAKE_CURRENT_LIST_FILE}")
+get_filename_component(_ExternalProject_SELF_DIR "${_ExternalProject_SELF}" PATH)
 
 function(_ep_parse_arguments f name ns args)
   # Transfer the arguments to this function into target properties for the
@@ -498,7 +507,12 @@ define_property(DIRECTORY PROPERTY "EP_UPDATE_DISCONNECTED" INHERITED
   "ExternalProject module."
   )
 
-function(_ep_write_gitclone_script script_filename source_dir git_EXECUTABLE git_repository git_tag git_remote_name git_depth git_submodules src_name work_dir gitclone_infofile gitclone_stampfile)
+function(_ep_write_gitclone_script script_filename source_dir git_EXECUTABLE git_repository git_tag git_remote_name git_submodules git_shallow src_name work_dir gitclone_infofile gitclone_stampfile tls_verify)
+  if(NOT GIT_VERSION_STRING VERSION_LESS 1.7.10)
+    set(git_clone_shallow_options "--depth 1 --no-single-branch")
+  else()
+    set(git_clone_shallow_options "--depth 1")
+  endif()
   file(WRITE ${script_filename}
 "if(\"${git_tag}\" STREQUAL \"\")
   message(FATAL_ERROR \"Tag for git checkout should not be empty.\")
@@ -523,23 +537,31 @@ if(error_code)
   message(FATAL_ERROR \"Failed to remove directory: '${source_dir}'\")
 endif()
 
+set(git_options)
+
+# disable cert checking if explicitly told not to do it
+set(tls_verify \"${tls_verify}\")
+if(NOT \"x${tls_verify}\" STREQUAL \"x\" AND NOT tls_verify)
+  list(APPEND git_options
+    -c http.sslVerify=false)
+endif()
+
+set(git_clone_options)
+
+set(git_shallow \"${git_shallow}\")
+if(git_shallow)
+  list(APPEND git_clone_options ${git_clone_shallow_options})
+endif()
+
 # try the clone 3 times incase there is an odd git clone issue
 set(error_code 1)
 set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
-  if(${git_depth} STREQUAL \"\")
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" clone --origin \"${git_remote_name}\" \"${git_repository}\" \"${src_name}\"
-          WORKING_DIRECTORY \"${work_dir}\"
-          RESULT_VARIABLE error_code
-          )
-  else()
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" clone --origin \"${git_remote_name}\" ${git_depth} \"${git_repository}\" \"${src_name}\"
-          WORKING_DIRECTORY \"${work_dir}\"
-          RESULT_VARIABLE error_code
-          )
-  endif()
+  execute_process(
+    COMMAND \"${git_EXECUTABLE}\" \${git_options} clone \${git_clone_options} --origin \"${git_remote_name}\" \"${git_repository}\" \"${src_name}\"
+    WORKING_DIRECTORY \"${work_dir}\"
+    RESULT_VARIABLE error_code
+    )
   math(EXPR number_of_tries \"\${number_of_tries} + 1\")
 endwhile()
 if(number_of_tries GREATER 1)
@@ -551,7 +573,7 @@ if(error_code)
 endif()
 
 execute_process(
-  COMMAND \"${git_EXECUTABLE}\" checkout ${git_tag}
+  COMMAND \"${git_EXECUTABLE}\" \${git_options} checkout ${git_tag}
   WORKING_DIRECTORY \"${work_dir}/${src_name}\"
   RESULT_VARIABLE error_code
   )
@@ -560,7 +582,7 @@ if(error_code)
 endif()
 
 execute_process(
-  COMMAND \"${git_EXECUTABLE}\" submodule init ${git_submodules}
+  COMMAND \"${git_EXECUTABLE}\" \${git_options} submodule init ${git_submodules}
   WORKING_DIRECTORY \"${work_dir}/${src_name}\"
   RESULT_VARIABLE error_code
   )
@@ -568,19 +590,11 @@ if(error_code)
   message(FATAL_ERROR \"Failed to init submodules in: '${work_dir}/${src_name}'\")
 endif()
 
-if(${git_depth} STREQUAL \"\")
-	execute_process(
-		COMMAND \"${git_EXECUTABLE}\" submodule update --recursive ${git_submodules}
-		WORKING_DIRECTORY \"${work_dir}/${src_name}\"
-		RESULT_VARIABLE error_code
-		)
-else()
-	execute_process(
-		COMMAND \"${git_EXECUTABLE}\" submodule update --recursive ${git_depth} ${git_submodules}
-		WORKING_DIRECTORY \"${work_dir}/${src_name}\"
-		RESULT_VARIABLE error_code
-		)
-endif()
+execute_process(
+  COMMAND \"${git_EXECUTABLE}\" \${git_options} submodule update --recursive --init ${git_submodules}
+  WORKING_DIRECTORY \"${work_dir}/${src_name}\"
+  RESULT_VARIABLE error_code
+  )
 if(error_code)
   message(FATAL_ERROR \"Failed to update submodules in: '${work_dir}/${src_name}'\")
 endif()
@@ -665,7 +679,7 @@ endif()
 endfunction()
 
 
-function(_ep_write_gitupdate_script script_filename git_EXECUTABLE git_tag git_remote_name git_depth git_submodules git_repository work_dir)
+function(_ep_write_gitupdate_script script_filename git_EXECUTABLE git_tag git_remote_name git_submodules git_repository work_dir)
   if(NOT GIT_VERSION_STRING VERSION_LESS 1.7.6)
     set(git_stash_save_options --all --quiet)
   else()
@@ -723,19 +737,11 @@ execute_process(
 
 # Is the hash checkout out that we want?
 if(error_code OR is_remote_ref OR NOT (\"\${tag_sha}\" STREQUAL \"\${head_sha}\"))
-  if(${git_depth} STREQUAL \"\")
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" fetch
-          WORKING_DIRECTORY \"${work_dir}\"
-          RESULT_VARIABLE error_code
-          )
-  else()
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" fetch ${git_depth}
-          WORKING_DIRECTORY \"${work_dir}\"
-          RESULT_VARIABLE error_code
-          )
-  endif()
+  execute_process(
+    COMMAND \"${git_EXECUTABLE}\" fetch
+    WORKING_DIRECTORY \"${work_dir}\"
+    RESULT_VARIABLE error_code
+    )
   if(error_code)
     message(FATAL_ERROR \"Failed to fetch repository '${git_repository}'\")
   endif()
@@ -830,19 +836,11 @@ if(error_code OR is_remote_ref OR NOT (\"\${tag_sha}\" STREQUAL \"\${head_sha}\"
     endif()
   endif()
 
-  if(${git_depth} STREQUAL \"\")
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" submodule update --recursive ${git_submodules}
-          WORKING_DIRECTORY \"${work_dir}/${src_name}\"
-          RESULT_VARIABLE error_code
-          )
-  else()
-      execute_process(
-          COMMAND \"${git_EXECUTABLE}\" submodule update --recursive ${git_depth} ${git_submodules}
-          WORKING_DIRECTORY \"${work_dir}/${src_name}\"
-          RESULT_VARIABLE error_code
-          )
-  endif()
+  execute_process(
+    COMMAND \"${git_EXECUTABLE}\" submodule update --recursive --init ${git_submodules}
+    WORKING_DIRECTORY \"${work_dir}/${src_name}\"
+    RESULT_VARIABLE error_code
+    )
   if(error_code)
     message(FATAL_ERROR \"Failed to update submodules in: '${work_dir}/${src_name}'\")
   endif()
@@ -853,40 +851,38 @@ endif()
 
 endfunction(_ep_write_gitupdate_script)
 
-function(_ep_write_downloadfile_script script_filename remote local timeout no_progress hash tls_verify tls_cainfo)
+function(_ep_write_downloadfile_script script_filename REMOTE LOCAL timeout no_progress hash tls_verify tls_cainfo)
   if(timeout)
-    set(timeout_args TIMEOUT ${timeout})
-    set(timeout_msg "${timeout} seconds")
+    set(TIMEOUT_ARGS TIMEOUT ${timeout})
+    set(TIMEOUT_MSG "${timeout} seconds")
   else()
-    set(timeout_args "# no TIMEOUT")
-    set(timeout_msg "none")
+    set(TIMEOUT_ARGS "# no TIMEOUT")
+    set(TIMEOUT_MSG "none")
   endif()
 
   if(no_progress)
-    set(show_progress "")
+    set(SHOW_PROGRESS "")
   else()
-    set(show_progress "SHOW_PROGRESS")
+    set(SHOW_PROGRESS "SHOW_PROGRESS")
   endif()
 
   if("${hash}" MATCHES "${_ep_hash_regex}")
-    string(CONCAT hash_check
-      "if(EXISTS \"${local}\")\n"
-      "  file(\"${CMAKE_MATCH_1}\" \"${local}\" hash_value)\n"
-      "  if(\"x\${hash_value}\" STREQUAL \"x${CMAKE_MATCH_2}\")\n"
-      "    return()\n"
-      "  endif()\n"
-      "endif()\n"
-      )
+    set(ALGO "${CMAKE_MATCH_1}")
+    set(EXPECT_VALUE "${CMAKE_MATCH_2}")
   else()
-    set(hash_check "")
+    set(ALGO "")
+    set(EXPECT_VALUE "")
   endif()
+
+  set(TLS_VERIFY_CODE "")
+  set(TLS_CAINFO_CODE "")
 
   # check for curl globals in the project
   if(DEFINED CMAKE_TLS_VERIFY)
-    set(tls_verify "set(CMAKE_TLS_VERIFY ${CMAKE_TLS_VERIFY})")
+    set(TLS_VERIFY_CODE "set(CMAKE_TLS_VERIFY ${CMAKE_TLS_VERIFY})")
   endif()
   if(DEFINED CMAKE_TLS_CAINFO)
-    set(tls_cainfo "set(CMAKE_TLS_CAINFO \"${CMAKE_TLS_CAINFO}\")")
+    set(TLS_CAINFO_CODE "set(CMAKE_TLS_CAINFO \"${CMAKE_TLS_CAINFO}\")")
   endif()
 
   # now check for curl locals so that the local values
@@ -895,91 +891,49 @@ function(_ep_write_downloadfile_script script_filename remote local timeout no_p
   # check for tls_verify argument
   string(LENGTH "${tls_verify}" tls_verify_len)
   if(tls_verify_len GREATER 0)
-    set(tls_verify "set(CMAKE_TLS_VERIFY ${tls_verify})")
+    set(TLS_VERIFY_CODE "set(CMAKE_TLS_VERIFY ${tls_verify})")
   endif()
   # check for tls_cainfo argument
   string(LENGTH "${tls_cainfo}" tls_cainfo_len)
   if(tls_cainfo_len GREATER 0)
-    set(tls_cainfo "set(CMAKE_TLS_CAINFO \"${tls_cainfo}\")")
+    set(TLS_CAINFO_CODE "set(CMAKE_TLS_CAINFO \"${tls_cainfo}\")")
   endif()
 
-  file(WRITE ${script_filename}
-"${hash_check}message(STATUS \"downloading...
-     src='${remote}'
-     dst='${local}'
-     timeout='${timeout_msg}'\")
-
-${tls_verify}
-${tls_cainfo}
-
-file(DOWNLOAD
-  \"${remote}\"
-  \"${local}\"
-  ${show_progress}
-  ${timeout_args}
-  STATUS status
-  LOG log)
-
-list(GET status 0 status_code)
-list(GET status 1 status_string)
-
-if(NOT status_code EQUAL 0)
-  message(FATAL_ERROR \"error: downloading '${remote}' failed
-  status_code: \${status_code}
-  status_string: \${status_string}
-  log: \${log}
-\")
-endif()
-
-message(STATUS \"downloading... done\")
-"
-)
-
+  # Used variables:
+  # * TLS_VERIFY_CODE
+  # * TLS_CAINFO_CODE
+  # * ALGO
+  # * EXPECT_VALUE
+  # * REMOTE
+  # * LOCAL
+  # * SHOW_PROGRESS
+  # * TIMEOUT_ARGS
+  # * TIMEOUT_MSG
+  configure_file(
+      "${_ExternalProject_SELF_DIR}/ExternalProject-download.cmake.in"
+      "${script_filename}"
+      @ONLY
+  )
 endfunction()
 
-
-function(_ep_write_verifyfile_script script_filename local hash retries download_script)
+function(_ep_write_verifyfile_script script_filename LOCAL hash)
   if("${hash}" MATCHES "${_ep_hash_regex}")
-    set(algo "${CMAKE_MATCH_1}")
-    string(TOLOWER "${CMAKE_MATCH_2}" expect_value)
-    set(script_content "set(expect_value \"${expect_value}\")
-set(attempt 0)
-set(succeeded 0)
-while(\${attempt} LESS ${retries} OR \${attempt} EQUAL ${retries} AND NOT \${succeeded})
-  file(${algo} \"\${file}\" actual_value)
-  if(\"\${actual_value}\" STREQUAL \"\${expect_value}\")
-    set(succeeded 1)
-  elseif(\${attempt} LESS ${retries})
-    message(STATUS \"${algo} hash of \${file}
-does not match expected value
-  expected: \${expect_value}
-    actual: \${actual_value}
-Retrying download.
-\")
-    file(REMOVE \"\${file}\")
-    execute_process(COMMAND \${CMAKE_COMMAND} -P \"${download_script}\")
-  endif()
-  math(EXPR attempt \"\${attempt} + 1\")
-endwhile()
-
-if(\${succeeded})
-  message(STATUS \"verifying file... done\")
-else()
-  message(FATAL_ERROR \"error: ${algo} hash of
-  \${file}
-does not match expected value
-  expected: \${expect_value}
-    actual: \${actual_value}
-\")
-endif()")
+    set(ALGO "${CMAKE_MATCH_1}")
+    string(TOLOWER "${CMAKE_MATCH_2}" EXPECT_VALUE)
   else()
-    set(script_content "message(STATUS \"verifying file... warning: did not verify file - no URL_HASH specified?\")")
+    set(ALGO "")
+    set(EXPECT_VALUE "")
   endif()
-  file(WRITE ${script_filename} "set(file \"${local}\")
-message(STATUS \"verifying file...
-     file='\${file}'\")
-${script_content}
-")
+
+  # Used variables:
+  # * ALGO
+  # * EXPECT_VALUE
+  # * LOCAL
+  configure_file(
+      "${_ExternalProject_SELF_DIR}/ExternalProject-verify.cmake.in"
+      "${script_filename}"
+      @ONLY
+  )
 endfunction()
 
 
@@ -1039,6 +993,7 @@ endif()
 #
 message(STATUS \"extracting... [analysis]\")
 file(GLOB contents \"\${ut_dir}/*\")
+list(REMOVE_ITEM contents \"\${ut_dir}/.DS_Store\")
 list(LENGTH contents n)
 if(NOT n EQUAL 1 OR NOT IS_DIRECTORY \"\${contents}\")
   set(contents \"\${ut_dir}\")
@@ -1141,7 +1096,7 @@ macro(_ep_replace_location_tags target_name)
   set(vars ${ARGN})
   foreach(var ${vars})
     if(${var})
-      foreach(dir SOURCE_DIR BINARY_DIR INSTALL_DIR TMP_DIR)
+      foreach(dir SOURCE_DIR BINARY_DIR INSTALL_DIR TMP_DIR DOWNLOADED_FILE)
         get_property(val TARGET ${target_name} PROPERTY _EP_${dir})
         string(REPLACE "<${dir}>" "${val}" ${var} "${${var}}")
       endforeach()
@@ -1163,8 +1118,8 @@ function(_ep_command_line_to_initial_cache var args force)
       set(line "${CMAKE_MATCH_1}")
       if(setArg)
         # This is required to build up lists in variables, or complete an entry
-        set(setArg "${setArg}${accumulator}\" CACHE ${type} \"Initial cache\" ${forceArg})")
-        set(script_initial_cache "${script_initial_cache}\n${setArg}")
+	string(APPEND setArg "${accumulator}\" CACHE ${type} \"Initial cache\" ${forceArg})")
+	string(APPEND script_initial_cache "\n${setArg}")
         set(accumulator "")
         set(setArg "")
       endif()
@@ -1178,13 +1133,13 @@ function(_ep_command_line_to_initial_cache var args force)
       endif()
     else()
       # Assume this is a list to append to the last var
-      set(accumulator "${accumulator};${line}")
+      list(APPEND accumulator "${line}")
     endif()
   endforeach()
   # Catch the final line of the args
   if(setArg)
-    set(setArg "${setArg}${accumulator}\" CACHE ${type} \"Initial cache\" ${forceArg})")
-    set(script_initial_cache "${script_initial_cache}\n${setArg}")
+    string(APPEND setArg "${accumulator}\" CACHE ${type} \"Initial cache\" ${forceArg})")
+    string(APPEND script_initial_cache "\n${setArg}")
   endif()
   set(${var} ${script_initial_cache} PARENT_SCOPE)
 endfunction()
@@ -1265,7 +1220,22 @@ function(_ep_get_build_command name step cmd_var)
         endif()
         set(args --build ".")
         if(CMAKE_CONFIGURATION_TYPES)
-          list(APPEND args --config $<CONFIG>)
+	  if (CMAKE_CFG_INTDIR AND
+	      NOT CMAKE_CFG_INTDIR STREQUAL "." AND
+	      NOT CMAKE_CFG_INTDIR MATCHES "\\$")
+	    # CMake 3.4 and below used the CMAKE_CFG_INTDIR placeholder value
+	    # provided by multi-configuration generators.  Some projects were
+	    # taking advantage of that undocumented implementation detail to
+	    # specify a specific configuration here.  They should use
+	    # BUILD_COMMAND to change the default command instead, but for
+	    # compatibility honor the value.
+	    set(config ${CMAKE_CFG_INTDIR})
+	    message(AUTHOR_WARNING "CMAKE_CFG_INTDIR should not be set by project code.\n"
+	      "To get a non-default build command, use the BUILD_COMMAND option.")
+	  else()
+	    set(config $<CONFIG>)
+	  endif()
+	  list(APPEND args --config ${config})
         endif()
         if(step STREQUAL "INSTALL")
           list(APPEND args --target install)
@@ -1275,8 +1245,8 @@ function(_ep_get_build_command name step cmd_var)
           string(REGEX REPLACE "^(.*/)cmake([^/]*)$" "\\1ctest\\2" cmd "${cmd}")
           set(args "")
           if(CMAKE_CONFIGURATION_TYPES)
-            list(APPEND args -C $<CONFIG>)
-          endif()          
+	    list(APPEND args -C ${config})
+	  endif()
         endif()
       endif()
     else()
@@ -1363,16 +1333,16 @@ endif()
     foreach(arg IN LISTS command)
       if("x${arg}" STREQUAL "xCOMMAND")
         if(NOT "x${cmd}" STREQUAL "x")
-          set(code "${code}set(command \"${cmd}\")${code_execute_process}")
+	  string(APPEND code "set(command \"${cmd}\")${code_execute_process}")
         endif()
         set(cmd "")
         set(sep "")
       else()
-        set(cmd "${cmd}${sep}${arg}")
+	string(APPEND cmd "${sep}${arg}")
         set(sep ";")
       endif()
     endforeach()
-    set(code "${code}set(command \"${cmd}\")${code_execute_process}")
+    string(APPEND code "set(command \"${cmd}\")${code_execute_process}")
     file(GENERATE OUTPUT "${stamp_dir}/${name}-${step}-$<CONFIG>-impl.cmake" CONTENT "${code}")
     set(command ${CMAKE_COMMAND} "-Dmake=\${make}" "-Dconfig=\${config}" -P ${stamp_dir}/${name}-${step}-$<CONFIG>-impl.cmake)
   endif()
@@ -1698,7 +1668,7 @@ function(_ep_add_download_command name)
   get_property(fname TARGET ${name} PROPERTY _EP_DOWNLOAD_NAME)
 
   # TODO: Perhaps file:// should be copied to download dir before extraction.
-  string(REGEX REPLACE "^file://" "" url "${url}")
+  string(REGEX REPLACE "file://" "" url "${url}")
 
   set(depends)
   set(comment)
@@ -1786,19 +1756,18 @@ function(_ep_add_download_command name)
     if(NOT git_tag)
       set(git_tag "master")
     endif()
-    
     get_property(git_submodules TARGET ${name} PROPERTY _EP_GIT_SUBMODULES)
 
-    get_property(git_depth TARGET ${name} PROPERTY _EP_GIT_DEPTH)
-    if(NOT git_depth)
-        set(git_depth "")
-    else()
-        set(git_depth "--depth=${git_depth}")
-    endif()    
     get_property(git_remote_name TARGET ${name} PROPERTY _EP_GIT_REMOTE_NAME)
     if(NOT git_remote_name)
-      set(git_remote_name "origin")        
+      set(git_remote_name "origin")
     endif()
+
+    get_property(tls_verify TARGET ${name} PROPERTY _EP_TLS_VERIFY)
+    if("x${tls_verify}" STREQUAL "x" AND DEFINED CMAKE_TLS_VERIFY)
+      set(tls_verify "${CMAKE_TLS_VERIFY}")
+    endif()
+    get_property(git_shallow TARGET ${name} PROPERTY _EP_GIT_SHALLOW)
 
     # For the download step, and the git clone operation, only the repository
     # should be recorded in a configured RepositoryInfo file. If the repo
@@ -1823,8 +1792,8 @@ function(_ep_add_download_command name)
     # The script will delete the source directory and then call git clone.
     #
     _ep_write_gitclone_script(${tmp_dir}/${name}-gitclone.cmake ${source_dir}
-      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} ${git_remote_name} \"${git_depth}\" "${git_submodules}" ${src_name} ${work_dir}
-      ${stamp_dir}/${name}-gitinfo.txt ${stamp_dir}/${name}-gitclone-lastrun.txt
+      ${GIT_EXECUTABLE} ${git_repository} ${git_tag} ${git_remote_name} "${git_submodules}" "${git_shallow}" ${src_name} ${work_dir}
+      ${stamp_dir}/${name}-gitinfo.txt ${stamp_dir}/${name}-gitclone-lastrun.txt "${tls_verify}"
       )
     set(comment "Performing download step (git clone) for '${name}'")
     set(cmd ${CMAKE_COMMAND} -P ${tmp_dir}/${name}-gitclone.cmake)
@@ -1887,31 +1856,48 @@ function(_ep_add_download_command name)
     set(repository "external project URL")
     set(module "${url}")
     set(tag "${hash}")
-    set(retries 0)
-    set(download_script "")
     configure_file(
       "${CMAKE_ROOT}/Modules/RepositoryInfo.txt.in"
       "${stamp_dir}/${name}-urlinfo.txt"
       @ONLY
       )
     list(APPEND depends ${stamp_dir}/${name}-urlinfo.txt)
+
+    list(LENGTH url url_list_length)
+    if(NOT "${url_list_length}" STREQUAL "1")
+      foreach(entry ${url})
+	if(NOT "${entry}" MATCHES "^[a-z]+://")
+	  message(FATAL_ERROR "At least one entry of URL is a path (invalid in a list)")
+	endif()
+      endforeach()
+      if("x${fname}" STREQUAL "x")
+	list(GET url 0 fname)
+      endif()
+    endif()
+
     if(IS_DIRECTORY "${url}")
       get_filename_component(abs_dir "${url}" ABSOLUTE)
       set(comment "Performing download step (DIR copy) for '${name}'")
       set(cmd   ${CMAKE_COMMAND} -E remove_directory ${source_dir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${abs_dir} ${source_dir})
     else()
+      get_property(no_extract TARGET "${name}" PROPERTY _EP_DOWNLOAD_NO_EXTRACT SET)
       if("${url}" MATCHES "^[a-z]+://")
         # TODO: Should download and extraction be different steps?
         if("x${fname}" STREQUAL "x")
-          string(REGEX MATCH "[^/\\?]*$" fname "${url}")
+	  set(fname "${url}")
         endif()
-        if(NOT "${fname}" MATCHES "(\\.|=)(7z|tar|tar\\.bz2|tar\\.gz|tar\\.xz|tbz2|tgz|txz|zip)$")
-          string(REGEX MATCH "([^/\\?]+(\\.|=)(7z|tar|tar\\.bz2|tar\\.gz|tar\\.xz|tbz2|tgz|txz|zip))/.*$" match_result "${url}")
+	if("${fname}" MATCHES [[([^/\?#]+(\.|=)(7z|tar|tar\.bz2|tar\.gz|tar\.xz|tbz2|tgz|txz|zip))([/?#].*)?$]])
           set(fname "${CMAKE_MATCH_1}")
-        endif()
-        if(NOT "${fname}" MATCHES "(\\.|=)(7z|tar|tar\\.bz2|tar\\.gz|tar\\.xz|tbz2|tgz|txz|zip)$")
-          message(FATAL_ERROR "Could not extract tarball filename from url:\n  ${url}")
+	elseif(no_extract)
+	  get_filename_component(fname "${fname}" NAME)
+	else()
+	  # Fall back to a default file name.  The actual file name does not
+	  # matter because it is used only internally and our extraction tool
+	  # inspects the file content directly.  If it turns out the wrong URL
+	  # was given that will be revealed during the build which is an easier
+	  # place for users to diagnose than an error here anyway.
+	  set(fname "archive.tar")
         endif()
         string(REPLACE ";" "-" fname "${fname}")
         set(file ${download_dir}/${fname})
@@ -1923,17 +1909,31 @@ function(_ep_add_download_command name)
         _ep_write_downloadfile_script("${download_script}" "${url}" "${file}" "${timeout}" "${no_progress}" "${hash}" "${tls_verify}" "${tls_cainfo}")
         set(cmd ${CMAKE_COMMAND} -P "${download_script}"
           COMMAND)
-        set(retries 3)
-        set(comment "Performing download step (download, verify and extract) for '${name}'")
+	if (no_extract)
+	  set(steps "download and verify")
+	else ()
+	  set(steps "download, verify and extract")
+	endif ()
+	set(comment "Performing download step (${steps}) for '${name}'")
+	file(WRITE "${stamp_dir}/verify-${name}.cmake" "") # already verified by 'download_script'
       else()
         set(file "${url}")
-        set(comment "Performing download step (verify and extract) for '${name}'")
+	if (no_extract)
+	  set(steps "verify")
+	else ()
+	  set(steps "verify and extract")
+	endif ()
+	set(comment "Performing download step (${steps}) for '${name}'")
+	_ep_write_verifyfile_script("${stamp_dir}/verify-${name}.cmake" "${file}" "${hash}")
       endif()
-      _ep_write_verifyfile_script("${stamp_dir}/verify-${name}.cmake" "${file}" "${hash}" "${retries}" "${download_script}")
       list(APPEND cmd ${CMAKE_COMMAND} -P ${stamp_dir}/verify-${name}.cmake
         COMMAND)
-      _ep_write_extractfile_script("${stamp_dir}/extract-${name}.cmake" "${name}" "${file}" "${source_dir}")
-      list(APPEND cmd ${CMAKE_COMMAND} -P ${stamp_dir}/extract-${name}.cmake)
+      if (NOT no_extract)
+	_ep_write_extractfile_script("${stamp_dir}/extract-${name}.cmake" "${name}" "${file}" "${source_dir}")
+	list(APPEND cmd ${CMAKE_COMMAND} -P ${stamp_dir}/extract-${name}.cmake)
+      else ()
+	set_property(TARGET ${name} PROPERTY _EP_DOWNLOADED_FILE ${file})
+      endif ()
     endif()
   else()
     _ep_is_dir_empty("${source_dir}" empty)
@@ -2002,6 +2002,9 @@ function(_ep_add_update_command name)
 
   if(cmd_set)
     set(work_dir ${source_dir})
+    if(NOT "x${cmd}" STREQUAL "x")
+      set(always 1)
+    endif()
   elseif(cvs_repository)
     if(NOT CVS_EXECUTABLE)
       message(FATAL_ERROR "error: could not find cvs for update of ${name}")
@@ -2035,6 +2038,8 @@ function(_ep_add_update_command name)
       --non-interactive ${svn_trust_cert_args} ${svn_user_pw_args})
     set(always 1)
   elseif(git_repository)
+    unset(CMAKE_MODULE_PATH) # Use CMake builtin find module
+    find_package(Git QUIET)
     if(NOT GIT_EXECUTABLE)
       message(FATAL_ERROR "error: could not find git for fetch of ${name}")
     endif()
@@ -2047,16 +2052,10 @@ function(_ep_add_update_command name)
     get_property(git_remote_name TARGET ${name} PROPERTY _EP_GIT_REMOTE_NAME)
     if(NOT git_remote_name)
       set(git_remote_name "origin")
-    endif()    
+    endif()
     get_property(git_submodules TARGET ${name} PROPERTY _EP_GIT_SUBMODULES)
-    get_property(git_depth TARGET ${name} PROPERTY _EP_GIT_DEPTH)
-        if(NOT git_depth)
-            set(git_depth "")
-        else()
-            set(git_depth "--depth=${git_depth}")
-        endif()
     _ep_write_gitupdate_script(${tmp_dir}/${name}-gitupdate.cmake
-      ${GIT_EXECUTABLE} ${git_tag} ${git_remote_name} \"${git_depth}\" "${git_submodules}" ${git_repository} ${work_dir}
+      ${GIT_EXECUTABLE} ${git_tag} ${git_remote_name} "${git_submodules}" ${git_repository} ${work_dir}
       )
     set(cmd ${CMAKE_COMMAND} -P ${tmp_dir}/${name}-gitupdate.cmake)
     set(always 1)

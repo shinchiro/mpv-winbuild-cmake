@@ -1,7 +1,7 @@
 ExternalProject_Add(libdvdnav
     DEPENDS libdvdread
     GIT_REPOSITORY https://code.videolan.org/videolan/libdvdnav.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

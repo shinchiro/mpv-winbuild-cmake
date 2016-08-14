@@ -4,7 +4,7 @@ ExternalProject_Add(opus-tools
         opus
         flac
     GIT_REPOSITORY https://github.com/xiph/opus-tools.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

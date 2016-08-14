@@ -1,6 +1,6 @@
 ExternalProject_Add(x264
     GIT_REPOSITORY git://git.videolan.org/x264.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

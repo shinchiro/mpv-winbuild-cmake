@@ -2,7 +2,7 @@ ExternalProject_Add(angle
     DEPENDS 
         ffmpeg
     GIT_REPOSITORY https://chromium.googlesource.com/angle/angle
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/angle-*.patch
     CONFIGURE_COMMAND ""

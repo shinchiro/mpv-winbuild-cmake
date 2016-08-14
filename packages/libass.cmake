@@ -5,7 +5,7 @@ ExternalProject_Add(libass
         fribidi
         libiconv
     GIT_REPOSITORY https://github.com/libass/libass.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

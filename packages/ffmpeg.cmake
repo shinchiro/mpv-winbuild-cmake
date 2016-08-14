@@ -19,7 +19,7 @@ ExternalProject_Add(ffmpeg
     #GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
     #GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
     GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     DOWNLOAD_NAME "ffmpeg"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-*.patch

@@ -1,7 +1,7 @@
 ExternalProject_Add(flac
     DEPENDS ogg
     GIT_REPOSITORY https://github.com/xiph/flac.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

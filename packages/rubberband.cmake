@@ -1,6 +1,6 @@
 ExternalProject_Add(rubberband
     GIT_REPOSITORY https://github.com/lachs0r/rubberband.git
-    GIT_DEPTH 1
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} CC=${TARGET_ARCH}-gcc CXX=${TARGET_ARCH}-g++ AR=${TARGET_ARCH}-ar static
