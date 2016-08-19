@@ -1,22 +1,22 @@
-From 31574db5bf53059723e15cc41e49d67a22ba8332 Mon Sep 17 00:00:00 2001
+From 55e75514cd6cdf79934cf35f3fc7fa745b9466df Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 13 Aug 2016 00:50:34 +0800
+Date: Fri, 19 Aug 2016 16:21:01 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON
 ---
- Makefile     | 444 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 445 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 454 insertions(+)
+ 2 files changed, 455 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..d30f4d0
+index 0000000..80313e1
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,444 @@
+@@ -0,0 +1,445 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -53,6 +53,7 @@ index 0000000..d30f4d0
 +	src/compiler/translator/DeferGlobalInitializers.o \
 +	src/compiler/translator/Diagnostics.o \
 +	src/compiler/translator/DirectiveHandler.o \
++	src/compiler/translator/EmulateGLFragColorBroadcast.o \
 +	src/compiler/translator/EmulatePrecision.o \
 +	src/compiler/translator/ExpandIntegerPowExpressions.o \
 +	src/compiler/translator/FlagStd140Structs.o \
