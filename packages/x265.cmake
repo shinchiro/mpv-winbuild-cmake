@@ -50,6 +50,20 @@ ExternalProject_Add(x265
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+ExternalProject_Add(x265-10bit-single
+    DEPENDS
+        x265-base
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ""
+    SOURCE_DIR ${source_dir}
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} <SOURCE_DIR>/source
+        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+        -DHIGH_BIT_DEPTH=ON -DENABLE_SHARED=OFF -DSTATIC_LINK_CRT=1
+        #-DNATIVE_BUILD=ON
+    BUILD_COMMAND ${MAKE}
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
 get_property(x265_binary_dir TARGET x265 PROPERTY _EP_BINARY_DIR)
 
 ExternalProject_Add_Step(x265-12bit copy-lib
@@ -85,6 +99,9 @@ force_rebuild(x265-12bit)
 force_rebuild(x265-10bit)
 force_rebuild(x265)
 force_rebuild_hg(x265-base)
+force_rebuild(x265-10bit-single)
+
 clean_build_dir(x265-12bit)
 clean_build_dir(x265-10bit)
 clean_build_dir(x265)
+clean_build_dir(x265-10bit-single)
