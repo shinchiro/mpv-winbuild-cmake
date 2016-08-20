@@ -1,20 +1,21 @@
 function(force_rebuild _name)
+    set(stamp_dir ${CMAKE_CURRENT_BINARY_DIR}/${_name}-prefix/src/${_name}-stamp)
     if(ENABLE_VCS_UPDATES)
         ExternalProject_Add_Step(${_name} force-rebuild
             DEPENDEES build
             COMMAND ${EXEC} rm -f
-                "<SOURCE_DIR>-stamp/*-autoreconf"
-                "<SOURCE_DIR>-stamp/*-autogen"
-                "<SOURCE_DIR>-stamp/*-build"
-                "<SOURCE_DIR>-stamp/*-configure"
-                "<SOURCE_DIR>-stamp/*-done"
-                "<SOURCE_DIR>-stamp/*-download"
-                "<SOURCE_DIR>-stamp/*-install"
-                "<SOURCE_DIR>-stamp/*-mkdir"
-                "<SOURCE_DIR>-stamp/*-patch"
-                "<SOURCE_DIR>-stamp/*-update"
-                "<SOURCE_DIR>-stamp/*-done"
-                #"<SOURCE_DIR>-stamp/*.log"
+                "${stamp_dir}/*-autoreconf"
+                "${stamp_dir}/*-autogen"
+                "${stamp_dir}/*-build"
+                "${stamp_dir}/*-configure"
+                "${stamp_dir}/*-done"
+                "${stamp_dir}/*-download"
+                "${stamp_dir}/*-install"
+                "${stamp_dir}/*-mkdir"
+                "${stamp_dir}/*-patch"
+                "${stamp_dir}/*-update"
+                "${stamp_dir}/*-done"
+                #"${stamp_dir}/*.log"
             ALWAYS 1
         )
     endif()
@@ -24,12 +25,12 @@ function(force_rebuild_git _name)
     get_property(git_tag TARGET ${_name} PROPERTY _EP_GIT_TAG)
     if(NOT git_tag)
       set(git_tag "@{u}")
-      set(pull COMMAND git pull)    
+      set(pull COMMAND git pull)
     else()
       set(git_tag ${git_tag})
       set(pull "")
     endif()
-    
+
     if(ENABLE_VCS_UPDATES)
         ExternalProject_Add_Step(${_name} force-update
             DEPENDEES download
@@ -42,7 +43,7 @@ function(force_rebuild_git _name)
             LOG 1
         )
     endif()
-    force_rebuild(${_name})    
+    force_rebuild(${_name})
 endfunction()
 
 function(force_rebuild_svn _name)
@@ -109,7 +110,7 @@ foreach(package
     xz
     lzo
     uchardet
-    rubberband    
+    rubberband
     zlib
     bzip2
     libjpeg
@@ -124,7 +125,7 @@ foreach(package
     xvidcore
     game-music-emu
     libpng
-    x264    
+    x264
     libdvdcss
     libdvdread
     libdvdnav
