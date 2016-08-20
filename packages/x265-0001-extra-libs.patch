@@ -1,0 +1,10 @@
+--- a/source/CMakeLists.txt	2016-07-19 14:31:08.911692600 +0800
++++ b/source/CMakeLists.txt	2016-08-18 23:01:59.670643700 +0800
+@@ -312,6 +312,7 @@
+ set(BIN_INSTALL_DIR bin CACHE STRING "Install location of executables")
+ set(EXTRA_LIB "" CACHE STRING "Extra libraries to link against")
+ set(EXTRA_LINK_FLAGS "" CACHE STRING "Extra link flags")
++set(EXTRA_LIB x265_main10.a x265_main12.a)
+ if(EXTRA_LINK_FLAGS)
+     list(APPEND LINKER_OPTIONS ${EXTRA_LINK_FLAGS})
+ endif()

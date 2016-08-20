@@ -126,6 +126,7 @@ foreach(package
     game-music-emu
     libpng
     x264
+    x265
     libdvdcss
     libdvdread
     libdvdnav
