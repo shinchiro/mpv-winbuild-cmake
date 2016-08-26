@@ -1,22 +1,22 @@
-From 55e75514cd6cdf79934cf35f3fc7fa745b9466df Mon Sep 17 00:00:00 2001
+From a25bf732e6e0aa2d8b32aaa45ca4e353ae83b36f Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 19 Aug 2016 16:21:01 +0800
+Date: Fri, 26 Aug 2016 16:06:14 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON
 ---
- Makefile     | 445 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 446 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 455 insertions(+)
+ 2 files changed, 456 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..80313e1
+index 0000000..9dc2981
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,445 @@
+@@ -0,0 +1,446 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -29,7 +29,7 @@ index 0000000..80313e1
 +LIBDIR ?= $(PREFIX)/lib
 +INCLUDEDIR ?= $(PREFIX)/include
 +
-+DEFS := -DUNICODE -D_UNICODE -DANGLE_ENABLE_D3D9 -DANGLE_ENABLE_D3D11 -DANGLE_ENABLE_OPENGL \
++DEFS := -DUNICODE -D_UNICODE -DANGLE_ENABLE_D3D9 -DANGLE_ENABLE_D3D11 -DANGLE_ENABLE_OPENGL -DANGLE_ENABLE_VULKAN \
 +        -DANGLE_TRANSLATOR_STATIC -DANGLE_ENABLE_HLSL -DANGLE_ENABLE_ESSL -DANGLE_ENABLE_GLSL \
 +        -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES -DLIBANGLE_IMPLEMENTATION -DGL_APICALL= \
 +        -DEGLAPI= $(DEFS)
@@ -39,7 +39,7 @@ index 0000000..80313e1
 +CXXFLAGS := -std=c++11 -fpermissive -msse2 -O2 -Wno-deprecated-declarations \
 +            -Wno-conversion-null $(CXXFLAGS)
 +DEPFLAGS = -MMD -MP
-+LIBGLESv2_LIBS = -ldxguid -ld3d9 -lsetupapi -lcfgmgr32
++LIBGLESv2_LIBS = -ldxguid -ld3d9
 +LIBEGL_LIBS =
 +LIBGLESv2_LDFLAGS = -Wl,--out-implib,libGLESv2.dll.a
 +LIBEGL_LDFLAGS = -Wl,--out-implib,libEGL.dll.a
@@ -204,6 +204,7 @@ index 0000000..80313e1
 +	src/libANGLE/renderer/Format.o \
 +	src/libANGLE/renderer/SurfaceImpl.o \
 +	src/libANGLE/renderer/TextureImpl.o \
++	src/libANGLE/renderer/load_functions_table_autogen.o \
 +	src/libANGLE/renderer/renderer_utils.o \
 +	src/libANGLE/signal_utils.o \
 +	src/libANGLE/validationEGL.o \
@@ -270,7 +271,6 @@ index 0000000..80313e1
 +	src/libANGLE/renderer/d3d/d3d11/Image11.o \
 +	src/libANGLE/renderer/d3d/d3d11/IndexBuffer11.o \
 +	src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.o \
-+	src/libANGLE/renderer/d3d/d3d11/load_functions_table_autogen.o \
 +	src/libANGLE/renderer/d3d/d3d11/PixelTransfer11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Query11.o \
 +	src/libANGLE/renderer/d3d/d3d11/Renderer11.o \
@@ -369,7 +369,8 @@ index 0000000..80313e1
 +	$(libangle_d3d11_win32_sources) \
 +	$(libglesv2_sources) \
 +	$(libangle_gl_sources) \
-+	$(libangle_gl_wgl_sources)
++	$(libangle_gl_wgl_sources) \
++	$(libangle_vulkan_sources)
 +
 +LIBGLESv2_DEP = $(LIBGLESv2_OBJ:.o=.d)
 +LIBEGL_OBJ = src/libEGL/libEGL.egl.o
@@ -476,7 +477,7 @@ index 0000000..45a3719
 +Description: A conformant OpenGL ES 2 implementation for Windows.
 +Version: %VERSION%
 +Libs: -L${libdir} -lEGL
-+Libs.private: -lGLESv2 -ldxguid -ld3d9 -lsetupapi -lcfgmgr32 -lstdc++
++Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: %CFLAGS%
 -- 
 2.9.1
