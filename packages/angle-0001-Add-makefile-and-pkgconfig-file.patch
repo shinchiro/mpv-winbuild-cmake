@@ -1,22 +1,22 @@
-From a25bf732e6e0aa2d8b32aaa45ca4e353ae83b36f Mon Sep 17 00:00:00 2001
+From 72350c5fb0ee6f7940d409a493b7ec58dacf51b2 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 26 Aug 2016 16:06:14 +0800
+Date: Sat, 3 Sep 2016 14:59:28 +0800
 Subject: [PATCH] Add makefile and pkgconfig file
 
 Custom Makefile originally made by rossy & RiCON
 ---
- Makefile     | 446 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 448 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in |  10 ++
- 2 files changed, 456 insertions(+)
+ 2 files changed, 458 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 0000000..9dc2981
+index 0000000..aab3fc0
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,446 @@
+@@ -0,0 +1,448 @@
 +VERSION = 0.0.0
 +CXX ?= g++
 +AR ?= ar
@@ -30,14 +30,14 @@ index 0000000..9dc2981
 +INCLUDEDIR ?= $(PREFIX)/include
 +
 +DEFS := -DUNICODE -D_UNICODE -DANGLE_ENABLE_D3D9 -DANGLE_ENABLE_D3D11 -DANGLE_ENABLE_OPENGL -DANGLE_ENABLE_VULKAN \
-+        -DANGLE_TRANSLATOR_STATIC -DANGLE_ENABLE_HLSL -DANGLE_ENABLE_ESSL -DANGLE_ENABLE_GLSL \
-+        -DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES -DLIBANGLE_IMPLEMENTATION -DGL_APICALL= \
-+        -DEGLAPI= $(DEFS)
++		-DANGLE_TRANSLATOR_STATIC -DANGLE_ENABLE_HLSL -DANGLE_ENABLE_ESSL -DANGLE_ENABLE_GLSL \
++		-DGL_GLEXT_PROTOTYPES -DEGL_EGLEXT_PROTOTYPES -DLIBANGLE_IMPLEMENTATION -DGL_APICALL= \
++		-DEGLAPI= $(DEFS)
 +LIBEGL_DEFS = -DLIBEGL_IMPLEMENTATION
 +LIBGLESv2_DEFS = -DLIBGLESV2_IMPLEMENTATION
 +CPPFLAGS := -Isrc -Iinclude -Isrc/third_party/khronos -Isrc/common/third_party/numerics $(CPPFLAGS)
 +CXXFLAGS := -std=c++11 -fpermissive -msse2 -O2 -Wno-deprecated-declarations \
-+            -Wno-conversion-null $(CXXFLAGS)
++			-Wno-conversion-null $(CXXFLAGS)
 +DEPFLAGS = -MMD -MP
 +LIBGLESv2_LIBS = -ldxguid -ld3d9
 +LIBEGL_LIBS =
@@ -71,10 +71,12 @@ index 0000000..9dc2981
 +	src/compiler/translator/ParseContext.o \
 +	src/compiler/translator/PoolAlloc.o \
 +	src/compiler/translator/PruneEmptyDeclarations.o \
++	src/compiler/translator/QualifierTypes.o \
 +	src/compiler/translator/RecordConstantPrecision.o \
 +	src/compiler/translator/RegenerateStructNames.o \
 +	src/compiler/translator/RemovePow.o \
 +	src/compiler/translator/RewriteDoWhile.o \
++	src/compiler/translator/RewriteTexelFetchOffset.o \
 +	src/compiler/translator/ScalarizeVecAndMatConstructorArgs.o \
 +	src/compiler/translator/SearchSymbol.o \
 +	src/compiler/translator/SymbolTable.o \
@@ -378,11 +380,11 @@ index 0000000..9dc2981
 +PCDEFS = -DGL_APICALL= -DEGLAPI=
 +
 +ifneq ($(SHARED),)
-+    TARGET = libEGL.dll
++	TARGET = libEGL.dll
 +else
-+    TARGET = libEGL.a libGLESv2.a
-+    DEFS += -DLIBGLESV2_EXPORT_H_ -DEGLAPIENTRY= -DANGLE_EXPORT=
-+    PCDEFS += -DEGLAPIENTRY=
++	TARGET = libEGL.a libGLESv2.a
++	DEFS += -DLIBGLESV2_EXPORT_H_ -DANGLE_EXPORT=
++	PCDEFS +=
 +endif
 +
 +all: $(TARGET)
@@ -465,7 +467,7 @@ index 0000000..9dc2981
 +.PHONY: test
 diff --git a/libEGL.pc.in b/libEGL.pc.in
 new file mode 100644
-index 0000000..45a3719
+index 0000000..dd4e52a
 --- /dev/null
 +++ b/libEGL.pc.in
 @@ -0,0 +1,10 @@
