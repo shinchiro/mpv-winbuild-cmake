@@ -36,7 +36,6 @@ function(force_rebuild_git _name)
             DEPENDEES download
             DEPENDERS update patch
             COMMAND git reset --hard ${git_tag}
-            COMMAND git clean -dfx
             ${pull}
             WORKING_DIRECTORY <SOURCE_DIR>
             ALWAYS 1
