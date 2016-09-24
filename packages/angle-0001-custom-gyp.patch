@@ -1,0 +1,150 @@
+From 3d5948a7479a308f1de92120fbff9d1da693fe67 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 23 Sep 2016 23:59:39 +0800
+Subject: [PATCH] custom gyp
+
+---
+ build/common_defines.gypi | 25 +++++++++++++++++++++++++
+ src/angle.gyp             | 41 +----------------------------------------
+ src/commit_id.py          |  4 ++--
+ src/libGLESv2.gypi        |  8 --------
+ 4 files changed, 28 insertions(+), 50 deletions(-)
+
+diff --git a/build/common_defines.gypi b/build/common_defines.gypi
+index bce49c4..630f3bb 100644
+--- a/build/common_defines.gypi
++++ b/build/common_defines.gypi
+@@ -34,6 +34,31 @@
+     'defines':
+     [
+         'ANGLE_STANDALONE_BUILD',
++        'ANGLE_ENABLE_D3D9',
++        'ANGLE_ENABLE_D3D11',
++        'ANGLE_ENABLE_OPENGL',
++        'ANGLE_ENABLE_VULKAN',
++        'ANGLE_TRANSLATOR_STATIC',
++        'ANGLE_TRANSLATOR_IMPLEMENTATION',
++        'ANGLE_ENABLE_HLSL',
++        'ANGLE_ENABLE_ESSL',
++        'ANGLE_ENABLE_GLSL',
++        'GL_GLEXT_PROTOTYPES',
++        'EGL_EGLEXT_PROTOTYPES',
++        'LIBANGLE_IMPLEMENTATION',
++        'GL_APICALL=',
++        'EGLAPI=',
++        'LIBGLESV2_EXPORT_H_',
++        'ANGLE_EXPORT=',
++    ],
++    'cflags_cc':
++    [
++        '-std=c++11',
++        '-fpermissive',
++        '-msse2',
++        '-O2',
++        '-Wno-deprecated-declarations',
++        '-Wno-conversion-null',
+     ],
+     'msvs_disabled_warnings':
+     [
+diff --git a/src/angle.gyp b/src/angle.gyp
+index f84436d..54e8543 100644
+--- a/src/angle.gyp
++++ b/src/angle.gyp
+@@ -178,7 +178,7 @@
+             [
+                 {
+                     'destination': '<(angle_gen_path)',
+-                    'files': [ 'copy_compiler_dll.bat', '<(angle_id_script_base)' ],
++                    'files': [ '<(angle_id_script_base)' ],
+                 },
+             ],
+             'conditions':
+@@ -266,44 +266,5 @@
+                 }
+             ]
+         }],
+-        ['OS=="win"',
+-        {
+-            'targets':
+-            [
+-                {
+-                    'target_name': 'copy_compiler_dll',
+-                    'type': 'none',
+-                    'dependencies': [ 'copy_scripts', ],
+-                    'includes': [ '../build/common_defines.gypi', ],
+-                    'conditions':
+-                    [
+-                        ['angle_build_winrt==0',
+-                        {
+-                            'actions':
+-                            [
+-                                {
+-                                    'action_name': 'copy_dll',
+-                                    'message': 'Copying D3D Compiler DLL...',
+-                                    'msvs_cygwin_shell': 0,
+-                                    'inputs': [ 'copy_compiler_dll.bat' ],
+-                                    'outputs': [ '<(PRODUCT_DIR)/d3dcompiler_47.dll' ],
+-                                    'action':
+-                                    [
+-                                        "<(angle_gen_path)/copy_compiler_dll.bat",
+-                                        "$(PlatformName)",
+-                                        "<(windows_sdk_path)",
+-                                        "<(PRODUCT_DIR)"
+-                                    ],
+-                                },
+-                            ], #actions
+-                        }],
+-                        ['angle_build_winrt==1',
+-                        {
+-                            'type' : 'shared_library',
+-                        }],
+-                    ]
+-                },
+-            ], # targets
+-        }],
+     ] # conditions
+ }
+diff --git a/src/commit_id.py b/src/commit_id.py
+index bbdb810..50e578a 100644
+--- a/src/commit_id.py
++++ b/src/commit_id.py
+@@ -27,8 +27,8 @@ output_file = sys.argv[3]
+ commit_id_size = 12
+ 
+ try:
+-    commit_id = grab_output('git rev-parse --short=%d HEAD' % commit_id_size, cwd)
+-    commit_date = grab_output('git show -s --format=%ci HEAD', cwd)
++    commit_id = grab_output('git rev-parse --short=%d @{u}' % commit_id_size, cwd)
++    commit_date = grab_output('git show -s --format=%ci @{u}', cwd)
+ except:
+     commit_id = 'invalid-hash'
+     commit_date = 'invalid-date'
+diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
+index a22adeb..002aff5 100644
+--- a/src/libGLESv2.gypi
++++ b/src/libGLESv2.gypi
+@@ -690,7 +690,6 @@
+                 'defines':
+                 [
+                     'GL_GLEXT_PROTOTYPES',
+-                    'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ "d3dcompiler_47.dll", "d3dcompiler_46.dll", "d3dcompiler_43.dll" }',
+                 ],
+                 'conditions':
+                 [
+@@ -959,13 +958,6 @@
+                         'ANGLE_ENABLE_VULKAN',
+                     ],
+                 }],
+-                ['angle_build_winrt==0 and OS=="win"',
+-                {
+-                    'dependencies':
+-                    [
+-                        'copy_compiler_dll'
+-                    ],
+-                }],
+                 ['angle_build_winrt==1',
+                 {
+                     'msvs_requires_importlibrary' : 'true',
+-- 
+2.9.1
+
