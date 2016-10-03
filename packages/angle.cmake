@@ -20,6 +20,7 @@ ExternalProject_Add_Step(angle make-commitid
     DEPENDEES configure
     WORKING_DIRECTORY <SOURCE_DIR>/generated
     COMMAND ${MAKE} commit_id
+    LOG 1
 )
 
 ExternalProject_Add_Step(angle copy-commitid
