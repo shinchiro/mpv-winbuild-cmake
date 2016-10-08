@@ -1,20 +1,20 @@
-From 3d5948a7479a308f1de92120fbff9d1da693fe67 Mon Sep 17 00:00:00 2001
+From aee88c06998875014b3b2ed68576c4e34887afcf Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 23 Sep 2016 23:59:39 +0800
+Date: Thu, 6 Oct 2016 09:12:58 +0800
 Subject: [PATCH] custom gyp
 
 ---
- build/common_defines.gypi | 25 +++++++++++++++++++++++++
+ build/common_defines.gypi | 26 ++++++++++++++++++++++++++
  src/angle.gyp             | 41 +----------------------------------------
  src/commit_id.py          |  4 ++--
  src/libGLESv2.gypi        |  8 --------
- 4 files changed, 28 insertions(+), 50 deletions(-)
+ 4 files changed, 29 insertions(+), 50 deletions(-)
 
 diff --git a/build/common_defines.gypi b/build/common_defines.gypi
-index bce49c4..630f3bb 100644
+index bce49c4..449e156 100644
 --- a/build/common_defines.gypi
 +++ b/build/common_defines.gypi
-@@ -34,6 +34,31 @@
+@@ -34,6 +34,32 @@
      'defines':
      [
          'ANGLE_STANDALONE_BUILD',
@@ -22,6 +22,7 @@ index bce49c4..630f3bb 100644
 +        'ANGLE_ENABLE_D3D11',
 +        'ANGLE_ENABLE_OPENGL',
 +        'ANGLE_ENABLE_VULKAN',
++        'ANGLE_ENABLE_NULL',
 +        'ANGLE_TRANSLATOR_STATIC',
 +        'ANGLE_TRANSLATOR_IMPLEMENTATION',
 +        'ANGLE_ENABLE_HLSL',
@@ -47,10 +48,10 @@ index bce49c4..630f3bb 100644
      'msvs_disabled_warnings':
      [
 diff --git a/src/angle.gyp b/src/angle.gyp
-index f84436d..54e8543 100644
+index 578f0f3..4c6b866 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -178,7 +178,7 @@
+@@ -179,7 +179,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -59,7 +60,7 @@ index f84436d..54e8543 100644
                  },
              ],
              'conditions':
-@@ -266,44 +266,5 @@
+@@ -267,44 +267,5 @@
                  }
              ]
          }],
@@ -120,10 +121,10 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index a22adeb..002aff5 100644
+index 96a6a9d..665c392 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -690,7 +690,6 @@
+@@ -734,7 +734,6 @@
                  'defines':
                  [
                      'GL_GLEXT_PROTOTYPES',
@@ -131,8 +132,8 @@ index a22adeb..002aff5 100644
                  ],
                  'conditions':
                  [
-@@ -959,13 +958,6 @@
-                         'ANGLE_ENABLE_VULKAN',
+@@ -1014,13 +1013,6 @@
+                         'ANGLE_ENABLE_NULL',
                      ],
                  }],
 -                ['angle_build_winrt==0 and OS=="win"',
