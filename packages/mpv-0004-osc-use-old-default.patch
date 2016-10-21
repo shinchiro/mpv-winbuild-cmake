@@ -1,0 +1,46 @@
+From a2d9d8643a62bfe63822261b36928cefe507956e Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 21 Oct 2016 15:43:00 +0800
+Subject: [PATCH] osc: use old default
+
+---
+ player/lua/osc.lua | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/player/lua/osc.lua b/player/lua/osc.lua
+index fec1eb0..7842a7f 100644
+--- a/player/lua/osc.lua
++++ b/player/lua/osc.lua
+@@ -12,8 +12,8 @@ local utils = require 'mp.utils'
+ local user_opts = {
+     showwindowed = true,        -- show OSC when windowed?
+     showfullscreen = true,      -- show OSC when fullscreen?
+-    scalewindowed = 1.5,        -- scaling of the controller when windowed
+-    scalefullscreen = 1.5,      -- scaling of the controller when fullscreen
++    scalewindowed = 1.0,        -- scaling of the controller when windowed
++    scalefullscreen = 1.0,      -- scaling of the controller when fullscreen
+     scaleforcedwindow = 2,      -- scaling when rendered on a forced window
+     vidscale = true,            -- scale the controller with the video?
+     valign = 0.8,               -- vertical alignment, -1 (top) to 1 (bottom)
+@@ -25,14 +25,14 @@ local user_opts = {
+                                 -- mouse movement. enforced non-negative for the
+                                 -- user, but internally negative is "always-on".
+     fadeduration = 200,         -- duration of fade out in ms, 0 = no fade
+-    deadzonesize = 1,           -- size of deadzone
+-    minmousemove = 0,           -- minimum amount of pixels the mouse has to
++    deadzonesize = 0,           -- size of deadzone
++    minmousemove = 3,           -- minimum amount of pixels the mouse has to
+                                 -- move between ticks to make the OSC show up
+     iamaprogrammer = false,     -- use native mpv values and disable OSC
+                                 -- internal track list management (and some
+                                 -- functions that depend on it)
+-    layout = "bottombar",
+-    seekbarstyle = "bar",    -- slider (diamond marker) or bar (fill)
++    layout = "box",
++    seekbarstyle = "slider",    -- slider (diamond marker) or bar (fill)
+     tooltipborder = 1,          -- border of tooltip in bottom/topbar
+     timetotal = false,          -- display total time instead of remaining time?
+     timems = false,             -- display timecodes with milliseconds?
+-- 
+2.9.2
+
