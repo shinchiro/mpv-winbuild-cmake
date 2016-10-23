@@ -1,0 +1,1834 @@
+From 512603dbc64b9cb589f9cf15700711c5025961f1 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 23 Oct 2016 13:14:48 +0800
+Subject: [PATCH] Dynamically load CUDA
+
+Taken from ffmpeg-devel mailing list
+
+Series of patches:
+compat/cuda: add dynamic loader
+avutil/hwcontext_cuda: use dynamically loaded CUDA
+avcodec/cuvid: use dynamically loaded CUDA/CUVID
+avfilter/vf_scale_npp: use dynamically loaded CUDA
+avcodec/nvenc: use dynamically loaded CUDA
+avfilter/vf_hwupload_cuda: use new hwdevice allocation API
+avfilter/vf_hwupload_cuda: check ff_formats_ref for errors
+configure: cuda is no longer nonfree, enable and autodetect by default
+---
+ compat/cuda/dynlink_cuda.h                     |  88 +++++++++
+ compat/cuda/{cuviddec.h => dynlink_cuviddec.h} |  55 ++----
+ compat/cuda/dynlink_loader.h                   | 254 +++++++++++++++++++++++++
+ compat/cuda/{nvcuvid.h => dynlink_nvcuvid.h}   |  27 ++-
+ configure                                      |  27 +--
+ libavcodec/cuvid.c                             |  80 ++++----
+ libavcodec/nvenc.c                             | 129 +++----------
+ libavcodec/nvenc.h                             |  46 +----
+ libavfilter/vf_hwupload_cuda.c                 |  68 ++-----
+ libavfilter/vf_scale_npp.c                     |   6 +-
+ libavutil/hwcontext_cuda.c                     |  99 +++++++---
+ libavutil/hwcontext_cuda.h                     |   5 +
+ libavutil/hwcontext_cuda_internal.h            |  37 ++++
+ libavutil/version.h                            |   2 +-
+ 14 files changed, 588 insertions(+), 335 deletions(-)
+ create mode 100644 compat/cuda/dynlink_cuda.h
+ rename compat/cuda/{cuviddec.h => dynlink_cuviddec.h} (94%)
+ create mode 100644 compat/cuda/dynlink_loader.h
+ rename compat/cuda/{nvcuvid.h => dynlink_nvcuvid.h} (91%)
+ create mode 100644 libavutil/hwcontext_cuda_internal.h
+
+diff --git a/compat/cuda/dynlink_cuda.h b/compat/cuda/dynlink_cuda.h
+new file mode 100644
+index 0000000..908f12d
+--- /dev/null
++++ b/compat/cuda/dynlink_cuda.h
+@@ -0,0 +1,88 @@
++/*
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#if !defined(AV_COMPAT_DYNLINK_CUDA_H) && !defined(CUDA_VERSION)
++#define AV_COMPAT_DYNLINK_CUDA_H
++
++#include <stddef.h>
++
++#define CUDA_VERSION 7050
++
++#if defined(_WIN32) || defined(__CYGWIN__)
++#define CUDAAPI __stdcall
++#else
++#define CUDAAPI
++#endif
++
++#define CU_CTX_SCHED_BLOCKING_SYNC 4
++
++typedef int CUdevice;
++typedef void* CUarray;
++typedef void* CUcontext;
++#if defined(__x86_64) || defined(AMD64) || defined(_M_AMD64)
++typedef unsigned long long CUdeviceptr;
++#else
++typedef unsigned int CUdeviceptr;
++#endif
++
++typedef enum cudaError_enum {
++    CUDA_SUCCESS = 0
++} CUresult;
++
++typedef enum CUmemorytype_enum {
++    CU_MEMORYTYPE_HOST = 1,
++    CU_MEMORYTYPE_DEVICE = 2
++} CUmemorytype;
++
++typedef struct CUDA_MEMCPY2D_st {
++    size_t srcXInBytes;
++    size_t srcY;
++    CUmemorytype srcMemoryType;
++    const void *srcHost;
++    CUdeviceptr srcDevice;
++    CUarray srcArray;
++    size_t srcPitch;
++
++    size_t dstXInBytes;
++    size_t dstY;
++    CUmemorytype dstMemoryType;
++    void *dstHost;
++    CUdeviceptr dstDevice;
++    CUarray dstArray;
++    size_t dstPitch;
++
++    size_t WidthInBytes;
++    size_t Height;
++} CUDA_MEMCPY2D;
++
++typedef CUresult CUDAAPI tcuInit(unsigned int Flags);
++typedef CUresult CUDAAPI tcuDeviceGetCount(int *count);
++typedef CUresult CUDAAPI tcuDeviceGet(CUdevice *device, int ordinal);
++typedef CUresult CUDAAPI tcuDeviceGetName(char *name, int len, CUdevice dev);
++typedef CUresult CUDAAPI tcuDeviceComputeCapability(int *major, int *minor, CUdevice dev);
++typedef CUresult CUDAAPI tcuCtxCreate_v2(CUcontext *pctx, unsigned int flags, CUdevice dev);
++typedef CUresult CUDAAPI tcuCtxPushCurrent_v2(CUcontext *pctx);
++typedef CUresult CUDAAPI tcuCtxPopCurrent_v2(CUcontext *pctx);
++typedef CUresult CUDAAPI tcuCtxDestroy_v2(CUcontext ctx);
++typedef CUresult CUDAAPI tcuMemAlloc_v2(CUdeviceptr *dptr, size_t bytesize);
++typedef CUresult CUDAAPI tcuMemFree_v2(CUdeviceptr dptr);
++typedef CUresult CUDAAPI tcuMemcpy2D_v2(const CUDA_MEMCPY2D *pcopy);
++typedef CUresult CUDAAPI tcuGetErrorName(CUresult error, const char** pstr);
++typedef CUresult CUDAAPI tcuGetErrorString(CUresult error, const char** pstr);
++
++#endif
+diff --git a/compat/cuda/cuviddec.h b/compat/cuda/dynlink_cuviddec.h
+similarity index 94%
+rename from compat/cuda/cuviddec.h
+rename to compat/cuda/dynlink_cuviddec.h
+index f9257ea..17207bc 100644
+--- a/compat/cuda/cuviddec.h
++++ b/compat/cuda/dynlink_cuviddec.h
+@@ -35,10 +35,6 @@
+ #if !defined(__CUDA_VIDEO_H__)
+ #define __CUDA_VIDEO_H__
+ 
+-#ifndef __cuda_cuda_h__
+-#include <cuda.h>
+-#endif // __cuda_cuda_h__
+-
+ #if defined(__x86_64) || defined(AMD64) || defined(_M_AMD64)
+ #if (CUDA_VERSION >= 3020) && (!defined(CUDA_FORCE_API_VERSION) || (CUDA_FORCE_API_VERSION >= 3020))
+ #define __CUVID_DEVPTR64
+@@ -294,7 +290,7 @@ typedef struct _CUVIDH264PICPARAMS
+     {
+         CUVIDH264MVCEXT mvcext;
+         CUVIDH264SVCEXT svcext;
+-    };
++    } svcmvc;
+ } CUVIDH264PICPARAMS;
+ 
+ 
+@@ -552,7 +548,7 @@ typedef struct _CUVIDVP8PICPARAMS
+             unsigned char Reserved2Bits : 2;
+         };
+         unsigned char wFrameTagFlags;
+-    };
++    } tagflags;
+     unsigned char Reserved1[4];
+     unsigned int  Reserved2[3];
+ } CUVIDVP8PICPARAMS;
+@@ -715,19 +711,19 @@ typedef struct _CUVIDPROCPARAMS
+  * \fn CUresult CUDAAPI cuvidCreateDecoder(CUvideodecoder *phDecoder, CUVIDDECODECREATEINFO *pdci)
+  * Create the decoder object
+  */
+-CUresult CUDAAPI cuvidCreateDecoder(CUvideodecoder *phDecoder, CUVIDDECODECREATEINFO *pdci);
++typedef CUresult CUDAAPI tcuvidCreateDecoder(CUvideodecoder *phDecoder, CUVIDDECODECREATEINFO *pdci);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidDestroyDecoder(CUvideodecoder hDecoder)
+  * Destroy the decoder object
+  */
+-CUresult CUDAAPI cuvidDestroyDecoder(CUvideodecoder hDecoder);
++typedef CUresult CUDAAPI tcuvidDestroyDecoder(CUvideodecoder hDecoder);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidDecodePicture(CUvideodecoder hDecoder, CUVIDPICPARAMS *pPicParams)
+  * Decode a single picture (field or frame)
+  */
+-CUresult CUDAAPI cuvidDecodePicture(CUvideodecoder hDecoder, CUVIDPICPARAMS *pPicParams);
++typedef CUresult CUDAAPI tcuvidDecodePicture(CUvideodecoder hDecoder, CUVIDPICPARAMS *pPicParams);
+ 
+ 
+ #if !defined(__CUVID_DEVPTR64) || defined(__CUVID_INTERNAL)
+@@ -735,15 +731,15 @@ CUresult CUDAAPI cuvidDecodePicture(CUvideodecoder hDecoder, CUVIDPICPARAMS *pPi
+  * \fn CUresult CUDAAPI cuvidMapVideoFrame(CUvideodecoder hDecoder, int nPicIdx, unsigned int *pDevPtr, unsigned int *pPitch, CUVIDPROCPARAMS *pVPP);
+  * Post-process and map a video frame for use in cuda
+  */
+-CUresult CUDAAPI cuvidMapVideoFrame(CUvideodecoder hDecoder, int nPicIdx,
+-                                           unsigned int *pDevPtr, unsigned int *pPitch,
+-                                           CUVIDPROCPARAMS *pVPP);
++typedef CUresult CUDAAPI tcuvidMapVideoFrame(CUvideodecoder hDecoder, int nPicIdx,
++                                             unsigned int *pDevPtr, unsigned int *pPitch,
++                                             CUVIDPROCPARAMS *pVPP);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidUnmapVideoFrame(CUvideodecoder hDecoder, unsigned int DevPtr)
+  * Unmap a previously mapped video frame
+  */
+-CUresult CUDAAPI cuvidUnmapVideoFrame(CUvideodecoder hDecoder, unsigned int DevPtr);
++typedef CUresult CUDAAPI tcuvidUnmapVideoFrame(CUvideodecoder hDecoder, unsigned int DevPtr);
+ #endif
+ 
+ #if defined(WIN64) || defined(_WIN64) || defined(__x86_64) || defined(AMD64) || defined(_M_AMD64)
+@@ -751,23 +747,22 @@ CUresult CUDAAPI cuvidUnmapVideoFrame(CUvideodecoder hDecoder, unsigned int DevP
+  * \fn CUresult CUDAAPI cuvidMapVideoFrame64(CUvideodecoder hDecoder, int nPicIdx, unsigned long long *pDevPtr, unsigned int *pPitch, CUVIDPROCPARAMS *pVPP);
+  * map a video frame
+  */
+-CUresult CUDAAPI cuvidMapVideoFrame64(CUvideodecoder hDecoder, int nPicIdx, unsigned long long *pDevPtr,
+-                                             unsigned int *pPitch, CUVIDPROCPARAMS *pVPP);
++typedef CUresult CUDAAPI tcuvidMapVideoFrame64(CUvideodecoder hDecoder, int nPicIdx, unsigned long long *pDevPtr,
++                                               unsigned int *pPitch, CUVIDPROCPARAMS *pVPP);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidUnmapVideoFrame64(CUvideodecoder hDecoder, unsigned long long DevPtr);
+  * Unmap a previously mapped video frame
+  */
+-CUresult CUDAAPI cuvidUnmapVideoFrame64(CUvideodecoder hDecoder, unsigned long long DevPtr);
++typedef CUresult CUDAAPI tcuvidUnmapVideoFrame64(CUvideodecoder hDecoder, unsigned long long DevPtr);
+ 
+ #if defined(__CUVID_DEVPTR64) && !defined(__CUVID_INTERNAL)
+-#define cuvidMapVideoFrame      cuvidMapVideoFrame64
+-#define cuvidUnmapVideoFrame    cuvidUnmapVideoFrame64
++#define tcuvidMapVideoFrame      tcuvidMapVideoFrame64
++#define tcuvidUnmapVideoFrame    tcuvidUnmapVideoFrame64
+ #endif
+ #endif
+ 
+ 
+-
+ /**
+  *
+  * Context-locking: to facilitate multi-threaded implementations, the following 4 functions
+@@ -787,41 +782,27 @@ CUresult CUDAAPI cuvidUnmapVideoFrame64(CUvideodecoder hDecoder, unsigned long l
+ /**
+  * \fn CUresult CUDAAPI cuvidCtxLockCreate(CUvideoctxlock *pLock, CUcontext ctx)
+  */
+-CUresult CUDAAPI cuvidCtxLockCreate(CUvideoctxlock *pLock, CUcontext ctx);
++typedef CUresult CUDAAPI tcuvidCtxLockCreate(CUvideoctxlock *pLock, CUcontext ctx);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidCtxLockDestroy(CUvideoctxlock lck)
+  */
+-CUresult CUDAAPI cuvidCtxLockDestroy(CUvideoctxlock lck);
++typedef CUresult CUDAAPI tcuvidCtxLockDestroy(CUvideoctxlock lck);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidCtxLock(CUvideoctxlock lck, unsigned int reserved_flags)
+  */
+-CUresult CUDAAPI cuvidCtxLock(CUvideoctxlock lck, unsigned int reserved_flags);
++typedef CUresult CUDAAPI tcuvidCtxLock(CUvideoctxlock lck, unsigned int reserved_flags);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidCtxUnlock(CUvideoctxlock lck, unsigned int reserved_flags)
+  */
+-CUresult CUDAAPI cuvidCtxUnlock(CUvideoctxlock lck, unsigned int reserved_flags);
++typedef CUresult CUDAAPI tcuvidCtxUnlock(CUvideoctxlock lck, unsigned int reserved_flags);
+ 
+ /** @} */  /* End VIDEO_DECODER */
+-////////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ #if defined(__cplusplus)
+-
+-// Auto-lock helper for C++ applications
+-class CCtxAutoLock
+-{
+-private:
+-    CUvideoctxlock m_ctx;
+-public:
+-    CCtxAutoLock(CUvideoctxlock ctx);
+-    ~CCtxAutoLock();
+-};
+-
+ }
+-
+ #endif /* __cplusplus */
+ 
+ #endif // __CUDA_VIDEO_H__
+-
+diff --git a/compat/cuda/dynlink_loader.h b/compat/cuda/dynlink_loader.h
+new file mode 100644
+index 0000000..6275664
+--- /dev/null
++++ b/compat/cuda/dynlink_loader.h
+@@ -0,0 +1,254 @@
++/*
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#ifndef AV_COMPAT_CUDA_DYNLINK_LOADER_H
++#define AV_COMPAT_CUDA_DYNLINK_LOADER_H
++
++#include "compat/cuda/dynlink_cuda.h"
++#include "compat/cuda/dynlink_nvcuvid.h"
++#include "compat/nvenc/nvEncodeAPI.h"
++
++#include "libavutil/log.h"
++#include "libavutil/error.h"
++
++#if defined(_WIN32)
++# include <windows.h>
++# define dlopen(filename, flags) LoadLibrary(TEXT(filename))
++# define dlsym(handle, symbol) GetProcAddress(handle, symbol)
++# define dlclose(handle) FreeLibrary(handle)
++# define LIB_HANDLE HMODULE
++#else
++# include <dlfcn.h>
++# define LIB_HANDLE void*
++#endif
++
++#if defined(_WIN32) || defined(__CYGWIN__)
++# define CUDA_LIBNAME "nvcuda.dll"
++# define NVCUVID_LIBNAME "nvcuvid.dll"
++# if ARCH_X86_64
++#  define NVENC_LIBNAME "nvEncodeAPI64.dll"
++# else
++#  define NVENC_LIBNAME "nvEncodeAPI.dll"
++# endif
++#else
++# define CUDA_LIBNAME "libcuda.so.1"
++# define NVCUVID_LIBNAME "libnvcuvid.so.1"
++# define NVENC_LIBNAME "libnvidia-encode.so.1"
++#endif
++
++#define LOAD_LIBRARY(l, path)                                     \
++    do {                                                          \
++        if (!((l) = dlopen(path, RTLD_LAZY))) {                   \
++            av_log(NULL, AV_LOG_ERROR, "Cannot load %s\n", path); \
++            ret = AVERROR_UNKNOWN;                                \
++            goto error;                                           \
++        }                                                         \
++        av_log(NULL, AV_LOG_TRACE, "Loaded lib: %s\n", path);     \
++    } while (0)
++
++#define LOAD_SYMBOL(fun, symbol)                                    \
++    do {                                                            \
++        if (!((f->fun) = dlsym(f->lib, symbol))) {                  \
++            av_log(NULL, AV_LOG_ERROR, "Cannot load %s\n", symbol); \
++            ret = AVERROR_UNKNOWN;                                  \
++            goto error;                                             \
++        }                                                           \
++        av_log(NULL, AV_LOG_TRACE, "Loaded sym: %s\n", symbol);     \
++    } while (0)
++
++#define GENERIC_LOAD_FUNC_PREAMBLE(T, n, N)  \
++    T *f;                                    \
++    int ret;                                 \
++                                             \
++    n##_free_functions(functions);           \
++                                             \
++    f = *functions = av_mallocz(sizeof(*f)); \
++    if (!f)                                  \
++        return AVERROR(ENOMEM);              \
++                                             \
++    LOAD_LIBRARY(f->lib, N);
++
++#define GENERIC_LOAD_FUNC_FINALE(n) \
++    return 0;                       \
++error:                              \
++    n##_free_functions(functions);  \
++    return ret;
++
++#define GENERIC_FREE_FUNC()              \
++    if (!functions)                      \
++        return;                          \
++    if (*functions && (*functions)->lib) \
++        dlclose((*functions)->lib);      \
++    av_freep(functions);
++
++#ifdef AV_COMPAT_DYNLINK_CUDA_H
++typedef struct CudaFunctions {
++    tcuInit *cuInit;
++    tcuDeviceGetCount *cuDeviceGetCount;
++    tcuDeviceGet *cuDeviceGet;
++    tcuDeviceGetName *cuDeviceGetName;
++    tcuDeviceComputeCapability *cuDeviceComputeCapability;
++    tcuCtxCreate_v2 *cuCtxCreate;
++    tcuCtxPushCurrent_v2 *cuCtxPushCurrent;
++    tcuCtxPopCurrent_v2 *cuCtxPopCurrent;
++    tcuCtxDestroy_v2 *cuCtxDestroy;
++    tcuMemAlloc_v2 *cuMemAlloc;
++    tcuMemFree_v2 *cuMemFree;
++    tcuMemcpy2D_v2 *cuMemcpy2D;
++    tcuGetErrorName *cuGetErrorName;
++    tcuGetErrorString *cuGetErrorString;
++
++    LIB_HANDLE lib;
++} CudaFunctions;
++#else
++typedef struct CudaFunctions CudaFunctions;
++#endif
++
++typedef struct CuvidFunctions {
++    tcuvidCreateDecoder *cuvidCreateDecoder;
++    tcuvidDestroyDecoder *cuvidDestroyDecoder;
++    tcuvidDecodePicture *cuvidDecodePicture;
++    tcuvidMapVideoFrame *cuvidMapVideoFrame;
++    tcuvidUnmapVideoFrame *cuvidUnmapVideoFrame;
++    tcuvidCtxLockCreate *cuvidCtxLockCreate;
++    tcuvidCtxLockDestroy *cuvidCtxLockDestroy;
++    tcuvidCtxLock *cuvidCtxLock;
++    tcuvidCtxUnlock *cuvidCtxUnlock;
++
++    tcuvidCreateVideoSource *cuvidCreateVideoSource;
++    tcuvidCreateVideoSourceW *cuvidCreateVideoSourceW;
++    tcuvidDestroyVideoSource *cuvidDestroyVideoSource;
++    tcuvidSetVideoSourceState *cuvidSetVideoSourceState;
++    tcuvidGetVideoSourceState *cuvidGetVideoSourceState;
++    tcuvidGetSourceVideoFormat *cuvidGetSourceVideoFormat;
++    tcuvidGetSourceAudioFormat *cuvidGetSourceAudioFormat;
++    tcuvidCreateVideoParser *cuvidCreateVideoParser;
++    tcuvidParseVideoData *cuvidParseVideoData;
++    tcuvidDestroyVideoParser *cuvidDestroyVideoParser;
++
++    LIB_HANDLE lib;
++} CuvidFunctions;
++
++typedef struct NvencFunctions {
++    NVENCSTATUS (NVENCAPI *NvEncodeAPICreateInstance)(NV_ENCODE_API_FUNCTION_LIST *functionList);
++    NVENCSTATUS (NVENCAPI *NvEncodeAPIGetMaxSupportedVersion)(uint32_t* version);
++
++    LIB_HANDLE lib;
++} NvencFunctions;
++
++#ifdef AV_COMPAT_DYNLINK_CUDA_H
++static inline void cuda_free_functions(CudaFunctions **functions)
++{
++    GENERIC_FREE_FUNC();
++}
++#endif
++
++static inline void cuvid_free_functions(CuvidFunctions **functions)
++{
++    GENERIC_FREE_FUNC();
++}
++
++static inline void nvenc_free_functions(NvencFunctions **functions)
++{
++    GENERIC_FREE_FUNC();
++}
++
++#ifdef AV_COMPAT_DYNLINK_CUDA_H
++static inline int cuda_load_functions(CudaFunctions **functions)
++{
++    GENERIC_LOAD_FUNC_PREAMBLE(CudaFunctions, cuda, CUDA_LIBNAME);
++
++    LOAD_SYMBOL(cuInit, "cuInit");
++    LOAD_SYMBOL(cuDeviceGetCount, "cuDeviceGetCount");
++    LOAD_SYMBOL(cuDeviceGet, "cuDeviceGet");
++    LOAD_SYMBOL(cuDeviceGetName, "cuDeviceGetName");
++    LOAD_SYMBOL(cuDeviceComputeCapability, "cuDeviceComputeCapability");
++    LOAD_SYMBOL(cuCtxCreate, "cuCtxCreate_v2");
++    LOAD_SYMBOL(cuCtxPushCurrent, "cuCtxPushCurrent_v2");
++    LOAD_SYMBOL(cuCtxPopCurrent, "cuCtxPopCurrent_v2");
++    LOAD_SYMBOL(cuCtxDestroy, "cuCtxDestroy_v2");
++    LOAD_SYMBOL(cuMemAlloc, "cuMemAlloc_v2");
++    LOAD_SYMBOL(cuMemFree, "cuMemFree_v2");
++    LOAD_SYMBOL(cuMemcpy2D, "cuMemcpy2D_v2");
++    LOAD_SYMBOL(cuGetErrorName, "cuGetErrorName");
++    LOAD_SYMBOL(cuGetErrorString, "cuGetErrorString");
++
++    GENERIC_LOAD_FUNC_FINALE(cuda);
++}
++#endif
++
++static inline int cuvid_load_functions(CuvidFunctions **functions)
++{
++    GENERIC_LOAD_FUNC_PREAMBLE(CuvidFunctions, cuvid, NVCUVID_LIBNAME);
++
++    LOAD_SYMBOL(cuvidCreateDecoder, "cuvidCreateDecoder");
++    LOAD_SYMBOL(cuvidDestroyDecoder, "cuvidDestroyDecoder");
++    LOAD_SYMBOL(cuvidDecodePicture, "cuvidDecodePicture");
++#ifdef __CUVID_DEVPTR64
++    LOAD_SYMBOL(cuvidMapVideoFrame, "cuvidMapVideoFrame64");
++    LOAD_SYMBOL(cuvidUnmapVideoFrame, "cuvidUnmapVideoFrame64");
++#else
++    LOAD_SYMBOL(cuvidMapVideoFrame, "cuvidMapVideoFrame");
++    LOAD_SYMBOL(cuvidUnmapVideoFrame, "cuvidUnmapVideoFrame");
++#endif
++    LOAD_SYMBOL(cuvidCtxLockCreate, "cuvidCtxLockCreate");
++    LOAD_SYMBOL(cuvidCtxLockDestroy, "cuvidCtxLockDestroy");
++    LOAD_SYMBOL(cuvidCtxLock, "cuvidCtxLock");
++    LOAD_SYMBOL(cuvidCtxUnlock, "cuvidCtxUnlock");
++
++    LOAD_SYMBOL(cuvidCreateVideoSource, "cuvidCreateVideoSource");
++    LOAD_SYMBOL(cuvidCreateVideoSourceW, "cuvidCreateVideoSourceW");
++    LOAD_SYMBOL(cuvidDestroyVideoSource, "cuvidDestroyVideoSource");
++    LOAD_SYMBOL(cuvidSetVideoSourceState, "cuvidSetVideoSourceState");
++    LOAD_SYMBOL(cuvidGetVideoSourceState, "cuvidGetVideoSourceState");
++    LOAD_SYMBOL(cuvidGetSourceVideoFormat, "cuvidGetSourceVideoFormat");
++    LOAD_SYMBOL(cuvidGetSourceAudioFormat, "cuvidGetSourceAudioFormat");
++    LOAD_SYMBOL(cuvidCreateVideoParser, "cuvidCreateVideoParser");
++    LOAD_SYMBOL(cuvidParseVideoData, "cuvidParseVideoData");
++    LOAD_SYMBOL(cuvidDestroyVideoParser, "cuvidDestroyVideoParser");
++
++    GENERIC_LOAD_FUNC_FINALE(cuvid);
++}
++
++static inline int nvenc_load_functions(NvencFunctions **functions)
++{
++    GENERIC_LOAD_FUNC_PREAMBLE(NvencFunctions, nvenc, NVENC_LIBNAME);
++
++    LOAD_SYMBOL(NvEncodeAPICreateInstance, "NvEncodeAPICreateInstance");
++    LOAD_SYMBOL(NvEncodeAPIGetMaxSupportedVersion, "NvEncodeAPIGetMaxSupportedVersion");
++
++    GENERIC_LOAD_FUNC_FINALE(nvenc);
++}
++
++#undef GENERIC_LOAD_FUNC_PREAMBLE
++#undef LOAD_LIBRARY
++#undef LOAD_SYMBOL
++#undef GENERIC_LOAD_FUNC_FINALE
++#undef GENERIC_FREE_FUNC
++#undef CUDA_LIBNAME
++#undef NVCUVID_LIBNAME
++#undef NVENC_LIBNAME
++#undef LIB_HANDLE
++
++#if defined(_WIN32)
++#undef dlopen
++#undef dlsym
++#undef dlclose
++#endif
++
++#endif
+\ No newline at end of file
+diff --git a/compat/cuda/nvcuvid.h b/compat/cuda/dynlink_nvcuvid.h
+similarity index 91%
+rename from compat/cuda/nvcuvid.h
+rename to compat/cuda/dynlink_nvcuvid.h
+index 738d8e3..6c197e0 100644
+--- a/compat/cuda/nvcuvid.h
++++ b/compat/cuda/dynlink_nvcuvid.h
+@@ -35,17 +35,12 @@
+ #if !defined(__NVCUVID_H__)
+ #define __NVCUVID_H__
+ 
+-#include "compat/cuda/cuviddec.h"
++#include "compat/cuda/dynlink_cuviddec.h"
+ 
+ #if defined(__cplusplus)
+ extern "C" {
+ #endif /* __cplusplus */
+ 
+-/*********************************
+-** Initialization
+-*********************************/
+-CUresult  CUDAAPI cuvidInit(unsigned int Flags);
+-
+ ////////////////////////////////////////////////////////////////////////////////////////////////
+ //
+ // High-level helper APIs for video sources
+@@ -214,43 +209,43 @@ typedef enum {
+  * \fn CUresult CUDAAPI cuvidCreateVideoSource(CUvideosource *pObj, const char *pszFileName, CUVIDSOURCEPARAMS *pParams)
+  * Create Video Source
+  */
+-CUresult CUDAAPI cuvidCreateVideoSource(CUvideosource *pObj, const char *pszFileName, CUVIDSOURCEPARAMS *pParams);
++typedef CUresult CUDAAPI tcuvidCreateVideoSource(CUvideosource *pObj, const char *pszFileName, CUVIDSOURCEPARAMS *pParams);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidCreateVideoSourceW(CUvideosource *pObj, const wchar_t *pwszFileName, CUVIDSOURCEPARAMS *pParams)
+  * Create Video Source
+  */
+-CUresult CUDAAPI cuvidCreateVideoSourceW(CUvideosource *pObj, const wchar_t *pwszFileName, CUVIDSOURCEPARAMS *pParams);
++typedef CUresult CUDAAPI tcuvidCreateVideoSourceW(CUvideosource *pObj, const wchar_t *pwszFileName, CUVIDSOURCEPARAMS *pParams);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidDestroyVideoSource(CUvideosource obj)
+  * Destroy Video Source
+  */
+-CUresult CUDAAPI cuvidDestroyVideoSource(CUvideosource obj);
++typedef CUresult CUDAAPI tcuvidDestroyVideoSource(CUvideosource obj);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidSetVideoSourceState(CUvideosource obj, cudaVideoState state)
+  * Set Video Source state
+  */
+-CUresult CUDAAPI cuvidSetVideoSourceState(CUvideosource obj, cudaVideoState state);
++typedef CUresult CUDAAPI tcuvidSetVideoSourceState(CUvideosource obj, cudaVideoState state);
+ 
+ /**
+  * \fn cudaVideoState CUDAAPI cuvidGetVideoSourceState(CUvideosource obj)
+  * Get Video Source state
+  */
+-cudaVideoState CUDAAPI cuvidGetVideoSourceState(CUvideosource obj);
++typedef cudaVideoState CUDAAPI tcuvidGetVideoSourceState(CUvideosource obj);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidGetSourceVideoFormat(CUvideosource obj, CUVIDEOFORMAT *pvidfmt, unsigned int flags)
+  * Get Video Source Format
+  */
+-CUresult CUDAAPI cuvidGetSourceVideoFormat(CUvideosource obj, CUVIDEOFORMAT *pvidfmt, unsigned int flags);
++typedef CUresult CUDAAPI tcuvidGetSourceVideoFormat(CUvideosource obj, CUVIDEOFORMAT *pvidfmt, unsigned int flags);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidGetSourceAudioFormat(CUvideosource obj, CUAUDIOFORMAT *paudfmt, unsigned int flags)
+  * Set Video Source state
+  */
+-CUresult CUDAAPI cuvidGetSourceAudioFormat(CUvideosource obj, CUAUDIOFORMAT *paudfmt, unsigned int flags);
++typedef CUresult CUDAAPI tcuvidGetSourceAudioFormat(CUvideosource obj, CUAUDIOFORMAT *paudfmt, unsigned int flags);
+ 
+ #endif
+ 
+@@ -297,17 +292,17 @@ typedef struct _CUVIDPARSERPARAMS
+ /**
+  * \fn CUresult CUDAAPI cuvidCreateVideoParser(CUvideoparser *pObj, CUVIDPARSERPARAMS *pParams)
+  */
+-CUresult CUDAAPI cuvidCreateVideoParser(CUvideoparser *pObj, CUVIDPARSERPARAMS *pParams);
++typedef CUresult CUDAAPI tcuvidCreateVideoParser(CUvideoparser *pObj, CUVIDPARSERPARAMS *pParams);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidParseVideoData(CUvideoparser obj, CUVIDSOURCEDATAPACKET *pPacket)
+  */
+-CUresult CUDAAPI cuvidParseVideoData(CUvideoparser obj, CUVIDSOURCEDATAPACKET *pPacket);
++typedef CUresult CUDAAPI tcuvidParseVideoData(CUvideoparser obj, CUVIDSOURCEDATAPACKET *pPacket);
+ 
+ /**
+  * \fn CUresult CUDAAPI cuvidDestroyVideoParser(CUvideoparser obj)
+  */
+-CUresult CUDAAPI cuvidDestroyVideoParser(CUvideoparser obj);
++typedef CUresult CUDAAPI tcuvidDestroyVideoParser(CUvideoparser obj);
+ 
+ /** @} */  /* END VIDEO_PARSER */
+ ////////////////////////////////////////////////////////////////////////////////////////////////
+diff --git a/configure b/configure
+index 481f692..d9ffec0 100755
+--- a/configure
++++ b/configure
+@@ -299,8 +299,8 @@ External library support:
+ 
+   The following libraries provide various hardware acceleration features:
+   --disable-audiotoolbox   disable Apple AudioToolbox code [autodetect]
+-  --enable-cuda            enable dynamically linked Nvidia CUDA code [no]
+-  --enable-cuvid           enable Nvidia CUVID support [autodetect]
++  --disable-cuda           disable dynamically linked Nvidia CUDA code [autodetect]
++  --disable-cuvid          disable Nvidia CUVID support [autodetect]
+   --disable-d3d11va        disable Microsoft Direct3D 11 video acceleration code [autodetect]
+   --disable-dxva2          disable Microsoft DirectX 9 video acceleration code [autodetect]
+   --enable-libmfx          enable Intel MediaSDK (AKA Quick Sync Video) code via libmfx [no]
+@@ -2536,6 +2536,7 @@ audiotoolbox_extralibs="-framework CoreFoundation -framework AudioToolbox -frame
+ 
+ # hardware accelerators
+ crystalhd_deps="libcrystalhd_libcrystalhd_if_h"
++cuda_deps_any="dlopen LoadLibrary"
+ cuvid_deps="cuda"
+ d3d11va_deps="d3d11_h dxva_h ID3D11VideoDecoder ID3D11VideoContext"
+ dxva2_deps="dxva2api_h DXVA2_ConfigPictureDecode"
+@@ -2691,6 +2692,7 @@ vaapi_encode_deps="vaapi"
+ hwupload_cuda_filter_deps="cuda"
+ scale_npp_filter_deps="cuda libnpp"
+ 
++nvenc_deps="cuda"
+ nvenc_deps_any="dlopen LoadLibrary"
+ nvenc_encoder_deps="nvenc"
+ h263_cuvid_decoder_deps="cuda cuvid"
+@@ -3229,7 +3231,7 @@ enable audiotoolbox
+ enable d3d11va dxva2 vaapi vda vdpau videotoolbox_hwaccel xvmc
+ enable xlib
+ 
+-enable nvenc vda_framework videotoolbox videotoolbox_encoder
++enable cuda cuvid nvenc vda_framework videotoolbox videotoolbox_encoder
+ 
+ # build settings
+ SHFLAGS='-shared -Wl,-soname,$$(@F)'
+@@ -5080,8 +5082,6 @@ die_license_disabled gpl libxavs
+ die_license_disabled gpl libxvid
+ die_license_disabled gpl x11grab
+ 
+-die_license_disabled nonfree cuda
+-die_license_disabled nonfree cuvid
+ die_license_disabled nonfree libnpp
+ enabled gpl && die_license_disabled_gpl nonfree libfdk_aac
+ enabled gpl && die_license_disabled_gpl nonfree openssl
+@@ -5414,6 +5414,7 @@ elif check_func dlopen -ldl && check_func dlsym -ldl; then
+     ldl=-ldl
+ fi
+ 
++cuda_extralibs='$ldl'
+ decklink_outdev_extralibs="$decklink_outdev_extralibs $ldl"
+ decklink_indev_extralibs="$decklink_indev_extralibs $ldl"
+ frei0r_filter_extralibs='$ldl'
+@@ -5652,11 +5653,6 @@ for func in $COMPLEX_FUNCS; do
+     eval check_complexfunc $func \${${func}_args:-1}
+ done
+ 
+-# Enable CUVID by default if CUDA is enabled
+-if enabled cuda && ! disabled cuvid; then
+-    enable cuvid
+-fi
+-
+ # these are off by default, so fail if requested and not available
+ enabled avfoundation_indev && { check_header_objcc AVFoundation/AVFoundation.h || disable avfoundation_indev; }
+ enabled avfoundation_indev && { check_lib2 CoreGraphics/CoreGraphics.h CGGetActiveDisplayList -framework CoreGraphics ||
+@@ -5664,12 +5660,7 @@ enabled avfoundation_indev && { check_lib2 CoreGraphics/CoreGraphics.h CGGetActi
+ enabled avisynth          && { { check_lib2 "windows.h" LoadLibrary; } ||
+                                { check_lib2 "dlfcn.h" dlopen -ldl; } ||
+                                die "ERROR: LoadLibrary/dlopen not found for avisynth"; }
+-enabled cuda              && { check_lib cuda.h cuInit -lcuda ||
+-                               die "ERROR: CUDA not found"; }
+-enabled cuvid             && { add_cflags -I$source_path;
+-                               check_lib "compat/cuda/cuviddec.h" cuvidCreateDecoder -lnvcuvid ||
+-                               die "ERROR: CUVID not found"; } &&
+-                             { enabled cuda ||
++enabled cuvid             && { enabled cuda ||
+                                die "ERROR: CUVID requires CUDA"; }
+ enabled chromaprint       && require chromaprint chromaprint.h chromaprint_get_version -lchromaprint
+ enabled coreimage_filter  && { check_header_objcc QuartzCore/CoreImage.h || disable coreimage_filter; }
+@@ -6022,11 +6013,11 @@ if enabled x86; then
+         mingw32*|mingw64*|win32|win64|linux|cygwin*)
+             ;;
+         *)
+-            disable nvenc
++            disable cuda cuvid nvenc
+             ;;
+     esac
+ else
+-    disable nvenc
++    disable cuda cuvid nvenc
+ fi
+ 
+ enabled nvenc &&
+diff --git a/libavcodec/cuvid.c b/libavcodec/cuvid.c
+index 24ade94..07e7bbf 100644
+--- a/libavcodec/cuvid.c
++++ b/libavcodec/cuvid.c
+@@ -19,10 +19,12 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++#include "compat/cuda/dynlink_loader.h"
++
+ #include "libavutil/buffer.h"
+ #include "libavutil/mathematics.h"
+ #include "libavutil/hwcontext.h"
+-#include "libavutil/hwcontext_cuda.h"
++#include "libavutil/hwcontext_cuda_internal.h"
+ #include "libavutil/fifo.h"
+ #include "libavutil/log.h"
+ #include "libavutil/opt.h"
+@@ -30,8 +32,6 @@
+ #include "avcodec.h"
+ #include "internal.h"
+ 
+-#include "compat/cuda/nvcuvid.h"
+-
+ #define MAX_FRAME_COUNT 25
+ 
+ typedef struct CuvidContext
+@@ -61,6 +61,9 @@ typedef struct CuvidContext
+ 
+     CUVIDPARSERPARAMS cuparseinfo;
+     CUVIDEOFORMATEX cuparse_ext;
++
++    CudaFunctions *cudl;
++    CuvidFunctions *cvdl;
+ } CuvidContext;
+ 
+ typedef struct CuvidParsedFrame
+@@ -72,6 +75,7 @@ typedef struct CuvidParsedFrame
+ 
+ static int check_cu(AVCodecContext *avctx, CUresult err, const char *func)
+ {
++    CuvidContext *ctx = avctx->priv_data;
+     const char *err_name;
+     const char *err_string;
+ 
+@@ -80,8 +84,8 @@ static int check_cu(AVCodecContext *avctx, CUresult err, const char *func)
+     if (err == CUDA_SUCCESS)
+         return 0;
+ 
+-    cuGetErrorName(err, &err_name);
+-    cuGetErrorString(err, &err_string);
++    ctx->cudl->cuGetErrorName(err, &err_name);
++    ctx->cudl->cuGetErrorString(err, &err_string);
+ 
+     av_log(avctx, AV_LOG_ERROR, "%s failed", func);
+     if (err_name && err_string)
+@@ -142,7 +146,7 @@ static int CUDAAPI cuvid_handle_video_sequence(void *opaque, CUVIDEOFORMAT* form
+ 
+     if (ctx->cudecoder) {
+         av_log(avctx, AV_LOG_TRACE, "Re-initializing decoder\n");
+-        ctx->internal_error = CHECK_CU(cuvidDestroyDecoder(ctx->cudecoder));
++        ctx->internal_error = CHECK_CU(ctx->cvdl->cuvidDestroyDecoder(ctx->cudecoder));
+         if (ctx->internal_error < 0)
+             return 0;
+         ctx->cudecoder = NULL;
+@@ -199,7 +203,7 @@ static int CUDAAPI cuvid_handle_video_sequence(void *opaque, CUVIDEOFORMAT* form
+     if (ctx->deint_mode != cudaVideoDeinterlaceMode_Weave)
+         avctx->framerate = av_mul_q(avctx->framerate, (AVRational){2, 1});
+ 
+-    ctx->internal_error = CHECK_CU(cuvidCreateDecoder(&ctx->cudecoder, &cuinfo));
++    ctx->internal_error = CHECK_CU(ctx->cvdl->cuvidCreateDecoder(&ctx->cudecoder, &cuinfo));
+     if (ctx->internal_error < 0)
+         return 0;
+ 
+@@ -225,7 +229,7 @@ static int CUDAAPI cuvid_handle_picture_decode(void *opaque, CUVIDPICPARAMS* pic
+ 
+     av_log(avctx, AV_LOG_TRACE, "pfnDecodePicture\n");
+ 
+-    ctx->internal_error = CHECK_CU(cuvidDecodePicture(ctx->cudecoder, picparams));
++    ctx->internal_error = CHECK_CU(ctx->cvdl->cuvidDecodePicture(ctx->cudecoder, picparams));
+     if (ctx->internal_error < 0)
+         return 0;
+ 
+@@ -291,7 +295,7 @@ static int cuvid_decode_packet(AVCodecContext *avctx, const AVPacket *avpkt)
+         avpkt = &filtered_packet;
+     }
+ 
+-    ret = CHECK_CU(cuCtxPushCurrent(cuda_ctx));
++    ret = CHECK_CU(ctx->cudl->cuCtxPushCurrent(cuda_ctx));
+     if (ret < 0) {
+         av_packet_unref(&filtered_packet);
+         return ret;
+@@ -315,7 +319,7 @@ static int cuvid_decode_packet(AVCodecContext *avctx, const AVPacket *avpkt)
+         ctx->decoder_flushing = 1;
+     }
+ 
+-    ret = CHECK_CU(cuvidParseVideoData(ctx->cuparser, &cupkt));
++    ret = CHECK_CU(ctx->cvdl->cuvidParseVideoData(ctx->cuparser, &cupkt));
+ 
+     av_packet_unref(&filtered_packet);
+ 
+@@ -330,7 +334,7 @@ static int cuvid_decode_packet(AVCodecContext *avctx, const AVPacket *avpkt)
+     }
+ 
+ error:
+-    eret = CHECK_CU(cuCtxPopCurrent(&dummy));
++    eret = CHECK_CU(ctx->cudl->cuCtxPopCurrent(&dummy));
+ 
+     if (eret < 0)
+         return eret;
+@@ -359,7 +363,7 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
+             return ret;
+     }
+ 
+-    ret = CHECK_CU(cuCtxPushCurrent(cuda_ctx));
++    ret = CHECK_CU(ctx->cudl->cuCtxPushCurrent(cuda_ctx));
+     if (ret < 0)
+         return ret;
+ 
+@@ -377,7 +381,7 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
+         params.second_field = parsed_frame.second_field;
+         params.top_field_first = parsed_frame.dispinfo.top_field_first;
+ 
+-        ret = CHECK_CU(cuvidMapVideoFrame(ctx->cudecoder, parsed_frame.dispinfo.picture_index, &mapped_frame, &pitch, &params));
++        ret = CHECK_CU(ctx->cvdl->cuvidMapVideoFrame(ctx->cudecoder, parsed_frame.dispinfo.picture_index, &mapped_frame, &pitch, &params));
+         if (ret < 0)
+             goto error;
+ 
+@@ -407,7 +411,7 @@ static int cuvid_output_frame(AVCodecContext *avctx, AVFrame *frame)
+                     .Height        = avctx->height >> (i ? 1 : 0),
+                 };
+ 
+-                ret = CHECK_CU(cuMemcpy2D(&cpy));
++                ret = CHECK_CU(ctx->cudl->cuMemcpy2D(&cpy));
+                 if (ret < 0)
+                     goto error;
+ 
+@@ -492,9 +496,9 @@ FF_ENABLE_DEPRECATION_WARNINGS
+ 
+ error:
+     if (mapped_frame)
+-        eret = CHECK_CU(cuvidUnmapVideoFrame(ctx->cudecoder, mapped_frame));
++        eret = CHECK_CU(ctx->cvdl->cuvidUnmapVideoFrame(ctx->cudecoder, mapped_frame));
+ 
+-    eret = CHECK_CU(cuCtxPopCurrent(&dummy));
++    eret = CHECK_CU(ctx->cudl->cuCtxPopCurrent(&dummy));
+ 
+     if (eret < 0)
+         return eret;
+@@ -543,19 +547,24 @@ static av_cold int cuvid_decode_end(AVCodecContext *avctx)
+         av_bsf_free(&ctx->bsf);
+ 
+     if (ctx->cuparser)
+-        cuvidDestroyVideoParser(ctx->cuparser);
++        ctx->cvdl->cuvidDestroyVideoParser(ctx->cuparser);
+ 
+     if (ctx->cudecoder)
+-        cuvidDestroyDecoder(ctx->cudecoder);
++        ctx->cvdl->cuvidDestroyDecoder(ctx->cudecoder);
++
++    ctx->cudl = NULL;
+ 
+     av_buffer_unref(&ctx->hwframe);
+     av_buffer_unref(&ctx->hwdevice);
+ 
++    cuvid_free_functions(&ctx->cvdl);
++
+     return 0;
+ }
+ 
+ static int cuvid_test_dummy_decoder(AVCodecContext *avctx, CUVIDPARSERPARAMS *cuparseinfo)
+ {
++    CuvidContext *ctx = avctx->priv_data;
+     CUVIDDECODECREATEINFO cuinfo;
+     CUvideodecoder cudec = 0;
+     int ret = 0;
+@@ -583,11 +592,11 @@ static int cuvid_test_dummy_decoder(AVCodecContext *avctx, CUVIDPARSERPARAMS *cu
+ 
+     cuinfo.DeinterlaceMode = cudaVideoDeinterlaceMode_Weave;
+ 
+-    ret = CHECK_CU(cuvidCreateDecoder(&cudec, &cuinfo));
++    ret = CHECK_CU(ctx->cvdl->cuvidCreateDecoder(&cudec, &cuinfo));
+     if (ret < 0)
+         return ret;
+ 
+-    ret = CHECK_CU(cuvidDestroyDecoder(cudec));
++    ret = CHECK_CU(ctx->cvdl->cuvidDestroyDecoder(cudec));
+     if (ret < 0)
+         return ret;
+ 
+@@ -615,6 +624,13 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+         av_log(avctx, AV_LOG_ERROR, "ff_get_format failed: %d\n", ret);
+         return ret;
+     }
++    avctx->pix_fmt = ret;
++
++    ret = cuvid_load_functions(&ctx->cvdl);
++    if (ret < 0) {
++        av_log(avctx, AV_LOG_ERROR, "Failed loading nvcuvid.\n");
++        goto error;
++    }
+ 
+     ctx->frame_queue = av_fifo_alloc(MAX_FRAME_COUNT * sizeof(CuvidParsedFrame));
+     if (!ctx->frame_queue) {
+@@ -622,8 +638,6 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+         goto error;
+     }
+ 
+-    avctx->pix_fmt = ret;
+-
+     if (avctx->hw_frames_ctx) {
+         ctx->hwframe = av_buffer_ref(avctx->hw_frames_ctx);
+         if (!ctx->hwframe) {
+@@ -655,7 +669,9 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+ 
+     device_ctx = hwframe_ctx->device_ctx;
+     device_hwctx = device_ctx->hwctx;
++
+     cuda_ctx = device_hwctx->cuda_ctx;
++    ctx->cudl = device_hwctx->internal->cuda_dl;
+ 
+     memset(&ctx->cuparseinfo, 0, sizeof(ctx->cuparseinfo));
+     memset(&ctx->cuparse_ext, 0, sizeof(ctx->cuparse_ext));
+@@ -755,7 +771,7 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+     ctx->cuparseinfo.pfnDecodePicture = cuvid_handle_picture_decode;
+     ctx->cuparseinfo.pfnDisplayPicture = cuvid_handle_picture_display;
+ 
+-    ret = CHECK_CU(cuCtxPushCurrent(cuda_ctx));
++    ret = CHECK_CU(ctx->cudl->cuCtxPushCurrent(cuda_ctx));
+     if (ret < 0)
+         goto error;
+ 
+@@ -763,7 +779,7 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+     if (ret < 0)
+         goto error;
+ 
+-    ret = CHECK_CU(cuvidCreateVideoParser(&ctx->cuparser, &ctx->cuparseinfo));
++    ret = CHECK_CU(ctx->cvdl->cuvidCreateVideoParser(&ctx->cuparser, &ctx->cuparseinfo));
+     if (ret < 0)
+         goto error;
+ 
+@@ -771,12 +787,12 @@ static av_cold int cuvid_decode_init(AVCodecContext *avctx)
+     seq_pkt.payload_size = ctx->cuparse_ext.format.seqhdr_data_length;
+ 
+     if (seq_pkt.payload && seq_pkt.payload_size) {
+-        ret = CHECK_CU(cuvidParseVideoData(ctx->cuparser, &seq_pkt));
++        ret = CHECK_CU(ctx->cvdl->cuvidParseVideoData(ctx->cuparser, &seq_pkt));
+         if (ret < 0)
+             goto error;
+     }
+ 
+-    ret = CHECK_CU(cuCtxPopCurrent(&dummy));
++    ret = CHECK_CU(ctx->cudl->cuCtxPopCurrent(&dummy));
+     if (ret < 0)
+         goto error;
+ 
+@@ -801,7 +817,7 @@ static void cuvid_flush(AVCodecContext *avctx)
+     CUVIDSOURCEDATAPACKET seq_pkt = { 0 };
+     int ret;
+ 
+-    ret = CHECK_CU(cuCtxPushCurrent(cuda_ctx));
++    ret = CHECK_CU(ctx->cudl->cuCtxPushCurrent(cuda_ctx));
+     if (ret < 0)
+         goto error;
+ 
+@@ -814,16 +830,16 @@ static void cuvid_flush(AVCodecContext *avctx)
+     }
+ 
+     if (ctx->cudecoder) {
+-        cuvidDestroyDecoder(ctx->cudecoder);
++        ctx->cvdl->cuvidDestroyDecoder(ctx->cudecoder);
+         ctx->cudecoder = NULL;
+     }
+ 
+     if (ctx->cuparser) {
+-        cuvidDestroyVideoParser(ctx->cuparser);
++        ctx->cvdl->cuvidDestroyVideoParser(ctx->cuparser);
+         ctx->cuparser = NULL;
+     }
+ 
+-    ret = CHECK_CU(cuvidCreateVideoParser(&ctx->cuparser, &ctx->cuparseinfo));
++    ret = CHECK_CU(ctx->cvdl->cuvidCreateVideoParser(&ctx->cuparser, &ctx->cuparseinfo));
+     if (ret < 0)
+         goto error;
+ 
+@@ -831,12 +847,12 @@ static void cuvid_flush(AVCodecContext *avctx)
+     seq_pkt.payload_size = ctx->cuparse_ext.format.seqhdr_data_length;
+ 
+     if (seq_pkt.payload && seq_pkt.payload_size) {
+-        ret = CHECK_CU(cuvidParseVideoData(ctx->cuparser, &seq_pkt));
++        ret = CHECK_CU(ctx->cvdl->cuvidParseVideoData(ctx->cuparser, &seq_pkt));
+         if (ret < 0)
+             goto error;
+     }
+ 
+-    ret = CHECK_CU(cuCtxPopCurrent(&dummy));
++    ret = CHECK_CU(ctx->cudl->cuCtxPopCurrent(&dummy));
+     if (ret < 0)
+         goto error;
+ 
+diff --git a/libavcodec/nvenc.c b/libavcodec/nvenc.c
+index 2505c3d..d71a445 100644
+--- a/libavcodec/nvenc.c
++++ b/libavcodec/nvenc.c
+@@ -21,60 +21,20 @@
+ 
+ #include "config.h"
+ 
+-#if defined(_WIN32) || defined(__CYGWIN__)
+-# define CUDA_LIBNAME "nvcuda.dll"
+-# if ARCH_X86_64
+-#  define NVENC_LIBNAME "nvEncodeAPI64.dll"
+-# else
+-#  define NVENC_LIBNAME "nvEncodeAPI.dll"
+-# endif
+-#else
+-# define CUDA_LIBNAME "libcuda.so.1"
+-# define NVENC_LIBNAME "libnvidia-encode.so.1"
+-#endif
+-
+-#if defined(_WIN32)
+-#include <windows.h>
+-
+-#define dlopen(filename, flags) LoadLibrary(TEXT(filename))
+-#define dlsym(handle, symbol)   GetProcAddress(handle, symbol)
+-#define dlclose(handle)         FreeLibrary(handle)
+-#else
+-#include <dlfcn.h>
+-#endif
++#include "nvenc.h"
+ 
++#include "libavutil/hwcontext_cuda.h"
+ #include "libavutil/hwcontext.h"
+ #include "libavutil/imgutils.h"
+ #include "libavutil/avassert.h"
+ #include "libavutil/mem.h"
+ #include "internal.h"
+-#include "nvenc.h"
+ 
+ #define NVENC_CAP 0x30
+ #define IS_CBR(rc) (rc == NV_ENC_PARAMS_RC_CBR ||               \
+                     rc == NV_ENC_PARAMS_RC_2_PASS_QUALITY ||    \
+                     rc == NV_ENC_PARAMS_RC_2_PASS_FRAMESIZE_CAP)
+ 
+-#define LOAD_LIBRARY(l, path)                   \
+-    do {                                        \
+-        if (!((l) = dlopen(path, RTLD_LAZY))) { \
+-            av_log(avctx, AV_LOG_ERROR,         \
+-                   "Cannot load %s\n",          \
+-                   path);                       \
+-            return AVERROR_UNKNOWN;             \
+-        }                                       \
+-    } while (0)
+-
+-#define LOAD_SYMBOL(fun, lib, symbol)        \
+-    do {                                     \
+-        if (!((fun) = dlsym(lib, symbol))) { \
+-            av_log(avctx, AV_LOG_ERROR,      \
+-                   "Cannot load %s\n",       \
+-                   symbol);                  \
+-            return AVERROR_UNKNOWN;          \
+-        }                                    \
+-    } while (0)
+-
+ const enum AVPixelFormat ff_nvenc_pix_fmts[] = {
+     AV_PIX_FMT_YUV420P,
+     AV_PIX_FMT_NV12,
+@@ -83,9 +43,7 @@ const enum AVPixelFormat ff_nvenc_pix_fmts[] = {
+     AV_PIX_FMT_YUV444P16,
+     AV_PIX_FMT_0RGB32,
+     AV_PIX_FMT_0BGR32,
+-#if CONFIG_CUDA
+     AV_PIX_FMT_CUDA,
+-#endif
+     AV_PIX_FMT_NONE
+ };
+ 
+@@ -157,42 +115,19 @@ static av_cold int nvenc_load_libraries(AVCodecContext *avctx)
+ {
+     NvencContext *ctx = avctx->priv_data;
+     NvencDynLoadFunctions *dl_fn = &ctx->nvenc_dload_funcs;
+-    PNVENCODEAPIGETMAXSUPPORTEDVERSION nvenc_get_max_ver;
+-    PNVENCODEAPICREATEINSTANCE nvenc_create_instance;
+     NVENCSTATUS err;
+     uint32_t nvenc_max_ver;
++    int ret;
+ 
+-#if CONFIG_CUDA
+-    dl_fn->cu_init                      = cuInit;
+-    dl_fn->cu_device_get_count          = cuDeviceGetCount;
+-    dl_fn->cu_device_get                = cuDeviceGet;
+-    dl_fn->cu_device_get_name           = cuDeviceGetName;
+-    dl_fn->cu_device_compute_capability = cuDeviceComputeCapability;
+-    dl_fn->cu_ctx_create                = cuCtxCreate_v2;
+-    dl_fn->cu_ctx_pop_current           = cuCtxPopCurrent_v2;
+-    dl_fn->cu_ctx_destroy               = cuCtxDestroy_v2;
+-#else
+-    LOAD_LIBRARY(dl_fn->cuda, CUDA_LIBNAME);
+-
+-    LOAD_SYMBOL(dl_fn->cu_init, dl_fn->cuda, "cuInit");
+-    LOAD_SYMBOL(dl_fn->cu_device_get_count, dl_fn->cuda, "cuDeviceGetCount");
+-    LOAD_SYMBOL(dl_fn->cu_device_get, dl_fn->cuda, "cuDeviceGet");
+-    LOAD_SYMBOL(dl_fn->cu_device_get_name, dl_fn->cuda, "cuDeviceGetName");
+-    LOAD_SYMBOL(dl_fn->cu_device_compute_capability, dl_fn->cuda,
+-                "cuDeviceComputeCapability");
+-    LOAD_SYMBOL(dl_fn->cu_ctx_create, dl_fn->cuda, "cuCtxCreate_v2");
+-    LOAD_SYMBOL(dl_fn->cu_ctx_pop_current, dl_fn->cuda, "cuCtxPopCurrent_v2");
+-    LOAD_SYMBOL(dl_fn->cu_ctx_destroy, dl_fn->cuda, "cuCtxDestroy_v2");
+-#endif
+-
+-    LOAD_LIBRARY(dl_fn->nvenc, NVENC_LIBNAME);
++    ret = cuda_load_functions(&dl_fn->cuda_dl);
++    if (ret < 0)
++        return ret;
+ 
+-    LOAD_SYMBOL(nvenc_get_max_ver, dl_fn->nvenc,
+-                "NvEncodeAPIGetMaxSupportedVersion");
+-    LOAD_SYMBOL(nvenc_create_instance, dl_fn->nvenc,
+-                "NvEncodeAPICreateInstance");
++    ret = nvenc_load_functions(&dl_fn->nvenc_dl);
++    if (ret < 0)
++        return ret;
+ 
+-    err = nvenc_get_max_ver(&nvenc_max_ver);
++    err = dl_fn->nvenc_dl->NvEncodeAPIGetMaxSupportedVersion(&nvenc_max_ver);
+     if (err != NV_ENC_SUCCESS)
+         return nvenc_print_error(avctx, err, "Failed to query nvenc max version");
+ 
+@@ -208,7 +143,7 @@ static av_cold int nvenc_load_libraries(AVCodecContext *avctx)
+ 
+     dl_fn->nvenc_funcs.version = NV_ENCODE_API_FUNCTION_LIST_VER;
+ 
+-    err = nvenc_create_instance(&dl_fn->nvenc_funcs);
++    err = dl_fn->nvenc_dl->NvEncodeAPICreateInstance(&dl_fn->nvenc_funcs);
+     if (err != NV_ENC_SUCCESS)
+         return nvenc_print_error(avctx, err, "Failed to create nvenc instance");
+ 
+@@ -380,7 +315,7 @@ static av_cold int nvenc_check_device(AVCodecContext *avctx, int idx)
+     if (ctx->device == LIST_DEVICES)
+         loglevel = AV_LOG_INFO;
+ 
+-    cu_res = dl_fn->cu_device_get(&cu_device, idx);
++    cu_res = dl_fn->cuda_dl->cuDeviceGet(&cu_device, idx);
+     if (cu_res != CUDA_SUCCESS) {
+         av_log(avctx, AV_LOG_ERROR,
+                "Cannot access the CUDA device %d\n",
+@@ -388,11 +323,11 @@ static av_cold int nvenc_check_device(AVCodecContext *avctx, int idx)
+         return -1;
+     }
+ 
+-    cu_res = dl_fn->cu_device_get_name(name, sizeof(name), cu_device);
++    cu_res = dl_fn->cuda_dl->cuDeviceGetName(name, sizeof(name), cu_device);
+     if (cu_res != CUDA_SUCCESS)
+         return -1;
+ 
+-    cu_res = dl_fn->cu_device_compute_capability(&major, &minor, cu_device);
++    cu_res = dl_fn->cuda_dl->cuDeviceComputeCapability(&major, &minor, cu_device);
+     if (cu_res != CUDA_SUCCESS)
+         return -1;
+ 
+@@ -402,7 +337,7 @@ static av_cold int nvenc_check_device(AVCodecContext *avctx, int idx)
+         goto fail;
+     }
+ 
+-    cu_res = dl_fn->cu_ctx_create(&ctx->cu_context_internal, 0, cu_device);
++    cu_res = dl_fn->cuda_dl->cuCtxCreate(&ctx->cu_context_internal, 0, cu_device);
+     if (cu_res != CUDA_SUCCESS) {
+         av_log(avctx, AV_LOG_FATAL, "Failed creating CUDA context for NVENC: 0x%x\n", (int)cu_res);
+         goto fail;
+@@ -410,7 +345,7 @@ static av_cold int nvenc_check_device(AVCodecContext *avctx, int idx)
+ 
+     ctx->cu_context = ctx->cu_context_internal;
+ 
+-    cu_res = dl_fn->cu_ctx_pop_current(&dummy);
++    cu_res = dl_fn->cuda_dl->cuCtxPopCurrent(&dummy);
+     if (cu_res != CUDA_SUCCESS) {
+         av_log(avctx, AV_LOG_FATAL, "Failed popping CUDA context: 0x%x\n", (int)cu_res);
+         goto fail2;
+@@ -434,7 +369,7 @@ fail3:
+     ctx->nvencoder = NULL;
+ 
+ fail2:
+-    dl_fn->cu_ctx_destroy(ctx->cu_context_internal);
++    dl_fn->cuda_dl->cuCtxDestroy(ctx->cu_context_internal);
+     ctx->cu_context_internal = NULL;
+ 
+ fail:
+@@ -458,7 +393,6 @@ static av_cold int nvenc_setup_device(AVCodecContext *avctx)
+     }
+ 
+     if (avctx->pix_fmt == AV_PIX_FMT_CUDA) {
+-#if CONFIG_CUDA
+         AVHWFramesContext   *frames_ctx;
+         AVCUDADeviceContext *device_hwctx;
+         int ret;
+@@ -480,19 +414,16 @@ static av_cold int nvenc_setup_device(AVCodecContext *avctx)
+             av_log(avctx, AV_LOG_FATAL, "Provided device doesn't support required NVENC features\n");
+             return ret;
+         }
+-#else
+-        return AVERROR_BUG;
+-#endif
+     } else {
+         int i, nb_devices = 0;
+ 
+-        if ((dl_fn->cu_init(0)) != CUDA_SUCCESS) {
++        if ((dl_fn->cuda_dl->cuInit(0)) != CUDA_SUCCESS) {
+             av_log(avctx, AV_LOG_ERROR,
+                    "Cannot init CUDA\n");
+             return AVERROR_UNKNOWN;
+         }
+ 
+-        if ((dl_fn->cu_device_get_count(&nb_devices)) != CUDA_SUCCESS) {
++        if ((dl_fn->cuda_dl->cuDeviceGetCount(&nb_devices)) != CUDA_SUCCESS) {
+             av_log(avctx, AV_LOG_ERROR,
+                    "Cannot enumerate the CUDA devices\n");
+             return AVERROR_UNKNOWN;
+@@ -1269,30 +1200,14 @@ av_cold int ff_nvenc_encode_close(AVCodecContext *avctx)
+     ctx->nvencoder = NULL;
+ 
+     if (ctx->cu_context_internal)
+-        dl_fn->cu_ctx_destroy(ctx->cu_context_internal);
++        dl_fn->cuda_dl->cuCtxDestroy(ctx->cu_context_internal);
+     ctx->cu_context = ctx->cu_context_internal = NULL;
+ 
+-    if (dl_fn->nvenc)
+-        dlclose(dl_fn->nvenc);
+-    dl_fn->nvenc = NULL;
++    nvenc_free_functions(&dl_fn->nvenc_dl);
++    cuda_free_functions(&dl_fn->cuda_dl);
+ 
+     dl_fn->nvenc_device_count = 0;
+ 
+-#if !CONFIG_CUDA
+-    if (dl_fn->cuda)
+-        dlclose(dl_fn->cuda);
+-    dl_fn->cuda = NULL;
+-#endif
+-
+-    dl_fn->cu_init = NULL;
+-    dl_fn->cu_device_get_count = NULL;
+-    dl_fn->cu_device_get = NULL;
+-    dl_fn->cu_device_get_name = NULL;
+-    dl_fn->cu_device_compute_capability = NULL;
+-    dl_fn->cu_ctx_create = NULL;
+-    dl_fn->cu_ctx_pop_current = NULL;
+-    dl_fn->cu_ctx_destroy = NULL;
+-
+     av_log(avctx, AV_LOG_VERBOSE, "Nvenc unloaded\n");
+ 
+     return 0;
+diff --git a/libavcodec/nvenc.h b/libavcodec/nvenc.h
+index bad659a..5bc0cba 100644
+--- a/libavcodec/nvenc.h
++++ b/libavcodec/nvenc.h
+@@ -23,29 +23,12 @@
+ 
+ #include "config.h"
+ 
++#include "compat/cuda/dynlink_loader.h"
+ #include "libavutil/fifo.h"
+ #include "libavutil/opt.h"
+ 
+ #include "avcodec.h"
+ 
+-#if CONFIG_CUDA
+-#include "libavutil/hwcontext_cuda.h"
+-#else
+-
+-#if defined(_WIN32)
+-#define CUDAAPI __stdcall
+-#else
+-#define CUDAAPI
+-#endif
+-
+-typedef enum cudaError_enum {
+-    CUDA_SUCCESS = 0
+-} CUresult;
+-typedef int CUdevice;
+-typedef void* CUcontext;
+-typedef void* CUdeviceptr;
+-#endif
+-
+ #define MAX_REGISTERED_FRAMES 64
+ 
+ typedef struct NvencSurface
+@@ -64,33 +47,10 @@ typedef struct NvencSurface
+     int lockCount;
+ } NvencSurface;
+ 
+-typedef CUresult(CUDAAPI *PCUINIT)(unsigned int Flags);
+-typedef CUresult(CUDAAPI *PCUDEVICEGETCOUNT)(int *count);
+-typedef CUresult(CUDAAPI *PCUDEVICEGET)(CUdevice *device, int ordinal);
+-typedef CUresult(CUDAAPI *PCUDEVICEGETNAME)(char *name, int len, CUdevice dev);
+-typedef CUresult(CUDAAPI *PCUDEVICECOMPUTECAPABILITY)(int *major, int *minor, CUdevice dev);
+-typedef CUresult(CUDAAPI *PCUCTXCREATE)(CUcontext *pctx, unsigned int flags, CUdevice dev);
+-typedef CUresult(CUDAAPI *PCUCTXPOPCURRENT)(CUcontext *pctx);
+-typedef CUresult(CUDAAPI *PCUCTXDESTROY)(CUcontext ctx);
+-
+-typedef NVENCSTATUS (NVENCAPI *PNVENCODEAPIGETMAXSUPPORTEDVERSION)(uint32_t* version);
+-typedef NVENCSTATUS (NVENCAPI *PNVENCODEAPICREATEINSTANCE)(NV_ENCODE_API_FUNCTION_LIST *functionList);
+-
+ typedef struct NvencDynLoadFunctions
+ {
+-#if !CONFIG_CUDA
+-    void *cuda;
+-#endif
+-    void *nvenc;
+-
+-    PCUINIT cu_init;
+-    PCUDEVICEGETCOUNT cu_device_get_count;
+-    PCUDEVICEGET cu_device_get;
+-    PCUDEVICEGETNAME cu_device_get_name;
+-    PCUDEVICECOMPUTECAPABILITY cu_device_compute_capability;
+-    PCUCTXCREATE cu_ctx_create;
+-    PCUCTXPOPCURRENT cu_ctx_pop_current;
+-    PCUCTXDESTROY cu_ctx_destroy;
++    CudaFunctions *cuda_dl;
++    NvencFunctions *nvenc_dl;
+ 
+     NV_ENCODE_API_FUNCTION_LIST nvenc_funcs;
+     int nvenc_device_count;
+diff --git a/libavfilter/vf_hwupload_cuda.c b/libavfilter/vf_hwupload_cuda.c
+index c22221c..14688df 100644
+--- a/libavfilter/vf_hwupload_cuda.c
++++ b/libavfilter/vf_hwupload_cuda.c
+@@ -18,7 +18,6 @@
+ 
+ #include "libavutil/buffer.h"
+ #include "libavutil/hwcontext.h"
+-#include "libavutil/hwcontext_cuda.h"
+ #include "libavutil/log.h"
+ #include "libavutil/opt.h"
+ 
+@@ -35,60 +34,14 @@ typedef struct CudaUploadContext {
+     AVBufferRef *hwframe;
+ } CudaUploadContext;
+ 
+-static void cudaupload_ctx_free(AVHWDeviceContext *ctx)
+-{
+-    AVCUDADeviceContext *hwctx = ctx->hwctx;
+-    cuCtxDestroy(hwctx->cuda_ctx);
+-}
+-
+ static av_cold int cudaupload_init(AVFilterContext *ctx)
+ {
+     CudaUploadContext *s = ctx->priv;
++    char buf[64] = { 0 };
+ 
+-    AVHWDeviceContext   *device_ctx;
+-    AVCUDADeviceContext *device_hwctx;
+-    CUdevice device;
+-    CUcontext cuda_ctx = NULL, dummy;
+-    CUresult err;
+-    int ret;
+-
+-    err = cuInit(0);
+-    if (err != CUDA_SUCCESS) {
+-        av_log(ctx, AV_LOG_ERROR, "Could not initialize the CUDA driver API\n");
+-        return AVERROR_UNKNOWN;
+-    }
+-
+-    err = cuDeviceGet(&device, s->device_idx);
+-    if (err != CUDA_SUCCESS) {
+-        av_log(ctx, AV_LOG_ERROR, "Could not get the device number %d\n", s->device_idx);
+-        return AVERROR_UNKNOWN;
+-    }
+-
+-    err = cuCtxCreate(&cuda_ctx, 0, device);
+-    if (err != CUDA_SUCCESS) {
+-        av_log(ctx, AV_LOG_ERROR, "Error creating a CUDA context\n");
+-        return AVERROR_UNKNOWN;
+-    }
+-
+-    cuCtxPopCurrent(&dummy);
+-
+-    s->hwdevice = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_CUDA);
+-    if (!s->hwdevice) {
+-        cuCtxDestroy(cuda_ctx);
+-        return AVERROR(ENOMEM);
+-    }
++    snprintf(buf, sizeof(buf), "%d", s->device_idx);
+ 
+-    device_ctx       = (AVHWDeviceContext*)s->hwdevice->data;
+-    device_ctx->free = cudaupload_ctx_free;
+-
+-    device_hwctx = device_ctx->hwctx;
+-    device_hwctx->cuda_ctx = cuda_ctx;
+-
+-    ret = av_hwdevice_ctx_init(s->hwdevice);
+-    if (ret < 0)
+-        return ret;
+-
+-    return 0;
++    return av_hwdevice_ctx_create(&s->hwdevice, AV_HWDEVICE_TYPE_CUDA, buf, NULL, 0);
+ }
+ 
+ static av_cold void cudaupload_uninit(AVFilterContext *ctx)
+@@ -101,6 +54,8 @@ static av_cold void cudaupload_uninit(AVFilterContext *ctx)
+ 
+ static int cudaupload_query_formats(AVFilterContext *ctx)
+ {
++    int ret;
++
+     static const enum AVPixelFormat input_pix_fmts[] = {
+         AV_PIX_FMT_NV12, AV_PIX_FMT_YUV420P, AV_PIX_FMT_YUV444P,
+         AV_PIX_FMT_NONE,
+@@ -111,8 +66,13 @@ static int cudaupload_query_formats(AVFilterContext *ctx)
+     AVFilterFormats *in_fmts  = ff_make_format_list(input_pix_fmts);
+     AVFilterFormats *out_fmts = ff_make_format_list(output_pix_fmts);
+ 
+-    ff_formats_ref(in_fmts,  &ctx->inputs[0]->out_formats);
+-    ff_formats_ref(out_fmts, &ctx->outputs[0]->in_formats);
++    ret = ff_formats_ref(in_fmts, &ctx->inputs[0]->out_formats);
++    if (ret < 0)
++        return ret;
++
++    ret = ff_formats_ref(out_fmts, &ctx->outputs[0]->in_formats);
++    if (ret < 0)
++        return ret;
+ 
+     return 0;
+ }
+@@ -134,8 +94,8 @@ static int cudaupload_config_output(AVFilterLink *outlink)
+     hwframe_ctx            = (AVHWFramesContext*)s->hwframe->data;
+     hwframe_ctx->format    = AV_PIX_FMT_CUDA;
+     hwframe_ctx->sw_format = inlink->format;
+-    hwframe_ctx->width     = FFALIGN(inlink->w, 16);
+-    hwframe_ctx->height    = FFALIGN(inlink->h, 16);
++    hwframe_ctx->width     = inlink->w;
++    hwframe_ctx->height    = inlink->h;
+ 
+     ret = av_hwframe_ctx_init(s->hwframe);
+     if (ret < 0)
+diff --git a/libavfilter/vf_scale_npp.c b/libavfilter/vf_scale_npp.c
+index 35abe39..c84282f 100644
+--- a/libavfilter/vf_scale_npp.c
++++ b/libavfilter/vf_scale_npp.c
+@@ -29,7 +29,7 @@
+ #include "libavutil/common.h"
+ #include "libavutil/eval.h"
+ #include "libavutil/hwcontext.h"
+-#include "libavutil/hwcontext_cuda.h"
++#include "libavutil/hwcontext_cuda_internal.h"
+ #include "libavutil/internal.h"
+ #include "libavutil/mathematics.h"
+ #include "libavutil/opt.h"
+@@ -591,7 +591,7 @@ static int nppscale_filter_frame(AVFilterLink *link, AVFrame *in)
+               (int64_t)in->sample_aspect_ratio.den * outlink->w * link->h,
+               INT_MAX);
+ 
+-    err = cuCtxPushCurrent(device_hwctx->cuda_ctx);
++    err = device_hwctx->internal->cuda_dl->cuCtxPushCurrent(device_hwctx->cuda_ctx);
+     if (err != CUDA_SUCCESS) {
+         ret = AVERROR_UNKNOWN;
+         goto fail;
+@@ -599,7 +599,7 @@ static int nppscale_filter_frame(AVFilterLink *link, AVFrame *in)
+ 
+     ret = nppscale_scale(ctx, out, in);
+ 
+-    cuCtxPopCurrent(&dummy);
++    device_hwctx->internal->cuda_dl->cuCtxPopCurrent(&dummy);
+     if (ret < 0)
+         goto fail;
+ 
+diff --git a/libavutil/hwcontext_cuda.c b/libavutil/hwcontext_cuda.c
+index e1dcab0..30de299 100644
+--- a/libavutil/hwcontext_cuda.c
++++ b/libavutil/hwcontext_cuda.c
+@@ -20,7 +20,7 @@
+ #include "common.h"
+ #include "hwcontext.h"
+ #include "hwcontext_internal.h"
+-#include "hwcontext_cuda.h"
++#include "hwcontext_cuda_internal.h"
+ #include "mem.h"
+ #include "pixdesc.h"
+ #include "pixfmt.h"
+@@ -41,44 +41,46 @@ static void cuda_buffer_free(void *opaque, uint8_t *data)
+ {
+     AVHWFramesContext *ctx = opaque;
+     AVCUDADeviceContext *hwctx = ctx->device_ctx->hwctx;
++    CudaFunctions *cu = hwctx->internal->cuda_dl;
+ 
+     CUcontext dummy;
+ 
+-    cuCtxPushCurrent(hwctx->cuda_ctx);
++    cu->cuCtxPushCurrent(hwctx->cuda_ctx);
+ 
+-    cuMemFree((CUdeviceptr)data);
++    cu->cuMemFree((CUdeviceptr)data);
+ 
+-    cuCtxPopCurrent(&dummy);
++    cu->cuCtxPopCurrent(&dummy);
+ }
+ 
+ static AVBufferRef *cuda_pool_alloc(void *opaque, int size)
+ {
+     AVHWFramesContext     *ctx = opaque;
+     AVCUDADeviceContext *hwctx = ctx->device_ctx->hwctx;
++    CudaFunctions          *cu = hwctx->internal->cuda_dl;
+ 
+     AVBufferRef *ret = NULL;
+     CUcontext dummy = NULL;
+     CUdeviceptr data;
+     CUresult err;
+ 
+-    err = cuCtxPushCurrent(hwctx->cuda_ctx);
++    err = cu->cuCtxPushCurrent(hwctx->cuda_ctx);
+     if (err != CUDA_SUCCESS) {
+         av_log(ctx, AV_LOG_ERROR, "Error setting current CUDA context\n");
+         return NULL;
+     }
+ 
+-    err = cuMemAlloc(&data, size);
++    err = cu->cuMemAlloc(&data, size);
+     if (err != CUDA_SUCCESS)
+         goto fail;
+ 
+     ret = av_buffer_create((uint8_t*)data, size, cuda_buffer_free, ctx, 0);
+     if (!ret) {
+-        cuMemFree(data);
++        cu->cuMemFree(data);
+         goto fail;
+     }
+ 
+ fail:
+-    cuCtxPopCurrent(&dummy);
++    cu->cuCtxPopCurrent(&dummy);
+     return ret;
+ }
+ 
+@@ -187,12 +189,13 @@ static int cuda_transfer_data_from(AVHWFramesContext *ctx, AVFrame *dst,
+ {
+     CUDAFramesContext           *priv = ctx->internal->priv;
+     AVCUDADeviceContext *device_hwctx = ctx->device_ctx->hwctx;
++    CudaFunctions                 *cu = device_hwctx->internal->cuda_dl;
+ 
+     CUcontext dummy;
+     CUresult err;
+     int i;
+ 
+-    err = cuCtxPushCurrent(device_hwctx->cuda_ctx);
++    err = cu->cuCtxPushCurrent(device_hwctx->cuda_ctx);
+     if (err != CUDA_SUCCESS)
+         return AVERROR_UNKNOWN;
+ 
+@@ -208,14 +211,14 @@ static int cuda_transfer_data_from(AVHWFramesContext *ctx, AVFrame *dst,
+             .Height        = src->height >> (i ? priv->shift_height : 0),
+         };
+ 
+-        err = cuMemcpy2D(&cpy);
++        err = cu->cuMemcpy2D(&cpy);
+         if (err != CUDA_SUCCESS) {
+             av_log(ctx, AV_LOG_ERROR, "Error transferring the data from the CUDA frame\n");
+             return AVERROR_UNKNOWN;
+         }
+     }
+ 
+-    cuCtxPopCurrent(&dummy);
++    cu->cuCtxPopCurrent(&dummy);
+ 
+     return 0;
+ }
+@@ -225,12 +228,13 @@ static int cuda_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
+ {
+     CUDAFramesContext           *priv = ctx->internal->priv;
+     AVCUDADeviceContext *device_hwctx = ctx->device_ctx->hwctx;
++    CudaFunctions                 *cu = device_hwctx->internal->cuda_dl;
+ 
+     CUcontext dummy;
+     CUresult err;
+     int i;
+ 
+-    err = cuCtxPushCurrent(device_hwctx->cuda_ctx);
++    err = cu->cuCtxPushCurrent(device_hwctx->cuda_ctx);
+     if (err != CUDA_SUCCESS)
+         return AVERROR_UNKNOWN;
+ 
+@@ -246,28 +250,64 @@ static int cuda_transfer_data_to(AVHWFramesContext *ctx, AVFrame *dst,
+             .Height        = src->height >> (i ? priv->shift_height : 0),
+         };
+ 
+-        err = cuMemcpy2D(&cpy);
++        err = cu->cuMemcpy2D(&cpy);
+         if (err != CUDA_SUCCESS) {
+             av_log(ctx, AV_LOG_ERROR, "Error transferring the data from the CUDA frame\n");
+             return AVERROR_UNKNOWN;
+         }
+     }
+ 
+-    cuCtxPopCurrent(&dummy);
++    cu->cuCtxPopCurrent(&dummy);
+ 
+     return 0;
+ }
+ 
+-static void cuda_device_free(AVHWDeviceContext *ctx)
++static void cuda_device_uninit(AVHWDeviceContext *ctx)
+ {
+     AVCUDADeviceContext *hwctx = ctx->hwctx;
+-    cuCtxDestroy(hwctx->cuda_ctx);
++
++    if (hwctx->internal) {
++        if (hwctx->internal->is_allocated && hwctx->cuda_ctx) {
++            hwctx->internal->cuda_dl->cuCtxDestroy(hwctx->cuda_ctx);
++            hwctx->cuda_ctx = NULL;
++        }
++        cuda_free_functions(&hwctx->internal->cuda_dl);
++    }
++
++    av_freep(&hwctx->internal);
++}
++
++static int cuda_device_init(AVHWDeviceContext *ctx)
++{
++    AVCUDADeviceContext *hwctx = ctx->hwctx;
++    int ret;
++
++    if (!hwctx->internal) {
++        hwctx->internal = av_mallocz(sizeof(*hwctx->internal));
++        if (!hwctx->internal)
++            return AVERROR(ENOMEM);
++    }
++
++    if (!hwctx->internal->cuda_dl) {
++        ret = cuda_load_functions(&hwctx->internal->cuda_dl);
++        if (ret < 0) {
++            av_log(ctx, AV_LOG_ERROR, "Could not dynamically load CUDA\n");
++            goto error;
++        }
++    }
++
++    return 0;
++
++error:
++    cuda_device_uninit(ctx);
++    return ret;
+ }
+ 
+ static int cuda_device_create(AVHWDeviceContext *ctx, const char *device,
+                               AVDictionary *opts, int flags)
+ {
+     AVCUDADeviceContext *hwctx = ctx->hwctx;
++    CudaFunctions *cu;
+     CUdevice cu_device;
+     CUcontext dummy;
+     CUresult err;
+@@ -276,29 +316,38 @@ static int cuda_device_create(AVHWDeviceContext *ctx, const char *device,
+     if (device)
+         device_idx = strtol(device, NULL, 0);
+ 
+-    err = cuInit(0);
++    if (cuda_device_init(ctx) < 0)
++        goto error;
++
++    cu = hwctx->internal->cuda_dl;
++
++    err = cu->cuInit(0);
+     if (err != CUDA_SUCCESS) {
+         av_log(ctx, AV_LOG_ERROR, "Could not initialize the CUDA driver API\n");
+-        return AVERROR_UNKNOWN;
++        goto error;
+     }
+ 
+-    err = cuDeviceGet(&cu_device, device_idx);
++    err = cu->cuDeviceGet(&cu_device, device_idx);
+     if (err != CUDA_SUCCESS) {
+         av_log(ctx, AV_LOG_ERROR, "Could not get the device number %d\n", device_idx);
+-        return AVERROR_UNKNOWN;
++        goto error;
+     }
+ 
+-    err = cuCtxCreate(&hwctx->cuda_ctx, CU_CTX_SCHED_BLOCKING_SYNC, cu_device);
++    err = cu->cuCtxCreate(&hwctx->cuda_ctx, CU_CTX_SCHED_BLOCKING_SYNC, cu_device);
+     if (err != CUDA_SUCCESS) {
+         av_log(ctx, AV_LOG_ERROR, "Error creating a CUDA context\n");
+-        return AVERROR_UNKNOWN;
++        goto error;
+     }
+ 
+-    cuCtxPopCurrent(&dummy);
++    cu->cuCtxPopCurrent(&dummy);
+ 
+-    ctx->free = cuda_device_free;
++    hwctx->internal->is_allocated = 1;
+ 
+     return 0;
++
++error:
++    cuda_device_uninit(ctx);
++    return AVERROR_UNKNOWN;
+ }
+ 
+ const HWContextType ff_hwcontext_type_cuda = {
+@@ -309,6 +358,8 @@ const HWContextType ff_hwcontext_type_cuda = {
+     .frames_priv_size     = sizeof(CUDAFramesContext),
+ 
+     .device_create        = cuda_device_create,
++    .device_init          = cuda_device_init,
++    .device_uninit        = cuda_device_uninit,
+     .frames_init          = cuda_frames_init,
+     .frames_get_buffer    = cuda_get_buffer,
+     .transfer_get_formats = cuda_transfer_get_formats,
+diff --git a/libavutil/hwcontext_cuda.h b/libavutil/hwcontext_cuda.h
+index 23a77ce..12dae84 100644
+--- a/libavutil/hwcontext_cuda.h
++++ b/libavutil/hwcontext_cuda.h
+@@ -20,7 +20,9 @@
+ #ifndef AVUTIL_HWCONTEXT_CUDA_H
+ #define AVUTIL_HWCONTEXT_CUDA_H
+ 
++#ifndef CUDA_VERSION
+ #include <cuda.h>
++#endif
+ 
+ #include "pixfmt.h"
+ 
+@@ -32,11 +34,14 @@
+  * AVBufferRefs whose data pointer is a CUdeviceptr.
+  */
+ 
++typedef struct AVCUDADeviceContextInternal AVCUDADeviceContextInternal;
++
+ /**
+  * This struct is allocated as AVHWDeviceContext.hwctx
+  */
+ typedef struct AVCUDADeviceContext {
+     CUcontext cuda_ctx;
++    AVCUDADeviceContextInternal *internal;
+ } AVCUDADeviceContext;
+ 
+ /**
+diff --git a/libavutil/hwcontext_cuda_internal.h b/libavutil/hwcontext_cuda_internal.h
+new file mode 100644
+index 0000000..e1bc6ff
+--- /dev/null
++++ b/libavutil/hwcontext_cuda_internal.h
+@@ -0,0 +1,37 @@
++/*
++ * This file is part of FFmpeg.
++ *
++ * FFmpeg is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * FFmpeg is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with FFmpeg; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++
++#ifndef AVUTIL_HWCONTEXT_CUDA_INTERNAL_H
++#define AVUTIL_HWCONTEXT_CUDA_INTERNAL_H
++
++#include "compat/cuda/dynlink_loader.h"
++#include "hwcontext_cuda.h"
++
++/**
++ * @file
++ * FFmpeg internal API for CUDA.
++ */
++
++struct AVCUDADeviceContextInternal {
++    CudaFunctions *cuda_dl;
++    int is_allocated;
++};
++
++#endif /* AVUTIL_HWCONTEXT_CUDA_INTERNAL_H */
++
+diff --git a/libavutil/version.h b/libavutil/version.h
+index 5ee6e6d..76249d2 100644
+--- a/libavutil/version.h
++++ b/libavutil/version.h
+@@ -80,7 +80,7 @@
+ 
+ #define LIBAVUTIL_VERSION_MAJOR  55
+ #define LIBAVUTIL_VERSION_MINOR  33
+-#define LIBAVUTIL_VERSION_MICRO 100
++#define LIBAVUTIL_VERSION_MICRO 101
+ 
+ #define LIBAVUTIL_VERSION_INT   AV_VERSION_INT(LIBAVUTIL_VERSION_MAJOR, \
+                                                LIBAVUTIL_VERSION_MINOR, \
+-- 
+2.9.1
+
