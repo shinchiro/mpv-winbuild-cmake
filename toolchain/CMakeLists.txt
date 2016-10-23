@@ -120,3 +120,13 @@ ExternalProject_Add(winpthreads
     INSTALL_COMMAND ${MAKE} install
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+ExternalProject_Add(gendef
+    PREFIX mingw-w64-prefix
+    SOURCE_DIR mingw-w64-prefix/src
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64/mingw-w64-tools/gendef/configure
+        --prefix=${MINGW_INSTALL_PREFIX}
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND ${MAKE} install
+    LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
