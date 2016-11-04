@@ -1,13 +1,13 @@
-From 063a87453f28926e81bfb8d2ce63953bbc72ac15 Mon Sep 17 00:00:00 2001
+From 11b732cc6fa5a15289828465f8951fe497669a81 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 24 Sep 2016 23:24:59 +0800
+Date: Sat, 5 Nov 2016 00:21:46 +0800
 Subject: [PATCH] install
 
 ---
  Makefile     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in | 10 ++++++++++
- move-libs.sh | 30 ++++++++++++++++++++++++++++++
- 3 files changed, 91 insertions(+)
+ move-libs.sh | 29 +++++++++++++++++++++++++++++
+ 3 files changed, 90 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
  create mode 100644 move-libs.sh
@@ -87,10 +87,10 @@ index 0000000..7bd464a
 +Cflags: -DGL_APICALL= -DEGLAPI=
 diff --git a/move-libs.sh b/move-libs.sh
 new file mode 100644
-index 0000000..759a052
+index 0000000..a7f8264
 --- /dev/null
 +++ b/move-libs.sh
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,29 @@
 +#!/bin/sh
 +
 +FILE_PATH=$(realpath $0)
@@ -112,7 +112,6 @@ index 0000000..759a052
 +ADDLIB libpreprocessor.a
 +ADDLIB libtranslator.a
 +ADDLIB libtranslator_lib.a
-+ADDLIB libtranslator_static.a
 +SAVE
 +END
 +EOF

@@ -1,38 +1,23 @@
-From aee88c06998875014b3b2ed68576c4e34887afcf Mon Sep 17 00:00:00 2001
+From c54e30b018e555b8594b022c0ab4f6cf7d540f48 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 6 Oct 2016 09:12:58 +0800
+Date: Fri, 4 Nov 2016 20:35:38 +0800
 Subject: [PATCH] custom gyp
 
 ---
- build/common_defines.gypi | 26 ++++++++++++++++++++++++++
+ build/common_defines.gypi | 11 +++++++++++
  src/angle.gyp             | 41 +----------------------------------------
  src/commit_id.py          |  4 ++--
  src/libGLESv2.gypi        |  8 --------
- 4 files changed, 29 insertions(+), 50 deletions(-)
+ 4 files changed, 14 insertions(+), 50 deletions(-)
 
 diff --git a/build/common_defines.gypi b/build/common_defines.gypi
-index bce49c4..449e156 100644
+index bce49c4..72cc852 100644
 --- a/build/common_defines.gypi
 +++ b/build/common_defines.gypi
-@@ -34,6 +34,32 @@
+@@ -34,6 +34,17 @@
      'defines':
      [
          'ANGLE_STANDALONE_BUILD',
-+        'ANGLE_ENABLE_D3D9',
-+        'ANGLE_ENABLE_D3D11',
-+        'ANGLE_ENABLE_OPENGL',
-+        'ANGLE_ENABLE_VULKAN',
-+        'ANGLE_ENABLE_NULL',
-+        'ANGLE_TRANSLATOR_STATIC',
-+        'ANGLE_TRANSLATOR_IMPLEMENTATION',
-+        'ANGLE_ENABLE_HLSL',
-+        'ANGLE_ENABLE_ESSL',
-+        'ANGLE_ENABLE_GLSL',
-+        'GL_GLEXT_PROTOTYPES',
-+        'EGL_EGLEXT_PROTOTYPES',
-+        'LIBANGLE_IMPLEMENTATION',
-+        'GL_APICALL=',
-+        'EGLAPI=',
 +        'LIBGLESV2_EXPORT_H_',
 +        'ANGLE_EXPORT=',
 +    ],
@@ -48,10 +33,10 @@ index bce49c4..449e156 100644
      'msvs_disabled_warnings':
      [
 diff --git a/src/angle.gyp b/src/angle.gyp
-index 578f0f3..4c6b866 100644
+index df53bb0..d5d268a 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -179,7 +179,7 @@
+@@ -180,7 +180,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -60,7 +45,7 @@ index 578f0f3..4c6b866 100644
                  },
              ],
              'conditions':
-@@ -267,44 +267,5 @@
+@@ -268,44 +268,5 @@
                  }
              ]
          }],
@@ -121,10 +106,10 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 96a6a9d..665c392 100644
+index 1ebbc5a..05f2c6e 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -734,7 +734,6 @@
+@@ -742,7 +742,6 @@
                  'defines':
                  [
                      'GL_GLEXT_PROTOTYPES',
@@ -132,7 +117,7 @@ index 96a6a9d..665c392 100644
                  ],
                  'conditions':
                  [
-@@ -1014,13 +1013,6 @@
+@@ -1030,13 +1029,6 @@
                          'ANGLE_ENABLE_NULL',
                      ],
                  }],
