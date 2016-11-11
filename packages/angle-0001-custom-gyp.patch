@@ -4,16 +4,16 @@ Date: Fri, 4 Nov 2016 20:35:38 +0800
 Subject: [PATCH] custom gyp
 
 ---
- build/common_defines.gypi | 11 +++++++++++
+ gyp/common_defines.gypi | 11 +++++++++++
  src/angle.gyp             | 41 +----------------------------------------
  src/commit_id.py          |  4 ++--
  src/libGLESv2.gypi        |  8 --------
  4 files changed, 14 insertions(+), 50 deletions(-)
 
-diff --git a/build/common_defines.gypi b/build/common_defines.gypi
+diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
 index bce49c4..72cc852 100644
---- a/build/common_defines.gypi
-+++ b/build/common_defines.gypi
+--- a/gyp/common_defines.gypi
++++ b/gyp/common_defines.gypi
 @@ -34,6 +34,17 @@
      'defines':
      [
@@ -57,7 +57,7 @@ index df53bb0..d5d268a 100644
 -                    'target_name': 'copy_compiler_dll',
 -                    'type': 'none',
 -                    'dependencies': [ 'copy_scripts', ],
--                    'includes': [ '../build/common_defines.gypi', ],
+-                    'includes': [ '../gyp/common_defines.gypi', ],
 -                    'conditions':
 -                    [
 -                        ['angle_build_winrt==0',
