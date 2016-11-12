@@ -1,6 +1,6 @@
-From f57c839ed48e709e38d6ec0861e91a3881dfdc96 Mon Sep 17 00:00:00 2001
+From b2f16feb3a3a95da14b6abc54c14409e4441abc0 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Mon, 31 Oct 2016 11:11:27 +0800
+Date: Sun, 13 Nov 2016 07:23:13 +0800
 Subject: [PATCH] osc: use old default
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] osc: use old default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/player/lua/osc.lua b/player/lua/osc.lua
-index 4e97d75..3d2f35d 100644
+index 643f32f..0a0375e 100644
 --- a/player/lua/osc.lua
 +++ b/player/lua/osc.lua
 @@ -31,8 +31,8 @@ local user_opts = {
@@ -16,12 +16,12 @@ index 4e97d75..3d2f35d 100644
                                  -- internal track list management (and some
                                  -- functions that depend on it)
 -    layout = "bottombar",
--    seekbarstyle = "bar",       -- slider (diamond marker) or bar (fill)
+-    seekbarstyle = "bar",       -- slider (diamond marker), knob (circle
 +    layout = "box",
-+    seekbarstyle = "slider",       -- slider (diamond marker) or bar (fill)
++    seekbarstyle = "slider",    -- slider (diamond marker), knob (circle
+                                 -- marker with guide), or bar (fill)
      tooltipborder = 1,          -- border of tooltip in bottom/topbar
      timetotal = false,          -- display total time instead of remaining time?
-     timems = false,             -- display timecodes with milliseconds?
 -- 
-2.9.1
+2.9.2
 
