@@ -1,13 +1,13 @@
-From 11b732cc6fa5a15289828465f8951fe497669a81 Mon Sep 17 00:00:00 2001
+From a5aa6e7daa0145964e8c514b209bf518aa0c176b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 5 Nov 2016 00:21:46 +0800
+Date: Sun, 13 Nov 2016 08:51:09 +0800
 Subject: [PATCH] install
 
 ---
  Makefile     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in | 10 ++++++++++
- move-libs.sh | 29 +++++++++++++++++++++++++++++
- 3 files changed, 90 insertions(+)
+ move-libs.sh | 28 ++++++++++++++++++++++++++++
+ 3 files changed, 89 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
  create mode 100644 move-libs.sh
@@ -87,10 +87,10 @@ index 0000000..7bd464a
 +Cflags: -DGL_APICALL= -DEGLAPI=
 diff --git a/move-libs.sh b/move-libs.sh
 new file mode 100644
-index 0000000..a7f8264
+index 0000000..ce5b7fb
 --- /dev/null
 +++ b/move-libs.sh
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,28 @@
 +#!/bin/sh
 +
 +FILE_PATH=$(realpath $0)
@@ -105,13 +105,12 @@ index 0000000..a7f8264
 +
 +$1-ar -M <<EOF
 +CREATE libGLESv2_main.a
-+ADDLIB libGLESv2.a
-+ADDLIB libANGLE.a
 +ADDLIB libangle_common.a
 +ADDLIB libangle_image_util.a
 +ADDLIB libpreprocessor.a
 +ADDLIB libtranslator.a
-+ADDLIB libtranslator_lib.a
++ADDLIB libANGLE.a
++ADDLIB libGLESv2.a
 +SAVE
 +END
 +EOF
