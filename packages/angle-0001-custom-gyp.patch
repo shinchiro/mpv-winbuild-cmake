@@ -1,13 +1,13 @@
-From c54e30b018e555b8594b022c0ab4f6cf7d540f48 Mon Sep 17 00:00:00 2001
+From 6e231339b94eb098f085c3dc5bf9795c28280a81 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 4 Nov 2016 20:35:38 +0800
+Date: Sat, 19 Nov 2016 08:08:47 +0800
 Subject: [PATCH] custom gyp
 
 ---
  gyp/common_defines.gypi | 11 +++++++++++
- src/angle.gyp             | 41 +----------------------------------------
- src/commit_id.py          |  4 ++--
- src/libGLESv2.gypi        |  8 --------
+ src/angle.gyp           | 41 +----------------------------------------
+ src/commit_id.py        |  4 ++--
+ src/libGLESv2.gypi      |  8 --------
  4 files changed, 14 insertions(+), 50 deletions(-)
 
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
@@ -33,10 +33,10 @@ index bce49c4..72cc852 100644
      'msvs_disabled_warnings':
      [
 diff --git a/src/angle.gyp b/src/angle.gyp
-index df53bb0..d5d268a 100644
+index e4e8ba9..4ef37d1 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -180,7 +180,7 @@
+@@ -179,7 +179,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -45,7 +45,7 @@ index df53bb0..d5d268a 100644
                  },
              ],
              'conditions':
-@@ -268,44 +268,5 @@
+@@ -267,44 +267,5 @@
                  }
              ]
          }],
@@ -106,18 +106,18 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 1ebbc5a..05f2c6e 100644
+index b28eeca..d8f230d 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -742,7 +742,6 @@
-                 'defines':
+@@ -743,7 +743,6 @@
                  [
+                     'LIBANGLE_IMPLEMENTATION',
                      'GL_GLEXT_PROTOTYPES',
 -                    'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ "d3dcompiler_47.dll", "d3dcompiler_46.dll", "d3dcompiler_43.dll" }',
                  ],
                  'conditions':
                  [
-@@ -1030,13 +1029,6 @@
+@@ -1023,13 +1022,6 @@
                          'ANGLE_ENABLE_NULL',
                      ],
                  }],
@@ -132,5 +132,5 @@ index 1ebbc5a..05f2c6e 100644
                  {
                      'msvs_requires_importlibrary' : 'true',
 -- 
-2.9.1
+2.9.2
 
