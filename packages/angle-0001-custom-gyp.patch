@@ -1,14 +1,14 @@
-From 6e231339b94eb098f085c3dc5bf9795c28280a81 Mon Sep 17 00:00:00 2001
+From 1bd5917dce994fe1711309688424c565d2c0cc63 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 19 Nov 2016 08:08:47 +0800
+Date: Sat, 26 Nov 2016 00:48:59 +0800
 Subject: [PATCH] custom gyp
 
 ---
  gyp/common_defines.gypi | 11 +++++++++++
  src/angle.gyp           | 41 +----------------------------------------
  src/commit_id.py        |  4 ++--
- src/libGLESv2.gypi      |  8 --------
- 4 files changed, 14 insertions(+), 50 deletions(-)
+ src/libGLESv2.gypi      |  7 -------
+ 4 files changed, 14 insertions(+), 49 deletions(-)
 
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
 index bce49c4..72cc852 100644
@@ -106,18 +106,10 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index b28eeca..d8f230d 100644
+index 38ec54c..b9c6207 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -743,7 +743,6 @@
-                 [
-                     'LIBANGLE_IMPLEMENTATION',
-                     'GL_GLEXT_PROTOTYPES',
--                    'ANGLE_PRELOADED_D3DCOMPILER_MODULE_NAMES={ "d3dcompiler_47.dll", "d3dcompiler_46.dll", "d3dcompiler_43.dll" }',
-                 ],
-                 'conditions':
-                 [
-@@ -1023,13 +1022,6 @@
+@@ -1033,13 +1033,6 @@
                          'ANGLE_ENABLE_NULL',
                      ],
                  }],
