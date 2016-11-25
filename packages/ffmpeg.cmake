@@ -55,6 +55,8 @@ ExternalProject_Add(ffmpeg
     --enable-libxvid
     --enable-libzimg
     --enable-schannel
+    --enable-cuda
+    --enable-cuvid
     "--extra-libs='-lsecurity -lschannel'" # ffmpeg’s build system is retarded
     "--extra-cflags=-DMODPLUG_STATIC"
     BUILD_COMMAND ${MAKE}
