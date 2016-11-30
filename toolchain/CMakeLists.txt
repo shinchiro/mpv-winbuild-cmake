@@ -72,6 +72,7 @@ ExternalProject_Add(gcc-base
         --disable-win32-registry
         --with-arch=${gcc_arch}
         --with-tune=generic
+        --enable-threads=posix
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-gcc
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
