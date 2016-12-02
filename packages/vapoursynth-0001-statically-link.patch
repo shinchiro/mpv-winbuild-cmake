@@ -1,0 +1,22 @@
+From bdd2150449a42f74cf94c3b4b29b534b7b1b9bfd Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 2 Dec 2016 09:48:20 +0800
+Subject: [PATCH] statically link
+
+---
+ pc/vapoursynth.pc.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pc/vapoursynth.pc.in b/pc/vapoursynth.pc.in
+index 85111db..137521f 100644
+--- a/pc/vapoursynth.pc.in
++++ b/pc/vapoursynth.pc.in
+@@ -10,4 +10,4 @@ Version: @VERSION@
+ Requires.private: zimg
+ Libs: -L${libdir} -lvapoursynth
+ Libs.private: @ZIMG_LIBS@ @DLOPENLIB@
+-Cflags: -I${includedir}
++Cflags: -I${includedir} -DVS_CORE_EXPORTS
+-- 
+2.9.2
+
