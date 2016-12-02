@@ -52,6 +52,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - freetype2
     - flac
     - opus-tools
+    - vapoursynth
 
 - Zip
     - expat (2.2.0)
