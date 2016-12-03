@@ -41,6 +41,7 @@ ExternalProject_Add(mingw-w64-headers
     DEPENDS binutils
     GIT_REPOSITORY git://github.com/mirror/mingw-w64.git
     GIT_SHALLOW 1
+    UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mingw-w64-*.patch
     CONFIGURE_COMMAND <SOURCE_DIR>/mingw-w64-headers/configure
         --host=${TARGET_ARCH}
