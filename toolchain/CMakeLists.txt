@@ -52,6 +52,14 @@ ExternalProject_Add(mingw-w64-headers
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+ExternalProject_Add_Step(mingw-w64-headers autoreconf
+    DEPENDEES download update patch
+    DEPENDERS configure
+    COMMAND ${EXEC} autoreconf -fi
+    WORKING_DIRECTORY <SOURCE_DIR>/mingw-w64-crt
+    LOG 1
+)
+
 ExternalProject_Add(gcc-base
     PREFIX gcc-prefix
     STAMP_DIR gcc-prefix/src/gcc-stamp
@@ -91,27 +99,10 @@ ExternalProject_Add(mingw-w64-crt
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(mingw-w64-headers autoreconf
-    DEPENDEES download update patch
-    DEPENDERS configure
-    COMMAND ${EXEC} autoreconf -fi
-    WORKING_DIRECTORY <SOURCE_DIR>/mingw-w64-crt
-    LOG 1
-)
-
-ExternalProject_Add(gcc
-    DEPENDS mingw-w64-crt
-    SOURCE_DIR gcc-prefix/src
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
-    LOG_BUILD 1 LOG_INSTALL 1
-)
-
 ExternalProject_Add(winpthreads
     PREFIX mingw-w64-prefix
     SOURCE_DIR mingw-w64-prefix/src
-    DEPENDS gcc
+    DEPENDS mingw-w64-crt
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64/mingw-w64-libraries/winpthreads/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -120,6 +111,15 @@ ExternalProject_Add(winpthreads
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+ExternalProject_Add(gcc
+    DEPENDS winpthreads
+    SOURCE_DIR gcc-prefix/src
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${MAKE}
+    INSTALL_COMMAND ${MAKE} install
+    LOG_BUILD 1 LOG_INSTALL 1
 )
 
 ExternalProject_Add(gendef

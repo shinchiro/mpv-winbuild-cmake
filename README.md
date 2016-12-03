@@ -119,7 +119,7 @@ or for 32bit:
 
 First, you need to build toolchain. By default, it will be installed in `install` folder. This take ~20 minutes on my 4-core machine.
 
-    ninja gcc winpthreads
+    ninja gcc
 
 After it done, you're ready to build mpv and all its dependencies:
 
