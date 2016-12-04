@@ -64,7 +64,7 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - ogg (1.3.2)
     - lzo (2.09)
     - libmodplug (0.8.8.5)
-    - libjpeg (1.5.0)
+    - libjpeg (1.5.1)
     - libiconv (1.14)
     - libarchive (3.2.1)
     - gmp (6.1.1)
