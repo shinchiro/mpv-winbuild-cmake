@@ -10,7 +10,7 @@ Subject: [PATCH] install
  3 files changed, 94 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
- create mode 100644 move-libs.sh
+ create mode 100755 move-libs.sh
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
@@ -86,7 +86,7 @@ index 0000000..7bd464a
 +Libs.private: -lGLESv2 -ldxguid -ld3d9 -lstdc++
 +Cflags: -DGL_APICALL= -DEGLAPI=
 diff --git a/move-libs.sh b/move-libs.sh
-new file mode 100644
+new file mode 100755
 index 0000000..3da4f37
 --- /dev/null
 +++ b/move-libs.sh
@@ -97,8 +97,8 @@ index 0000000..3da4f37
 +SCRIPT_DIR_PATH=$(dirname $FILE_PATH)
 +
 +cd $SCRIPT_DIR_PATH/generated/out/Release/obj.target/src
-+mkdir ar
-+for lib in `find -name '*.a'`;
++mkdir -p ar
++for lib in `find -maxdepth 1 -name '*.a'`;
 +do
 +    if [ "$(head -1 $lib)" = "!<thin>" ]; then
 +        $1-ar -t $lib | xargs $1-ar rcs $lib.new && mv $lib.new ar/$lib;

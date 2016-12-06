@@ -42,7 +42,7 @@ ExternalProject_Add_Step(angle make-all
 ExternalProject_Add_Step(angle move-libs
     DEPENDEES make-all
     DEPENDERS install
-    COMMAND ${EXEC} bash <SOURCE_DIR>/move-libs.sh ${TARGET_ARCH}
+    COMMAND ${EXEC} <SOURCE_DIR>/move-libs.sh ${TARGET_ARCH}
 )
 
 ExternalProject_Add_Step(angle clean-buildfiles
