@@ -1,13 +1,13 @@
-From a5aa6e7daa0145964e8c514b209bf518aa0c176b Mon Sep 17 00:00:00 2001
+From 9c513d7883eba584cde0326dc20d9635307b920d Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 13 Nov 2016 08:51:09 +0800
+Date: Tue, 6 Dec 2016 02:49:18 +0800
 Subject: [PATCH] install
 
 ---
  Makefile     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in | 10 ++++++++++
- move-libs.sh | 28 ++++++++++++++++++++++++++++
- 3 files changed, 89 insertions(+)
+ move-libs.sh | 33 +++++++++++++++++++++++++++++++++
+ 3 files changed, 94 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
  create mode 100644 move-libs.sh
@@ -87,10 +87,10 @@ index 0000000..7bd464a
 +Cflags: -DGL_APICALL= -DEGLAPI=
 diff --git a/move-libs.sh b/move-libs.sh
 new file mode 100644
-index 0000000..ce5b7fb
+index 0000000..3da4f37
 --- /dev/null
 +++ b/move-libs.sh
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,33 @@
 +#!/bin/sh
 +
 +FILE_PATH=$(realpath $0)
@@ -99,7 +99,12 @@ index 0000000..ce5b7fb
 +cd $SCRIPT_DIR_PATH/generated/out/Release/obj.target/src
 +mkdir ar
 +for lib in `find -name '*.a'`;
-+    do $1-ar -t $lib | xargs $1-ar rcs $lib.new && mv $lib.new ar/$lib;
++do
++    if [ "$(head -1 $lib)" = "!<thin>" ]; then
++        $1-ar -t $lib | xargs $1-ar rcs $lib.new && mv $lib.new ar/$lib;
++    else
++        mv $lib ar/$lib;
++    fi
 +done
 +cd ./ar
 +
