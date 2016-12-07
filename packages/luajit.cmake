@@ -1,4 +1,4 @@
-if(CYGWIN)
+if(CYGWIN OR MSYS)
     # It's much easier to just use the target CC on Cygwin than to worry about
     # pointer size mismatches
     set(LUAJIT_HOST_GCC ${TARGET_ARCH}-gcc)

@@ -19,7 +19,8 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     is using a 4.8 series GCC by default. Feel free to contribute fixes for
     other environments.
 
--   You cannot use this cmake script on **MSYS2** due to various problems.
+-   Compiling on Cygwin / MSYS2 is supported, but it tends to be slower
+    than compiling on Linux.
 
 
 ## Information about packages
@@ -96,13 +97,25 @@ For building pdf, these packages are needed:
 
 ## Prerequisites for Cygwin
 
-Download cygwin installer and run:
+Download Cygwin installer and run:
 
     setup-x86_64.exe -R "C:\cygwin64" -q --packages="bash,binutils,bzip2,cygwin,gcc-core,gcc-g++,cygwin32-gcc-core,cygwin32-gcc-g++,gzip,m4,pkg-config,make,unzip,zip,diffutils,wget,git,patch,cmake,gperf,yasm,enca,asciidoc,bison,flex,gettext-devel,mercurial,python-devel,python-docutils,docbook2X,texinfo,libmpfr-devel,libgmp-devel,libmpc-devel,libtool,autoconf2.5,automake,automake1.9,libxml2-devel,libxslt-devel"
 
 Additionally, some packges, `re2c`, `ninja`, `ragel`, `gyp`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
-* Compiling on cygwin is 2-3x slower than compiling on linux.
+## Prerequisites for MSYS2
+
+Install MSYS2 and run it via `MSYS2 MSYS` shortcut.
+Don't use `MSYS2 MinGW 32-bit` or `MSYS2 MinGW 64-bit` shortcuts, that's important!
+
+These packages need to be installed first before compiling mpv:
+
+    pacman -S base-devel cmake gcc yasm git mercurial subversion gyp tar gmp-devel mpc-devel mpfr-devel python zlib-devel unzip zip
+
+Don't install anything from the `mingw32` and `mingw64` repositories,
+it's better to completely disable them in `/etc/pacman.conf` just to be safe.
+
+Additionally, some packges, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
 ## Parallel Build
 
@@ -113,7 +126,7 @@ If you have 4-core cpu, the MAKEJOBS value should be 5.
 
 ## Building Software
 
-To set up the build environment, create a directory to store build files in::
+To set up the build environment, create a directory to store build files in:
 
     mkdir build-64
     cd build-64
