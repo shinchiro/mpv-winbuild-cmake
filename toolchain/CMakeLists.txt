@@ -1,7 +1,9 @@
 if(${TARGET_CPU} MATCHES "x86_64")
     set(gcc_arch "x86-64")
+    set(exception "--enable-seh-exceptions")
 else()
     set(gcc_arch "i686")
+    set(exception "--enable-dw2-exceptions")
 endif()
 
 ExternalProject_Add(binutils
@@ -82,6 +84,7 @@ ExternalProject_Add(gcc-base
         --with-arch=${gcc_arch}
         --with-tune=generic
         --enable-threads=posix
+        ${exception}
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-gcc
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
