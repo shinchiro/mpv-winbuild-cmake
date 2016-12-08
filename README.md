@@ -6,18 +6,12 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 
 ## Prerequisites
 
-In addition to CMake, you need the usual development stuff (Git, Subversion,
-GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
-
  -  You should also install Ninja and use CMake’s Ninja build file generator.
     It’s not only much faster than GNU Make, but also far less error-prone,
     which is important for this project because CMake’s ExternalProject module
     tends to generate makefiles which confuse GNU Make’s jobserver thingy.
 
- -  As a build environment, any modern Linux distribution *should* work,
-    however I am only testing this on openSUSE, which (as of November 2014)
-    is using a 4.8 series GCC by default. Feel free to contribute fixes for
-    other environments.
+ -  As a build environment, any modern Linux distribution *should* work.
 
 -   Compiling on Cygwin / MSYS2 is supported, but it tends to be slower
     than compiling on Linux.
@@ -72,19 +66,16 @@ GCC, Binutils, ragel, headers for GMP, MPFR and MPC).
     - fribidi (0.19.7)
 
 
-## Prerequisites for Manjaro / Arch Linux
+## Setup Build Environment
+### Manjaro / Arch Linux
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib
+    pacman -S git ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
-For building pdf, these packages are needed:
+* `gyp` package need to be installed from AUR repository.
 
-    pacman -S python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
-
-* gyp is needed to build ANGLE.
-
-## Prerequisites for Ubuntu Linux / WSL (Windows 10)
+### Ubuntu Linux / WSL (Windows 10)
 
     apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm automake pkg-config libtool libtool-bin gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf docbook2x
 
@@ -95,15 +86,15 @@ For building pdf, these packages are needed:
 * It is advised to use bash over dash. Set `sudo ln -sf /bin/bash /bin/sh`. Revert back by `sudo ln -sf /bin/dash /bin/sh`.
 * For WSL, some packages will fail when compiling to 32bit. This is because WSL [doesn't support multilib ABI](https://github.com/Microsoft/BashOnWindows/issues/711/) yet.
 
-## Prerequisites for Cygwin
+### Cygwin
 
 Download Cygwin installer and run:
 
     setup-x86_64.exe -R "C:\cygwin64" -q --packages="bash,binutils,bzip2,cygwin,gcc-core,gcc-g++,cygwin32-gcc-core,cygwin32-gcc-g++,gzip,m4,pkg-config,make,unzip,zip,diffutils,wget,git,patch,cmake,gperf,yasm,enca,asciidoc,bison,flex,gettext-devel,mercurial,python-devel,python-docutils,docbook2X,texinfo,libmpfr-devel,libgmp-devel,libmpc-devel,libtool,autoconf2.5,automake,automake1.9,libxml2-devel,libxslt-devel"
 
-Additionally, some packges, `re2c`, `ninja`, `ragel`, `gyp`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
+Additionally, some packages, `re2c`, `ninja`, `ragel`, `gyp`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
-## Prerequisites for MSYS2
+### MSYS2
 
 Install MSYS2 and run it via `MSYS2 MSYS` shortcut.
 Don't use `MSYS2 MinGW 32-bit` or `MSYS2 MinGW 64-bit` shortcuts, that's important!
@@ -115,13 +106,7 @@ These packages need to be installed first before compiling mpv:
 Don't install anything from the `mingw32` and `mingw64` repositories,
 it's better to completely disable them in `/etc/pacman.conf` just to be safe.
 
-Additionally, some packges, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
-
-## Parallel Build
-
-By default, this script set MAKEJOBS value based on total number of cpu (+HyperThreading). If your compilation always failed for unknown reason,
-consider manually set MAKEJOBS value in the `CMakeLists` file. Basic rule is 1 core + 1.
-If you have 4-core cpu, the MAKEJOBS value should be 5.
+Additionally, some packages, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
 
 ## Building Software
@@ -148,43 +133,3 @@ After it done, you're ready to build mpv and all its dependencies:
     ninja mpv
 
 This will take a while (about ~10 minutes on my machine).
-
-
-
-### Unpackaged Stuff
-
-Using the toolchain to build stuff which doesn’t have a package is usually
-very easy. There are two generated files in your build directory to help with
-this: “exec” and “toolchain.cmake”.
-
-For most software (i.e. almost everything that uses GNU Autotools), you can
-use “exec” with the configure command:
-
-    ~/mingw/build-64/exec ./configure --prefix=~/mingw/prefix-64/mingw --host=x86_64-w64-mingw32
-
-An alternative is to run “source ~/mingw/build-64/exec” to set all the required
-environment variables in your current session.
-
-For software that uses CMake, you can use “toolchain.cmake” like this:
-
-    cmake -DCMAKE_TOOLCHAIN_FILE=~/mingw/build-64/toolchain.cmake -DCMAKE_INSTALL_PREFIX=~/mingw/prefix-64/mingw
-
-In general, it is advisable to use static linking when building for Windows.
-To do that, use --disable-shared and/or --enable-static with Autotools-based
-configure scripts.
-
-CMake doesn’t have a standard way to achieve this, so you’re on your own.
-
--   It’s usually easy to make CMake projects link statically if they don’t have
-    an option for it already. If you need an example, look at the patches for
-    ``game-music-emu``.
-
-
-### Creating Packages
-
-To add a new package, create a new ``.cmake`` file in the ``packages``
-directory (just look at how the existing packages work) and add it to the
-list in ``packages/CMakeLists.txt`` (they must appear after their
-dependencies).
-
-See the CMake documentation on the ExternalProject module for further info.
