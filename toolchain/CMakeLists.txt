@@ -17,7 +17,7 @@ ExternalProject_Add(binutils
         --disable-nls
         --disable-shared
     BUILD_COMMAND make -j${MAKEJOBS}
-    INSTALL_COMMAND make install
+    INSTALL_COMMAND make install-strip
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -51,7 +51,7 @@ ExternalProject_Add(mingw-w64-headers
         --enable-sdk=all
         --enable-secure-api
     BUILD_COMMAND ""
-    INSTALL_COMMAND make install
+    INSTALL_COMMAND make install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -86,7 +86,7 @@ ExternalProject_Add(gcc-base
         --enable-threads=posix
         ${exception}
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
-    INSTALL_COMMAND make install-gcc
+    INSTALL_COMMAND make install-strip-gcc
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -99,7 +99,7 @@ ExternalProject_Add(mingw-w64-crt
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    INSTALL_COMMAND ${MAKE} install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -113,7 +113,7 @@ ExternalProject_Add(winpthreads
         --disable-shared
         --enable-static
     BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    INSTALL_COMMAND ${MAKE} install-strip
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -122,7 +122,7 @@ ExternalProject_Add(gcc
     SOURCE_DIR gcc-prefix/src
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    INSTALL_COMMAND ${MAKE} install-strip
     LOG_BUILD 1 LOG_INSTALL 1
 )
 
@@ -132,6 +132,6 @@ ExternalProject_Add(gendef
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64/mingw-w64-tools/gendef/configure
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    INSTALL_COMMAND ${MAKE} install-strip
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
