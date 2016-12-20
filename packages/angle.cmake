@@ -7,7 +7,7 @@ ExternalProject_Add(angle
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/angle-*.patch
     CONFIGURE_COMMAND gyp -Duse_ozone=0 -DOS=win -Dangle_gl_library_type=static_library
         -Dangle_use_commit_id=1 --depth . -I gyp/common.gypi src/angle.gyp --no-parallel
-        --format=make --generator-output=generated
+        --format=make --generator-output=generated -Dangle_enable_vulkan=0
     BUILD_COMMAND ""
     INSTALL_COMMAND ${MAKE}
         PREFIX=${MINGW_INSTALL_PREFIX}
