@@ -1,22 +1,21 @@
-From 3ccc6a365e9f65fc167620bed80503d8c5e2c5cd Mon Sep 17 00:00:00 2001
-From: Martin Herkt <lachs0r@srsfckn.biz>
-Date: Sat, 7 Sep 2013 22:56:00 +0200
+From f83a8a5f1eb5792947dbd6bb701dbd64a4398ad1 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Thu, 22 Dec 2016 10:17:39 +0800
 Subject: [PATCH] Add Libs.private to openal.pc
 
 ---
- CMakeLists.txt | 6 ++++++
+ CMakeLists.txt | 5 +++++
  openal.pc.in   | 1 +
- 2 files changed, 7 insertions(+)
+ 2 files changed, 6 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index c0db074..83bb0f9 100644
+index e1e9a85..8b76505 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -783,6 +783,12 @@ ENDIF()
+@@ -1172,6 +1172,11 @@ ENDIF()
  IF(LIBTYPE STREQUAL "STATIC")
      ADD_DEFINITIONS(-DAL_LIBTYPE_STATIC)
      SET(PKG_CONFIG_CFLAGS -DAL_LIBTYPE_STATIC ${PKG_CONFIG_CFLAGS})
-+
 +    FOREACH(l ${EXTRA_LIBS})
 +        IF(NOT l MATCHES "^-.*")
 +            SET(PKG_CONFIG_LIBS_PRIVATE "${PKG_CONFIG_LIBS_PRIVATE} -l${l}")
@@ -24,7 +23,7 @@ index c0db074..83bb0f9 100644
 +    ENDFOREACH()
  ENDIF()
  
- # Needed for openal.pc.in
+ IF(EXISTS "${OpenAL_SOURCE_DIR}/.git")
 diff --git a/openal.pc.in b/openal.pc.in
 index 8bdd4f3..d8759d0 100644
 --- a/openal.pc.in
@@ -36,5 +35,5 @@ index 8bdd4f3..d8759d0 100644
 +Libs.private: @PKG_CONFIG_LIBS_PRIVATE@
  Cflags: -I${includedir} -I${includedir}/AL @PKG_CONFIG_CFLAGS@
 -- 
-1.8.3.4
+2.9.3
 
