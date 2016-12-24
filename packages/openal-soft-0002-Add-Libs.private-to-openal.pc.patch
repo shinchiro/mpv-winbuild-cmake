@@ -1,6 +1,6 @@
-From f83a8a5f1eb5792947dbd6bb701dbd64a4398ad1 Mon Sep 17 00:00:00 2001
+From 348d8f8e7c2ab6f80a57bc406224af3803decfee Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 22 Dec 2016 10:17:39 +0800
+Date: Sat, 24 Dec 2016 13:23:35 +0800
 Subject: [PATCH] Add Libs.private to openal.pc
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH] Add Libs.private to openal.pc
  2 files changed, 6 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e1e9a85..8b76505 100644
+index 839bf18..08bbf4a 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1172,6 +1172,11 @@ ENDIF()
@@ -23,7 +23,7 @@ index e1e9a85..8b76505 100644
 +    ENDFOREACH()
  ENDIF()
  
- IF(EXISTS "${OpenAL_SOURCE_DIR}/.git")
+ FIND_PACKAGE(Git)
 diff --git a/openal.pc.in b/openal.pc.in
 index 8bdd4f3..d8759d0 100644
 --- a/openal.pc.in
