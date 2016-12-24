@@ -39,6 +39,7 @@ ExternalProject_Add(mpv
         --enable-rubberband
         --enable-lcms2
         --enable-openal
+        --enable-egl-angle-lib
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
