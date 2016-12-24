@@ -1,17 +1,18 @@
-From 5a6e4080fa23442df3cc07e202e8317202631c22 Mon Sep 17 00:00:00 2001
+From cf20d2e91f126f6144240263b458977e77320f89 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Mon, 5 Dec 2016 05:08:08 +0800
+Date: Sat, 24 Dec 2016 12:28:34 +0800
 Subject: [PATCH] custom gyp
 
 ---
  gyp/common_defines.gypi |  9 +++++++++
  src/angle.gyp           | 41 +----------------------------------------
  src/commit_id.py        |  4 ++--
+ src/libEGL.gypi         |  1 +
  src/libGLESv2.gypi      |  7 -------
- 4 files changed, 12 insertions(+), 49 deletions(-)
+ 5 files changed, 13 insertions(+), 49 deletions(-)
 
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
-index bce49c4..2bc672e 100644
+index bce49c4..abd3752 100644
 --- a/gyp/common_defines.gypi
 +++ b/gyp/common_defines.gypi
 @@ -35,6 +35,15 @@
@@ -20,7 +21,7 @@ index bce49c4..2bc672e 100644
      ],
 +    'cflags_cc':
 +    [
-+        '-std=c++11',
++        '-std=c++14',
 +        '-fpermissive',
 +        '-msse2',
 +        '-O2',
@@ -31,10 +32,10 @@ index bce49c4..2bc672e 100644
      [
          4100, # Unreferenced formal parameter. Not interesting.
 diff --git a/src/angle.gyp b/src/angle.gyp
-index e4e8ba9..4ef37d1 100644
+index 46ca9b6..2b16872 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -179,7 +179,7 @@
+@@ -180,7 +180,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -43,7 +44,7 @@ index e4e8ba9..4ef37d1 100644
                  },
              ],
              'conditions':
-@@ -267,44 +267,5 @@
+@@ -268,44 +268,5 @@
                  }
              ]
          }],
@@ -103,11 +104,23 @@ index bbdb810..50e578a 100644
  except:
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
+diff --git a/src/libEGL.gypi b/src/libEGL.gypi
+index 4d37bee..285a461 100644
+--- a/src/libEGL.gypi
++++ b/src/libEGL.gypi
+@@ -12,6 +12,7 @@
+             'type': '<(angle_gl_library_type)',
+             'dependencies':
+             [
++                'libANGLE',
+                 'libGLESv2',
+             ],
+             'includes':
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 8df72d6..8e3c052 100644
+index 98844d1..bc5c428 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -1036,13 +1036,6 @@
+@@ -1044,13 +1044,6 @@
                          'ANGLE_ENABLE_NULL',
                      ],
                  }],
@@ -122,5 +135,5 @@ index 8df72d6..8e3c052 100644
                  {
                      'msvs_requires_importlibrary' : 'true',
 -- 
-2.9.2
+2.10.2
 
