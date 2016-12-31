@@ -1,25 +1,30 @@
-From 840d9c11fb3157b1060fc92fcac334b6b246c31c Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@nowhere.com>
-Date: Tue, 5 Jan 2016 19:40:10 +0800
+From 4b6171ca1c02c11be10c3a6504f665fc0e6e4526 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 31 Dec 2016 10:42:29 +0800
 Subject: [PATCH] Use upstream's commit hash
 
 ---
- version.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ version.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/version.sh b/version.sh
-index 674c6a1..b53b7f9 100755
+index 674c6a1..5c3346e 100755
 --- a/version.sh
 +++ b/version.sh
-@@ -33,7 +33,7 @@ fi
+@@ -33,9 +33,11 @@ fi
  # Extract revision number from file used by daily tarball snapshots
  # or from "git describe" output
  git_revision=$(cat snapshot_version 2> /dev/null)
 -test "$git_revision" || test ! -e .git || git_revision="$(git rev-parse --short HEAD)"
 +test "$git_revision" || test ! -e .git || git_revision="$(git rev-parse --short @{u})"
++tag=$(git describe --tags $(git rev-list --tags --max-count=1))
++length=$(git rev-list --count $tag..$git_revision)
  test "$git_revision" && git_revision="git-$git_revision"
- version="$git_revision"
+-version="$git_revision"
++version="$tag+$length-$git_revision"
  
+ # releases extract the version number from the VERSION file
+ releaseversion="$(cat VERSION 2> /dev/null)"
 -- 
-2.6.3
+2.10.2
 
