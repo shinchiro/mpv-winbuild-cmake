@@ -7,7 +7,7 @@ cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
 ninja mpv
 cd ..
 
-if [ -d ./build32/mpv-* ] ; then
+if [ -d ./build32/mpv-i686* ] ; then
     echo "Successfully compiled 32-bit. Continue"
 else
     echo "Failed compiled 32-bit. Stop"
