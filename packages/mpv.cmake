@@ -16,7 +16,6 @@ ExternalProject_Add(mpv
         uchardet
         openal-soft
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
-    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mpv-*.patch
     CONFIGURE_COMMAND ${EXEC}
