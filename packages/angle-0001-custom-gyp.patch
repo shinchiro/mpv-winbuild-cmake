@@ -1,6 +1,6 @@
-From cf20d2e91f126f6144240263b458977e77320f89 Mon Sep 17 00:00:00 2001
+From 433fb120af7e3f50064a22236042364cd95c475e Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 24 Dec 2016 12:28:34 +0800
+Date: Sat, 7 Jan 2017 18:50:28 +0800
 Subject: [PATCH] custom gyp
 
 ---
@@ -32,10 +32,10 @@ index bce49c4..abd3752 100644
      [
          4100, # Unreferenced formal parameter. Not interesting.
 diff --git a/src/angle.gyp b/src/angle.gyp
-index 46ca9b6..2b16872 100644
+index 95b0062..f9e5188 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -180,7 +180,7 @@
+@@ -198,7 +198,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -44,7 +44,7 @@ index 46ca9b6..2b16872 100644
                  },
              ],
              'conditions':
-@@ -268,44 +268,5 @@
+@@ -286,44 +286,5 @@
                  }
              ]
          }],
@@ -105,7 +105,7 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libEGL.gypi b/src/libEGL.gypi
-index 4d37bee..285a461 100644
+index fdce4ba..82a73cc 100644
 --- a/src/libEGL.gypi
 +++ b/src/libEGL.gypi
 @@ -12,6 +12,7 @@
@@ -117,11 +117,11 @@ index 4d37bee..285a461 100644
              ],
              'includes':
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 98844d1..bc5c428 100644
+index 309a83f..ce3829c 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -1044,13 +1044,6 @@
-                         'ANGLE_ENABLE_NULL',
+@@ -1068,13 +1068,6 @@
+                         '<@(libangle_null_sources)',
                      ],
                  }],
 -                ['angle_build_winrt==0 and OS=="win"',
