@@ -1,12 +1,37 @@
-This file is part of MXE.
-See index.html for further information.
+From 293818e5813d2957d4c11e0c682f21174008ed6b Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 15 Jan 2017 07:41:45 +0800
+Subject: [PATCH] win32 static
 
-Contains ad hoc patches for cross building.
+---
+ Makefile.in | 4 ++--
+ configure   | 3 ---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff -urN a/configure b/configure
---- a/configure	2013-03-24 06:30:09.000000000 +0100
-+++ b/configure	2013-04-29 12:19:25.526304670 +0200
-@@ -191,10 +191,7 @@
+diff --git a/Makefile.in b/Makefile.in
+index 1852192..c88f5b5 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -310,12 +310,12 @@ install-libs: $(LIBS)
+ 	-@if [ ! -d $(DESTDIR)$(man3dir)      ]; then mkdir -p $(DESTDIR)$(man3dir); fi
+ 	-@if [ ! -d $(DESTDIR)$(pkgconfigdir) ]; then mkdir -p $(DESTDIR)$(pkgconfigdir); fi
+ 	rm -f $(DESTDIR)$(libdir)/$(STATICLIB)
+-	cp $(STATICLIB) $(DESTDIR)$(libdir)
++	[ -z '$(STATICLIB)'  ] || cp $(STATICLIB)  $(DESTDIR)$(libdir)
+ 	chmod 644 $(DESTDIR)$(libdir)/$(STATICLIB)
+ 	-@($(RANLIB) $(DESTDIR)$(libdir)/libz.a || true) >/dev/null 2>&1
+ 	-@if test -n "$(SHAREDLIBV)"; then \
+ 	  rm -f $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV); \
+-	  cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
++	  [ -z '$(SHAREDLIBV)' ] || cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
+ 	  echo "cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir)"; \
+ 	  chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV); \
+ 	  echo "chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV)"; \
+diff --git a/configure b/configure
+index e974d1f..f023947 100644
+--- a/configure
++++ b/configure
+@@ -215,10 +215,7 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
    CYGWIN* | Cygwin* | cygwin* | OS/2*)
          EXE='.exe' ;;
    MINGW* | mingw*)
@@ -17,20 +42,6 @@ diff -urN a/configure b/configure
          LDSHARED=${LDSHARED-"$cc -shared"}
          LDSHAREDLIBC=""
          EXE='.exe' ;;
-diff -urN a/Makefile.in b/Makefile.in
---- a/Makefile.in	2013-04-29 00:57:11.000000000 +0200
-+++ b/Makefile.in	2013-04-29 12:16:08.631379491 +0200
-@@ -190,11 +190,11 @@
- 	-@if [ ! -d $(DESTDIR)$(sharedlibdir) ]; then mkdir -p $(DESTDIR)$(sharedlibdir); fi
- 	-@if [ ! -d $(DESTDIR)$(man3dir)      ]; then mkdir -p $(DESTDIR)$(man3dir); fi
- 	-@if [ ! -d $(DESTDIR)$(pkgconfigdir) ]; then mkdir -p $(DESTDIR)$(pkgconfigdir); fi
--	cp $(STATICLIB) $(DESTDIR)$(libdir)
-+	[ -z '$(STATICLIB)'  ] || cp $(STATICLIB)  $(DESTDIR)$(libdir)
- 	chmod 644 $(DESTDIR)$(libdir)/$(STATICLIB)
- 	-@($(RANLIB) $(DESTDIR)$(libdir)/libz.a || true) >/dev/null 2>&1
- 	-@if test -n "$(SHAREDLIBV)"; then \
--	  cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
-+	  [ -z '$(SHAREDLIBV)' ] || cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir); \
- 	  echo "cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir)"; \
- 	  chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV); \
- 	  echo "chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV)"; \
+-- 
+2.10.2
+
