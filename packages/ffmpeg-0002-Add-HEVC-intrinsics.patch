@@ -1,6 +1,6 @@
-From 3ba71ca83204e971925949db0e9583286fffe231 Mon Sep 17 00:00:00 2001
+From 185826c8945ec64ecfebe5756fa50fb11e499af2 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 25 Nov 2016 17:56:32 +0800
+Date: Sat, 4 Feb 2017 23:15:35 +0000
 Subject: [PATCH] Add HEVC intrinsics
 
 All patches come from:
@@ -21,7 +21,7 @@ hevc: don't use deprecated YUVJ pixel formats
  create mode 100644 libavcodec/x86/hevc_idct_intrinsic.c
 
 diff --git a/libavcodec/hevc_ps.c b/libavcodec/hevc_ps.c
-index ccc80fa..9776e1e 100644
+index ccc80fa8a1..9776e1e4c4 100644
 --- a/libavcodec/hevc_ps.c
 +++ b/libavcodec/hevc_ps.c
 @@ -559,8 +559,6 @@ static void decode_vui(GetBitContext *gb, AVCodecContext *avctx,
@@ -34,10 +34,10 @@ index ccc80fa..9776e1e 100644
              vui->colour_primaries        = get_bits(gb, 8);
              vui->transfer_characteristic = get_bits(gb, 8);
 diff --git a/libavcodec/x86/Makefile b/libavcodec/x86/Makefile
-index 1db1137..6fff708 100644
+index 28649522ff..aa1eb05cda 100644
 --- a/libavcodec/x86/Makefile
 +++ b/libavcodec/x86/Makefile
-@@ -151,8 +151,10 @@ YASM-OBJS-$(CONFIG_HEVC_DECODER)       += x86/hevc_mc.o                 \
+@@ -154,8 +154,10 @@ YASM-OBJS-$(CONFIG_HEVC_DECODER)       += x86/hevc_mc.o                 \
                                            x86/hevc_idct.o               \
                                            x86/hevc_res_add.o            \
                                            x86/hevc_sao.o                \
@@ -51,7 +51,7 @@ index 1db1137..6fff708 100644
  YASM-OBJS-$(CONFIG_PNG_DECODER)        += x86/pngdsp.o
 diff --git a/libavcodec/x86/hevc_idct_intrinsic.c b/libavcodec/x86/hevc_idct_intrinsic.c
 new file mode 100644
-index 0000000..ef970d7
+index 0000000000..ef970d7141
 --- /dev/null
 +++ b/libavcodec/x86/hevc_idct_intrinsic.c
 @@ -0,0 +1,763 @@
@@ -819,12 +819,12 @@ index 0000000..ef970d7
 +#pragma GCC pop_options
 +#endif
 diff --git a/libavcodec/x86/hevcdsp.h b/libavcodec/x86/hevcdsp.h
-index ad8168f..74184f6 100644
+index 63a148e69a..1f6d851922 100644
 --- a/libavcodec/x86/hevcdsp.h
 +++ b/libavcodec/x86/hevcdsp.h
-@@ -258,4 +258,26 @@ void ff_hevc_transform_add32_10_sse2(uint8_t *dst, int16_t *coeffs, ptrdiff_t st
- void ff_hevc_transform_add16_10_avx2(uint8_t *dst, int16_t *coeffs, ptrdiff_t stride);
- void ff_hevc_transform_add32_10_avx2(uint8_t *dst, int16_t *coeffs, ptrdiff_t stride);
+@@ -255,4 +255,26 @@ void ff_hevc_add_residual32_10_sse2(uint8_t *dst, int16_t *coeffs, ptrdiff_t str
+ void ff_hevc_add_residual16_10_avx2(uint8_t *dst, int16_t *coeffs, ptrdiff_t stride);
+ void ff_hevc_add_residual32_10_avx2(uint8_t *dst, int16_t *coeffs, ptrdiff_t stride);
  
 +void ff_hevc_transform_skip_8_sse(uint8_t *_dst, int16_t *coeffs, ptrdiff_t _stride);
 +
@@ -850,15 +850,15 @@ index ad8168f..74184f6 100644
 +
  #endif // AVCODEC_X86_HEVCDSP_H
 diff --git a/libavcodec/x86/hevcdsp_init.c b/libavcodec/x86/hevcdsp_init.c
-index 09eb06d..96562ae 100644
+index c4d9564173..e773ed88c0 100644
 --- a/libavcodec/x86/hevcdsp_init.c
 +++ b/libavcodec/x86/hevcdsp_init.c
 @@ -719,6 +719,12 @@ void ff_hevc_dsp_init_x86(HEVCDSPContext *c, const int bit_depth)
-             c->transform_add[1]    = ff_hevc_transform_add8_8_sse2;
-             c->transform_add[2]    = ff_hevc_transform_add16_8_sse2;
-             c->transform_add[3]    = ff_hevc_transform_add32_8_sse2;
+             c->add_residual[1] = ff_hevc_add_residual8_8_sse2;
+             c->add_residual[2] = ff_hevc_add_residual16_8_sse2;
+             c->add_residual[3] = ff_hevc_add_residual32_8_sse2;
 +
-+            c->idct_4x4_luma = ff_hevc_transform_4x4_luma_8_sse2;
++            c->transform_4x4_luma = ff_hevc_transform_4x4_luma_8_sse2;
 +            c->idct[0] = ff_hevc_transform_4x4_8_sse2;
 +            c->idct[1] = ff_hevc_transform_8x8_8_sse2;
 +            c->idct[2] = ff_hevc_transform_16x16_8_sse2;
@@ -867,11 +867,11 @@ index 09eb06d..96562ae 100644
          if (EXTERNAL_SSSE3(cpu_flags)) {
              if(ARCH_X86_64) {
 @@ -875,6 +881,12 @@ void ff_hevc_dsp_init_x86(HEVCDSPContext *c, const int bit_depth)
-             c->transform_add[1]    = ff_hevc_transform_add8_10_sse2;
-             c->transform_add[2]    = ff_hevc_transform_add16_10_sse2;
-             c->transform_add[3]    = ff_hevc_transform_add32_10_sse2;
+             c->add_residual[1] = ff_hevc_add_residual8_10_sse2;
+             c->add_residual[2] = ff_hevc_add_residual16_10_sse2;
+             c->add_residual[3] = ff_hevc_add_residual32_10_sse2;
 +
-+            c->idct_4x4_luma = ff_hevc_transform_4x4_luma_10_sse2;
++            c->transform_4x4_luma = ff_hevc_transform_4x4_luma_10_sse2;
 +            c->idct[0] = ff_hevc_transform_4x4_10_sse2;
 +            c->idct[1] = ff_hevc_transform_8x8_10_sse2;
 +            c->idct[2] = ff_hevc_transform_16x16_10_sse2;
@@ -880,11 +880,11 @@ index 09eb06d..96562ae 100644
          if (EXTERNAL_SSSE3(cpu_flags) && ARCH_X86_64) {
              c->hevc_v_loop_filter_luma = ff_hevc_v_loop_filter_luma_10_ssse3;
 @@ -1075,6 +1087,12 @@ void ff_hevc_dsp_init_x86(HEVCDSPContext *c, const int bit_depth)
-             c->idct_dc[1] = ff_hevc_idct8x8_dc_12_sse2;
-             c->idct_dc[2] = ff_hevc_idct16x16_dc_12_sse2;
-             c->idct_dc[3] = ff_hevc_idct32x32_dc_12_sse2;
+             c->idct_dc[1] = ff_hevc_idct_8x8_dc_12_sse2;
+             c->idct_dc[2] = ff_hevc_idct_16x16_dc_12_sse2;
+             c->idct_dc[3] = ff_hevc_idct_32x32_dc_12_sse2;
 +
-+            c->idct_4x4_luma = ff_hevc_transform_4x4_luma_12_sse2;
++            c->transform_4x4_luma = ff_hevc_transform_4x4_luma_12_sse2;
 +            c->idct[0] = ff_hevc_transform_4x4_12_sse2;
 +            c->idct[1] = ff_hevc_transform_8x8_12_sse2;
 +            c->idct[2] = ff_hevc_transform_16x16_12_sse2;
@@ -893,5 +893,5 @@ index 09eb06d..96562ae 100644
          if (EXTERNAL_SSSE3(cpu_flags) && ARCH_X86_64) {
              c->hevc_v_loop_filter_luma = ff_hevc_v_loop_filter_luma_12_ssse3;
 -- 
-2.9.2
+2.11.1
 
