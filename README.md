@@ -52,7 +52,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 - Zip
     - expat (2.2.0)
     - bzip (1.0.6)
-    - zlib (1.2.8)
+    - zlib (1.2.11)
     - xvidcore (1.3.4)
     - vorbis (1.3.5)
     - speex (1.2rc2)
@@ -71,7 +71,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
+    pacman -S git mercurial ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
 * `gyp` package need to be installed from AUR repository.
 
