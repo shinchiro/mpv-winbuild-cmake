@@ -1,18 +1,18 @@
-From 433fb120af7e3f50064a22236042364cd95c475e Mon Sep 17 00:00:00 2001
+From 3ad72338be6d8917f9b4a6ea16f9c88e59666fb3 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 7 Jan 2017 18:50:28 +0800
+Date: Sun, 19 Feb 2017 20:00:11 +0800
 Subject: [PATCH] custom gyp
 
 ---
  gyp/common_defines.gypi |  9 +++++++++
- src/angle.gyp           | 41 +----------------------------------------
+ src/angle.gyp           | 43 ++-----------------------------------------
  src/commit_id.py        |  4 ++--
  src/libEGL.gypi         |  1 +
  src/libGLESv2.gypi      |  7 -------
- 5 files changed, 13 insertions(+), 49 deletions(-)
+ 5 files changed, 14 insertions(+), 50 deletions(-)
 
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
-index bce49c4..abd3752 100644
+index bce49c4c..abd3752a 100644
 --- a/gyp/common_defines.gypi
 +++ b/gyp/common_defines.gypi
 @@ -35,6 +35,15 @@
@@ -32,10 +32,10 @@ index bce49c4..abd3752 100644
      [
          4100, # Unreferenced formal parameter. Not interesting.
 diff --git a/src/angle.gyp b/src/angle.gyp
-index 95b0062..f9e5188 100644
+index ccae2aa7..f69ea8e2 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -198,7 +198,7 @@
+@@ -283,7 +283,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -44,7 +44,16 @@ index 95b0062..f9e5188 100644
                  },
              ],
              'conditions':
-@@ -286,44 +286,5 @@
+@@ -318,7 +318,7 @@
+                             'msvs_cygwin_shell': 0,
+                             'action':
+                             [
+-                                'python', '<(angle_id_script)', 'gen', '<(angle_path)', '<(angle_id_header)'
++                                'python2', '<(angle_id_script)', 'gen', '<(angle_path)', '<(angle_id_header)'
+                             ],
+                         },
+                     ],
+@@ -371,44 +371,5 @@
                  }
              ]
          }],
@@ -90,7 +99,7 @@ index 95b0062..f9e5188 100644
      ] # conditions
  }
 diff --git a/src/commit_id.py b/src/commit_id.py
-index bbdb810..50e578a 100644
+index bbdb810c..50e578a5 100644
 --- a/src/commit_id.py
 +++ b/src/commit_id.py
 @@ -27,8 +27,8 @@ output_file = sys.argv[3]
@@ -105,7 +114,7 @@ index bbdb810..50e578a 100644
      commit_id = 'invalid-hash'
      commit_date = 'invalid-date'
 diff --git a/src/libEGL.gypi b/src/libEGL.gypi
-index fdce4ba..82a73cc 100644
+index fdce4ba2..82a73cc6 100644
 --- a/src/libEGL.gypi
 +++ b/src/libEGL.gypi
 @@ -12,6 +12,7 @@
@@ -117,10 +126,10 @@ index fdce4ba..82a73cc 100644
              ],
              'includes':
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 309a83f..ce3829c 100644
+index 6709c34e..9656049c 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -1068,13 +1068,6 @@
+@@ -1093,13 +1093,6 @@
                          '<@(libangle_null_sources)',
                      ],
                  }],
@@ -135,5 +144,5 @@ index 309a83f..ce3829c 100644
                  {
                      'msvs_requires_importlibrary' : 'true',
 -- 
-2.10.2
+2.11.0
 
