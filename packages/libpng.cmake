@@ -1,6 +1,6 @@
 ExternalProject_Add(libpng
     DEPENDS zlib
-    GIT_REPOSITORY git://git.code.sf.net/p/libpng/code
+    GIT_REPOSITORY https://github.com/glennrp/libpng.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
