@@ -60,7 +60,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - lzo (2.09)
     - libmodplug (0.8.8.5)
     - libjpeg (1.5.1)
-    - libiconv (1.14)
+    - libiconv (1.15)
     - libarchive (3.2.1)
     - gmp (6.1.1)
     - fribidi (0.19.7)
