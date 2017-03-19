@@ -1,6 +1,6 @@
-From 348d8f8e7c2ab6f80a57bc406224af3803decfee Mon Sep 17 00:00:00 2001
+From b1de5d2faaed58fb97a451bd53b9d75941a6116b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 24 Dec 2016 13:23:35 +0800
+Date: Sun, 19 Mar 2017 12:02:42 +0000
 Subject: [PATCH] Add Libs.private to openal.pc
 
 ---
@@ -9,10 +9,10 @@ Subject: [PATCH] Add Libs.private to openal.pc
  2 files changed, 6 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 839bf18..08bbf4a 100644
+index bff7618..df3f0a7 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -1172,6 +1172,11 @@ ENDIF()
+@@ -1202,6 +1202,11 @@ ENDIF()
  IF(LIBTYPE STREQUAL "STATIC")
      ADD_DEFINITIONS(-DAL_LIBTYPE_STATIC)
      SET(PKG_CONFIG_CFLAGS -DAL_LIBTYPE_STATIC ${PKG_CONFIG_CFLAGS})
@@ -23,7 +23,7 @@ index 839bf18..08bbf4a 100644
 +    ENDFOREACH()
  ENDIF()
  
- FIND_PACKAGE(Git)
+ IF(NOT WIN32)
 diff --git a/openal.pc.in b/openal.pc.in
 index 8bdd4f3..d8759d0 100644
 --- a/openal.pc.in
@@ -35,5 +35,5 @@ index 8bdd4f3..d8759d0 100644
 +Libs.private: @PKG_CONFIG_LIBS_PRIVATE@
  Cflags: -I${includedir} -I${includedir}/AL @PKG_CONFIG_CFLAGS@
 -- 
-2.9.3
+2.11.1
 
