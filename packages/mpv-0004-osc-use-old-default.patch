@@ -1,6 +1,6 @@
-From b2f16feb3a3a95da14b6abc54c14409e4441abc0 Mon Sep 17 00:00:00 2001
+From 2e1d7931a4075b79269ebf00aec28235cbc5881b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 13 Nov 2016 07:23:13 +0800
+Date: Sat, 1 Apr 2017 08:07:30 +0800
 Subject: [PATCH] osc: use old default
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] osc: use old default
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/player/lua/osc.lua b/player/lua/osc.lua
-index 643f32f..0a0375e 100644
+index ff2d16689..003dfbbfc 100644
 --- a/player/lua/osc.lua
 +++ b/player/lua/osc.lua
 @@ -31,8 +31,8 @@ local user_opts = {
@@ -20,8 +20,8 @@ index 643f32f..0a0375e 100644
 +    layout = "box",
 +    seekbarstyle = "slider",    -- slider (diamond marker), knob (circle
                                  -- marker with guide), or bar (fill)
-     tooltipborder = 1,          -- border of tooltip in bottom/topbar
-     timetotal = false,          -- display total time instead of remaining time?
+     title = "${media-title}",   -- string compatible with property-expansion
+                                 -- to be shown as OSC title
 -- 
-2.9.2
+2.12.0
 
