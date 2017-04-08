@@ -62,7 +62,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libjpeg (1.5.1)
     - libiconv (1.15)
     - libarchive (3.2.1)
-    - gmp (6.1.1)
+    - gmp (6.1.2)
     - fribidi (0.19.7)
 
 
