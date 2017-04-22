@@ -1,6 +1,6 @@
-From 603eb83dc46e847db342a8f34836d58a61e3cbac Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@nowhere.com>
-Date: Sun, 31 Jan 2016 13:03:42 +0800
+From 81e58da785efe6300689b1097787072609984d6f Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 22 Apr 2017 10:46:52 +0000
 Subject: [PATCH] Use pkg-config for more external libs
 
 ---
@@ -8,19 +8,19 @@ Subject: [PATCH] Use pkg-config for more external libs
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/configure b/configure
-index dba8180..880f263 100755
+index 758607b502..ebccd0e01d 100755
 --- a/configure
 +++ b/configure
-@@ -5473,7 +5473,7 @@ enabled fontconfig        && enable libfontconfig
+@@ -5764,7 +5764,7 @@ enabled fontconfig        && enable libfontconfig
  enabled libfontconfig     && require_pkg_config fontconfig "fontconfig/fontconfig.h" FcInit
- enabled libfreetype       && require_libfreetype
+ enabled libfreetype       && require_pkg_config freetype2 "ft2build.h FT_FREETYPE_H" FT_Init_FreeType
  enabled libfribidi        && require_pkg_config fribidi fribidi.h fribidi_version_info
 -enabled libgme            && require  libgme gme/gme.h gme_new_emu -lgme -lstdc++
 +enabled libgme            && require_pkg_config  libgme gme/gme.h gme_new_emu
  enabled libgsm            && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
                                     check_lib "${gsm_hdr}" gsm_create -lgsm && break;
                                 done || die "ERROR: libgsm not found"; }
-@@ -5515,7 +5515,7 @@ enabled libutvideo        && require_cpp utvideo "stdint.h stdlib.h utvideo/utvi
+@@ -5809,7 +5809,7 @@ enabled libtwolame        && require libtwolame twolame.h twolame_init -ltwolame
  enabled libv4l2           && require_pkg_config libv4l2 libv4l2.h v4l2_ioctl
  enabled libvidstab        && require_pkg_config "vidstab >= 0.98" vid.stab/libvidstab.h vsMotionDetectInit
  enabled libvo_amrwbenc    && require libvo_amrwbenc vo-amrwbenc/enc_if.h E_IF_init -lvo-amrwbenc
@@ -30,5 +30,5 @@ index dba8180..880f263 100755
  enabled libvpx            && {
      enabled libvpx_vp8_decoder && {
 -- 
-2.7.0
+2.12.0
 
