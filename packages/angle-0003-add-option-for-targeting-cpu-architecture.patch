@@ -1,0 +1,66 @@
+From 43ef6db6e947c1ce8c9c8d33b58aae7bed0c24f3 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 22 Apr 2017 08:31:55 +0800
+Subject: [PATCH] add option for targeting cpu architecture
+
+Because gyp wrongly detect cpu architecture
+---
+ gyp/common.gypi         |  6 ++----
+ gyp/common_defines.gypi | 10 +++++++++-
+ 2 files changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/gyp/common.gypi b/gyp/common.gypi
+index e839f256..aef91315 100644
+--- a/gyp/common.gypi
++++ b/gyp/common.gypi
+@@ -281,8 +281,7 @@
+                         'TargetMachine': '1', # x86
+                     },
+                 },
+-                'defines': [ 'ANGLE_X86_CPU' ],
+-            }, # x86_Base
++            },
+ 
+             'x64_Base':
+             {
+@@ -299,8 +298,7 @@
+                         'TargetMachine': '17', # x86 - 64
+                     },
+                 },
+-                'defines': [ 'ANGLE_X64_CPU' ],
+-            },    # x64_Base
++            },
+ 
+             # Concrete configurations
+             'Debug':
+diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
+index bce49c4c..8129ea4e 100644
+--- a/gyp/common_defines.gypi
++++ b/gyp/common_defines.gypi
+@@ -8,7 +8,7 @@
+         'component%': 'static_library',
+         'use_libpci%': 1,
+         'windows_sdk_path%': 'C:/Program Files (x86)/Windows Kits/10',
+-
++        'target_cpu%': 'x86',
+         'angle_build_winrt%': '0',
+ 
+         # This works like the Ozone GBM platform in Chrome:
+@@ -52,6 +52,14 @@
+         {
+             'defines': [ 'COMPONENT_BUILD' ],
+         }],
++        ['target_cpu=="x86"',
++        {
++            'defines': [ 'ANGLE_X86_CPU' ],
++        }],
++        ['target_cpu=="x64"',
++        {
++            'defines': [ 'ANGLE_X64_CPU' ],
++        }],
+     ],
+     'msvs_settings':
+     {
+-- 
+2.12.1
+
