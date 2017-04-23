@@ -17,7 +17,6 @@ ExternalProject_Add(mpv
         openal-soft
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mpv-*.patch
     CONFIGURE_COMMAND ${EXEC}
         PKG_CONFIG=pkg-config
         TARGET=${TARGET_ARCH}
