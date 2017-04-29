@@ -69,8 +69,8 @@ ExternalProject_Add(gcc-base
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
     DEPENDS mingw-w64-headers
-    URL "ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-5.4.0/gcc-5.4.0.tar.bz2"
-    URL_HASH SHA512=2941cc950c8f2409a314df497631f9b0266211aa74746c1839c46e04f1c7c299afe2528d1ef16ea39def408a644ba48f97519ec7a7dd37d260c3e9423514265b
+    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/7.0.1-RC-20170428/gcc-7.0.1-RC-20170428.tar.bz2
+    URL_HASH SHA512=66f68c8dc2133da7c84fbf98bff4ab3ebcc5054700729489ef389f960ee059ac4509cbc442f88f567ebdf28572ffbd82a3a314595ce80ef8e1133be797cc049a
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
