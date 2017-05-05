@@ -69,8 +69,8 @@ ExternalProject_Add(gcc-base
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
     DEPENDS mingw-w64-headers
-    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/7.0.1-RC-20170428/gcc-7.0.1-RC-20170428.tar.bz2
-    URL_HASH SHA512=66f68c8dc2133da7c84fbf98bff4ab3ebcc5054700729489ef389f960ee059ac4509cbc442f88f567ebdf28572ffbd82a3a314595ce80ef8e1133be797cc049a
+    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-7.1.0/gcc-7.1.0.tar.bz2
+    URL_HASH SHA512=b5d952be9a10f0e0926bb2868877d10544039d6d2f35ba0a08f51231dd622a007650764a03e173194701467547789ad7d2d9cbc10adcdf118d619cdedbd14aec
     PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/gcc-0016-disable-weak-refs-in-libstdc++.patch
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
