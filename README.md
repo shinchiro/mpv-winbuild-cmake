@@ -58,7 +58,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - speex (1.2rc2)
     - ogg (1.3.2)
     - lzo (2.10)
-    - libmodplug (0.8.8.5)
+    - libmodplug (0.8.9.0)
     - libjpeg (1.5.1)
     - libiconv (1.15)
     - libarchive (3.3.1)
