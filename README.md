@@ -55,7 +55,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - zlib (1.2.11)
     - xvidcore (1.3.4)
     - vorbis (1.3.5)
-    - speex (1.2rc2)
+    - speex (1.2.0)
     - ogg (1.3.2)
     - lzo (2.10)
     - libmodplug (0.8.9.0)
