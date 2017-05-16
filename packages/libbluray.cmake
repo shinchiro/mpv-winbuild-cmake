@@ -9,6 +9,7 @@ ExternalProject_Add(libbluray
         --disable-examples
         --disable-doxygen-doc
         --disable-bdjava
+        --disable-bdjava-jar
         --without-libxml2
         --without-fontconfig
         --enable-udf
