@@ -71,13 +71,13 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git mercurial ninja cmake ragel yasm asciidoc enca gperf p7zip gcc-multilib python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
+    pacman -S git mercurial ninja cmake ragel yasm nasm asciidoc enca gperf p7zip gcc-multilib python2-pip python-docutils python2-rst2pdf python2-lxml python2-pillow
 
 * `gyp` package need to be installed from AUR repository.
 
 ### Ubuntu Linux / WSL (Windows 10)
 
-    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm automake pkg-config libtool libtool-bin gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf docbook2x
+    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm nasm automake pkg-config libtool libtool-bin gcc-multilib g++-multilib libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python-docutils rst2pdf docbook2x
 
 **Note:**
 
@@ -90,7 +90,7 @@ These packages need to be installed first before compiling mpv:
 
 Download Cygwin installer and run:
 
-    setup-x86_64.exe -R "C:\cygwin64" -q --packages="bash,binutils,bzip2,cygwin,gcc-core,gcc-g++,cygwin32-gcc-core,cygwin32-gcc-g++,gzip,m4,pkg-config,make,unzip,zip,diffutils,wget,git,patch,cmake,gperf,yasm,enca,asciidoc,bison,flex,gettext-devel,mercurial,python-devel,python-docutils,docbook2X,texinfo,libmpfr-devel,libgmp-devel,libmpc-devel,libtool,autoconf2.5,automake,automake1.9,libxml2-devel,libxslt-devel"
+    setup-x86_64.exe -R "C:\cygwin64" -q --packages="bash,binutils,bzip2,cygwin,gcc-core,gcc-g++,cygwin32-gcc-core,cygwin32-gcc-g++,gzip,m4,pkg-config,make,unzip,zip,diffutils,wget,git,patch,cmake,gperf,yasm,nasm,enca,asciidoc,bison,flex,gettext-devel,mercurial,python-devel,python-docutils,docbook2X,texinfo,libmpfr-devel,libgmp-devel,libmpc-devel,libtool,autoconf2.5,automake,automake1.9,libxml2-devel,libxslt-devel"
 
 Additionally, some packages, `re2c`, `ninja`, `ragel`, `gyp`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
@@ -101,7 +101,7 @@ Don't use `MSYS2 MinGW 32-bit` or `MSYS2 MinGW 64-bit` shortcuts, that's importa
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S base-devel cmake gcc yasm git mercurial subversion gyp tar gmp-devel mpc-devel mpfr-devel python zlib-devel unzip zip
+    pacman -S base-devel cmake gcc yasm nasm git mercurial subversion gyp tar gmp-devel mpc-devel mpfr-devel python zlib-devel unzip zip
 
 Don't install anything from the `mingw32` and `mingw64` repositories,
 it's better to completely disable them in `/etc/pacman.conf` just to be safe.
