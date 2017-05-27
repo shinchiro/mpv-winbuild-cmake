@@ -1,0 +1,24 @@
+From a8359e0b51912fa7b4c091c6a4de99e50e510ca0 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 27 May 2017 13:14:35 +0000
+Subject: [PATCH] forward declare function
+
+---
+ src/libANGLE/renderer/d3d/d3d11/ResourceManager11.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/libANGLE/renderer/d3d/d3d11/ResourceManager11.h b/src/libANGLE/renderer/d3d/d3d11/ResourceManager11.h
+index 25bfc175..4e101f7c 100644
+--- a/src/libANGLE/renderer/d3d/d3d11/ResourceManager11.h
++++ b/src/libANGLE/renderer/d3d/d3d11/ResourceManager11.h
+@@ -23,6 +23,7 @@ class ResourceManager11;
+ template <typename T>
+ class SharedResource11;
+ class TextureHelper11;
++namespace d3d11 { HRESULT SetDebugName(ID3D11DeviceChild *resource, const char *name); }
+ 
+ // Format: ResourceType, D3D11 type, DESC type, init data type.
+ #define ANGLE_RESOURCE_TYPE_OP(NAME, OP)                                                     \
+-- 
+2.13.0
+
