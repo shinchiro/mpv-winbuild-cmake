@@ -71,8 +71,7 @@ ExternalProject_Add(gcc-base
     DEPENDS mingw-w64-headers
     URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-7.1.0/gcc-7.1.0.tar.bz2
     URL_HASH SHA512=b5d952be9a10f0e0926bb2868877d10544039d6d2f35ba0a08f51231dd622a007650764a03e173194701467547789ad7d2d9cbc10adcdf118d619cdedbd14aec
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/gcc-0016-disable-weak-refs-in-libstdc++.patch &&
-                  curl -s https://raw.githubusercontent.com/lhmouse/MINGW-packages/master/mingw-w64-gcc-git/0018-gcc-7-branch-Rename-__in-__out-and-__in.patch | patch -p1
+    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/gcc-0016-disable-weak-refs-in-libstdc++.patch
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
