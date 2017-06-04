@@ -57,6 +57,7 @@ ExternalProject_Add(ffmpeg
     --enable-schannel
     --enable-cuda
     --enable-cuvid
+    --disable-w32threads
     "--extra-libs='-lsecurity -lschannel'" # ffmpeg’s build system is retarded
     "--extra-cflags=-DMODPLUG_STATIC"
     BUILD_COMMAND ${MAKE}
