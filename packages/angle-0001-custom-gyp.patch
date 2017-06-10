@@ -23,7 +23,7 @@ index bce49c4c..abd3752a 100644
 +    [
 +        '-std=c++14',
 +        '-fpermissive',
-+        '-msse2',
++        '-msse2', '-msse3',
 +        '-O2',
 +        '-Wno-deprecated-declarations',
 +        '-Wno-conversion-null',
