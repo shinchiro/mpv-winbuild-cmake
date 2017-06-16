@@ -15,6 +15,7 @@ ExternalProject_Add(mpv
         rubberband
         uchardet
         openal-soft
+        mujs
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
@@ -29,6 +30,7 @@ ExternalProject_Add(mpv
         --disable-debug-build
         --enable-libmpv-shared
         --enable-lua
+        --enable-javascript
         --enable-libarchive
         --enable-libass
         --enable-libbluray

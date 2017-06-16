@@ -48,6 +48,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - flac
     - opus-tools
     - vapoursynth
+    - mujs
 
 - Zip
     - expat (2.2.0)

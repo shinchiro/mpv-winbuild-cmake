@@ -143,6 +143,7 @@ foreach(package
     libass
     ffmpeg
     angle
+    mujs
     mpv
     flac
     opus-tools
