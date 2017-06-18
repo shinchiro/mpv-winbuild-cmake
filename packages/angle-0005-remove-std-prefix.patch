@@ -1,0 +1,26 @@
+From af85297ad0463eae1035c340914adbe0d5f87ab0 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 18 Jun 2017 11:07:45 +0800
+Subject: [PATCH] remove std prefix
+
+Made gcc happy
+---
+ src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.h b/src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.h
+index 7247d266..b8b29ebc 100644
+--- a/src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.h
++++ b/src/libANGLE/renderer/d3d/d3d11/InputLayoutCache.h
+@@ -33,7 +33,7 @@ struct PackedAttributeLayout;
+ namespace std
+ {
+ template <>
+-struct std::hash<rx::PackedAttributeLayout>
++struct hash<rx::PackedAttributeLayout>
+ {
+     size_t operator()(const rx::PackedAttributeLayout &value) const
+     {
+-- 
+2.12.1
+
