@@ -1,40 +1,70 @@
 #!/bin/bash
 # Automatically build mpv for 32-bit and 64-bit version
 
-mkdir -p ./build32
-cd ./build32
-cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
-ninja mpv
-cd ..
-
-if [ -d ./build32/mpv-i686* ] ; then
-    echo "Successfully compiled 32-bit. Continue"
-else
-    echo "Failed compiled 32-bit. Stop"
-    exit
-fi
-
-mkdir -p ./build64
-cd ./build64
-cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja ..
-ninja mpv
-cd ..
-
-mkdir -p ./release
-cd ./release
-mv ../build32/mpv-* ./ && mv ../build64/mpv-* ./
-wget --continue -O mpv-packaging.zip https://github.com/shinchiro/mpv-packaging/archive/master.zip
-unzip mpv-packaging.zip
-cd ./mpv-packaging-master
-7z x -y ./d3dcompiler*.7z
-cp -r ./mpv-root/* ./x64/d3dcompiler_43.dll ../mpv-x86_64*
-cp -r ./mpv-root/* ./x86/d3dcompiler_43.dll ../mpv-i686*
-cd ..
-rm -rf ./mpv-packaging-master
-for dir in ./*; do
-    if [ -d $dir ]; then
-        7z a -m0=lzma2 -mx=9 -ms=on $dir.7z $dir/*
-        rm -rf $dir
+main() {
+    prepare
+    if [ "$1" == "32" ]; then
+        package "32" "i686"
+    elif [ "$1" == "64" ]; then
+        package "64" "x86_64"
+    else [ "$1" == "all" ];
+        package "32" "i686"
+        package "64" "x86_64"
     fi
-done
-cd ..
+    rm -rf ./release/mpv-packaging-master
+}
+
+package() {
+    local bit=$1
+    local arch=$2
+
+    build $bit $arch
+    zip $bit $arch
+}
+
+build() {
+    local bit=$1
+    local arch=$2
+    mkdir -p ./build$bit
+    cd ./build$bit
+    cmake -DTARGET_ARCH=$arch-w64-mingw32 -G Ninja ..
+    ninja clean
+    ninja mpv
+    cd ..
+
+    if [ -d ./build$bit/mpv-$arch* ] ; then
+        echo "Successfully compiled $bit-bit. Continue"
+    else
+        echo "Failed compiled $bit-bit. Stop"
+        exit
+    fi
+}
+
+zip() {
+    local bit=$1
+    local arch=$2
+
+    mv ./build$bit/mpv-* ./release
+    cd ./release/mpv-packaging-master
+    cp -r ./mpv-root/* ./$arch/d3dcompiler_43.dll ../mpv-$arch*
+    cd ..
+    for dir in ./mpv*$arch*; do
+        if [ -d $dir ]; then
+            7z a -m0=lzma2 -mx=9 -ms=on $dir.7z $dir/*
+            rm -rf $dir
+        fi
+    done
+    cd ..
+}
+
+prepare() {
+    mkdir -p ./release
+    cd ./release
+    wget --continue -O mpv-packaging.zip https://github.com/shinchiro/mpv-packaging/archive/master.zip
+    unzip mpv-packaging.zip
+    cd ./mpv-packaging-master
+    7z x -y ./d3dcompiler*.7z
+    cd ../..
+}
+
+main $1
