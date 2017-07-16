@@ -57,11 +57,25 @@ zip() {
     cd ..
 }
 
+download_mpv_package() {
+    local package_url="https://codeload.github.com/shinchiro/mpv-packaging/zip/master"
+    if [ -e mpv-packaging.zip ]; then
+        echo "Package exists. Check if it is newer.."
+        remote_commit=$(curl -sI $package_url | grep -Po 'ETag: "\K[^"]+')
+        local_commit=$(unzip -z mpv-packaging.zip | tail +2)
+        if [ "$remote_commit" != "$local_commit" ]; then
+            wget -O mpv-packaging.zip $package_url
+        fi
+    else
+        wget -O mpv-packaging.zip $package_url
+    fi
+    unzip -o mpv-packaging.zip
+}
+
 prepare() {
     mkdir -p ./release
     cd ./release
-    wget --continue -O mpv-packaging.zip https://github.com/shinchiro/mpv-packaging/archive/master.zip
-    unzip mpv-packaging.zip
+    download_mpv_package
     cd ./mpv-packaging-master
     7z x -y ./d3dcompiler*.7z
     cd ../..
