@@ -49,6 +49,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - opus-tools
     - vapoursynth
     - mujs
+    - libarchive
 
 - Zip
     - expat (2.2.0)
@@ -62,7 +63,6 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libjpeg (1.5.1)
     - libiconv (1.15)
-    - libarchive (3.3.1)
     - gmp (6.1.2)
     - fribidi (0.19.7)
 

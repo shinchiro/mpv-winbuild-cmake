@@ -5,8 +5,8 @@ ExternalProject_Add(libarchive
         lzo
         xz
         zlib
-    URL "http://www.libarchive.org/downloads/libarchive-3.3.1.tar.gz"
-    URL_HASH SHA256=29ca5bd1624ca5a007aa57e16080262ab4379dbf8797f5c52f7ea74a3b0424e7
+    GIT_REPOSITORY https://github.com/libarchive/libarchive.git
+    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
@@ -26,3 +26,4 @@ ExternalProject_Add(libarchive
 clean_build_dir(libarchive)
 force_rebuild(libarchive)
 autoreconf(libarchive)
+
