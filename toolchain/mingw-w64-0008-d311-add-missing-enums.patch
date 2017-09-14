@@ -1,19 +1,29 @@
-From 9e48a00a97962f019590c9f8fec43e7325d44c6a Mon Sep 17 00:00:00 2001
+From 260e7b0bb5ad609f0892cb113b2d2bd49a7933da Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 9 Sep 2017 15:45:57 +0800
-Subject: [PATCH] d3d11: add missing D3D11_FEATURE enum
+Date: Thu, 14 Sep 2017 18:53:07 +0800
+Subject: [PATCH] d3d11: add missing enums
 
-Based on Windows 10 SDK 10.0.15063.0
 ---
- mingw-w64-headers/direct-x/include/d3d11.h   |  91 ++++++++++++++++++-
- mingw-w64-headers/direct-x/include/d3d11.idl | 128 ++++++++++++++++++++++++++-
- 2 files changed, 217 insertions(+), 2 deletions(-)
+ mingw-w64-headers/direct-x/include/d3d11.h   |  95 ++++++++++++++++++-
+ mingw-w64-headers/direct-x/include/d3d11.idl | 134 ++++++++++++++++++++++++++-
+ 2 files changed, 227 insertions(+), 2 deletions(-)
 
 diff --git a/mingw-w64-headers/direct-x/include/d3d11.h b/mingw-w64-headers/direct-x/include/d3d11.h
-index 52c7248..cc38494 100644
+index 52c7248..a352ed6 100644
 --- a/mingw-w64-headers/direct-x/include/d3d11.h
 +++ b/mingw-w64-headers/direct-x/include/d3d11.h
-@@ -829,7 +829,16 @@ typedef enum D3D11_FEATURE {
+@@ -806,6 +806,10 @@ typedef enum D3D11_DEPTH_WRITE_MASK {
+     D3D11_DEPTH_WRITE_MASK_ZERO = 0,
+     D3D11_DEPTH_WRITE_MASK_ALL = 1
+ } D3D11_DEPTH_WRITE_MASK;
++typedef enum D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS {
++    D3D11_STANDARD_MULTISAMPLE_PATTERN = 0xffffffff,
++    D3D11_CENTER_MULTISAMPLE_PATTERN = 0xfffffffe
++} D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS;
+ typedef enum D3D11_DEVICE_CONTEXT_TYPE {
+     D3D11_DEVICE_CONTEXT_IMMEDIATE = 0,
+     D3D11_DEVICE_CONTEXT_DEFERRED = 1
+@@ -829,7 +833,16 @@ typedef enum D3D11_FEATURE {
      D3D11_FEATURE_ARCHITECTURE_INFO = 6,
      D3D11_FEATURE_D3D9_OPTIONS = 7,
      D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT = 8,
@@ -31,7 +41,7 @@ index 52c7248..cc38494 100644
  } D3D11_FEATURE;
  typedef struct D3D11_FEATURE_DATA_THREADING {
      WINBOOL DriverConcurrentCreates;
-@@ -838,6 +847,14 @@ typedef struct D3D11_FEATURE_DATA_THREADING {
+@@ -838,6 +851,14 @@ typedef struct D3D11_FEATURE_DATA_THREADING {
  typedef struct D3D11_FEATURE_DATA_DOUBLES {
      WINBOOL DoublePrecisionFloatShaderOps;
  } D3D11_FEATURE_DATA_DOUBLES;
@@ -46,7 +56,7 @@ index 52c7248..cc38494 100644
  typedef struct D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS {
      WINBOOL ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x;
  } D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS;
-@@ -857,6 +874,78 @@ typedef struct D3D11_FEATURE_DATA_D3D11_OPTIONS {
+@@ -857,6 +878,78 @@ typedef struct D3D11_FEATURE_DATA_D3D11_OPTIONS {
      WINBOOL ExtendedDoublesShaderInstructions;
      WINBOOL ExtendedResourceSharing;
  } D3D11_FEATURE_DATA_D3D11_OPTIONS;
@@ -126,10 +136,23 @@ index 52c7248..cc38494 100644
      D3D11_FILL_WIREFRAME = 2,
      D3D11_FILL_SOLID = 3
 diff --git a/mingw-w64-headers/direct-x/include/d3d11.idl b/mingw-w64-headers/direct-x/include/d3d11.idl
-index 244020a..009ecc8 100644
+index 244020a..433c61c 100644
 --- a/mingw-w64-headers/direct-x/include/d3d11.idl
 +++ b/mingw-w64-headers/direct-x/include/d3d11.idl
-@@ -488,7 +488,16 @@ typedef enum D3D11_FEATURE
+@@ -460,6 +460,12 @@ typedef enum D3D11_DEPTH_WRITE_MASK
+     D3D11_DEPTH_WRITE_MASK_ALL,
+ } D3D11_DEPTH_WRITE_MASK;
+ 
++typedef enum D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS
++{
++    D3D11_STANDARD_MULTISAMPLE_PATTERN = 0xffffffff,
++    D3D11_CENTER_MULTISAMPLE_PATTERN = 0xfffffffe
++} D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS;
++
+ typedef enum D3D11_DEVICE_CONTEXT_TYPE
+ {
+     D3D11_DEVICE_CONTEXT_IMMEDIATE,
+@@ -488,7 +494,16 @@ typedef enum D3D11_FEATURE
      D3D11_FEATURE_ARCHITECTURE_INFO,
      D3D11_FEATURE_D3D9_OPTIONS,
      D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT,
@@ -147,7 +170,7 @@ index 244020a..009ecc8 100644
  } D3D11_FEATURE;
  
  typedef struct D3D11_FEATURE_DATA_THREADING
-@@ -502,6 +511,18 @@ typedef struct D3D11_FEATURE_DATA_DOUBLES
+@@ -502,6 +517,18 @@ typedef struct D3D11_FEATURE_DATA_DOUBLES
      BOOL DoublePrecisionFloatShaderOps;
  } D3D11_FEATURE_DATA_DOUBLES;
  
@@ -166,7 +189,7 @@ index 244020a..009ecc8 100644
  typedef struct D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS
  {
      BOOL ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x;
-@@ -525,6 +546,111 @@ typedef struct D3D11_FEATURE_DATA_D3D11_OPTIONS
+@@ -525,6 +552,111 @@ typedef struct D3D11_FEATURE_DATA_D3D11_OPTIONS
      BOOL ExtendedResourceSharing;
  } D3D11_FEATURE_DATA_D3D11_OPTIONS;
  
@@ -279,5 +302,5 @@ index 244020a..009ecc8 100644
  {
      D3D11_FILL_WIREFRAME = 2,
 -- 
-2.13.0
+2.14.1
 
