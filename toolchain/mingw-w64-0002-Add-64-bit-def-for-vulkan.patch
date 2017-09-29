@@ -1,0 +1,190 @@
+From 83bd1a9be4138354628f642ab0f83304b8c5480e Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 29 Sep 2017 23:51:52 +0800
+Subject: [PATCH] Add 64-bit def for vulkan
+
+---
+ mingw-w64-crt/lib64/Makefile.am |   1 +
+ mingw-w64-crt/lib64/vulkan.def  | 159 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 160 insertions(+)
+ create mode 100644 mingw-w64-crt/lib64/vulkan.def
+
+diff --git a/mingw-w64-crt/lib64/Makefile.am b/mingw-w64-crt/lib64/Makefile.am
+index f9102f0..a86c994 100644
+--- a/mingw-w64-crt/lib64/Makefile.am
++++ b/mingw-w64-crt/lib64/Makefile.am
+@@ -1,5 +1,6 @@
+ lib64_DATA =
+ lib64_DATA += %reldir%/libwinusb.a
++lib64_DATA += %reldir%/libvulkan.a
+ lib64_DATA += %reldir%/libavrt.a
+ lib64_DATA += %reldir%/libacledit.a
+ lib64_DATA += %reldir%/libaclui.a
+diff --git a/mingw-w64-crt/lib64/vulkan.def b/mingw-w64-crt/lib64/vulkan.def
+new file mode 100644
+index 0000000..c9419d3
+--- /dev/null
++++ b/mingw-w64-crt/lib64/vulkan.def
+@@ -0,0 +1,159 @@
++LIBRARY vulkan-1.dll
++EXPORTS
++vkCreateInstance
++vkDestroyInstance
++vkEnumeratePhysicalDevices
++vkGetPhysicalDeviceFeatures
++vkGetPhysicalDeviceFormatProperties
++vkGetPhysicalDeviceImageFormatProperties
++vkGetPhysicalDeviceProperties
++vkGetPhysicalDeviceQueueFamilyProperties
++vkGetPhysicalDeviceMemoryProperties
++vkGetInstanceProcAddr
++vkGetDeviceProcAddr
++vkCreateDevice
++vkDestroyDevice
++vkEnumerateInstanceExtensionProperties
++vkEnumerateDeviceExtensionProperties
++vkEnumerateInstanceLayerProperties
++vkEnumerateDeviceLayerProperties
++vkGetDeviceQueue
++vkQueueSubmit
++vkQueueWaitIdle
++vkDeviceWaitIdle
++vkAllocateMemory
++vkFreeMemory
++vkMapMemory
++vkUnmapMemory
++vkFlushMappedMemoryRanges
++vkInvalidateMappedMemoryRanges
++vkGetDeviceMemoryCommitment
++vkBindBufferMemory
++vkBindImageMemory
++vkGetBufferMemoryRequirements
++vkGetImageMemoryRequirements
++vkGetImageSparseMemoryRequirements
++vkGetPhysicalDeviceSparseImageFormatProperties
++vkQueueBindSparse
++vkCreateFence
++vkDestroyFence
++vkResetFences
++vkGetFenceStatus
++vkWaitForFences
++vkCreateSemaphore
++vkDestroySemaphore
++vkCreateEvent
++vkDestroyEvent
++vkGetEventStatus
++vkSetEvent
++vkResetEvent
++vkCreateQueryPool
++vkDestroyQueryPool
++vkGetQueryPoolResults
++vkCreateBuffer
++vkDestroyBuffer
++vkCreateBufferView
++vkDestroyBufferView
++vkCreateImage
++vkDestroyImage
++vkGetImageSubresourceLayout
++vkCreateImageView
++vkDestroyImageView
++vkCreateShaderModule
++vkDestroyShaderModule
++vkCreatePipelineCache
++vkDestroyPipelineCache
++vkGetPipelineCacheData
++vkMergePipelineCaches
++vkCreateGraphicsPipelines
++vkCreateComputePipelines
++vkDestroyPipeline
++vkCreatePipelineLayout
++vkDestroyPipelineLayout
++vkCreateSampler
++vkDestroySampler
++vkCreateDescriptorSetLayout
++vkDestroyDescriptorSetLayout
++vkCreateDescriptorPool
++vkDestroyDescriptorPool
++vkResetDescriptorPool
++vkAllocateDescriptorSets
++vkFreeDescriptorSets
++vkUpdateDescriptorSets
++vkCreateFramebuffer
++vkDestroyFramebuffer
++vkCreateRenderPass
++vkDestroyRenderPass
++vkGetRenderAreaGranularity
++vkCreateCommandPool
++vkDestroyCommandPool
++vkResetCommandPool
++vkAllocateCommandBuffers
++vkFreeCommandBuffers
++vkBeginCommandBuffer
++vkEndCommandBuffer
++vkResetCommandBuffer
++vkCmdBindPipeline
++vkCmdSetViewport
++vkCmdSetScissor
++vkCmdSetLineWidth
++vkCmdSetDepthBias
++vkCmdSetBlendConstants
++vkCmdSetDepthBounds
++vkCmdSetStencilCompareMask
++vkCmdSetStencilWriteMask
++vkCmdSetStencilReference
++vkCmdBindDescriptorSets
++vkCmdBindIndexBuffer
++vkCmdBindVertexBuffers
++vkCmdDraw
++vkCmdDrawIndexed
++vkCmdDrawIndirect
++vkCmdDrawIndexedIndirect
++vkCmdDispatch
++vkCmdDispatchIndirect
++vkCmdCopyBuffer
++vkCmdCopyImage
++vkCmdBlitImage
++vkCmdCopyBufferToImage
++vkCmdCopyImageToBuffer
++vkCmdUpdateBuffer
++vkCmdFillBuffer
++vkCmdClearColorImage
++vkCmdClearDepthStencilImage
++vkCmdClearAttachments
++vkCmdResolveImage
++vkCmdSetEvent
++vkCmdResetEvent
++vkCmdWaitEvents
++vkCmdPipelineBarrier
++vkCmdBeginQuery
++vkCmdEndQuery
++vkCmdResetQueryPool
++vkCmdWriteTimestamp
++vkCmdCopyQueryPoolResults
++vkCmdPushConstants
++vkCmdBeginRenderPass
++vkCmdNextSubpass
++vkCmdEndRenderPass
++vkCmdExecuteCommands
++vkDestroySurfaceKHR
++vkGetPhysicalDeviceSurfaceSupportKHR
++vkGetPhysicalDeviceSurfaceCapabilitiesKHR
++vkGetPhysicalDeviceSurfaceFormatsKHR
++vkGetPhysicalDeviceSurfacePresentModesKHR
++vkCreateSwapchainKHR
++vkDestroySwapchainKHR
++vkGetSwapchainImagesKHR
++vkAcquireNextImageKHR
++vkQueuePresentKHR
++vkGetPhysicalDeviceDisplayPropertiesKHR
++vkGetPhysicalDeviceDisplayPlanePropertiesKHR
++vkGetDisplayPlaneSupportedDisplaysKHR
++vkGetDisplayModePropertiesKHR
++vkCreateDisplayModeKHR
++vkGetDisplayPlaneCapabilitiesKHR
++vkCreateDisplayPlaneSurfaceKHR
++vkCreateSharedSwapchainsKHR
++vkCreateWin32SurfaceKHR
++vkGetPhysicalDeviceWin32PresentationSupportKHR
+-- 
+2.14.1
+
