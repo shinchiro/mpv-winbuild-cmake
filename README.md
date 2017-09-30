@@ -51,6 +51,8 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - mujs
     - libarchive
     - libjpeg
+    - shaderc
+    - Vulkan-LoaderAndValidationLayers (header)
 
 - Zip
     - expat (2.2.4)
