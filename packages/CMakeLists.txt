@@ -145,6 +145,7 @@ foreach(package
     angle
     mujs
     vulkan-headers
+    shaderc
     mpv
     flac
     opus-tools
