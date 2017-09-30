@@ -1,6 +1,5 @@
 ExternalProject_Add(mujs
     GIT_REPOSITORY git://git.ghostscript.com/mujs.git
-    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE}
