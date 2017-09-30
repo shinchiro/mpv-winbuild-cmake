@@ -144,6 +144,7 @@ foreach(package
     ffmpeg
     angle
     mujs
+    vulkan-headers
     mpv
     flac
     opus-tools
