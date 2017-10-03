@@ -56,8 +56,8 @@ index 00000000..dec2383d
 +
 +uninstall:
 +	-rm -f $(BINDIR)/libEGL.dll $(BINDIR)/libGLESv2.dll
-+	-rm -f $(BINDIR)/libEGL.dll.a $(BINDIR)/libGLESv2.dll.a
-+	-rm -f $(BINDIR)/libEGL.a $(BINDIR)/libGLESv2.a
++	-rm -f $(LIBDIR)/libEGL.dll.a $(LIBDIR)/libGLESv2.dll.a
++	-rm -f $(LIBDIR)/libEGL.a $(LIBDIR)/libGLESv2.a
 +	-rm -f $(LIBDIR)/pkgconfig/libEGL.pc
 +	-rm -rf $(INCLUDEDIR)/EGL $(INCLUDEDIR)/GLES2 $(INCLUDEDIR)/GLES3 $(INCLUDEDIR)/GLSLANG $(INCLUDEDIR)/KHR
 +	-rm -f $(INCLUDEDIR)/platform/Platform.h
