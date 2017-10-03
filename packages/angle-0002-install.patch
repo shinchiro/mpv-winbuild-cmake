@@ -1,26 +1,25 @@
-From fe9f6cf089c4e4d4824ffb54ebc5317ed26b8da8 Mon Sep 17 00:00:00 2001
+From a42ed153abd48158d6a659d1ef577c8d07f003d2 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 1 Apr 2017 08:48:21 +0800
+Date: Tue, 3 Oct 2017 15:00:32 +0800
 Subject: [PATCH] install
 
 ---
- Makefile     | 51 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ Makefile     | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
  libEGL.pc.in | 10 ++++++++++
  move-libs.sh | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 95 insertions(+)
+ 3 files changed, 94 insertions(+)
  create mode 100644 Makefile
  create mode 100644 libEGL.pc.in
  create mode 100755 move-libs.sh
 
 diff --git a/Makefile b/Makefile
 new file mode 100644
-index 00000000..512ff4b4
+index 00000000..dec2383d
 --- /dev/null
 +++ b/Makefile
-@@ -0,0 +1,51 @@
+@@ -0,0 +1,50 @@
 +VERSION = 0.0.0
 +INSTALL ?= install
-+SHELL ?= /bin/bash
 +PREFIX ?= /usr/local
 +BINDIR ?= $(PREFIX)/bin
 +LIBDIR ?= $(PREFIX)/lib
@@ -41,7 +40,7 @@ index 00000000..512ff4b4
 +	sed 's,%PREFIX%,$(PREFIX),;s,%LIBDIR%,$(LIBDIR),;s,%INCLUDEDIR%,$(INCLUDEDIR),;s,%VERSION%,$(VERSION),' $< > $@
 +
 +install: $(TARGET) libEGL.pc
-+	$(INSTALL) -d $(INCLUDEDIR)/{EGL,GLES{2,3},GLSLANG,KHR,platform}
++	$(INSTALL) -d $(INCLUDEDIR)/EGL $(INCLUDEDIR)/GLES2 $(INCLUDEDIR)/GLES3 $(INCLUDEDIR)/GLSLANG $(INCLUDEDIR)/KHR $(INCLUDEDIR)/platform
 +	$(INSTALL) -d $(BINDIR)
 +	$(INSTALL) -d $(LIBDIR)
 +	$(INSTALL) -d $(LIBDIR)/pkgconfig
@@ -56,11 +55,11 @@ index 00000000..512ff4b4
 +	$(INSTALL) -m 644 libEGL.a libGLESv2.a $(LIBDIR)
 +
 +uninstall:
-+	-rm -f $(BINDIR)/lib{EGL,GLESv2}.dll
-+	-rm -f $(LIBDIR)/lib{EGL,GLESv2}.dll.a
-+	-rm -f $(LIBDIR)/lib{EGL,GLESv2}.a
++	-rm -f $(BINDIR)/libEGL.dll $(BINDIR)/libGLESv2.dll
++	-rm -f $(BINDIR)/libEGL.dll.a $(BINDIR)/libGLESv2.dll.a
++	-rm -f $(BINDIR)/libEGL.a $(BINDIR)/libGLESv2.a
 +	-rm -f $(LIBDIR)/pkgconfig/libEGL.pc
-+	-rm -rf $(INCLUDEDIR)/{EGL,GLES{2,3},GLSLANG,KHR}
++	-rm -rf $(INCLUDEDIR)/EGL $(INCLUDEDIR)/GLES2 $(INCLUDEDIR)/GLES3 $(INCLUDEDIR)/GLSLANG $(INCLUDEDIR)/KHR
 +	-rm -f $(INCLUDEDIR)/platform/Platform.h
 +	-rm -f $(INCLUDEDIR)/angle_gl.h
 +.PHONY: uninstall
@@ -71,7 +70,7 @@ index 00000000..512ff4b4
 +.PHONY: test
 diff --git a/libEGL.pc.in b/libEGL.pc.in
 new file mode 100644
-index 00000000..3532b396
+index 00000000..84f07842
 --- /dev/null
 +++ b/libEGL.pc.in
 @@ -0,0 +1,10 @@
@@ -126,5 +125,5 @@ index 00000000..ab6a8deb
 +mv libGLESv2_main.a $SCRIPT_DIR_PATH/libGLESv2.a
 +mv libEGL_static.a $SCRIPT_DIR_PATH/libEGL.a
 -- 
-2.12.0
+2.14.1
 
