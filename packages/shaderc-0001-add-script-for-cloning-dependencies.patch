@@ -42,7 +42,7 @@ index 0000000..4873df5
 +git_operation "spirv-tools" $spirv_tools_git "spirv-tools"
 +
 +# spirv-headers
-+git_operation "spirv-tools/external/spirv-headers" $spirv_headers_git "spirv-tools/external/spirv-headers"
++git_operation "spirv-headers" $spirv_headers_git "spirv-headers"
 -- 
 2.14.1
 
