@@ -8,7 +8,7 @@ ExternalProject_Add(shaderc
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=<SOURCE_DIR>/cmake/linux-mingw-toolchain.cmake
         -DSHADERC_SKIP_TESTS=ON
-        -DMINGW_COMPILER_PREFIX=x86_64-w64-mingw32
+        -DMINGW_COMPILER_PREFIX=${TARGET_ARCH}
     BUILD_COMMAND ${MAKE} -i -C <SOURCE_DIR>/build
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE 1
