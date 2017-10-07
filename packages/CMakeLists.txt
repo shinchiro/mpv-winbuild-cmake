@@ -146,6 +146,7 @@ foreach(package
     mujs
     vulkan-headers
     shaderc
+    crossc
     mpv
     flac
     opus-tools
