@@ -8,6 +8,7 @@ ExternalProject_Add(shaderc
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=<SOURCE_DIR>/cmake/linux-mingw-toolchain.cmake
         -DSHADERC_SKIP_TESTS=ON
+        -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -fno-rtti'
         -DMINGW_COMPILER_PREFIX=${TARGET_ARCH}
     BUILD_COMMAND ${MAKE} -i -C <SOURCE_DIR>/build
     INSTALL_COMMAND ""
