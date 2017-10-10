@@ -16,7 +16,7 @@ ExternalProject_Add(mpv
         uchardet
         openal-soft
         mujs
-        vulkan-headers
+        vulkan
         shaderc
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
