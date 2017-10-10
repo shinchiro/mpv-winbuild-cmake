@@ -46,7 +46,7 @@ zip() {
 
     mv ./build$bit/mpv-* ./release
     cd ./release/mpv-packaging-master
-    cp -r ./mpv-root/* ./$arch/d3dcompiler_43.dll ./$arch/vulkan-1.dll ../mpv-$arch*
+    cp -r ./mpv-root/* ./$arch/d3dcompiler_43.dll ../mpv-$arch*
     cd ..
     for dir in ./mpv*$arch*; do
         if [ -d $dir ]; then
