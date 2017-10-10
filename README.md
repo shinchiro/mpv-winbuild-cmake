@@ -52,7 +52,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libarchive
     - libjpeg
     - shaderc
-    - Vulkan-LoaderAndValidationLayers (header)
+    - vulkan
 
 - Zip
     - expat (2.2.4)

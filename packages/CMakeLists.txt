@@ -144,7 +144,7 @@ foreach(package
     ffmpeg
     angle
     mujs
-    vulkan-headers
+    vulkan
     shaderc
     crossc
     mpv
