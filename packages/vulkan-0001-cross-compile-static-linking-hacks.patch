@@ -1,6 +1,6 @@
-From 189e4a23502c9d809325c7b7335ed1f18093b452 Mon Sep 17 00:00:00 2001
+From 5d3c1ef7d81de3139d6522c2446f30c09c74e709 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Tue, 10 Oct 2017 18:23:10 +0800
+Date: Wed, 11 Oct 2017 21:25:45 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -9,8 +9,8 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  loader/loader.h             |  3 +++
  loader/loader.rc            |  4 ++++
  loader/vk_loader_platform.h |  2 +-
- loader/vulkan.pc.in         |  3 ++-
- 6 files changed, 18 insertions(+), 13 deletions(-)
+ loader/vulkan.pc.in         |  4 ++--
+ 6 files changed, 18 insertions(+), 14 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
 index 9c8173f..d103beb 100644
@@ -66,7 +66,7 @@ index 9c8173f..d103beb 100644
          if(INSTALL_LVL_FILES)
              install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
 diff --git a/loader/loader.c b/loader/loader.c
-index 6850153..03a10ec 100644
+index 912d81c..6d36af5 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -48,9 +48,9 @@
@@ -134,18 +134,18 @@ index 207e5a4..a6f4015 100644
  
  #include "vulkan/vk_platform.h"
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 717aa74..2ce5aea 100644
+index 2ce5aea..6e89703 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
-@@ -6,6 +6,7 @@ includedir=${prefix}/include
- Name: @CMAKE_PROJECT_NAME@
- Description: Vulkan Loader
- Version: @VK_API_VERSION@
--Libs: -L${libdir} -lvulkan @PRIVATE_LIBS@
-+Libs: -L${libdir} -lvulkan
-+Libs.private: @PRIVATE_LIBS@
- Cflags: -I${includedir}
+@@ -1,6 +1,6 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+-exec_prefix=@CMAKE_INSTALL_PREFIX@
+-libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
+ includedir=${prefix}/include
  
+ Name: @CMAKE_PROJECT_NAME@
 -- 
 2.14.1
 
