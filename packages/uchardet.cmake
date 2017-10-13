@@ -10,3 +10,4 @@ ExternalProject_Add(uchardet
 
 clean_build_dir(uchardet)
 force_rebuild_git(uchardet)
+clean(uchardet)

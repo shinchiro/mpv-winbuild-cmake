@@ -110,7 +110,7 @@ it's better to completely disable them in `/etc/pacman.conf` just to be safe.
 Additionally, some packages, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
 
-## Building Software
+## Building Software (First Time)
 
 To set up the build environment, create a directory to store build files in:
 
@@ -134,3 +134,27 @@ After it done, you're ready to build mpv and all its dependencies:
     ninja mpv
 
 This will take a while (about ~10 minutes on my machine).
+
+## Building Software (Second Time)
+
+To build mpv for a second time, clean all packages' stamp files:
+
+    ninja clean
+
+After that, build mpv as usual:
+
+    ninja mpv
+
+This will also build all packages that `mpv` depends on.
+
+## FAQ
+
+Available commands:
+
+ninja clean -> remove all stamp files in every packages to prepare for next compiling.
+
+ninja *package*-clean -> individually clean a package.
+
+ninja *package* -> compile a package
+
+where *package* is package's name found in `packages` folder.

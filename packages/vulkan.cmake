@@ -37,3 +37,4 @@ ExternalProject_Add_Step(vulkan manual-install
 )
 
 force_rebuild_git(vulkan)
+clean(vulkan)

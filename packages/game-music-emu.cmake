@@ -10,3 +10,4 @@ ExternalProject_Add(game-music-emu
 
 clean_build_dir(game-music-emu)
 force_rebuild_git(game-music-emu)
+clean(game-music-emu)

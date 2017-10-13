@@ -57,6 +57,7 @@ ExternalProject_Add_Step(angle clean-buildfiles
 )
 
 force_rebuild_git(angle)
+clean(angle)
 
 # This is too confusing
 # DEPENDEES: Steps on which this step depends

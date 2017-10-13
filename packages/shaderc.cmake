@@ -32,3 +32,4 @@ ExternalProject_Add_Step(shaderc manual-install
 )
 
 force_rebuild_git(shaderc)
+clean(shaderc)

@@ -20,7 +20,6 @@ ExternalProject_Add(ffmpeg
     #GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
     GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
     GIT_SHALLOW 1
-    DOWNLOAD_NAME "ffmpeg"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
     --cross-prefix=${TARGET_ARCH}-
@@ -66,3 +65,4 @@ ExternalProject_Add(ffmpeg
 
 clean_build_dir(ffmpeg)
 force_rebuild_git(ffmpeg)
+clean(ffmpeg)

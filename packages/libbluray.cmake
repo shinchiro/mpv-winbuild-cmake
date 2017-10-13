@@ -19,8 +19,6 @@ ExternalProject_Add(libbluray
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-force_rebuild_git(libbluray)
-
 ExternalProject_Add_Step(libbluray bootstrap
     DEPENDEES download update
     DEPENDERS configure
@@ -28,3 +26,6 @@ ExternalProject_Add_Step(libbluray bootstrap
     WORKING_DIRECTORY <SOURCE_DIR>
     LOG 1
 )
+
+force_rebuild_git(libbluray)
+clean(libbluray)

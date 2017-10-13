@@ -14,4 +14,5 @@ ExternalProject_Add(lame
 
 clean_build_dir(lame)
 force_rebuild_git(lame)
+clean(lame)
 autoreconf(lame)

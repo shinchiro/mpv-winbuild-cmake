@@ -12,4 +12,4 @@ ExternalProject_Add(lzo
 )
 
 clean_build_dir(lzo)
-force_rebuild(lzo)
+clean(lzo)

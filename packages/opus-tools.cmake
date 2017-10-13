@@ -17,4 +17,5 @@ ExternalProject_Add(opus-tools
 
 clean_build_dir(opus-tools)
 force_rebuild_git(opus-tools)
+clean(opus-tools)
 autogen(opus-tools)

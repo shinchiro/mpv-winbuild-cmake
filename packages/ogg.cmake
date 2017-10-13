@@ -12,5 +12,5 @@ ExternalProject_Add(ogg
 )
 
 clean_build_dir(ogg)
-force_rebuild(ogg)
+clean(ogg)
 autoreconf(ogg)

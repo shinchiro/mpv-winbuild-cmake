@@ -22,3 +22,4 @@ ExternalProject_Add_Step(crossc update-submodule
 )
 
 force_rebuild_git(crossc)
+clean(crossc)

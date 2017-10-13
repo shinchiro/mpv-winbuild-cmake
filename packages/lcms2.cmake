@@ -14,4 +14,5 @@ ExternalProject_Add(lcms2
 
 clean_build_dir(lcms2)
 force_rebuild_git(lcms2)
+clean(lcms2)
 autoreconf(lcms2)

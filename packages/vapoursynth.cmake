@@ -18,4 +18,5 @@ ExternalProject_Add(vapoursynth
 
 clean_build_dir(vapoursynth)
 force_rebuild_git(vapoursynth)
+clean(vapoursynth)
 autogen(vapoursynth)

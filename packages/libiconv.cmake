@@ -18,4 +18,4 @@ ExternalProject_Add(libiconv
 )
 
 clean_build_dir(libiconv)
-force_rebuild(libiconv)
+clean(libiconv)

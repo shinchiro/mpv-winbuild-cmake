@@ -17,4 +17,5 @@ ExternalProject_Add(xz
 
 clean_build_dir(xz)
 force_rebuild_git(xz)
+clean(xz)
 autogen(xz)

@@ -13,8 +13,6 @@ ExternalProject_Add(xvidcore
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-force_rebuild(xvidcore)
-
 ExternalProject_Add_Step(xvidcore autoconf
     DEPENDEES download update patch
     DEPENDERS configure
@@ -31,3 +29,5 @@ if(${TARGET_CPU} MATCHES "x86_64")
         WORKING_DIRECTORY <SOURCE_DIR>
     )
 endif()
+
+clean(xvidcore)

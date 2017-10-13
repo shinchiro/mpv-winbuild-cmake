@@ -11,4 +11,4 @@ ExternalProject_Add(expat
 )
 
 clean_build_dir(expat)
-force_rebuild(expat)
+clean(expat)

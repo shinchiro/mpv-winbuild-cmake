@@ -22,3 +22,4 @@ ExternalProject_Add(x264
 
 clean_build_dir(x264)
 force_rebuild_git(x264)
+clean(x264)

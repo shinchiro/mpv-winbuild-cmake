@@ -13,4 +13,4 @@ ExternalProject_Add(vorbis
 )
 
 clean_build_dir(vorbis)
-force_rebuild(vorbis)
+clean(vorbis)

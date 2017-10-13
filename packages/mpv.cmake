@@ -50,8 +50,6 @@ ExternalProject_Add(mpv
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-force_rebuild_git(mpv)
-
 ExternalProject_Add_Step(mpv bootstrap
     DEPENDEES download
     DEPENDERS configure
@@ -105,3 +103,6 @@ ExternalProject_Add_Step(mpv copy-package-dir
     COMMENT "Copying mpv package folder"
     LOG 1
 )
+
+force_rebuild_git(mpv)
+clean(mpv)

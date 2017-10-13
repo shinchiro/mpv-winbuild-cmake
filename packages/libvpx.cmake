@@ -23,3 +23,4 @@ ExternalProject_Add(libvpx
 
 clean_build_dir(libvpx)
 force_rebuild_git(libvpx)
+clean(libvpx)

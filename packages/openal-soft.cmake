@@ -15,3 +15,4 @@ ExternalProject_Add(openal-soft
 
 clean_build_dir(openal-soft)
 force_rebuild_git(openal-soft)
+clean(openal-soft)

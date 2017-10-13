@@ -24,4 +24,5 @@ ExternalProject_Add(harfbuzz
 
 clean_build_dir(harfbuzz)
 force_rebuild_git(harfbuzz)
+clean(harfbuzz)
 autogen(harfbuzz)

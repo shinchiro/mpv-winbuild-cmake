@@ -29,9 +29,10 @@ ExternalProject_Add(luajit
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-force_rebuild_git(luajit)
-
 ExternalProject_Add_Step(luajit install-pc
     DEPENDEES install
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/luajit.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/luajit.pc
 )
+
+force_rebuild_git(luajit)
+clean(luajit)
