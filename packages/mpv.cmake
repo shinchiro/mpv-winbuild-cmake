@@ -21,6 +21,7 @@ ExternalProject_Add(mpv
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
+        LDFLAGS='-lshlwapi -lcfgmgr32' # Needed for linking vulkan's lib (for now)
         PKG_CONFIG=pkg-config
         TARGET=${TARGET_ARCH}
         DEST_OS=win32
