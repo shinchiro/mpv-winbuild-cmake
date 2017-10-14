@@ -12,7 +12,6 @@ ExternalProject_Add(lcms2
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(lcms2)
 force_rebuild_git(lcms2)
 clean(lcms2)
 autoreconf(lcms2)

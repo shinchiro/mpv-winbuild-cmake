@@ -10,7 +10,6 @@ ExternalProject_Add(libjpeg
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(libjpeg)
 force_rebuild_git(libjpeg)
 clean(libjpeg)
 autoreconf(libjpeg)

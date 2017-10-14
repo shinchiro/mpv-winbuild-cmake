@@ -77,13 +77,6 @@ function(autoreconf _name)
     )
 endfunction()
 
-function(clean_build_dir _name)
-    ExternalProject_Add_Step(${_name} clean_build_dir
-        DEPENDEES build install
-        COMMAND ${EXEC} rm -rf "<BINARY_DIR>/*"
-    )
-endfunction()
-
 foreach(package
     gmp
     xz

@@ -100,8 +100,3 @@ clean(x265-10bit)
 clean(x265)
 clean(x265-base)
 clean(x265-10bit-single)
-
-clean_build_dir(x265-12bit)
-clean_build_dir(x265-10bit)
-clean_build_dir(x265)
-clean_build_dir(x265-10bit-single)

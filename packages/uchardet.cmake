@@ -8,6 +8,5 @@ ExternalProject_Add(uchardet
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(uchardet)
 force_rebuild_git(uchardet)
 clean(uchardet)

@@ -13,7 +13,6 @@ ExternalProject_Add(libdvdread
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(libdvdread)
 force_rebuild_git(libdvdread)
 clean(libdvdread)
 autoreconf(libdvdread)

@@ -17,11 +17,5 @@ ExternalProject_Add(mujs
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(mujs cleanup
-    DEPENDEES build install
-    WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND ${MAKE} nuke
-)
-
 force_rebuild_git(mujs)
 clean(mujs)

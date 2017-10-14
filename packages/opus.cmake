@@ -11,13 +11,5 @@ ExternalProject_Add(opus
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(opus cleanup
-    DEPENDERS update
-    WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND git clean -dfx
-    LOG 1
-)
-
-clean_build_dir(opus)
 force_rebuild_git(opus)
 clean(opus)

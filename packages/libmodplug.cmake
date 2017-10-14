@@ -10,5 +10,4 @@ ExternalProject_Add(libmodplug
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(libmodplug)
 clean(libmodplug)

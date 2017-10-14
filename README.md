@@ -114,8 +114,8 @@ Additionally, some packages, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf` need
 
 To set up the build environment, create a directory to store build files in:
 
-    mkdir build-64
-    cd build-64
+    mkdir build64
+    cd build64
 
 Once you’ve changed into that directory, run CMake, e.g.
 
@@ -134,6 +134,8 @@ After it done, you're ready to build mpv and all its dependencies:
     ninja mpv
 
 This will take a while (about ~10 minutes on my machine).
+
+The final `build64` folder's size will be around ~3GB.
 
 ## Building Software (Second Time)
 

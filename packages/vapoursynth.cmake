@@ -16,7 +16,6 @@ ExternalProject_Add(vapoursynth
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(vapoursynth)
 force_rebuild_git(vapoursynth)
 clean(vapoursynth)
 autogen(vapoursynth)

@@ -10,7 +10,6 @@ ExternalProject_Add(libzimg
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(libzimg)
 force_rebuild_git(libzimg)
 clean(libzimg)
 autogen(libzimg)

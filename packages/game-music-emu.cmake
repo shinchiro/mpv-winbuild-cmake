@@ -8,6 +8,5 @@ ExternalProject_Add(game-music-emu
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean_build_dir(game-music-emu)
 force_rebuild_git(game-music-emu)
 clean(game-music-emu)

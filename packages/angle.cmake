@@ -5,8 +5,6 @@ else()
 endif()
 
 ExternalProject_Add(angle
-    DEPENDS
-        ffmpeg
     GIT_REPOSITORY https://chromium.googlesource.com/angle/angle
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -49,11 +47,6 @@ ExternalProject_Add_Step(angle move-libs
     DEPENDEES make-all
     DEPENDERS install
     COMMAND ${EXEC} <SOURCE_DIR>/move-libs.sh ${TARGET_ARCH}
-)
-
-ExternalProject_Add_Step(angle clean-buildfiles
-   DEPENDEES move-libs
-   COMMAND rm -R <SOURCE_DIR>/generated
 )
 
 force_rebuild_git(angle)
