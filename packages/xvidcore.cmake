@@ -30,4 +30,4 @@ if(${TARGET_CPU} MATCHES "x86_64")
     )
 endif()
 
-clean(xvidcore)
+extra_step(xvidcore)

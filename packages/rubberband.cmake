@@ -10,4 +10,4 @@ ExternalProject_Add(rubberband
 )
 
 force_rebuild_git(rubberband)
-clean(rubberband)
+extra_step(rubberband)

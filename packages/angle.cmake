@@ -50,7 +50,7 @@ ExternalProject_Add_Step(angle move-libs
 )
 
 force_rebuild_git(angle)
-clean(angle)
+extra_step(angle)
 
 # This is too confusing
 # DEPENDEES: Steps on which this step depends

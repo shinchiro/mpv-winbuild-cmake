@@ -15,5 +15,5 @@ ExternalProject_Add(speex
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean(speex)
+extra_step(speex)
 autoreconf(speex)

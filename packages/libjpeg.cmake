@@ -11,5 +11,5 @@ ExternalProject_Add(libjpeg
 )
 
 force_rebuild_git(libjpeg)
-clean(libjpeg)
+extra_step(libjpeg)
 autoreconf(libjpeg)

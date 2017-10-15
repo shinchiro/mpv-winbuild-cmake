@@ -13,5 +13,5 @@ ExternalProject_Add(libdvdnav
 )
 
 force_rebuild_git(libdvdnav)
-clean(libdvdnav)
+extra_step(libdvdnav)
 autoreconf(libdvdnav)

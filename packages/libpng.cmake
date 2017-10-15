@@ -15,5 +15,5 @@ ExternalProject_Add(libpng
 )
 
 force_rebuild_git(libpng)
-clean(libpng)
+extra_step(libpng)
 autoreconf(libpng)

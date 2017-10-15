@@ -11,5 +11,5 @@ ExternalProject_Add(libzimg
 )
 
 force_rebuild_git(libzimg)
-clean(libzimg)
+extra_step(libzimg)
 autogen(libzimg)

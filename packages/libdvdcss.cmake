@@ -13,5 +13,5 @@ ExternalProject_Add(libdvdcss
 )
 
 force_rebuild_git(libdvdcss)
-clean(libdvdcss)
+extra_step(libdvdcss)
 autoreconf(libdvdcss)

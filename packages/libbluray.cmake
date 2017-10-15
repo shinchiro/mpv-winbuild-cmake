@@ -28,4 +28,4 @@ ExternalProject_Add_Step(libbluray bootstrap
 )
 
 force_rebuild_git(libbluray)
-clean(libbluray)
+extra_step(libbluray)

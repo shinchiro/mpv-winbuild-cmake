@@ -35,4 +35,4 @@ ExternalProject_Add_Step(luajit install-pc
 )
 
 force_rebuild_git(luajit)
-clean(luajit)
+extra_step(luajit)

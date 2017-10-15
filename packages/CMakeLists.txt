@@ -1,4 +1,4 @@
-function(clean _name)
+function(extra_step _name)
     set(stamp_dir ${CMAKE_CURRENT_BINARY_DIR}/${_name}-prefix/src/${_name}-stamp)
     ExternalProject_Add_Step(${_name} clean
         WORKING_DIRECTORY <SOURCE_DIR>

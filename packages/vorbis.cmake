@@ -12,4 +12,4 @@ ExternalProject_Add(vorbis
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-clean(vorbis)
+extra_step(vorbis)

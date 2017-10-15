@@ -22,4 +22,4 @@ ExternalProject_Add(libvpx
 )
 
 force_rebuild_git(libvpx)
-clean(libvpx)
+extra_step(libvpx)

@@ -95,8 +95,8 @@ ExternalProject_Add_Step(x265 combine-libs
     COMMAND libtool --mode=link g++ -static -o libx265.a libx265_main.a libx265_main10.a libx265_main12.a
 )
 
-clean(x265-12bit)
-clean(x265-10bit)
-clean(x265)
-clean(x265-base)
-clean(x265-10bit-single)
+extra_step(x265-12bit)
+extra_step(x265-10bit)
+extra_step(x265)
+extra_step(x265-base)
+extra_step(x265-10bit-single)

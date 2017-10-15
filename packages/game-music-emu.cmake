@@ -9,4 +9,4 @@ ExternalProject_Add(game-music-emu
 )
 
 force_rebuild_git(game-music-emu)
-clean(game-music-emu)
+extra_step(game-music-emu)

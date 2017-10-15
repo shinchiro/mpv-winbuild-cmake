@@ -9,4 +9,4 @@ ExternalProject_Add(libsoxr
 )
 
 force_rebuild_git(libsoxr)
-clean(libsoxr)
+extra_step(libsoxr)

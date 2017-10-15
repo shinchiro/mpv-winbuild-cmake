@@ -12,4 +12,4 @@ ExternalProject_Add(opus
 )
 
 force_rebuild_git(opus)
-clean(opus)
+extra_step(opus)

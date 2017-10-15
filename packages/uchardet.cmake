@@ -9,4 +9,4 @@ ExternalProject_Add(uchardet
 )
 
 force_rebuild_git(uchardet)
-clean(uchardet)
+extra_step(uchardet)

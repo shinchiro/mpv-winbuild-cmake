@@ -16,6 +16,6 @@ ExternalProject_Add(flac
 )
 
 force_rebuild_git(flac)
-clean(flac)
+extra_step(flac)
 autogen(flac)
 autoreconf(flac)
