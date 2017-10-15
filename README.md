@@ -53,6 +53,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libjpeg
     - shaderc
     - vulkan
+    - crossc
 
 - Zip
     - expat (2.2.4)
@@ -149,14 +150,14 @@ After that, build mpv as usual:
 
 This will also build all packages that `mpv` depends on.
 
-## FAQ
+## Available Commands
 
-Available commands:
+* **ninja package** -> compile a package
 
-ninja clean -> remove all stamp files in every packages to prepare for next compiling.
+* **ninja clean** -> remove all stamp files in all packages.
 
-ninja *package*-clean -> individually clean a package.
+* **ninja package-fullclean** -> Remove all stamp files of a package.
 
-ninja *package* -> compile a package
+* **ninja package-liteclean** -> Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case.
 
-where *package* is package's name found in `packages` folder.
+`package` is package's name found in `packages` folder.
