@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 
+sed -i '2d;3d;6d;9d' debian/patches/series
 for i in $(cat debian/patches/series); do
-    git apply "debian/patches/$i"
+    patch -p1 < "debian/patches/$i"
 done
