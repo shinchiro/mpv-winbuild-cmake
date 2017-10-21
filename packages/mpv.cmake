@@ -18,6 +18,7 @@ ExternalProject_Add(mpv
         mujs
         vulkan
         shaderc
+        crossc
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
