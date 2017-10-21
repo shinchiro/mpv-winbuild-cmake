@@ -8,7 +8,7 @@ ExternalProject_Add(crossc
         AR=${TARGET_ARCH}-ar
     INSTALL_COMMAND ${MAKE}
         prefix=${MINGW_INSTALL_PREFIX}
-        install
+        install-static
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
