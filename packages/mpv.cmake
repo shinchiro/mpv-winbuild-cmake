@@ -31,7 +31,6 @@ ExternalProject_Add(mpv
         --enable-pdf-build
         --enable-encoding
         --disable-manpage-build
-        --disable-debug-build
         --enable-libmpv-shared
         --enable-lua
         --enable-javascript
@@ -62,7 +61,9 @@ ExternalProject_Add_Step(mpv bootstrap
 
 ExternalProject_Add_Step(mpv strip-binary
     DEPENDEES build
+    COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --only-keep-debug <SOURCE_DIR>/build/mpv.exe <SOURCE_DIR>/build/mpv.debug
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.exe
+    COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --add-gnu-debuglink=<SOURCE_DIR>/build/mpv.debug <SOURCE_DIR>/build/mpv.exe
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.com
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv-1.dll
     COMMENT "Stripping mpv binaries"
