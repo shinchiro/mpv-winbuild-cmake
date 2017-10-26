@@ -14,7 +14,7 @@ ExternalProject_Add(crossc
 )
 
 ExternalProject_Add_Step(crossc update-submodule
-    DEPENDEES download update
+    DEPENDEES download update force-update
     DEPENDERS build
     WORKING_DIRECTORY <SOURCE_DIR>
     COMMAND git submodule update --remote --recursive
