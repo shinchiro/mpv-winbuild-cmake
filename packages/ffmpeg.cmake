@@ -21,7 +21,7 @@ ExternalProject_Add(ffmpeg
     GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
-    PATCH_COMMAND patch -p1 --quiet < ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-0001-revert-libavformat-not-treat-0-as-eof.patch
+    PATCH_COMMAND git apply --index ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-0001-diff-with-upstream.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
     --cross-prefix=${TARGET_ARCH}-
     --prefix=${MINGW_INSTALL_PREFIX}
