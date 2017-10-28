@@ -95,7 +95,7 @@ index 00000000..ab6a8deb
 +FILE_PATH=$(realpath $0)
 +SCRIPT_DIR_PATH=$(dirname $FILE_PATH)
 +
-+cd $SCRIPT_DIR_PATH/generated/out/Release/obj.target/src
++cd $SCRIPT_DIR_PATH/build/out/Release/obj.target/src
 +mkdir -p ar
 +for lib in `find -maxdepth 1 -name '*.a'`;
 +do
