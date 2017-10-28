@@ -1,38 +1,34 @@
-From f909deb4f5d6d394697e1fbbbb4b27c6b5f64038 Mon Sep 17 00:00:00 2001
+From cc8f5c59e2dce062b56be019004ee0d8c43b812b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 9 Jun 2017 17:06:18 +0800
+Date: Sat, 28 Oct 2017 10:50:06 +0800
 Subject: [PATCH] add option for targeting cpu architecture
 
 Because gyp wrongly detect cpu architecture. Also add specific flags
 ---
- gyp/common.gypi         |  6 ++----
+ gyp/common.gypi         |  2 --
  gyp/common_defines.gypi | 12 +++++++++++-
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/gyp/common.gypi b/gyp/common.gypi
-index fec47d84..1f12b114 100644
+index c312d78d..75b104df 100644
 --- a/gyp/common.gypi
 +++ b/gyp/common.gypi
-@@ -284,8 +284,7 @@
+@@ -284,7 +284,6 @@
                          'TargetMachine': '1', # x86
                      },
                  },
--                'defines': [ 'ANGLE_X86_CPU' ],
--            }, # x86_Base
-+            },
+-                'defines': [ 'ANGLE_IS_32_BIT_CPU' ],
+             }, # x86_Base
  
              'x64_Base':
-             {
-@@ -302,8 +301,7 @@
+@@ -302,7 +301,6 @@
                          'TargetMachine': '17', # x86 - 64
                      },
                  },
--                'defines': [ 'ANGLE_X64_CPU' ],
--            },    # x64_Base
-+            },
+-                'defines': [ 'ANGLE_IS_64_BIT_CPU' ],
+             },    # x64_Base
  
              # Concrete configurations
-             'Debug':
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
 index bce49c4c..c0efaf2c 100644
 --- a/gyp/common_defines.gypi
@@ -52,17 +48,17 @@ index bce49c4c..c0efaf2c 100644
          }],
 +        ['target_cpu=="x86"',
 +        {
-+            'defines': [ 'ANGLE_X86_CPU' ],
++            'defines': [ 'ANGLE_IS_32_BIT_CPU' ],
 +            'cflags_cc': ['-fomit-frame-pointer', '-mfpmath=sse'],
 +        }],
 +        ['target_cpu=="x64"',
 +        {
-+            'defines': [ 'ANGLE_X64_CPU' ],
++            'defines': [ 'ANGLE_IS_64_BIT_CPU' ],
 +            'cflags_cc': ['-fno-omit-frame-pointer'],
 +        }],
      ],
      'msvs_settings':
      {
 -- 
-2.12.1
+2.14.2
 
