@@ -16,12 +16,11 @@ ExternalProject_Add(ffmpeg
         vorbis
         x264
         xvidcore
-    #GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
-    #GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
-    GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
-    GIT_SHALLOW 1
+    GIT_REPOSITORY git://github.com/mpv-player/ffmpeg-mpv.git
+    GIT_CONFIG remote.upstream.url=git://github.com/FFmpeg/FFmpeg.git
+               remote.upstream.fetch=+refs/heads/*:refs/remotes/upstream/*
     UPDATE_COMMAND ""
-    PATCH_COMMAND git apply --index ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-0001-diff-with-upstream.patch
+    PATCH_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
     --cross-prefix=${TARGET_ARCH}-
     --prefix=${MINGW_INSTALL_PREFIX}
@@ -62,6 +61,14 @@ ExternalProject_Add(ffmpeg
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+ExternalProject_Add_Step(ffmpeg rebase-upstream
+    DEPENDEES download update force-update
+    DEPENDERS patch configure build install
+    WORKING_DIRECTORY <SOURCE_DIR>
+    COMMAND git pull -r upstream master
+    LOG 1
 )
 
 force_rebuild_git(ffmpeg)
