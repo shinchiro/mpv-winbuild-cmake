@@ -1,0 +1,206 @@
+From 3587db0168b85cbb076f791cc295f88f9ededffa Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Sat, 28 Oct 2017 19:53:38 +0200
+Subject: [PATCH] cuvid: add frames_params support
+
+Needed by whatever uses the API for filling in hwaccel frames params,
+such as mpv.
+---
+ libavcodec/cuvid.c      | 74 ++++++++++++++++++++++++++++---------------------
+ libavcodec/cuvid.h      |  5 +++-
+ libavcodec/cuvid_h264.c |  8 ++++--
+ libavcodec/cuvid_hevc.c |  8 ++++--
+ 4 files changed, 57 insertions(+), 38 deletions(-)
+
+diff --git a/libavcodec/cuvid.c b/libavcodec/cuvid.c
+index 45e7851f22..ca6809f71e 100644
+--- a/libavcodec/cuvid.c
++++ b/libavcodec/cuvid.c
+@@ -185,7 +185,7 @@ int ff_cuvid_decode_uninit(AVCodecContext *avctx)
+     return 0;
+ }
+ 
+-int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size)
++int ff_cuvid_decode_init(AVCodecContext *avctx)
+ {
+     CUVIDContext *ctx = avctx->internal->hwaccel_priv_data;
+ 
+@@ -214,37 +214,12 @@ int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size)
+         return AVERROR(ENOSYS);
+     }
+ 
+-    if (avctx->thread_type & FF_THREAD_FRAME)
+-        dpb_size += avctx->thread_count;
+-
+     if (!avctx->hw_frames_ctx) {
+-        AVHWFramesContext *frames_ctx;
+-
+-        if (!avctx->hw_device_ctx) {
+-            av_log(avctx, AV_LOG_ERROR, "A hardware device or frames context "
+-                   "is required for CUVID decoding.\n");
+-            return AVERROR(EINVAL);
+-        }
+-
+-        avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
+-        if (!avctx->hw_frames_ctx)
+-            return AVERROR(ENOMEM);
+-        frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-
+-        frames_ctx->format            = AV_PIX_FMT_CUDA;
+-        frames_ctx->width             = avctx->coded_width;
+-        frames_ctx->height            = avctx->coded_height;
+-        frames_ctx->sw_format         = AV_PIX_FMT_NV12;
+-        frames_ctx->sw_format         = sw_desc->comp[0].depth > 8 ?
+-                                        AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
+-        frames_ctx->initial_pool_size = dpb_size;
+-
+-        ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
+-        if (ret < 0) {
+-            av_log(avctx, AV_LOG_ERROR, "Error initializing internal frames context\n");
++        ret = ff_decode_get_hw_frames_ctx(avctx, AV_HWDEVICE_TYPE_CUDA);
++        if (ret < 0)
+             return ret;
+-        }
+     }
++
+     frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+ 
+     params.ulWidth             = avctx->coded_width;
+@@ -256,7 +231,7 @@ int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size)
+                                  cudaVideoSurfaceFormat_P016 : cudaVideoSurfaceFormat_NV12;
+     params.CodecType           = cuvid_codec_type;
+     params.ChromaFormat        = cuvid_chroma_format;
+-    params.ulNumDecodeSurfaces = dpb_size;
++    params.ulNumDecodeSurfaces = frames_ctx->initial_pool_size;
+     params.ulNumOutputSurfaces = 1;
+ 
+     ret = cuvid_decoder_create(&ctx->decoder_ref, frames_ctx->device_ref, &params, avctx);
+@@ -268,7 +243,7 @@ int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size)
+         ret = AVERROR(ENOMEM);
+         goto fail;
+     }
+-    pool->dpb_size = dpb_size;
++    pool->dpb_size = frames_ctx->initial_pool_size;
+ 
+     ctx->decoder_pool = av_buffer_pool_init2(sizeof(int), pool,
+                                              cuvid_decoder_frame_alloc, av_free);
+@@ -430,3 +405,40 @@ finish:
+ 
+     return ret;
+ }
++
++int ff_cuvid_frame_params(AVCodecContext *avctx,
++                          AVBufferRef *hw_frames_ctx,
++                          int dpb_size)
++{
++    AVHWFramesContext *frames_ctx = (AVHWFramesContext*)hw_frames_ctx->data;
++    const AVPixFmtDescriptor *sw_desc;
++    int cuvid_codec_type, cuvid_chroma_format;
++
++    sw_desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
++    if (!sw_desc)
++        return AVERROR_BUG;
++
++    cuvid_codec_type = map_avcodec_id(avctx->codec_id);
++    if (cuvid_codec_type < 0) {
++        av_log(avctx, AV_LOG_ERROR, "Unsupported codec ID\n");
++        return AVERROR_BUG;
++    }
++
++    cuvid_chroma_format = map_chroma_format(avctx->sw_pix_fmt);
++    if (cuvid_chroma_format < 0) {
++        av_log(avctx, AV_LOG_VERBOSE, "Unsupported chroma format\n");
++        return AVERROR(EINVAL);
++    }
++
++    if (avctx->thread_type & FF_THREAD_FRAME)
++        dpb_size += avctx->thread_count;
++
++    frames_ctx->format            = AV_PIX_FMT_CUDA;
++    frames_ctx->width             = avctx->coded_width;
++    frames_ctx->height            = avctx->coded_height;
++    frames_ctx->sw_format         = sw_desc->comp[0].depth > 8 ?
++                                    AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
++    frames_ctx->initial_pool_size = dpb_size;
++
++    return 0;
++}
+diff --git a/libavcodec/cuvid.h b/libavcodec/cuvid.h
+index 232e58d6ed..552efdb211 100644
+--- a/libavcodec/cuvid.h
++++ b/libavcodec/cuvid.h
+@@ -54,9 +54,12 @@ typedef struct CUVIDContext {
+     unsigned int  slice_offsets_allocated;
+ } CUVIDContext;
+ 
+-int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size);
++int ff_cuvid_decode_init(AVCodecContext *avctx);
+ int ff_cuvid_decode_uninit(AVCodecContext *avctx);
+ int ff_cuvid_start_frame(AVCodecContext *avctx, AVFrame *frame);
+ int ff_cuvid_end_frame(AVCodecContext *avctx);
++int ff_cuvid_frame_params(AVCodecContext *avctx,
++                          AVBufferRef *hw_frames_ctx,
++                          int dpb_size);
+ 
+ #endif /* AVCODEC_CUVID_H */
+diff --git a/libavcodec/cuvid_h264.c b/libavcodec/cuvid_h264.c
+index 06362e9061..84abe04c76 100644
+--- a/libavcodec/cuvid_h264.c
++++ b/libavcodec/cuvid_h264.c
+@@ -155,11 +155,12 @@ static int cuvid_h264_decode_slice(AVCodecContext *avctx, const uint8_t *buffer,
+     return 0;
+ }
+ 
+-static int cuvid_h264_decode_init(AVCodecContext *avctx)
++static int cuvid_h264_frame_params(AVCodecContext *avctx,
++                                   AVBufferRef *hw_frames_ctx)
+ {
+     const H264Context *h = avctx->priv_data;
+     const SPS       *sps = h->ps.sps;
+-    return ff_cuvid_decode_init(avctx, sps->ref_frame_count + sps->num_reorder_frames);
++    return ff_cuvid_frame_params(avctx, hw_frames_ctx, sps->ref_frame_count + sps->num_reorder_frames);
+ }
+ 
+ AVHWAccel ff_h264_cuvid_hwaccel_hwaccel = {
+@@ -170,7 +171,8 @@ AVHWAccel ff_h264_cuvid_hwaccel_hwaccel = {
+     .start_frame          = cuvid_h264_start_frame,
+     .end_frame            = ff_cuvid_end_frame,
+     .decode_slice         = cuvid_h264_decode_slice,
+-    .init                 = cuvid_h264_decode_init,
++    .frame_params         = cuvid_h264_frame_params,
++    .init                 = ff_cuvid_decode_init,
+     .uninit               = ff_cuvid_decode_uninit,
+     .priv_data_size       = sizeof(CUVIDContext),
+ };
+diff --git a/libavcodec/cuvid_hevc.c b/libavcodec/cuvid_hevc.c
+index 9993272828..77ecef8ef6 100644
+--- a/libavcodec/cuvid_hevc.c
++++ b/libavcodec/cuvid_hevc.c
+@@ -258,11 +258,12 @@ static int cuvid_hevc_decode_slice(AVCodecContext *avctx, const uint8_t *buffer,
+     return 0;
+ }
+ 
+-static int cuvid_hevc_decode_init(AVCodecContext *avctx)
++static int cuvid_hevc_frame_params(AVCodecContext *avctx,
++                                   AVBufferRef *hw_frames_ctx)
+ {
+     const HEVCContext *s = avctx->priv_data;
+     const HEVCSPS *sps = s->ps.sps;
+-    return ff_cuvid_decode_init(avctx, sps->temporal_layer[sps->max_sub_layers - 1].max_dec_pic_buffering + 1);
++    return ff_cuvid_frame_params(avctx, hw_frames_ctx, sps->temporal_layer[sps->max_sub_layers - 1].max_dec_pic_buffering + 1);
+ }
+ 
+ AVHWAccel ff_hevc_cuvid_hwaccel_hwaccel = {
+@@ -273,7 +274,8 @@ AVHWAccel ff_hevc_cuvid_hwaccel_hwaccel = {
+     .start_frame          = cuvid_hevc_start_frame,
+     .end_frame            = ff_cuvid_end_frame,
+     .decode_slice         = cuvid_hevc_decode_slice,
+-    .init                 = cuvid_hevc_decode_init,
++    .frame_params         = cuvid_hevc_frame_params,
++    .init                 = ff_cuvid_decode_init,
+     .uninit               = ff_cuvid_decode_uninit,
+     .priv_data_size       = sizeof(CUVIDContext),
+ };
+-- 
+2.14.2
+

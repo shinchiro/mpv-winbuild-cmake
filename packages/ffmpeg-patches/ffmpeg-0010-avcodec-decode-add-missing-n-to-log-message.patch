@@ -1,0 +1,25 @@
+From c9277ee95104488e69f3394b275e7ab1aa06ab90 Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Tue, 3 Oct 2017 17:43:13 +0200
+Subject: [PATCH] avcodec/decode: add missing \n to log message
+
+---
+ libavcodec/decode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index d7cff3e5df..9909452e64 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -1201,7 +1201,7 @@ static int setup_hwaccel(AVCodecContext *avctx,
+ 
+     if (!hwa) {
+         av_log(avctx, AV_LOG_ERROR,
+-               "Could not find an AVHWAccel for the pixel format: %s",
++               "Could not find an AVHWAccel for the pixel format: %s\n",
+                name);
+         return AVERROR(ENOENT);
+     }
+-- 
+2.14.2
+

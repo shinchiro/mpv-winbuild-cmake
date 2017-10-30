@@ -1,0 +1,1198 @@
+From 290fea3eb1671884744a8df6722011b4ed72f6f3 Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Thu, 19 Oct 2017 16:38:20 +0200
+Subject: [PATCH] lavc: external hardware frame pool initialization
+
+This adds a new API, which allows the API user to query the required
+AVHWFramesContext parameters. This also reduces code duplication across
+the hwaccels by introducing ff_decode_get_hw_frames_ctx(), which uses
+the new API function. It takes care of initializing the hw_frames_ctx
+if needed, and does additional error handling and API usage checking.
+
+Support for VDA and Cuvid missing.
+
+Signed-off-by: Anton Khirnov <anton@khirnov.net>
+---
+ doc/APIchanges              |   3 +
+ libavcodec/avcodec.h        | 113 +++++++++++++++++++++++
+ libavcodec/decode.c         |  82 +++++++++++++++++
+ libavcodec/decode.h         |  12 +++
+ libavcodec/dxva2.c          |  55 +++++------
+ libavcodec/dxva2_h264.c     |   3 +
+ libavcodec/dxva2_hevc.c     |   3 +
+ libavcodec/dxva2_internal.h |   3 +
+ libavcodec/dxva2_mpeg2.c    |   3 +
+ libavcodec/dxva2_vc1.c      |   5 +
+ libavcodec/dxva2_vp9.c      |   3 +
+ libavcodec/vaapi_decode.c   | 216 +++++++++++++++++++++-----------------------
+ libavcodec/vaapi_decode.h   |   5 +-
+ libavcodec/vaapi_h264.c     |   1 +
+ libavcodec/vaapi_hevc.c     |   1 +
+ libavcodec/vaapi_mpeg2.c    |   1 +
+ libavcodec/vaapi_mpeg4.c    |   2 +
+ libavcodec/vaapi_vc1.c      |   2 +
+ libavcodec/vaapi_vp9.c      |   1 +
+ libavcodec/vdpau.c          |  58 ++++++------
+ libavcodec/vdpau_h264.c     |   1 +
+ libavcodec/vdpau_hevc.c     |   1 +
+ libavcodec/vdpau_internal.h |   2 +
+ libavcodec/vdpau_mpeg12.c   |   1 +
+ libavcodec/vdpau_mpeg4.c    |   1 +
+ libavcodec/vdpau_vc1.c      |   2 +
+ libavcodec/version.h        |   2 +-
+ 27 files changed, 401 insertions(+), 181 deletions(-)
+
+diff --git a/doc/APIchanges b/doc/APIchanges
+index 1490d67f27..a2050775f6 100644
+--- a/doc/APIchanges
++++ b/doc/APIchanges
+@@ -15,6 +15,9 @@ libavutil:     2017-10-21
+ 
+ API changes, most recent first:
+ 
++2017-xx-xx - xxxxxxx - lavc 58.2.100 - avcodec.h
++  Add avcodec_get_hw_frames_parameters().
++
+ -------- 8< --------- FFmpeg 3.4 was cut here -------- 8< ---------
+ 
+ 2017-09-28 - b6cf66ae1c - lavc 57.106.104 - avcodec.h
+diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
+index ee7834c8a2..b28a07e6e5 100644
+--- a/libavcodec/avcodec.h
++++ b/libavcodec/avcodec.h
+@@ -3531,6 +3531,16 @@ typedef struct AVHWAccel {
+      * Internal hwaccel capabilities.
+      */
+     int caps_internal;
++
++    /**
++     * Fill the given hw_frames context with current codec parameters. Called
++     * from get_format. Refer to avcodec_get_hw_frames_parameters() for
++     * details.
++     *
++     * This CAN be called before AVHWAccel.init is called, and you must assume
++     * that avctx->hwaccel_priv_data is invalid.
++     */
++    int (*frame_params)(AVCodecContext *avctx, AVBufferRef *hw_frames_ctx);
+ } AVHWAccel;
+ 
+ /**
+@@ -4666,6 +4676,109 @@ int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
+  */
+ int avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
+ 
++/**
++ * Create and return a AVHWFramesContext with values adequate for hardware
++ * decoding. This is meant to get called from the get_format callback, and is
++ * a helper for preparing a AVHWFramesContext for AVCodecContext.hw_frames_ctx.
++ * This API is for decoding with certain hardware acceleration modes/APIs only.
++ *
++ * The returned AVHWFramesContext is not initialized. The caller must do this
++ * with av_hwframe_ctx_init().
++ *
++ * Calling this function is not a requirement, but makes it simpler to avoid
++ * codec or hardware API specific details when manually allocating frames.
++ *
++ * Alternatively to this, an API user can set AVCodecContext.hw_device_ctx,
++ * which sets up AVCodecContext.hw_frames_ctx fully automatically, and makes
++ * it unnecessary to call this function or having to care about
++ * AVHWFramesContext initialization at all.
++ *
++ * There are a number of requirements for calling this function:
++ *
++ * - It must be called from get_format with the same avctx parameter that was
++ *   passed to get_format. Calling it outside of get_format is not allowed, and
++ *   can trigger undefined behavior.
++ * - The function is not always supported (see description of return values).
++ *   Even if this function returns successfully, hwaccel initialization could
++ *   fail later. (The degree to which implementations check whether the stream
++ *   is actually supported varies. Some do this check only after the user's
++ *   get_format callback returns.)
++ * - The hw_pix_fmt must be one of the choices suggested by get_format. If the
++ *   user decides to use a AVHWFramesContext prepared with this API function,
++ *   the user must return the same hw_pix_fmt from get_format.
++ * - The device_ref passed to this function must support the given hw_pix_fmt.
++ * - After calling this API function, it is the user's responsibility to
++ *   initialize the AVHWFramesContext (returned by the out_frames_ref parameter),
++ *   and to set AVCodecContext.hw_frames_ctx to it. If done, this must be done
++ *   before returning from get_format (this is implied by the normal
++ *   AVCodecContext.hw_frames_ctx API rules).
++ * - The AVHWFramesContext parameters may change every time time get_format is
++ *   called. Also, AVCodecContext.hw_frames_ctx is reset before get_format. So
++ *   you are inherently required to go through this process again on every
++ *   get_format call.
++ * - It is perfectly possible to call this function without actually using
++ *   the resulting AVHWFramesContext. One use-case might be trying to reuse a
++ *   previously initialized AVHWFramesContext, and calling this API function
++ *   only to test whether the required frame parameters have changed.
++ * - Fields that use dynamically allocated values of any kind must not be set
++ *   by the user unless setting them is explicitly allowed by the documentation.
++ *   If the user sets AVHWFramesContext.free and AVHWFramesContext.user_opaque,
++ *   the new free callback must call the potentially set previous free callback.
++ *   This API call may set any dynamically allocated fields, including the free
++ *   callback.
++ *
++ * The function will set at least the following fields on AVHWFramesContext
++ * (potentially more, depending on hwaccel API):
++ *
++ * - All fields set by av_hwframe_ctx_alloc().
++ * - Set the format field to hw_pix_fmt.
++ * - Set the sw_format field to the most suited and most versatile format. (An
++ *   implication is that this will prefer generic formats over opaque formats
++ *   with arbitrary restrictions, if possible.)
++ * - Set the width/height fields to the coded frame size, rounded up to the
++ *   API-specific minimum alignment.
++ * - Only _if_ the hwaccel requires a pre-allocated pool: set the initial_pool_size
++ *   field to the number of maximum reference surfaces possible with the codec,
++ *   plus 1 surface for the user to work (meaning the user can safely reference
++ *   at most 1 decoded surface at a time), plus additional buffering introduced
++ *   by frame threading. If the hwaccel does not require pre-allocation, the
++ *   field is left to 0, and the decoder will allocate new surfaces on demand
++ *   during decoding.
++ * - Possibly AVHWFramesContext.hwctx fields, depending on the underlying
++ *   hardware API.
++ *
++ * Essentially, out_frames_ref returns the same as av_hwframe_ctx_alloc(), but
++ * with basic frame parameters set.
++ *
++ * The function is stateless, and does not change the AVCodecContext or the
++ * device_ref AVHWDeviceContext.
++ *
++ * @param avctx The context which is currently calling get_format, and which
++ *              implicitly contains all state needed for filling the returned
++ *              AVHWFramesContext properly.
++ * @param device_ref A reference to the AVHWDeviceContext describing the device
++ *                   which will be used by the hardware decoder.
++ * @param hw_pix_fmt The hwaccel format you are going to return from get_format.
++ * @param out_frames_ref On success, set to a reference to an _uninitialized_
++ *                       AVHWFramesContext, created from the given device_ref.
++ *                       Fields will be set to values required for decoding.
++ *                       Not changed if an error is returned.
++ * @return zero on success, a negative value on error. The following error codes
++ *         have special semantics:
++ *      AVERROR(ENOENT): the decoder does not support this functionality. Setup
++ *                       is always manual, or it is a decoder which does not
++ *                       support setting AVCodecContext.hw_frames_ctx at all,
++ *                       or it is a software format.
++ *      AVERROR(EINVAL): it is known that hardware decoding is not supported for
++ *                       this configuration, or the device_ref is not supported
++ *                       for the hwaccel referenced by hw_pix_fmt.
++ */
++int avcodec_get_hw_frames_parameters(AVCodecContext *avctx,
++                                     AVBufferRef *device_ref,
++                                     enum AVPixelFormat hw_pix_fmt,
++                                     AVBufferRef **out_frames_ref);
++
++
+ 
+ /**
+  * @defgroup lavc_parsing Frame parsing
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index 86fe5aef52..618c49564e 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -1080,6 +1080,88 @@ static AVHWAccel *find_hwaccel(enum AVCodecID codec_id,
+     return NULL;
+ }
+ 
++int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
++                                enum AVHWDeviceType dev_type)
++{
++    AVHWDeviceContext *device_ctx;
++    AVHWFramesContext *frames_ctx;
++    int ret;
++
++    if (!avctx->hwaccel)
++        return AVERROR(ENOSYS);
++
++    if (avctx->hw_frames_ctx)
++        return 0;
++    if (!avctx->hw_device_ctx) {
++        av_log(avctx, AV_LOG_ERROR, "A hardware frames or device context is "
++                "required for hardware accelerated decoding.\n");
++        return AVERROR(EINVAL);
++    }
++
++    device_ctx = (AVHWDeviceContext *)avctx->hw_device_ctx->data;
++    if (device_ctx->type != dev_type) {
++        av_log(avctx, AV_LOG_ERROR, "Device type %s expected for hardware "
++               "decoding, but got %s.\n", av_hwdevice_get_type_name(dev_type),
++               av_hwdevice_get_type_name(device_ctx->type));
++        return AVERROR(EINVAL);
++    }
++
++    ret = avcodec_get_hw_frames_parameters(avctx,
++                                           avctx->hw_device_ctx,
++                                           avctx->hwaccel->pix_fmt,
++                                           avctx->hw_frames_ctx);
++    if (ret < 0) {
++        av_buffer_unref(&avctx->hw_frames_ctx);
++        return ret;
++    }
++
++    frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
++
++
++    if (frames_ctx->initial_pool_size) {
++        // We guarantee 4 base work surfaces. The function above guarantees 1
++        // (the absolute minimum), so add the missing count.
++        frames_ctx->initial_pool_size += 3;
++
++        // Add an additional surface per thread is frame threading is enabled.
++        if (avctx->active_thread_type & FF_THREAD_FRAME)
++            frames_ctx->initial_pool_size += avctx->thread_count;
++    }
++
++    ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
++    if (ret < 0) {
++        av_buffer_unref(&avctx->hw_frames_ctx);
++        return ret;
++    }
++
++    return 0;
++}
++
++int avcodec_get_hw_frames_parameters(AVCodecContext *avctx,
++                                     AVBufferRef *device_ref,
++                                     enum AVPixelFormat hw_pix_fmt,
++                                     AVBufferRef **out_frames_ref)
++{
++    AVBufferRef *frames_ref = NULL;
++    AVHWAccel *hwa = find_hwaccel(avctx->codec_id, hw_pix_fmt);
++    int ret;
++
++    if (!hwa || !hwa->frame_params)
++        return AVERROR(ENOENT);
++
++    frames_ref = av_hwframe_ctx_alloc(device_ref);
++    if (!frames_ref)
++        return AVERROR(ENOMEM);
++
++    ret = hwa->frame_params(avctx, frames_ref);
++    if (ret >= 0) {
++        *out_frames_ref = frames_ref;
++    } else {
++        av_buffer_unref(&frames_ref);
++    }
++    return ret;
++}
++
+ static int setup_hwaccel(AVCodecContext *avctx,
+                          const enum AVPixelFormat fmt,
+                          const char *name)
+diff --git a/libavcodec/decode.h b/libavcodec/decode.h
+index c9630228dc..1b92e58d96 100644
+--- a/libavcodec/decode.h
++++ b/libavcodec/decode.h
+@@ -21,6 +21,10 @@
+ #ifndef AVCODEC_DECODE_H
+ #define AVCODEC_DECODE_H
+ 
++#include "libavutil/buffer.h"
++#include "libavutil/frame.h"
++#include "libavutil/hwcontext.h"
++
+ #include "avcodec.h"
+ 
+ /**
+@@ -36,4 +40,12 @@ int ff_decode_get_packet(AVCodecContext *avctx, AVPacket *pkt);
+ 
+ void ff_decode_bsfs_uninit(AVCodecContext *avctx);
+ 
++/**
++ * Make sure avctx.hw_frames_ctx is set. If it's not set, the function will
++ * try to allocate it from hw_device_ctx. If that is not possible, an error
++ * message is printed, and an error code is returned.
++ */
++int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
++                                enum AVHWDeviceType dev_type);
++
+ #endif /* AVCODEC_DECODE_H */
+diff --git a/libavcodec/dxva2.c b/libavcodec/dxva2.c
+index afcd361ef6..6f294703fb 100644
+--- a/libavcodec/dxva2.c
++++ b/libavcodec/dxva2.c
+@@ -29,6 +29,7 @@
+ #include "libavutil/time.h"
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "dxva2_internal.h"
+ 
+ /* define all the GUIDs used directly here,
+@@ -576,14 +577,20 @@ static void ff_dxva2_unlock(AVCodecContext *avctx)
+ #endif
+ }
+ 
+-// This must work before the decoder is created.
+-// This somehow needs to be exported to the user.
+-static void dxva_adjust_hwframes(AVCodecContext *avctx, AVHWFramesContext *frames_ctx)
++int ff_dxva2_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx)
+ {
+-    FFDXVASharedContext *sctx = DXVA_SHARED_CONTEXT(avctx);
++    AVHWFramesContext *frames_ctx = (AVHWFramesContext *)hw_frames_ctx->data;
++    AVHWDeviceContext *device_ctx = frames_ctx->device_ctx;
+     int surface_alignment, num_surfaces;
+ 
+-    frames_ctx->format = sctx->pix_fmt;
++    if (device_ctx->type == AV_HWDEVICE_TYPE_DXVA2) {
++        frames_ctx->format = AV_PIX_FMT_DXVA2_VLD;
++    } else if (device_ctx->type == AV_HWDEVICE_TYPE_D3D11VA) {
++        frames_ctx->format = AV_PIX_FMT_D3D11;
++    } else {
++        return AVERROR(EINVAL);
++    }
+ 
+     /* decoding MPEG-2 requires additional alignment on some Intel GPUs,
+     but it causes issues for H.264 on certain AMD GPUs..... */
+@@ -596,8 +603,8 @@ static void dxva_adjust_hwframes(AVCodecContext *avctx, AVHWFramesContext *frame
+     else
+         surface_alignment = 16;
+ 
+-    /* 4 base work surfaces */
+-    num_surfaces = 4;
++    /* 1 base work surface */
++    num_surfaces = 1;
+ 
+     /* add surfaces based on number of possible refs */
+     if (avctx->codec_id == AV_CODEC_ID_H264 || avctx->codec_id == AV_CODEC_ID_HEVC)
+@@ -633,12 +640,16 @@ static void dxva_adjust_hwframes(AVCodecContext *avctx, AVHWFramesContext *frame
+         frames_hwctx->BindFlags |= D3D11_BIND_DECODER;
+     }
+ #endif
++
++    return 0;
+ }
+ 
+ int ff_dxva2_decode_init(AVCodecContext *avctx)
+ {
+     FFDXVASharedContext *sctx = DXVA_SHARED_CONTEXT(avctx);
+-    AVHWFramesContext *frames_ctx = NULL;
++    AVHWFramesContext *frames_ctx;
++    enum AVHWDeviceType dev_type = avctx->hwaccel->pix_fmt == AV_PIX_FMT_DXVA2_VLD
++                            ? AV_HWDEVICE_TYPE_DXVA2 : AV_HWDEVICE_TYPE_D3D11VA;
+     int ret = 0;
+ 
+     // Old API.
+@@ -648,32 +659,14 @@ int ff_dxva2_decode_init(AVCodecContext *avctx)
+     // (avctx->pix_fmt is not updated yet at this point)
+     sctx->pix_fmt = avctx->hwaccel->pix_fmt;
+ 
+-    if (!avctx->hw_frames_ctx && !avctx->hw_device_ctx) {
+-        av_log(avctx, AV_LOG_ERROR, "Either a hw_frames_ctx or a hw_device_ctx needs to be set for hardware decoding.\n");
+-        return AVERROR(EINVAL);
+-    }
+-
+-    if (avctx->hw_frames_ctx) {
+-        frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-    } else {
+-        avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
+-        if (!avctx->hw_frames_ctx)
+-            return AVERROR(ENOMEM);
+-
+-        frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-
+-        dxva_adjust_hwframes(avctx, frames_ctx);
+-
+-        ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
+-        if (ret < 0)
+-            goto fail;
+-    }
++    ret = ff_decode_get_hw_frames_ctx(avctx, dev_type);
++    if (ret < 0)
++        return ret;
+ 
++    frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+     sctx->device_ctx = frames_ctx->device_ctx;
+ 
+-    if (frames_ctx->format != sctx->pix_fmt ||
+-        !((sctx->pix_fmt == AV_PIX_FMT_D3D11 && CONFIG_D3D11VA) ||
+-          (sctx->pix_fmt == AV_PIX_FMT_DXVA2_VLD && CONFIG_DXVA2))) {
++    if (frames_ctx->format != sctx->pix_fmt) {
+         av_log(avctx, AV_LOG_ERROR, "Invalid pixfmt for hwaccel!\n");
+         ret = AVERROR(EINVAL);
+         goto fail;
+diff --git a/libavcodec/dxva2_h264.c b/libavcodec/dxva2_h264.c
+index e3a3f7866e..ee35b20e82 100644
+--- a/libavcodec/dxva2_h264.c
++++ b/libavcodec/dxva2_h264.c
+@@ -528,6 +528,7 @@ AVHWAccel ff_h264_dxva2_hwaccel = {
+     .start_frame    = dxva2_h264_start_frame,
+     .decode_slice   = dxva2_h264_decode_slice,
+     .end_frame      = dxva2_h264_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -544,6 +545,7 @@ AVHWAccel ff_h264_d3d11va_hwaccel = {
+     .start_frame    = dxva2_h264_start_frame,
+     .decode_slice   = dxva2_h264_decode_slice,
+     .end_frame      = dxva2_h264_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -560,6 +562,7 @@ AVHWAccel ff_h264_d3d11va2_hwaccel = {
+     .start_frame    = dxva2_h264_start_frame,
+     .decode_slice   = dxva2_h264_decode_slice,
+     .end_frame      = dxva2_h264_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+diff --git a/libavcodec/dxva2_hevc.c b/libavcodec/dxva2_hevc.c
+index 88f887a1b5..542afc383a 100644
+--- a/libavcodec/dxva2_hevc.c
++++ b/libavcodec/dxva2_hevc.c
+@@ -432,6 +432,7 @@ AVHWAccel ff_hevc_dxva2_hwaccel = {
+     .start_frame    = dxva2_hevc_start_frame,
+     .decode_slice   = dxva2_hevc_decode_slice,
+     .end_frame      = dxva2_hevc_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct hevc_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -448,6 +449,7 @@ AVHWAccel ff_hevc_d3d11va_hwaccel = {
+     .start_frame    = dxva2_hevc_start_frame,
+     .decode_slice   = dxva2_hevc_decode_slice,
+     .end_frame      = dxva2_hevc_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct hevc_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -464,6 +466,7 @@ AVHWAccel ff_hevc_d3d11va2_hwaccel = {
+     .start_frame    = dxva2_hevc_start_frame,
+     .decode_slice   = dxva2_hevc_decode_slice,
+     .end_frame      = dxva2_hevc_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct hevc_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+diff --git a/libavcodec/dxva2_internal.h b/libavcodec/dxva2_internal.h
+index 352a9db1ab..8bb3344090 100644
+--- a/libavcodec/dxva2_internal.h
++++ b/libavcodec/dxva2_internal.h
+@@ -156,6 +156,9 @@ int ff_dxva2_decode_init(AVCodecContext *avctx);
+ 
+ int ff_dxva2_decode_uninit(AVCodecContext *avctx);
+ 
++int ff_dxva2_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx);
++
+ int ff_dxva2_is_d3d11(const AVCodecContext *avctx);
+ 
+ #endif /* AVCODEC_DXVA2_INTERNAL_H */
+diff --git a/libavcodec/dxva2_mpeg2.c b/libavcodec/dxva2_mpeg2.c
+index b7c69378f0..df5fe59a7d 100644
+--- a/libavcodec/dxva2_mpeg2.c
++++ b/libavcodec/dxva2_mpeg2.c
+@@ -327,6 +327,7 @@ AVHWAccel ff_mpeg2_dxva2_hwaccel = {
+     .start_frame    = dxva2_mpeg2_start_frame,
+     .decode_slice   = dxva2_mpeg2_decode_slice,
+     .end_frame      = dxva2_mpeg2_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -343,6 +344,7 @@ AVHWAccel ff_mpeg2_d3d11va_hwaccel = {
+     .start_frame    = dxva2_mpeg2_start_frame,
+     .decode_slice   = dxva2_mpeg2_decode_slice,
+     .end_frame      = dxva2_mpeg2_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -359,6 +361,7 @@ AVHWAccel ff_mpeg2_d3d11va2_hwaccel = {
+     .start_frame    = dxva2_mpeg2_start_frame,
+     .decode_slice   = dxva2_mpeg2_decode_slice,
+     .end_frame      = dxva2_mpeg2_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+diff --git a/libavcodec/dxva2_vc1.c b/libavcodec/dxva2_vc1.c
+index e5353cdddc..f21c5d5544 100644
+--- a/libavcodec/dxva2_vc1.c
++++ b/libavcodec/dxva2_vc1.c
+@@ -388,6 +388,7 @@ AVHWAccel ff_wmv3_dxva2_hwaccel = {
+     .start_frame    = dxva2_vc1_start_frame,
+     .decode_slice   = dxva2_vc1_decode_slice,
+     .end_frame      = dxva2_vc1_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -404,6 +405,7 @@ AVHWAccel ff_vc1_dxva2_hwaccel = {
+     .start_frame    = dxva2_vc1_start_frame,
+     .decode_slice   = dxva2_vc1_decode_slice,
+     .end_frame      = dxva2_vc1_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -420,6 +422,7 @@ AVHWAccel ff_wmv3_d3d11va_hwaccel = {
+     .start_frame    = dxva2_vc1_start_frame,
+     .decode_slice   = dxva2_vc1_decode_slice,
+     .end_frame      = dxva2_vc1_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -436,6 +439,7 @@ AVHWAccel ff_wmv3_d3d11va2_hwaccel = {
+     .start_frame    = dxva2_vc1_start_frame,
+     .decode_slice   = dxva2_vc1_decode_slice,
+     .end_frame      = dxva2_vc1_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -452,6 +456,7 @@ AVHWAccel ff_vc1_d3d11va_hwaccel = {
+     .start_frame    = dxva2_vc1_start_frame,
+     .decode_slice   = dxva2_vc1_decode_slice,
+     .end_frame      = dxva2_vc1_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+diff --git a/libavcodec/dxva2_vp9.c b/libavcodec/dxva2_vp9.c
+index 6d87fdd9f2..a2e55f5736 100644
+--- a/libavcodec/dxva2_vp9.c
++++ b/libavcodec/dxva2_vp9.c
+@@ -319,6 +319,7 @@ AVHWAccel ff_vp9_dxva2_hwaccel = {
+     .start_frame    = dxva2_vp9_start_frame,
+     .decode_slice   = dxva2_vp9_decode_slice,
+     .end_frame      = dxva2_vp9_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct vp9_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -335,6 +336,7 @@ AVHWAccel ff_vp9_d3d11va_hwaccel = {
+     .start_frame    = dxva2_vp9_start_frame,
+     .decode_slice   = dxva2_vp9_decode_slice,
+     .end_frame      = dxva2_vp9_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct vp9_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+@@ -351,6 +353,7 @@ AVHWAccel ff_vp9_d3d11va2_hwaccel = {
+     .start_frame    = dxva2_vp9_start_frame,
+     .decode_slice   = dxva2_vp9_decode_slice,
+     .end_frame      = dxva2_vp9_end_frame,
++    .frame_params   = ff_dxva2_common_frame_params,
+     .frame_priv_data_size = sizeof(struct vp9_dxva2_picture_context),
+     .priv_data_size = sizeof(FFDXVASharedContext),
+ };
+diff --git a/libavcodec/vaapi_decode.c b/libavcodec/vaapi_decode.c
+index 27ef33837c..d467bed874 100644
+--- a/libavcodec/vaapi_decode.c
++++ b/libavcodec/vaapi_decode.c
+@@ -21,6 +21,7 @@
+ #include "libavutil/pixdesc.h"
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "internal.h"
+ #include "vaapi_decode.h"
+ 
+@@ -272,10 +273,15 @@ static const struct {
+ #undef MAP
+ };
+ 
+-static int vaapi_decode_make_config(AVCodecContext *avctx)
++/*
++ * Set *va_config and the frames_ref fields from the current codec parameters
++ * in avctx.
++ */
++static int vaapi_decode_make_config(AVCodecContext *avctx,
++                                    AVBufferRef *device_ref,
++                                    VAConfigID *va_config,
++                                    AVBufferRef *frames_ref)
+ {
+-    VAAPIDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
+-
+     AVVAAPIHWConfig       *hwconfig    = NULL;
+     AVHWFramesConstraints *constraints = NULL;
+     VAStatus vas;
+@@ -285,13 +291,16 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+     int profile_count, exact_match, alt_profile;
+     const AVPixFmtDescriptor *sw_desc, *desc;
+ 
++    AVHWDeviceContext    *device = (AVHWDeviceContext*)device_ref->data;
++    AVVAAPIDeviceContext *hwctx = device->hwctx;
++
+     codec_desc = avcodec_descriptor_get(avctx->codec_id);
+     if (!codec_desc) {
+         err = AVERROR(EINVAL);
+         goto fail;
+     }
+ 
+-    profile_count = vaMaxNumProfiles(ctx->hwctx->display);
++    profile_count = vaMaxNumProfiles(hwctx->display);
+     profile_list  = av_malloc_array(profile_count,
+                                     sizeof(VAProfile));
+     if (!profile_list) {
+@@ -299,7 +308,7 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+         goto fail;
+     }
+ 
+-    vas = vaQueryConfigProfiles(ctx->hwctx->display,
++    vas = vaQueryConfigProfiles(hwctx->display,
+                                 profile_list, &profile_count);
+     if (vas != VA_STATUS_SUCCESS) {
+         av_log(avctx, AV_LOG_ERROR, "Failed to query profiles: "
+@@ -358,12 +367,9 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+         }
+     }
+ 
+-    ctx->va_profile    = profile;
+-    ctx->va_entrypoint = VAEntrypointVLD;
+-
+-    vas = vaCreateConfig(ctx->hwctx->display, ctx->va_profile,
+-                         ctx->va_entrypoint, NULL, 0,
+-                         &ctx->va_config);
++    vas = vaCreateConfig(hwctx->display, profile,
++                         VAEntrypointVLD, NULL, 0,
++                         va_config);
+     if (vas != VA_STATUS_SUCCESS) {
+         av_log(avctx, AV_LOG_ERROR, "Failed to create decode "
+                "configuration: %d (%s).\n", vas, vaErrorStr(vas));
+@@ -371,20 +377,15 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+         goto fail;
+     }
+ 
+-    hwconfig = av_hwdevice_hwconfig_alloc(avctx->hw_device_ctx ?
+-                                          avctx->hw_device_ctx :
+-                                          ctx->frames->device_ref);
++    hwconfig = av_hwdevice_hwconfig_alloc(device_ref);
+     if (!hwconfig) {
+         err = AVERROR(ENOMEM);
+         goto fail;
+     }
+-    hwconfig->config_id = ctx->va_config;
++    hwconfig->config_id = *va_config;
+ 
+     constraints =
+-        av_hwdevice_get_hwframe_constraints(avctx->hw_device_ctx ?
+-                                            avctx->hw_device_ctx :
+-                                            ctx->frames->device_ref,
+-                                            hwconfig);
++        av_hwdevice_get_hwframe_constraints(device_ref, hwconfig);
+     if (!constraints) {
+         err = AVERROR(ENOMEM);
+         goto fail;
+@@ -410,48 +411,52 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+         goto fail;
+     }
+ 
+-    // Find the first format in the list which matches the expected
+-    // bit depth and subsampling.  If none are found (this can happen
+-    // when 10-bit streams are decoded to 8-bit surfaces, for example)
+-    // then just take the first format on the list.
+-    ctx->surface_format = constraints->valid_sw_formats[0];
+-    sw_desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
+-    for (i = 0; constraints->valid_sw_formats[i] != AV_PIX_FMT_NONE; i++) {
+-        desc = av_pix_fmt_desc_get(constraints->valid_sw_formats[i]);
+-        if (desc->nb_components != sw_desc->nb_components ||
+-            desc->log2_chroma_w != sw_desc->log2_chroma_w ||
+-            desc->log2_chroma_h != sw_desc->log2_chroma_h)
+-            continue;
+-        for (j = 0; j < desc->nb_components; j++) {
+-            if (desc->comp[j].depth != sw_desc->comp[j].depth)
+-                break;
++    if (frames_ref) {
++        AVHWFramesContext *frames = (AVHWFramesContext *)frames_ref->data;
++
++        frames->format = AV_PIX_FMT_VAAPI;
++        frames->width = avctx->coded_width;
++        frames->height = avctx->coded_height;
++
++        // Find the first format in the list which matches the expected
++        // bit depth and subsampling.  If none are found (this can happen
++        // when 10-bit streams are decoded to 8-bit surfaces, for example)
++        // then just take the first format on the list.
++        frames->sw_format = constraints->valid_sw_formats[0];
++        sw_desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
++        for (i = 0; constraints->valid_sw_formats[i] != AV_PIX_FMT_NONE; i++) {
++            desc = av_pix_fmt_desc_get(constraints->valid_sw_formats[i]);
++            if (desc->nb_components != sw_desc->nb_components ||
++                desc->log2_chroma_w != sw_desc->log2_chroma_w ||
++                desc->log2_chroma_h != sw_desc->log2_chroma_h)
++                continue;
++            for (j = 0; j < desc->nb_components; j++) {
++                if (desc->comp[j].depth != sw_desc->comp[j].depth)
++                    break;
++            }
++            if (j < desc->nb_components)
++                continue;
++            frames->sw_format = constraints->valid_sw_formats[i];
++            break;
+         }
+-        if (j < desc->nb_components)
+-            continue;
+-        ctx->surface_format = constraints->valid_sw_formats[i];
+-        break;
+-    }
+ 
+-    // Start with at least four surfaces.
+-    ctx->surface_count = 4;
+-    // Add per-codec number of surfaces used for storing reference frames.
+-    switch (avctx->codec_id) {
+-    case AV_CODEC_ID_H264:
+-    case AV_CODEC_ID_HEVC:
+-        ctx->surface_count += 16;
+-        break;
+-    case AV_CODEC_ID_VP9:
+-        ctx->surface_count += 8;
+-        break;
+-    case AV_CODEC_ID_VP8:
+-        ctx->surface_count += 3;
+-        break;
+-    default:
+-        ctx->surface_count += 2;
++        frames->initial_pool_size = 1;
++        // Add per-codec number of surfaces used for storing reference frames.
++        switch (avctx->codec_id) {
++        case AV_CODEC_ID_H264:
++        case AV_CODEC_ID_HEVC:
++            frames->initial_pool_size += 16;
++            break;
++        case AV_CODEC_ID_VP9:
++            frames->initial_pool_size += 8;
++            break;
++        case AV_CODEC_ID_VP8:
++            frames->initial_pool_size += 3;
++            break;
++        default:
++            frames->initial_pool_size += 2;
++        }
+     }
+-    // Add an additional surface per thread is frame threading is enabled.
+-    if (avctx->active_thread_type & FF_THREAD_FRAME)
+-        ctx->surface_count += avctx->thread_count;
+ 
+     av_hwframe_constraints_free(&constraints);
+     av_freep(&hwconfig);
+@@ -461,14 +466,38 @@ static int vaapi_decode_make_config(AVCodecContext *avctx)
+ fail:
+     av_hwframe_constraints_free(&constraints);
+     av_freep(&hwconfig);
+-    if (ctx->va_config != VA_INVALID_ID) {
+-        vaDestroyConfig(ctx->hwctx->display, ctx->va_config);
+-        ctx->va_config = VA_INVALID_ID;
++    if (*va_config != VA_INVALID_ID) {
++        vaDestroyConfig(hwctx->display, *va_config);
++        *va_config = VA_INVALID_ID;
+     }
+     av_freep(&profile_list);
+     return err;
+ }
+ 
++int ff_vaapi_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx)
++{
++    AVHWFramesContext *hw_frames = (AVHWFramesContext *)hw_frames_ctx->data;
++    AVHWDeviceContext *device_ctx = hw_frames->device_ctx;
++    AVVAAPIDeviceContext *hwctx;
++    VAConfigID va_config = VA_INVALID_ID;
++    int err;
++
++    if (device_ctx->type != AV_HWDEVICE_TYPE_VAAPI)
++        return AVERROR(EINVAL);
++    hwctx = device_ctx->hwctx;
++
++    err = vaapi_decode_make_config(avctx, hw_frames->device_ref, &va_config,
++                                   hw_frames_ctx);
++    if (err)
++        return err;
++
++    if (va_config != VA_INVALID_ID)
++        vaDestroyConfig(hwctx->display, va_config);
++
++    return 0;
++}
++
+ int ff_vaapi_decode_init(AVCodecContext *avctx)
+ {
+     VAAPIDecodeContext *ctx = avctx->internal->hwaccel_priv_data;
+@@ -505,36 +534,8 @@ int ff_vaapi_decode_init(AVCodecContext *avctx)
+         ctx->hwctx->driver_quirks =
+             AV_VAAPI_DRIVER_QUIRK_RENDER_PARAM_BUFFERS;
+ 
+-    } else
+-#endif
+-    if (avctx->hw_frames_ctx) {
+-        // This structure has a shorter lifetime than the enclosing
+-        // AVCodecContext, so we inherit the references from there
+-        // and do not need to make separate ones.
+-
+-        ctx->frames = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-        ctx->hwfc   = ctx->frames->hwctx;
+-        ctx->device = ctx->frames->device_ctx;
+-        ctx->hwctx  = ctx->device->hwctx;
+-
+-    } else if (avctx->hw_device_ctx) {
+-        ctx->device = (AVHWDeviceContext*)avctx->hw_device_ctx->data;
+-        ctx->hwctx  = ctx->device->hwctx;
+-
+-        if (ctx->device->type != AV_HWDEVICE_TYPE_VAAPI) {
+-            av_log(avctx, AV_LOG_ERROR, "Device supplied for VAAPI "
+-                   "decoding must be a VAAPI device (not %d).\n",
+-                   ctx->device->type);
+-            err = AVERROR(EINVAL);
+-            goto fail;
+-        }
+-
+-    } else {
+-        av_log(avctx, AV_LOG_ERROR, "A hardware device or frames context "
+-               "is required for VAAPI decoding.\n");
+-        err = AVERROR(EINVAL);
+-        goto fail;
+     }
++#endif
+ 
+ #if FF_API_STRUCT_VAAPI_CONTEXT
+     if (ctx->have_old_context) {
+@@ -546,34 +547,19 @@ int ff_vaapi_decode_init(AVCodecContext *avctx)
+     } else {
+ #endif
+ 
+-    err = vaapi_decode_make_config(avctx);
+-    if (err)
++    err = ff_decode_get_hw_frames_ctx(avctx, AV_HWDEVICE_TYPE_VAAPI);
++    if (err < 0)
+         goto fail;
+ 
+-    if (!avctx->hw_frames_ctx) {
+-        avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
+-        if (!avctx->hw_frames_ctx) {
+-            err = AVERROR(ENOMEM);
+-            goto fail;
+-        }
+-        ctx->frames = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-
+-        ctx->frames->format = AV_PIX_FMT_VAAPI;
+-        ctx->frames->width  = avctx->coded_width;
+-        ctx->frames->height = avctx->coded_height;
+-
+-        ctx->frames->sw_format         = ctx->surface_format;
+-        ctx->frames->initial_pool_size = ctx->surface_count;
++    ctx->frames = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
++    ctx->hwfc   = ctx->frames->hwctx;
++    ctx->device = ctx->frames->device_ctx;
++    ctx->hwctx  = ctx->device->hwctx;
+ 
+-        err = av_hwframe_ctx_init(avctx->hw_frames_ctx);
+-        if (err < 0) {
+-            av_log(avctx, AV_LOG_ERROR, "Failed to initialise internal "
+-                   "frames context: %d.\n", err);
+-            goto fail;
+-        }
+-
+-        ctx->hwfc = ctx->frames->hwctx;
+-    }
++    err = vaapi_decode_make_config(avctx, ctx->frames->device_ref,
++                                   &ctx->va_config, avctx->hw_frames_ctx);
++    if (err)
++        goto fail;
+ 
+     vas = vaCreateContext(ctx->hwctx->display, ctx->va_config,
+                           avctx->coded_width, avctx->coded_height,
+diff --git a/libavcodec/vaapi_decode.h b/libavcodec/vaapi_decode.h
+index 550ee05432..1fcecac468 100644
+--- a/libavcodec/vaapi_decode.h
++++ b/libavcodec/vaapi_decode.h
+@@ -53,8 +53,6 @@ typedef struct VAAPIDecodePicture {
+ } VAAPIDecodePicture;
+ 
+ typedef struct VAAPIDecodeContext {
+-    VAProfile             va_profile;
+-    VAEntrypoint          va_entrypoint;
+     VAConfigID            va_config;
+     VAContextID           va_context;
+ 
+@@ -98,4 +96,7 @@ int ff_vaapi_decode_cancel(AVCodecContext *avctx,
+ int ff_vaapi_decode_init(AVCodecContext *avctx);
+ int ff_vaapi_decode_uninit(AVCodecContext *avctx);
+ 
++int ff_vaapi_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx);
++
+ #endif /* AVCODEC_VAAPI_DECODE_H */
+diff --git a/libavcodec/vaapi_h264.c b/libavcodec/vaapi_h264.c
+index 30e7026ccf..c7f9d7bcb4 100644
+--- a/libavcodec/vaapi_h264.c
++++ b/libavcodec/vaapi_h264.c
+@@ -399,6 +399,7 @@ AVHWAccel ff_h264_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vaapi_hevc.c b/libavcodec/vaapi_hevc.c
+index 69b8e478c6..718ccc92a2 100644
+--- a/libavcodec/vaapi_hevc.c
++++ b/libavcodec/vaapi_hevc.c
+@@ -434,6 +434,7 @@ AVHWAccel ff_hevc_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePictureHEVC),
+     .init                 = ff_vaapi_decode_init,
+     .uninit               = ff_vaapi_decode_uninit,
++    .frame_params         = ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vaapi_mpeg2.c b/libavcodec/vaapi_mpeg2.c
+index 0d197c9692..fd5be8d8ae 100644
+--- a/libavcodec/vaapi_mpeg2.c
++++ b/libavcodec/vaapi_mpeg2.c
+@@ -183,6 +183,7 @@ AVHWAccel ff_mpeg2_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vaapi_mpeg4.c b/libavcodec/vaapi_mpeg4.c
+index f8c5ddf209..3fe029186e 100644
+--- a/libavcodec/vaapi_mpeg4.c
++++ b/libavcodec/vaapi_mpeg4.c
+@@ -189,6 +189,7 @@ AVHWAccel ff_mpeg4_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+@@ -206,6 +207,7 @@ AVHWAccel ff_h263_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vaapi_vc1.c b/libavcodec/vaapi_vc1.c
+index 30c9ed3c8b..49675744cd 100644
+--- a/libavcodec/vaapi_vc1.c
++++ b/libavcodec/vaapi_vc1.c
+@@ -399,6 +399,7 @@ AVHWAccel ff_wmv3_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+@@ -415,6 +416,7 @@ AVHWAccel ff_vc1_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = &ff_vaapi_decode_init,
+     .uninit               = &ff_vaapi_decode_uninit,
++    .frame_params         = &ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vaapi_vp9.c b/libavcodec/vaapi_vp9.c
+index d8ece75df4..f295dc9ebb 100644
+--- a/libavcodec/vaapi_vp9.c
++++ b/libavcodec/vaapi_vp9.c
+@@ -179,6 +179,7 @@ AVHWAccel ff_vp9_vaapi_hwaccel = {
+     .frame_priv_data_size = sizeof(VAAPIDecodePicture),
+     .init                 = ff_vaapi_decode_init,
+     .uninit               = ff_vaapi_decode_uninit,
++    .frame_params         = ff_vaapi_common_frame_params,
+     .priv_data_size       = sizeof(VAAPIDecodeContext),
+     .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vdpau.c b/libavcodec/vdpau.c
+index ee3610428f..1b2ec989cd 100644
+--- a/libavcodec/vdpau.c
++++ b/libavcodec/vdpau.c
+@@ -24,6 +24,7 @@
+ #include <limits.h>
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "internal.h"
+ #include "h264dec.h"
+ #include "vc1.h"
+@@ -110,6 +111,25 @@ int av_vdpau_get_surface_parameters(AVCodecContext *avctx,
+     return 0;
+ }
+ 
++int ff_vdpau_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx)
++{
++    AVHWFramesContext *hw_frames = (AVHWFramesContext*)hw_frames_ctx->data;
++    VdpChromaType type;
++    uint32_t width;
++    uint32_t height;
++
++    if (av_vdpau_get_surface_parameters(avctx, &type, &width, &height))
++        return AVERROR(EINVAL);
++
++    hw_frames->format    = AV_PIX_FMT_VDPAU;
++    hw_frames->sw_format = avctx->sw_pix_fmt;
++    hw_frames->width     = width;
++    hw_frames->height    = height;
++
++    return 0;
++}
++
+ int ff_vdpau_common_init(AVCodecContext *avctx, VdpDecoderProfile profile,
+                          int level)
+ {
+@@ -127,6 +147,7 @@ int ff_vdpau_common_init(AVCodecContext *avctx, VdpDecoderProfile profile,
+     VdpChromaType type;
+     uint32_t width;
+     uint32_t height;
++    int ret;
+ 
+     vdctx->width            = UINT32_MAX;
+     vdctx->height           = UINT32_MAX;
+@@ -154,41 +175,14 @@ int ff_vdpau_common_init(AVCodecContext *avctx, VdpDecoderProfile profile,
+             type != VDP_CHROMA_TYPE_420)
+             return AVERROR(ENOSYS);
+     } else {
+-        AVHWFramesContext *frames_ctx = NULL;
++        AVHWFramesContext *frames_ctx;
+         AVVDPAUDeviceContext *dev_ctx;
+ 
+-        // We assume the hw_frames_ctx always survives until ff_vdpau_common_uninit
+-        // is called. This holds true as the user is not allowed to touch
+-        // hw_device_ctx, or hw_frames_ctx after get_format (and ff_get_format
+-        // itself also uninits before unreffing hw_frames_ctx).
+-        if (avctx->hw_frames_ctx) {
+-            frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-        } else if (avctx->hw_device_ctx) {
+-            int ret;
+-
+-            avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
+-            if (!avctx->hw_frames_ctx)
+-                return AVERROR(ENOMEM);
+-
+-            frames_ctx            = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+-            frames_ctx->format    = AV_PIX_FMT_VDPAU;
+-            frames_ctx->sw_format = avctx->sw_pix_fmt;
+-            frames_ctx->width     = avctx->coded_width;
+-            frames_ctx->height    = avctx->coded_height;
+-
+-            ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
+-            if (ret < 0) {
+-                av_buffer_unref(&avctx->hw_frames_ctx);
+-                return ret;
+-            }
+-        }
+-
+-        if (!frames_ctx) {
+-            av_log(avctx, AV_LOG_ERROR, "A hardware frames context is "
+-                   "required for VDPAU decoding.\n");
+-            return AVERROR(EINVAL);
+-        }
++        ret = ff_decode_get_hw_frames_ctx(avctx, AV_HWDEVICE_TYPE_VDPAU);
++        if (ret < 0)
++            return ret;
+ 
++        frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+         dev_ctx = frames_ctx->device_ctx->hwctx;
+ 
+         vdctx->device           = dev_ctx->device;
+diff --git a/libavcodec/vdpau_h264.c b/libavcodec/vdpau_h264.c
+index be6ba71433..70f83d76f5 100644
+--- a/libavcodec/vdpau_h264.c
++++ b/libavcodec/vdpau_h264.c
+@@ -273,6 +273,7 @@ AVHWAccel ff_h264_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_h264_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vdpau_hevc.c b/libavcodec/vdpau_hevc.c
+index fcdf4b2747..70e76cfcaa 100644
+--- a/libavcodec/vdpau_hevc.c
++++ b/libavcodec/vdpau_hevc.c
+@@ -424,6 +424,7 @@ AVHWAccel ff_hevc_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_hevc_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vdpau_internal.h b/libavcodec/vdpau_internal.h
+index 30d01af65d..4d63e50b16 100644
+--- a/libavcodec/vdpau_internal.h
++++ b/libavcodec/vdpau_internal.h
+@@ -119,5 +119,7 @@ int ff_vdpau_common_end_frame(AVCodecContext *avctx, AVFrame *frame,
+ int ff_vdpau_mpeg_end_frame(AVCodecContext *avctx);
+ int ff_vdpau_add_buffer(struct vdpau_picture_context *pic, const uint8_t *buf,
+                         uint32_t buf_size);
++int ff_vdpau_common_frame_params(AVCodecContext *avctx,
++                                 AVBufferRef *hw_frames_ctx);
+ 
+ #endif /* AVCODEC_VDPAU_INTERNAL_H */
+diff --git a/libavcodec/vdpau_mpeg12.c b/libavcodec/vdpau_mpeg12.c
+index b657007ee7..71fe889abf 100644
+--- a/libavcodec/vdpau_mpeg12.c
++++ b/libavcodec/vdpau_mpeg12.c
+@@ -149,6 +149,7 @@ AVHWAccel ff_mpeg2_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_mpeg2_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vdpau_mpeg4.c b/libavcodec/vdpau_mpeg4.c
+index bbdd843a44..653ef7e7e7 100644
+--- a/libavcodec/vdpau_mpeg4.c
++++ b/libavcodec/vdpau_mpeg4.c
+@@ -121,6 +121,7 @@ AVHWAccel ff_mpeg4_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_mpeg4_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/vdpau_vc1.c b/libavcodec/vdpau_vc1.c
+index 665a2333f4..73d83f6577 100644
+--- a/libavcodec/vdpau_vc1.c
++++ b/libavcodec/vdpau_vc1.c
+@@ -147,6 +147,7 @@ AVHWAccel ff_wmv3_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_vc1_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+@@ -163,6 +164,7 @@ AVHWAccel ff_vc1_vdpau_hwaccel = {
+     .frame_priv_data_size = sizeof(struct vdpau_picture_context),
+     .init           = vdpau_vc1_init,
+     .uninit         = ff_vdpau_common_uninit,
++    .frame_params   = ff_vdpau_common_frame_params,
+     .priv_data_size = sizeof(VDPAUContext),
+     .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
+ };
+diff --git a/libavcodec/version.h b/libavcodec/version.h
+index 5e148023f3..a152a4f1c4 100644
+--- a/libavcodec/version.h
++++ b/libavcodec/version.h
+@@ -28,7 +28,7 @@
+ #include "libavutil/version.h"
+ 
+ #define LIBAVCODEC_VERSION_MAJOR  58
+-#define LIBAVCODEC_VERSION_MINOR   1
++#define LIBAVCODEC_VERSION_MINOR   2
+ #define LIBAVCODEC_VERSION_MICRO 100
+ 
+ #define LIBAVCODEC_VERSION_INT  AV_VERSION_INT(LIBAVCODEC_VERSION_MAJOR, \
+-- 
+2.14.2
+

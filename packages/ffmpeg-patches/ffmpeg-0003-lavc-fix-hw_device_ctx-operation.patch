@@ -1,0 +1,34 @@
+From ed5e7a6d5ca5453a97aa6bb12ec82fb2124bbf07 Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Tue, 24 Oct 2017 00:28:03 +0200
+Subject: [PATCH] lavc: fix hw_device_ctx operation
+
+Commit b46a77f19d accidentally broke this (requested change that was
+added to the patch later and which was not fully tested).
+
+Signed-off-by: Mark Thompson <sw@jkqxz.net>
+---
+ libavcodec/decode.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index 618c49564e..ddf64ac87c 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -1109,11 +1109,9 @@ int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
+     ret = avcodec_get_hw_frames_parameters(avctx,
+                                            avctx->hw_device_ctx,
+                                            avctx->hwaccel->pix_fmt,
+-                                           avctx->hw_frames_ctx);
+-    if (ret < 0) {
+-        av_buffer_unref(&avctx->hw_frames_ctx);
++                                           &avctx->hw_frames_ctx);
++    if (ret < 0)
+         return ret;
+-    }
+ 
+     frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
+ 
+-- 
+2.14.2
+

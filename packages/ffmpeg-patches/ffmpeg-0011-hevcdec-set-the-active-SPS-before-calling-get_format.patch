@@ -1,0 +1,36 @@
+From 7adf9447cf2c489b2ff65cbc5354540c8032a55b Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Mon, 24 Jul 2017 11:41:31 +0200
+Subject: [PATCH] hevcdec: set the active SPS before calling get_format()
+
+This way the SPS is available to the hwaccel init code.
+---
+ libavcodec/hevcdec.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/libavcodec/hevcdec.c b/libavcodec/hevcdec.c
+index 2e4add2ae3..d98fec3b8f 100644
+--- a/libavcodec/hevcdec.c
++++ b/libavcodec/hevcdec.c
+@@ -503,13 +503,14 @@ static int hls_slice_header(HEVCContext *s)
+         }
+         ff_hevc_clear_refs(s);
+ 
++        ret = set_sps(s, sps, sps->pix_fmt);
++        if (ret < 0)
++            return ret;
++
+         pix_fmt = get_format(s, sps);
+         if (pix_fmt < 0)
+             return pix_fmt;
+-
+-        ret = set_sps(s, sps, pix_fmt);
+-        if (ret < 0)
+-            return ret;
++        s->avctx->pix_fmt = pix_fmt;
+ 
+         s->seq_decode = (s->seq_decode + 1) & 0xff;
+         s->max_ra     = INT_MAX;
+-- 
+2.14.2
+

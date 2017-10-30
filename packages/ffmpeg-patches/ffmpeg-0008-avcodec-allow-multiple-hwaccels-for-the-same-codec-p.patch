@@ -1,0 +1,128 @@
+From 71d0b5d4297ff30529a15acdb3a05f1e02594001 Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Tue, 3 Oct 2017 15:04:45 +0200
+Subject: [PATCH] avcodec: allow multiple hwaccels for the same
+ codec/pixfmt
+
+Currently, AVHWAccels are looked up using a (codec_id, pixfmt) tuple.
+This means it's impossible to have 2 decoders for the same codec and
+using the same opaque hardware pixel format.
+
+This breaks merging Libav's CUVID hwaccel. FFmpeg has its own CUVID
+support, but it's a full stream decoder, using NVIDIA's codec parser.
+The Libav one is a true hwaccel, which is based on the builtin software
+decoders.
+
+Fix this by introducing another field to disambiguate AVHWAccels, and
+use it for our CUVID decoders. FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS makes
+this mechanism backwards compatible and optional.
+
+Note: this can be reverted later when the AVHWAccel infrastructure gets
+overhauled.
+---
+ libavcodec/avcodec.h  |  5 +++++
+ libavcodec/cuviddec.c |  2 ++
+ libavcodec/decode.c   | 14 +++++++++-----
+ libavcodec/internal.h |  5 +++++
+ 4 files changed, 21 insertions(+), 5 deletions(-)
+
+diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
+index b28a07e6e5..8f41c061cf 100644
+--- a/libavcodec/avcodec.h
++++ b/libavcodec/avcodec.h
+@@ -3541,6 +3541,11 @@ typedef struct AVHWAccel {
+      * that avctx->hwaccel_priv_data is invalid.
+      */
+     int (*frame_params)(AVCodecContext *avctx, AVBufferRef *hw_frames_ctx);
++
++    /**
++     * Some hwaccels are ambiguous if only
++     */
++    const AVClass *decoder_class;
+ } AVHWAccel;
+ 
+ /**
+diff --git a/libavcodec/cuviddec.c b/libavcodec/cuviddec.c
+index 2ba8e00c6a..6370348639 100644
+--- a/libavcodec/cuviddec.c
++++ b/libavcodec/cuviddec.c
+@@ -1106,6 +1106,7 @@ static const AVOption options[] = {
+         .type           = AVMEDIA_TYPE_VIDEO, \
+         .id             = AV_CODEC_ID_##X, \
+         .pix_fmt        = AV_PIX_FMT_CUDA, \
++        .decoder_class  = &x##_cuvid_class, \
+     }; \
+     AVCodec ff_##x##_cuvid_decoder = { \
+         .name           = #x "_cuvid", \
+@@ -1120,6 +1121,7 @@ static const AVOption options[] = {
+         .receive_frame  = cuvid_output_frame, \
+         .flush          = cuvid_flush, \
+         .capabilities   = AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING, \
++        .caps_internal  = FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS, \
+         .pix_fmts       = (const enum AVPixelFormat[]){ AV_PIX_FMT_CUDA, \
+                                                         AV_PIX_FMT_NV12, \
+                                                         AV_PIX_FMT_P010, \
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index a62713f7d9..d7cff3e5df 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -1096,15 +1096,19 @@ enum AVPixelFormat avcodec_default_get_format(struct AVCodecContext *s, const en
+     return fmt[0];
+ }
+ 
+-static AVHWAccel *find_hwaccel(enum AVCodecID codec_id,
++static AVHWAccel *find_hwaccel(AVCodecContext *avctx,
+                                enum AVPixelFormat pix_fmt)
+ {
+     AVHWAccel *hwaccel = NULL;
++    const AVClass *av_class =
++        (avctx->codec->caps_internal & FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS)
++        ? avctx->codec->priv_class : NULL;
+ 
+-    while ((hwaccel = av_hwaccel_next(hwaccel)))
+-        if (hwaccel->id == codec_id
++    while ((hwaccel = av_hwaccel_next(hwaccel))) {
++        if (hwaccel->decoder_class == av_class && hwaccel->id == avctx->codec_id
+             && hwaccel->pix_fmt == pix_fmt)
+             return hwaccel;
++    }
+     return NULL;
+ }
+ 
+@@ -1169,7 +1173,7 @@ int avcodec_get_hw_frames_parameters(AVCodecContext *avctx,
+                                      AVBufferRef **out_frames_ref)
+ {
+     AVBufferRef *frames_ref = NULL;
+-    AVHWAccel *hwa = find_hwaccel(avctx->codec_id, hw_pix_fmt);
++    AVHWAccel *hwa = find_hwaccel(avctx, hw_pix_fmt);
+     int ret;
+ 
+     if (!hwa || !hwa->frame_params)
+@@ -1192,7 +1196,7 @@ static int setup_hwaccel(AVCodecContext *avctx,
+                          const enum AVPixelFormat fmt,
+                          const char *name)
+ {
+-    AVHWAccel *hwa = find_hwaccel(avctx->codec_id, fmt);
++    AVHWAccel *hwa = find_hwaccel(avctx, fmt);
+     int ret        = 0;
+ 
+     if (!hwa) {
+diff --git a/libavcodec/internal.h b/libavcodec/internal.h
+index 7748f09f54..948d5461c1 100644
+--- a/libavcodec/internal.h
++++ b/libavcodec/internal.h
+@@ -69,6 +69,11 @@
+  */
+ #define FF_CODEC_CAP_SLICE_THREAD_HAS_MF    (1 << 5)
+ 
++/**
++ * Allow only AVHWAccels which have a matching decoder_class field.
++ */
++#define FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS  (1 << 6)
++
+ #ifdef TRACE
+ #   define ff_tlog(ctx, ...) av_log(ctx, AV_LOG_TRACE, __VA_ARGS__)
+ #else
+-- 
+2.14.2
+

@@ -1,0 +1,49 @@
+From ee0f0a09e474d98b8dea047428c57b9b931bd5aa Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Sat, 1 Jul 2017 12:09:58 +0200
+Subject: [PATCH] decode: add a per-frame private data for hwaccel use
+
+This will be useful in the CUVID hwaccel. It should also eventually
+replace current decoder-specific mechanisms used by various other
+hwaccels.
+
+Merges Libav commit 704311b2946d74a80f65906961cd9baaa18683a3.
+---
+ libavcodec/decode.c | 3 +++
+ libavcodec/decode.h | 6 ++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index 306975fa15..a62713f7d9 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -1669,6 +1669,9 @@ static void decode_data_free(void *opaque, uint8_t *data)
+     if (fdd->post_process_opaque_free)
+         fdd->post_process_opaque_free(fdd->post_process_opaque);
+ 
++    if (fdd->hwaccel_priv_free)
++        fdd->hwaccel_priv_free(fdd->hwaccel_priv);
++
+     av_freep(&fdd);
+ }
+ 
+diff --git a/libavcodec/decode.h b/libavcodec/decode.h
+index 129ccd43e3..bba24ae4ae 100644
+--- a/libavcodec/decode.h
++++ b/libavcodec/decode.h
+@@ -50,6 +50,12 @@ typedef struct FrameDecodeData {
+     int (*post_process)(void *logctx, AVFrame *frame);
+     void *post_process_opaque;
+     void (*post_process_opaque_free)(void *opaque);
++
++    /**
++     * Per-frame private data for hwaccels.
++     */
++    void *hwaccel_priv;
++    void (*hwaccel_priv_free)(void *priv);
+ } FrameDecodeData;
+ 
+ /**
+-- 
+2.14.2
+

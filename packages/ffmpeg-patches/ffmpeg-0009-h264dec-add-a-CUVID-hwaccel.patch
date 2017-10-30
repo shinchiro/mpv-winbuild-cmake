@@ -1,0 +1,887 @@
+From f459313b6b06857411d16129ff362ff7a741c80e Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Sat, 11 Feb 2017 16:49:34 +0100
+Subject: [PATCH] h264dec: add a CUVID hwaccel
+
+Some parts of the code are based on a patch by
+Timo Rothenpieler <timo@rothenpieler.org>
+
+Merges Libav commit b9129ec4668c511e0a79e25c6f25d748cee172c9.
+
+As a complication, all the names conflict. Add a _hwaccel suffix to the
+merged code where needed.
+
+This commit also changes the Libav code to dynamic loading of the
+cuda/cuvid libraries. (I wouldn't be able to test with the fixed SDK
+anyway, because installing the CUDA SDK on Linux is hell.)
+
+Signed-off-by: wm4 <nfxjfg@googlemail.com>
+---
+ Changelog               |   1 +
+ configure               |  10 +-
+ fftools/ffmpeg.h        |   1 +
+ fftools/ffmpeg_opt.c    |   4 +
+ libavcodec/Makefile     |   2 +
+ libavcodec/allcodecs.c  |   1 +
+ libavcodec/avcodec.h    |   4 +-
+ libavcodec/cuvid.c      | 431 ++++++++++++++++++++++++++++++++++++++++++++++++
+ libavcodec/cuvid.h      |  62 +++++++
+ libavcodec/cuvid_h264.c | 176 ++++++++++++++++++++
+ libavcodec/h264_slice.c |   6 +-
+ 11 files changed, 694 insertions(+), 4 deletions(-)
+ create mode 100644 libavcodec/cuvid.c
+ create mode 100644 libavcodec/cuvid.h
+ create mode 100644 libavcodec/cuvid_h264.c
+
+diff --git a/Changelog b/Changelog
+index 8c45b2946d..2fda8d8263 100644
+--- a/Changelog
++++ b/Changelog
+@@ -97,6 +97,7 @@ version 3.3:
+ - Removed asyncts filter (use af_aresample instead)
+ - Intel QSV-accelerated VP8 video decoding
+ - VAAPI-accelerated deinterlacing
++- NVIDIA CUVID-accelerated H.264 hwaccel decoding
+ 
+ 
+ version 3.2:
+diff --git a/configure b/configure
+index 2f259996ae..0f6f612bd6 100755
+--- a/configure
++++ b/configure
+@@ -307,6 +307,7 @@ External library support:
+   --disable-cuda           disable dynamically linked Nvidia CUDA code [autodetect]
+   --enable-cuda-sdk        enable CUDA features that require the CUDA SDK [no]
+   --disable-cuvid          disable Nvidia CUVID support [autodetect]
++  --disable-cuvid-hwaccel  Nvidia CUVID video decode acceleration (via hwaccel) [autodetect]
+   --disable-d3d11va        disable Microsoft Direct3D 11 video acceleration code [autodetect]
+   --disable-dxva2          disable Microsoft DirectX 9 video acceleration code [autodetect]
+   --enable-libdrm          enable DRM code (Linux) [no]
+@@ -1645,6 +1646,7 @@ HWACCEL_AUTODETECT_LIBRARY_LIST="
+     crystalhd
+     cuda
+     cuvid
++    cuvid_hwaccel
+     d3d11va
+     dxva2
+     nvenc
+@@ -2664,6 +2666,8 @@ h263_videotoolbox_hwaccel_deps="videotoolbox"
+ h263_videotoolbox_hwaccel_select="h263_decoder"
+ h264_cuvid_hwaccel_deps="cuda cuvid"
+ h264_cuvid_hwaccel_select="h264_cuvid_decoder"
++h264_cuvid_hwaccel_hwaccel_deps="cuda cuvid_hwaccel"
++h264_cuvid_hwaccel_hwaccel_select="h264_decoder"
+ h264_d3d11va_hwaccel_deps="d3d11va"
+ h264_d3d11va_hwaccel_select="h264_decoder"
+ h264_d3d11va2_hwaccel_deps="d3d11va"
+@@ -5944,6 +5948,8 @@ done
+ enabled cuda_sdk          && require cuda_sdk cuda.h cuCtxCreate -lcuda
+ enabled cuvid             && { enabled cuda ||
+                                die "ERROR: CUVID requires CUDA"; }
++enabled cuvid_hwaccel     && { enabled cuda ||
++                               die "ERROR: CUVID hwaccel requires CUDA"; }
+ enabled chromaprint       && require chromaprint chromaprint.h chromaprint_get_version -lchromaprint
+ enabled decklink          && { require_header DeckLinkAPI.h &&
+                                { check_cpp_condition DeckLinkAPIVersion.h "BLACKMAGIC_DECKLINK_API_VERSION >= 0x0a060100" || die "ERROR: Decklink API version must be >= 10.6.1."; } }
+@@ -6299,11 +6305,11 @@ if enabled x86; then
+         mingw32*|mingw64*|win32|win64|linux|cygwin*)
+             ;;
+         *)
+-            disable cuda cuvid nvenc
++            disable cuda cuvid cuvid_hwaccel nvenc
+             ;;
+     esac
+ else
+-    disable cuda cuvid nvenc
++    disable cuda cuvid cuvid_hwaccel nvenc
+ fi
+ 
+ enabled nvenc &&
+diff --git a/fftools/ffmpeg.h b/fftools/ffmpeg.h
+index 50fc8d5767..51f21ee802 100644
+--- a/fftools/ffmpeg.h
++++ b/fftools/ffmpeg.h
+@@ -68,6 +68,7 @@ enum HWAccelID {
+     HWACCEL_VAAPI,
+     HWACCEL_CUVID,
+     HWACCEL_D3D11VA,
++    HWACCEL_CUVID_HWACCEL,
+ };
+ 
+ typedef struct HWAccel {
+diff --git a/fftools/ffmpeg_opt.c b/fftools/ffmpeg_opt.c
+index ca6f10d5ca..092367b51d 100644
+--- a/fftools/ffmpeg_opt.c
++++ b/fftools/ffmpeg_opt.c
+@@ -93,6 +93,10 @@ const HWAccel hwaccels[] = {
+ #if CONFIG_CUVID
+     { "cuvid", cuvid_init, HWACCEL_CUVID, AV_PIX_FMT_CUDA,
+       AV_HWDEVICE_TYPE_NONE },
++#endif
++#if CONFIG_CUVID_HWACCEL
++    { "cuvid_hwaccel", hwaccel_decode_init, HWACCEL_CUVID_HWACCEL, AV_PIX_FMT_CUDA,
++       AV_HWDEVICE_TYPE_CUDA },
+ #endif
+     { 0 },
+ };
+diff --git a/libavcodec/Makefile b/libavcodec/Makefile
+index 5522e5f56c..17019748c4 100644
+--- a/libavcodec/Makefile
++++ b/libavcodec/Makefile
+@@ -822,6 +822,7 @@ OBJS-$(CONFIG_ADPCM_YAMAHA_DECODER)       += adpcm.o adpcm_data.o
+ OBJS-$(CONFIG_ADPCM_YAMAHA_ENCODER)       += adpcmenc.o adpcm_data.o
+ 
+ # hardware accelerators
++OBJS-$(CONFIG_CUVID_HWACCEL)              += cuvid.o
+ OBJS-$(CONFIG_D3D11VA)                    += dxva2.o
+ OBJS-$(CONFIG_DXVA2)                      += dxva2.o
+ OBJS-$(CONFIG_VAAPI)                      += vaapi_decode.o
+@@ -830,6 +831,7 @@ OBJS-$(CONFIG_VDPAU)                      += vdpau.o
+ 
+ OBJS-$(CONFIG_H263_VAAPI_HWACCEL)         += vaapi_mpeg4.o
+ OBJS-$(CONFIG_H263_VIDEOTOOLBOX_HWACCEL)  += videotoolbox.o
++OBJS-$(CONFIG_H264_CUVID_HWACCEL_HWACCEL) += cuvid_h264.o
+ OBJS-$(CONFIG_H264_D3D11VA_HWACCEL)       += dxva2_h264.o
+ OBJS-$(CONFIG_H264_DXVA2_HWACCEL)         += dxva2_h264.o
+ OBJS-$(CONFIG_H264_QSV_HWACCEL)           += qsvdec_h2645.o
+diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
+index 98655ddd7c..880950f039 100644
+--- a/libavcodec/allcodecs.c
++++ b/libavcodec/allcodecs.c
+@@ -65,6 +65,7 @@ static void register_all(void)
+     REGISTER_HWACCEL(H263_VAAPI,        h263_vaapi);
+     REGISTER_HWACCEL(H263_VIDEOTOOLBOX, h263_videotoolbox);
+     REGISTER_HWACCEL(H264_CUVID,        h264_cuvid);
++    REGISTER_HWACCEL(H264_CUVID,        h264_cuvid_hwaccel);
+     REGISTER_HWACCEL(H264_D3D11VA,      h264_d3d11va);
+     REGISTER_HWACCEL(H264_D3D11VA2,     h264_d3d11va2);
+     REGISTER_HWACCEL(H264_DXVA2,        h264_dxva2);
+diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
+index 8f41c061cf..15e1197fed 100644
+--- a/libavcodec/avcodec.h
++++ b/libavcodec/avcodec.h
+@@ -3543,7 +3543,9 @@ typedef struct AVHWAccel {
+     int (*frame_params)(AVCodecContext *avctx, AVBufferRef *hw_frames_ctx);
+ 
+     /**
+-     * Some hwaccels are ambiguous if only
++     * Some hwaccels are ambiguous if only the id and pix_fmt fields are used.
++     * If non-NULL, the associated AVCodec must have
++     * FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS set.
+      */
+     const AVClass *decoder_class;
+ } AVHWAccel;
+diff --git a/libavcodec/cuvid.c b/libavcodec/cuvid.c
+new file mode 100644
+index 0000000000..c90ca38a84
+--- /dev/null
++++ b/libavcodec/cuvid.c
+@@ -0,0 +1,431 @@
++/*
++ * HW decode acceleration through CUVID
++ *
++ * Copyright (c) 2016 Anton Khirnov
++ *
++ * This file is part of Libav.
++ *
++ * Libav is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * Libav is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with Libav; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include "config.h"
++
++#include "libavutil/common.h"
++#include "libavutil/error.h"
++#include "libavutil/hwcontext.h"
++#include "libavutil/hwcontext_cuda_internal.h"
++#include "libavutil/pixdesc.h"
++#include "libavutil/pixfmt.h"
++
++#include "avcodec.h"
++#include "decode.h"
++#include "cuvid.h"
++#include "internal.h"
++
++typedef struct CUVIDDecoder {
++    CUvideodecoder decoder;
++
++    AVBufferRef *hw_device_ref;
++    CUcontext    cuda_ctx;
++
++    CudaFunctions *cudl;
++    CuvidFunctions *cvdl;
++} CUVIDDecoder;
++
++typedef struct CUVIDFramePool {
++    unsigned int dpb_size;
++    unsigned int nb_allocated;
++} CUVIDFramePool;
++
++static int map_avcodec_id(enum AVCodecID id)
++{
++    switch (id) {
++    case AV_CODEC_ID_H264: return cudaVideoCodec_H264;
++    }
++    return -1;
++}
++
++static int map_chroma_format(enum AVPixelFormat pix_fmt)
++{
++    int shift_h = 0, shift_v = 0;
++
++    av_pix_fmt_get_chroma_sub_sample(pix_fmt, &shift_h, &shift_v);
++
++    if (shift_h == 1 && shift_v == 1)
++        return cudaVideoChromaFormat_420;
++    else if (shift_h == 1 && shift_v == 0)
++        return cudaVideoChromaFormat_422;
++    else if (shift_h == 0 && shift_v == 0)
++        return cudaVideoChromaFormat_444;
++
++    return -1;
++}
++
++static void cuvid_decoder_free(void *opaque, uint8_t *data)
++{
++    CUVIDDecoder *decoder = (CUVIDDecoder*)data;
++
++    if (decoder->decoder)
++        decoder->cvdl->cuvidDestroyDecoder(decoder->decoder);
++
++    av_buffer_unref(&decoder->hw_device_ref);
++
++    cuvid_free_functions(&decoder->cvdl);
++
++    av_freep(&decoder);
++}
++
++static int cuvid_decoder_create(AVBufferRef **out, AVBufferRef *hw_device_ref,
++                                CUVIDDECODECREATEINFO *params, void *logctx)
++{
++    AVHWDeviceContext  *hw_device_ctx = (AVHWDeviceContext*)hw_device_ref->data;
++    AVCUDADeviceContext *device_hwctx = hw_device_ctx->hwctx;
++
++    AVBufferRef *decoder_ref;
++    CUVIDDecoder *decoder;
++
++    CUcontext dummy;
++    CUresult err;
++    int ret;
++
++    decoder = av_mallocz(sizeof(*decoder));
++    if (!decoder)
++        return AVERROR(ENOMEM);
++
++    decoder_ref = av_buffer_create((uint8_t*)decoder, sizeof(*decoder),
++                                   cuvid_decoder_free, NULL, AV_BUFFER_FLAG_READONLY);
++    if (!decoder_ref) {
++        av_freep(&decoder);
++        return AVERROR(ENOMEM);
++    }
++
++    decoder->hw_device_ref = av_buffer_ref(hw_device_ref);
++    if (!decoder->hw_device_ref) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++    decoder->cuda_ctx = device_hwctx->cuda_ctx;
++    decoder->cudl = device_hwctx->internal->cuda_dl;
++
++    ret = cuvid_load_functions(&decoder->cvdl);
++    if (ret < 0) {
++        av_log(logctx, AV_LOG_ERROR, "Failed loading nvcuvid.\n");
++        goto fail;
++    }
++
++    err = decoder->cudl->cuCtxPushCurrent(decoder->cuda_ctx);
++    if (err != CUDA_SUCCESS) {
++        ret = AVERROR_UNKNOWN;
++        goto fail;
++    }
++
++    err = decoder->cvdl->cuvidCreateDecoder(&decoder->decoder, params);
++
++    decoder->cudl->cuCtxPopCurrent(&dummy);
++
++    if (err != CUDA_SUCCESS) {
++        av_log(logctx, AV_LOG_ERROR, "Error creating a CUVID decoder: %d\n", err);
++        ret = AVERROR_UNKNOWN;
++        goto fail;
++    }
++
++    *out = decoder_ref;
++
++    return 0;
++fail:
++    av_buffer_unref(&decoder_ref);
++    return ret;
++}
++
++static AVBufferRef *cuvid_decoder_frame_alloc(void *opaque, int size)
++{
++    CUVIDFramePool *pool = opaque;
++    AVBufferRef *ret;
++
++    if (pool->nb_allocated >= pool->dpb_size)
++        return NULL;
++
++    ret = av_buffer_alloc(sizeof(unsigned int));
++    if (!ret)
++        return NULL;
++
++    *(unsigned int*)ret->data = pool->nb_allocated++;
++
++    return ret;
++}
++
++int ff_cuvid_decode_uninit(AVCodecContext *avctx)
++{
++    CUVIDContext *ctx = avctx->internal->hwaccel_priv_data;
++
++    av_freep(&ctx->bitstream);
++    ctx->bitstream_len       = 0;
++    ctx->bitstream_allocated = 0;
++
++    av_freep(&ctx->slice_offsets);
++    ctx->nb_slices               = 0;
++    ctx->slice_offsets_allocated = 0;
++
++    av_buffer_unref(&ctx->decoder_ref);
++    av_buffer_pool_uninit(&ctx->decoder_pool);
++
++    return 0;
++}
++
++int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size)
++{
++    CUVIDContext *ctx = avctx->internal->hwaccel_priv_data;
++
++    CUVIDFramePool      *pool;
++    AVHWFramesContext   *frames_ctx;
++    const AVPixFmtDescriptor *sw_desc;
++
++    CUVIDDECODECREATEINFO params = { 0 };
++
++    int cuvid_codec_type, cuvid_chroma_format;
++    int ret = 0;
++
++    sw_desc = av_pix_fmt_desc_get(avctx->sw_pix_fmt);
++    if (!sw_desc)
++        return AVERROR_BUG;
++
++    cuvid_codec_type = map_avcodec_id(avctx->codec_id);
++    if (cuvid_codec_type < 0) {
++        av_log(avctx, AV_LOG_ERROR, "Unsupported codec ID\n");
++        return AVERROR_BUG;
++    }
++
++    cuvid_chroma_format = map_chroma_format(avctx->sw_pix_fmt);
++    if (cuvid_chroma_format < 0) {
++        av_log(avctx, AV_LOG_ERROR, "Unsupported chroma format\n");
++        return AVERROR(ENOSYS);
++    }
++
++    if (avctx->thread_type & FF_THREAD_FRAME)
++        dpb_size += avctx->thread_count;
++
++    if (!avctx->hw_frames_ctx) {
++        AVHWFramesContext *frames_ctx;
++
++        if (!avctx->hw_device_ctx) {
++            av_log(avctx, AV_LOG_ERROR, "A hardware device or frames context "
++                   "is required for CUVID decoding.\n");
++            return AVERROR(EINVAL);
++        }
++
++        avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
++        if (!avctx->hw_frames_ctx)
++            return AVERROR(ENOMEM);
++        frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
++
++        frames_ctx->format            = AV_PIX_FMT_CUDA;
++        frames_ctx->width             = avctx->coded_width;
++        frames_ctx->height            = avctx->coded_height;
++        frames_ctx->sw_format         = AV_PIX_FMT_NV12;
++        frames_ctx->sw_format         = sw_desc->comp[0].depth > 8 ?
++                                        AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
++        frames_ctx->initial_pool_size = dpb_size;
++
++        ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
++        if (ret < 0) {
++            av_log(avctx, AV_LOG_ERROR, "Error initializing internal frames context\n");
++            return ret;
++        }
++    }
++    frames_ctx = (AVHWFramesContext*)avctx->hw_frames_ctx->data;
++
++    params.ulWidth             = avctx->coded_width;
++    params.ulHeight            = avctx->coded_height;
++    params.ulTargetWidth       = avctx->coded_width;
++    params.ulTargetHeight      = avctx->coded_height;
++    params.bitDepthMinus8      = sw_desc->comp[0].depth - 8;
++    params.OutputFormat        = params.bitDepthMinus8 ?
++                                 cudaVideoSurfaceFormat_P016 : cudaVideoSurfaceFormat_NV12;
++    params.CodecType           = cuvid_codec_type;
++    params.ChromaFormat        = cuvid_chroma_format;
++    params.ulNumDecodeSurfaces = dpb_size;
++    params.ulNumOutputSurfaces = 1;
++
++    ret = cuvid_decoder_create(&ctx->decoder_ref, frames_ctx->device_ref, &params, avctx);
++    if (ret < 0)
++        return ret;
++
++    pool = av_mallocz(sizeof(*pool));
++    if (!pool) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++    pool->dpb_size = dpb_size;
++
++    ctx->decoder_pool = av_buffer_pool_init2(sizeof(int), pool,
++                                             cuvid_decoder_frame_alloc, av_free);
++    if (!ctx->decoder_pool) {
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++
++    return 0;
++fail:
++    ff_cuvid_decode_uninit(avctx);
++    return ret;
++}
++
++static void cuvid_fdd_priv_free(void *priv)
++{
++    CUVIDFrame *cf = priv;
++
++    if (!cf)
++        return;
++
++    av_buffer_unref(&cf->idx_ref);
++    av_buffer_unref(&cf->decoder_ref);
++
++    av_freep(&priv);
++}
++
++static int cuvid_retrieve_data(void *logctx, AVFrame *frame)
++{
++    FrameDecodeData  *fdd = (FrameDecodeData*)frame->opaque_ref->data;
++    CUVIDFrame        *cf = (CUVIDFrame*)fdd->hwaccel_priv;
++    CUVIDDecoder *decoder = (CUVIDDecoder*)cf->decoder_ref->data;
++
++    CUVIDPROCPARAMS vpp = { .progressive_frame = 1 };
++
++    CUresult err;
++    CUcontext dummy;
++    CUdeviceptr devptr;
++
++    unsigned int pitch, i;
++    unsigned int offset = 0;
++    int ret = 0;
++
++    err = decoder->cudl->cuCtxPushCurrent(decoder->cuda_ctx);
++    if (err != CUDA_SUCCESS)
++        return AVERROR_UNKNOWN;
++
++    err = decoder->cvdl->cuvidMapVideoFrame(decoder->decoder, cf->idx, &devptr,
++                                            &pitch, &vpp);
++    if (err != CUDA_SUCCESS) {
++        av_log(logctx, AV_LOG_ERROR, "Error mapping a picture with CUVID: %d\n",
++               err);
++        ret = AVERROR_UNKNOWN;
++        goto finish;
++    }
++
++    for (i = 0; frame->data[i]; i++) {
++        CUDA_MEMCPY2D cpy = {
++            .srcMemoryType = CU_MEMORYTYPE_DEVICE,
++            .dstMemoryType = CU_MEMORYTYPE_DEVICE,
++            .srcDevice     = devptr,
++            .dstDevice     = (CUdeviceptr)frame->data[i],
++            .srcPitch      = pitch,
++            .dstPitch      = frame->linesize[i],
++            .srcY          = offset,
++            .WidthInBytes  = FFMIN(pitch, frame->linesize[i]),
++            .Height        = frame->height >> (i ? 1 : 0),
++        };
++
++        err = decoder->cudl->cuMemcpy2D(&cpy);
++        if (err != CUDA_SUCCESS) {
++            av_log(logctx, AV_LOG_ERROR, "Error copying decoded frame: %d\n",
++                   err);
++            ret = AVERROR_UNKNOWN;
++            goto copy_fail;
++        }
++
++        offset += cpy.Height;
++    }
++
++copy_fail:
++    decoder->cvdl->cuvidUnmapVideoFrame(decoder->decoder, devptr);
++
++finish:
++    decoder->cudl->cuCtxPopCurrent(&dummy);
++    return ret;
++}
++
++int ff_cuvid_start_frame(AVCodecContext *avctx, AVFrame *frame)
++{
++    CUVIDContext *ctx = avctx->internal->hwaccel_priv_data;
++    FrameDecodeData *fdd = (FrameDecodeData*)frame->opaque_ref->data;
++    CUVIDFrame *cf = NULL;
++    int ret;
++
++    ctx->bitstream_len = 0;
++    ctx->nb_slices     = 0;
++
++    if (fdd->hwaccel_priv)
++        return 0;
++
++    cf = av_mallocz(sizeof(*cf));
++    if (!cf)
++        return AVERROR(ENOMEM);
++
++    cf->decoder_ref = av_buffer_ref(ctx->decoder_ref);
++    if (!cf->decoder_ref)
++        goto fail;
++
++    cf->idx_ref = av_buffer_pool_get(ctx->decoder_pool);
++    if (!cf->idx_ref) {
++        av_log(avctx, AV_LOG_ERROR, "No decoder surfaces left\n");
++        ret = AVERROR(ENOMEM);
++        goto fail;
++    }
++    cf->idx = *(unsigned int*)cf->idx_ref->data;
++
++    fdd->hwaccel_priv      = cf;
++    fdd->hwaccel_priv_free = cuvid_fdd_priv_free;
++    fdd->post_process      = cuvid_retrieve_data;
++
++    return 0;
++fail:
++    cuvid_fdd_priv_free(cf);
++    return ret;
++
++}
++
++int ff_cuvid_end_frame(AVCodecContext *avctx)
++{
++    CUVIDContext     *ctx = avctx->internal->hwaccel_priv_data;
++    CUVIDDecoder *decoder = (CUVIDDecoder*)ctx->decoder_ref->data;
++    CUVIDPICPARAMS    *pp = &ctx->pic_params;
++
++    CUresult err;
++    CUcontext dummy;
++
++    int ret = 0;
++
++    pp->nBitstreamDataLen = ctx->bitstream_len;
++    pp->pBitstreamData    = ctx->bitstream;
++    pp->nNumSlices        = ctx->nb_slices;
++    pp->pSliceDataOffsets = ctx->slice_offsets;
++
++    err = decoder->cudl->cuCtxPushCurrent(decoder->cuda_ctx);
++    if (err != CUDA_SUCCESS)
++        return AVERROR_UNKNOWN;
++
++    err = decoder->cvdl->cuvidDecodePicture(decoder->decoder, &ctx->pic_params);
++    if (err != CUDA_SUCCESS) {
++        av_log(avctx, AV_LOG_ERROR, "Error decoding a picture with CUVID: %d\n",
++               err);
++        ret = AVERROR_UNKNOWN;
++        goto finish;
++    }
++
++finish:
++    decoder->cudl->cuCtxPopCurrent(&dummy);
++
++    return ret;
++}
+diff --git a/libavcodec/cuvid.h b/libavcodec/cuvid.h
+new file mode 100644
+index 0000000000..232e58d6ed
+--- /dev/null
++++ b/libavcodec/cuvid.h
+@@ -0,0 +1,62 @@
++/*
++ * HW decode acceleration through CUVID
++ *
++ * Copyright (c) 2016 Anton Khirnov
++ *
++ * This file is part of Libav.
++ *
++ * Libav is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * Libav is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with Libav; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#ifndef AVCODEC_CUVID_H
++#define AVCODEC_CUVID_H
++
++#include "compat/cuda/dynlink_loader.h"
++
++#include <stdint.h>
++
++#include "libavutil/buffer.h"
++#include "libavutil/frame.h"
++
++#include "avcodec.h"
++
++typedef struct CUVIDFrame {
++    unsigned int idx;
++    AVBufferRef *idx_ref;
++    AVBufferRef *decoder_ref;
++} CUVIDFrame;
++
++typedef struct CUVIDContext {
++    CUVIDPICPARAMS pic_params;
++
++    AVBufferPool *decoder_pool;
++
++    AVBufferRef  *decoder_ref;
++
++    uint8_t      *bitstream;
++    int           bitstream_len;
++    unsigned int  bitstream_allocated;
++
++    unsigned     *slice_offsets;
++    int           nb_slices;
++    unsigned int  slice_offsets_allocated;
++} CUVIDContext;
++
++int ff_cuvid_decode_init(AVCodecContext *avctx, unsigned int dpb_size);
++int ff_cuvid_decode_uninit(AVCodecContext *avctx);
++int ff_cuvid_start_frame(AVCodecContext *avctx, AVFrame *frame);
++int ff_cuvid_end_frame(AVCodecContext *avctx);
++
++#endif /* AVCODEC_CUVID_H */
+diff --git a/libavcodec/cuvid_h264.c b/libavcodec/cuvid_h264.c
+new file mode 100644
+index 0000000000..06362e9061
+--- /dev/null
++++ b/libavcodec/cuvid_h264.c
+@@ -0,0 +1,176 @@
++/*
++ * MPEG-4 Part 10 / AVC / H.264 HW decode acceleration through CUVID
++ *
++ * Copyright (c) 2016 Anton Khirnov
++ *
++ * This file is part of Libav.
++ *
++ * Libav is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * Libav is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with Libav; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
++ */
++
++#include <stdint.h>
++#include <string.h>
++
++#include "avcodec.h"
++#include "cuvid.h"
++#include "decode.h"
++#include "internal.h"
++#include "h264dec.h"
++
++static void dpb_add(const H264Context *h, CUVIDH264DPBENTRY *dst, const H264Picture *src,
++                    int frame_idx)
++{
++    FrameDecodeData *fdd = (FrameDecodeData*)src->f->opaque_ref->data;
++    const CUVIDFrame *cf = fdd->hwaccel_priv;
++
++    dst->PicIdx             = cf ? cf->idx : -1;
++    dst->FrameIdx           = frame_idx;
++    dst->is_long_term       = src->long_ref;
++    dst->not_existing       = 0;
++    dst->used_for_reference = src->reference & 3;
++    dst->FieldOrderCnt[0]   = src->field_poc[0];
++    dst->FieldOrderCnt[1]   = src->field_poc[1];
++}
++
++static int cuvid_h264_start_frame(AVCodecContext *avctx,
++                                  const uint8_t *buffer, uint32_t size)
++{
++    const H264Context *h = avctx->priv_data;
++    const PPS *pps = h->ps.pps;
++    const SPS *sps = h->ps.sps;
++
++    CUVIDContext       *ctx = avctx->internal->hwaccel_priv_data;
++    CUVIDPICPARAMS      *pp = &ctx->pic_params;
++    CUVIDH264PICPARAMS *ppc = &pp->CodecSpecific.h264;
++    FrameDecodeData *fdd;
++    CUVIDFrame *cf;
++
++    int i, dpb_size, ret;
++
++    ret = ff_cuvid_start_frame(avctx, h->cur_pic_ptr->f);
++    if (ret < 0)
++        return ret;
++
++    fdd = (FrameDecodeData*)h->cur_pic_ptr->f->opaque_ref->data;
++    cf  = (CUVIDFrame*)fdd->hwaccel_priv;
++
++    *pp = (CUVIDPICPARAMS) {
++        .PicWidthInMbs     = h->mb_width,
++        .FrameHeightInMbs  = h->mb_height,
++        .CurrPicIdx        = cf->idx,
++        .field_pic_flag    = FIELD_PICTURE(h),
++        .bottom_field_flag = h->picture_structure == PICT_BOTTOM_FIELD,
++        .second_field      = FIELD_PICTURE(h) && !h->first_field,
++        .ref_pic_flag      = h->nal_ref_idc != 0,
++        .intra_pic_flag    = 0,
++
++        .CodecSpecific.h264 = {
++            .log2_max_frame_num_minus4            = sps->log2_max_frame_num - 4,
++            .pic_order_cnt_type                   = sps->poc_type,
++            .log2_max_pic_order_cnt_lsb_minus4    = FFMAX(sps->log2_max_poc_lsb - 4, 0),
++            .delta_pic_order_always_zero_flag     = sps->delta_pic_order_always_zero_flag,
++            .frame_mbs_only_flag                  = sps->frame_mbs_only_flag,
++            .direct_8x8_inference_flag            = sps->direct_8x8_inference_flag,
++            .num_ref_frames                       = sps->ref_frame_count,
++            .residual_colour_transform_flag       = sps->residual_color_transform_flag,
++            .bit_depth_luma_minus8                = sps->bit_depth_luma - 8,
++            .bit_depth_chroma_minus8              = sps->bit_depth_chroma - 8,
++            .qpprime_y_zero_transform_bypass_flag = sps->transform_bypass,
++
++            .entropy_coding_mode_flag               = pps->cabac,
++            .pic_order_present_flag                 = pps->pic_order_present,
++            .num_ref_idx_l0_active_minus1           = pps->ref_count[0] - 1,
++            .num_ref_idx_l1_active_minus1           = pps->ref_count[1] - 1,
++            .weighted_pred_flag                     = pps->weighted_pred,
++            .weighted_bipred_idc                    = pps->weighted_bipred_idc,
++            .pic_init_qp_minus26                    = pps->init_qp - 26,
++            .deblocking_filter_control_present_flag = pps->deblocking_filter_parameters_present,
++            .redundant_pic_cnt_present_flag         = pps->redundant_pic_cnt_present,
++            .transform_8x8_mode_flag                = pps->transform_8x8_mode,
++            .MbaffFrameFlag                         = sps->mb_aff && !FIELD_PICTURE(h),
++            .constrained_intra_pred_flag            = pps->constrained_intra_pred,
++            .chroma_qp_index_offset                 = pps->chroma_qp_index_offset[0],
++            .second_chroma_qp_index_offset          = pps->chroma_qp_index_offset[1],
++            .ref_pic_flag                           = h->nal_ref_idc != 0,
++            .frame_num                              = h->poc.frame_num,
++            .CurrFieldOrderCnt[0]                   = h->cur_pic_ptr->field_poc[0],
++            .CurrFieldOrderCnt[1]                   = h->cur_pic_ptr->field_poc[1],
++        },
++    };
++
++    memcpy(ppc->WeightScale4x4,    pps->scaling_matrix4,    sizeof(ppc->WeightScale4x4));
++    memcpy(ppc->WeightScale8x8[0], pps->scaling_matrix8[0], sizeof(ppc->WeightScale8x8[0]));
++    memcpy(ppc->WeightScale8x8[1], pps->scaling_matrix8[3], sizeof(ppc->WeightScale8x8[0]));
++
++    dpb_size = 0;
++    for (i = 0; i < h->short_ref_count; i++)
++        dpb_add(h, &ppc->dpb[dpb_size++], h->short_ref[i], h->short_ref[i]->frame_num);
++    for (i = 0; i < 16; i++) {
++        if (h->long_ref[i])
++            dpb_add(h, &ppc->dpb[dpb_size++], h->long_ref[i], i);
++    }
++
++    for (i = dpb_size; i < FF_ARRAY_ELEMS(ppc->dpb); i++)
++        ppc->dpb[i].PicIdx = -1;
++
++    return 0;
++}
++
++static int cuvid_h264_decode_slice(AVCodecContext *avctx, const uint8_t *buffer,
++                                   uint32_t size)
++{
++    CUVIDContext *ctx = avctx->internal->hwaccel_priv_data;
++    void *tmp;
++
++    tmp = av_fast_realloc(ctx->bitstream, &ctx->bitstream_allocated,
++                          ctx->bitstream_len + size + 3);
++    if (!tmp)
++        return AVERROR(ENOMEM);
++    ctx->bitstream = tmp;
++
++    tmp = av_fast_realloc(ctx->slice_offsets, &ctx->slice_offsets_allocated,
++                          (ctx->nb_slices + 1) * sizeof(*ctx->slice_offsets));
++    if (!tmp)
++        return AVERROR(ENOMEM);
++    ctx->slice_offsets = tmp;
++
++    AV_WB24(ctx->bitstream + ctx->bitstream_len, 1);
++    memcpy(ctx->bitstream + ctx->bitstream_len + 3, buffer, size);
++    ctx->slice_offsets[ctx->nb_slices] = ctx->bitstream_len ;
++    ctx->bitstream_len += size + 3;
++    ctx->nb_slices++;
++
++    return 0;
++}
++
++static int cuvid_h264_decode_init(AVCodecContext *avctx)
++{
++    const H264Context *h = avctx->priv_data;
++    const SPS       *sps = h->ps.sps;
++    return ff_cuvid_decode_init(avctx, sps->ref_frame_count + sps->num_reorder_frames);
++}
++
++AVHWAccel ff_h264_cuvid_hwaccel_hwaccel = {
++    .name                 = "h264_cuvid_hwaccel",
++    .type                 = AVMEDIA_TYPE_VIDEO,
++    .id                   = AV_CODEC_ID_H264,
++    .pix_fmt              = AV_PIX_FMT_CUDA,
++    .start_frame          = cuvid_h264_start_frame,
++    .end_frame            = ff_cuvid_end_frame,
++    .decode_slice         = cuvid_h264_decode_slice,
++    .init                 = cuvid_h264_decode_init,
++    .uninit               = ff_cuvid_decode_uninit,
++    .priv_data_size       = sizeof(CUVIDContext),
++};
+diff --git a/libavcodec/h264_slice.c b/libavcodec/h264_slice.c
+index 35dcabd611..9a3c228979 100644
+--- a/libavcodec/h264_slice.c
++++ b/libavcodec/h264_slice.c
+@@ -756,7 +756,8 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
+                      (CONFIG_H264_D3D11VA_HWACCEL * 2) + \
+                      CONFIG_H264_VAAPI_HWACCEL + \
+                      CONFIG_H264_VIDEOTOOLBOX_HWACCEL + \
+-                     CONFIG_H264_VDPAU_HWACCEL)
++                     CONFIG_H264_VDPAU_HWACCEL + \
++                     CONFIG_H264_CUVID_HWACCEL)
+     enum AVPixelFormat pix_fmts[HWACCEL_MAX + 2], *fmt = pix_fmts;
+     const enum AVPixelFormat *choices = pix_fmts;
+     int i;
+@@ -809,6 +810,9 @@ static enum AVPixelFormat get_pixel_format(H264Context *h, int force_callback)
+     case 8:
+ #if CONFIG_H264_VDPAU_HWACCEL
+         *fmt++ = AV_PIX_FMT_VDPAU;
++#endif
++#if CONFIG_H264_CUVID_HWACCEL
++        *fmt++ = AV_PIX_FMT_CUDA;
+ #endif
+         if (CHROMA444(h)) {
+             if (h->avctx->colorspace == AVCOL_SPC_RGB)
+-- 
+2.14.2
+

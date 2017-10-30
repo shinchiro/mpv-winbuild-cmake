@@ -1,0 +1,25 @@
+From c470c9f03532ca05622e05fd47ed7ae543d5efea Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Fri, 27 Oct 2017 18:02:28 +0200
+Subject: [PATCH] Mark as mpv modified version
+
+---
+ libavcodec/version.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libavcodec/version.h b/libavcodec/version.h
+index 6c0d7a8328..5e148023f3 100644
+--- a/libavcodec/version.h
++++ b/libavcodec/version.h
+@@ -41,6 +41,8 @@
+ 
+ #define LIBAVCODEC_IDENT        "Lavc" AV_STRINGIFY(LIBAVCODEC_VERSION)
+ 
++#define LIBAVCODEC_MPV 1
++
+ /**
+  * FF_API_* defines may be placed below to indicate public API that will be
+  * dropped at a future version bump. The defines themselves are not part of
+-- 
+2.14.2
+

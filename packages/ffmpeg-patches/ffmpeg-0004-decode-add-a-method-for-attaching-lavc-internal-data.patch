@@ -1,0 +1,300 @@
+From abaec4b324ded8e14adf7a9a064137d502569b19 Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Sat, 1 Jul 2017 11:12:44 +0200
+Subject: [PATCH] decode: add a method for attaching lavc-internal data
+ to frames
+
+Use the AVFrame.opaque_ref field. The original user's opaque_ref is
+wrapped in the lavc struct and then unwrapped before the frame is
+returned to the caller.
+
+This new struct will be useful in the following commits.
+
+Merges Libav commit 359a8a3e2d1194b52b6c386f94fd0929567dfb67.
+
+This adds proper handling of draw_horiz_band over Libav. Also, the
+wrapped_avframe decoder is adjusted to return the wrapped frame's
+opaque_ref field to the user (which may or may not be what the user
+expects).
+---
+ libavcodec/decode.c          | 96 +++++++++++++++++++++++++++++++++++++++++++-
+ libavcodec/decode.h          | 17 ++++++++
+ libavcodec/h264dec.c         |  5 ++-
+ libavcodec/huffyuvdec.c      |  3 +-
+ libavcodec/mpegutils.c       |  4 +-
+ libavcodec/vp3.c             |  3 +-
+ libavcodec/wrapped_avframe.c |  7 ++++
+ 7 files changed, 127 insertions(+), 8 deletions(-)
+
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index ddf64ac87c..36cf793b12 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -613,6 +613,26 @@ static int decode_receive_frame_internal(AVCodecContext *avctx, AVFrame *frame)
+     if (ret == AVERROR_EOF)
+         avci->draining_done = 1;
+ 
++    /* unwrap the per-frame decode data and restore the original opaque_ref*/
++    if (!ret) {
++        /* the only case where decode data is not set should be decoders
++         * that do not call ff_get_buffer() */
++        av_assert0((frame->opaque_ref && frame->opaque_ref->size == sizeof(FrameDecodeData)) ||
++                   !(avctx->codec->capabilities & AV_CODEC_CAP_DR1));
++
++        if (frame->opaque_ref) {
++            FrameDecodeData *fdd;
++            AVBufferRef *user_opaque_ref;
++
++            fdd = (FrameDecodeData*)frame->opaque_ref->data;
++
++            user_opaque_ref = fdd->user_opaque_ref;
++            fdd->user_opaque_ref = NULL;
++            av_buffer_unref(&frame->opaque_ref);
++            frame->opaque_ref = user_opaque_ref;
++        }
++    }
++
+     return ret;
+ }
+ 
+@@ -1632,6 +1652,37 @@ static void validate_avframe_allocation(AVCodecContext *avctx, AVFrame *frame)
+     }
+ }
+ 
++static void decode_data_free(void *opaque, uint8_t *data)
++{
++    FrameDecodeData *fdd = (FrameDecodeData*)data;
++
++    av_buffer_unref(&fdd->user_opaque_ref);
++
++    av_freep(&fdd);
++}
++
++int ff_attach_decode_data(AVFrame *frame)
++{
++    AVBufferRef *fdd_buf;
++    FrameDecodeData *fdd;
++
++    fdd = av_mallocz(sizeof(*fdd));
++    if (!fdd)
++        return AVERROR(ENOMEM);
++
++    fdd_buf = av_buffer_create((uint8_t*)fdd, sizeof(*fdd), decode_data_free,
++                               NULL, AV_BUFFER_FLAG_READONLY);
++    if (!fdd_buf) {
++        av_freep(&fdd);
++        return AVERROR(ENOMEM);
++    }
++
++    fdd->user_opaque_ref = frame->opaque_ref;
++    frame->opaque_ref    = fdd_buf;
++
++    return 0;
++}
++
+ static int get_buffer_internal(AVCodecContext *avctx, AVFrame *frame, int flags)
+ {
+     const AVHWAccel *hwaccel = avctx->hwaccel;
+@@ -1668,8 +1719,14 @@ static int get_buffer_internal(AVCodecContext *avctx, AVFrame *frame, int flags)
+         avctx->sw_pix_fmt = avctx->pix_fmt;
+ 
+     ret = avctx->get_buffer2(avctx, frame, flags);
+-    if (ret >= 0)
+-        validate_avframe_allocation(avctx, frame);
++    if (ret < 0)
++        goto end;
++
++    validate_avframe_allocation(avctx, frame);
++
++    ret = ff_attach_decode_data(frame);
++    if (ret < 0)
++        goto end;
+ 
+ end:
+     if (avctx->codec_type == AVMEDIA_TYPE_VIDEO && !override_dimensions &&
+@@ -1777,3 +1834,38 @@ void ff_decode_bsfs_uninit(AVCodecContext *avctx)
+     av_freep(&s->bsfs);
+     s->nb_bsfs = 0;
+ }
++
++void ff_call_draw_horiz_band(struct AVCodecContext *s,
++                             const AVFrame *src, int offset[AV_NUM_DATA_POINTERS],
++                             int y, int type, int height)
++{
++    AVFrame *user_frame;
++
++    if (!s->draw_horiz_band)
++        return;
++
++    user_frame = av_frame_clone(src);
++    if (!user_frame) {
++        av_log(s, AV_LOG_ERROR, "draw_horiz_band() failed\n");
++        goto done;
++    }
++
++    av_buffer_unref(&user_frame->opaque_ref);
++
++    if (src->opaque_ref) {
++        FrameDecodeData *fdd = (FrameDecodeData*)src->opaque_ref->data;
++
++        if (fdd->user_opaque_ref) {
++            user_frame->opaque_ref = av_buffer_ref(fdd->user_opaque_ref);
++            if (!user_frame->opaque_ref) {
++                av_log(s, AV_LOG_ERROR, "draw_horiz_band() failed\n");
++                goto done;
++            }
++        }
++    }
++
++    s->draw_horiz_band(s, user_frame, offset, y, type, height);
++
++done:
++    av_frame_unref(user_frame);
++}
+diff --git a/libavcodec/decode.h b/libavcodec/decode.h
+index 1b92e58d96..800f68ccf2 100644
+--- a/libavcodec/decode.h
++++ b/libavcodec/decode.h
+@@ -27,6 +27,17 @@
+ 
+ #include "avcodec.h"
+ 
++/**
++ * This struct stores per-frame lavc-internal data and is attached to it via
++ * opaque_ref.
++ */
++typedef struct FrameDecodeData {
++    /**
++     * The original user-set opaque_ref.
++     */
++    AVBufferRef *user_opaque_ref;
++} FrameDecodeData;
++
+ /**
+  * Called by decoders to get the next packet for decoding.
+  *
+@@ -48,4 +59,10 @@ void ff_decode_bsfs_uninit(AVCodecContext *avctx);
+ int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
+                                 enum AVHWDeviceType dev_type);
+ 
++void ff_call_draw_horiz_band(struct AVCodecContext *s,
++                             const AVFrame *src, int offset[AV_NUM_DATA_POINTERS],
++                             int y, int type, int height);
++
++int ff_attach_decode_data(AVFrame *frame);
++
+ #endif /* AVCODEC_DECODE_H */
+diff --git a/libavcodec/h264dec.c b/libavcodec/h264dec.c
+index 4216b66684..ed2e065319 100644
+--- a/libavcodec/h264dec.c
++++ b/libavcodec/h264dec.c
+@@ -39,6 +39,7 @@
+ #include "cabac_functions.h"
+ #include "error_resilience.h"
+ #include "avcodec.h"
++#include "decode.h"
+ #include "h264.h"
+ #include "h264dec.h"
+ #include "h2645_parse.h"
+@@ -129,8 +130,8 @@ void ff_h264_draw_horiz_band(const H264Context *h, H264SliceContext *sl,
+ 
+         emms_c();
+ 
+-        avctx->draw_horiz_band(avctx, src, offset,
+-                               y, h->picture_structure, height);
++        ff_call_draw_horiz_band(avctx, src, offset,
++                                y, h->picture_structure, height);
+     }
+ }
+ 
+diff --git a/libavcodec/huffyuvdec.c b/libavcodec/huffyuvdec.c
+index 979c4b9d5c..13ddad45f0 100644
+--- a/libavcodec/huffyuvdec.c
++++ b/libavcodec/huffyuvdec.c
+@@ -33,6 +33,7 @@
+ #define UNCHECKED_BITSTREAM_READER 1
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "get_bits.h"
+ #include "huffyuv.h"
+ #include "huffyuvdsp.h"
+@@ -874,7 +875,7 @@ static void draw_slice(HYuvContext *s, AVFrame *frame, int y)
+         offset[i] = 0;
+     emms_c();
+ 
+-    s->avctx->draw_horiz_band(s->avctx, frame, offset, y, 3, h);
++    ff_call_draw_horiz_band(s->avctx, frame, offset, y, 3, h);
+ 
+     s->last_slice_end = y + h;
+ }
+diff --git a/libavcodec/mpegutils.c b/libavcodec/mpegutils.c
+index 62cc36aa6e..8221c3e0cc 100644
+--- a/libavcodec/mpegutils.c
++++ b/libavcodec/mpegutils.c
+@@ -25,6 +25,7 @@
+ #include "libavutil/pixdesc.h"
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "mpegutils.h"
+ 
+ void ff_draw_horiz_band(AVCodecContext *avctx,
+@@ -74,7 +75,6 @@ void ff_draw_horiz_band(AVCodecContext *avctx,
+ 
+         emms_c();
+ 
+-        avctx->draw_horiz_band(avctx, src, offset,
+-                               y, picture_structure, h);
++        ff_call_draw_horiz_band(avctx, src, offset, y, picture_structure, h);
+     }
+ }
+diff --git a/libavcodec/vp3.c b/libavcodec/vp3.c
+index f167acf4ee..7e4333c016 100644
+--- a/libavcodec/vp3.c
++++ b/libavcodec/vp3.c
+@@ -36,6 +36,7 @@
+ #include "libavutil/imgutils.h"
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "get_bits.h"
+ #include "hpeldsp.h"
+ #include "internal.h"
+@@ -1457,7 +1458,7 @@ static void vp3_draw_horiz_band(Vp3DecodeContext *s, int y)
+         offset[i] = 0;
+ 
+     emms_c();
+-    s->avctx->draw_horiz_band(s->avctx, s->current_frame.f, offset, y, 3, h);
++    ff_call_draw_horiz_band(s->avctx, s->current_frame.f, offset, y, 3, h);
+ }
+ 
+ /**
+diff --git a/libavcodec/wrapped_avframe.c b/libavcodec/wrapped_avframe.c
+index 5f88a668b9..85ff32d13a 100644
+--- a/libavcodec/wrapped_avframe.c
++++ b/libavcodec/wrapped_avframe.c
+@@ -25,6 +25,7 @@
+  */
+ 
+ #include "avcodec.h"
++#include "decode.h"
+ #include "internal.h"
+ 
+ #include "libavutil/internal.h"
+@@ -98,6 +99,12 @@ static int wrapped_avframe_decode(AVCodecContext *avctx, void *data,
+ 
+     av_frame_move_ref(out, in);
+ 
++    err = ff_attach_decode_data(out);
++    if (err < 0) {
++        av_frame_unref(out);
++        return err;
++    }
++
+     *got_frame = 1;
+     return 0;
+ }
+-- 
+2.14.2
+

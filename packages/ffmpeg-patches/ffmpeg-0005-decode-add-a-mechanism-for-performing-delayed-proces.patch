@@ -1,0 +1,71 @@
+From a3b9dfd595b20adffeacc1c9d30694d7eaf9ce6a Mon Sep 17 00:00:00 2001
+From: Anton Khirnov <anton@khirnov.net>
+Date: Sat, 1 Jul 2017 12:09:58 +0200
+Subject: [PATCH] decode: add a mechanism for performing delayed
+ processing on the decoded frames
+
+This will be useful in the CUVID hwaccel.
+
+Merges Libav commit badf0951f54c1332e77455dc40398f3512540c1b.
+---
+ libavcodec/decode.c | 11 +++++++++++
+ libavcodec/decode.h | 14 ++++++++++++++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/libavcodec/decode.c b/libavcodec/decode.c
+index 36cf793b12..306975fa15 100644
+--- a/libavcodec/decode.c
++++ b/libavcodec/decode.c
+@@ -626,6 +626,14 @@ static int decode_receive_frame_internal(AVCodecContext *avctx, AVFrame *frame)
+ 
+             fdd = (FrameDecodeData*)frame->opaque_ref->data;
+ 
++            if (fdd->post_process) {
++                ret = fdd->post_process(avctx, frame);
++                if (ret < 0) {
++                    av_frame_unref(frame);
++                    return ret;
++                }
++            }
++
+             user_opaque_ref = fdd->user_opaque_ref;
+             fdd->user_opaque_ref = NULL;
+             av_buffer_unref(&frame->opaque_ref);
+@@ -1658,6 +1666,9 @@ static void decode_data_free(void *opaque, uint8_t *data)
+ 
+     av_buffer_unref(&fdd->user_opaque_ref);
+ 
++    if (fdd->post_process_opaque_free)
++        fdd->post_process_opaque_free(fdd->post_process_opaque);
++
+     av_freep(&fdd);
+ }
+ 
+diff --git a/libavcodec/decode.h b/libavcodec/decode.h
+index 800f68ccf2..129ccd43e3 100644
+--- a/libavcodec/decode.h
++++ b/libavcodec/decode.h
+@@ -36,6 +36,20 @@ typedef struct FrameDecodeData {
+      * The original user-set opaque_ref.
+      */
+     AVBufferRef *user_opaque_ref;
++
++    /**
++     * The callback to perform some delayed processing on the frame right
++     * before it is returned to the caller.
++     *
++     * @note This code is called at some unspecified point after the frame is
++     * returned from the decoder's decode/receive_frame call. Therefore it cannot rely
++     * on AVCodecContext being in any specific state, so it does not get to
++     * access AVCodecContext directly at all. All the state it needs must be
++     * stored in the post_process_opaque object.
++     */
++    int (*post_process)(void *logctx, AVFrame *frame);
++    void *post_process_opaque;
++    void (*post_process_opaque_free)(void *opaque);
+ } FrameDecodeData;
+ 
+ /**
+-- 
+2.14.2
+
