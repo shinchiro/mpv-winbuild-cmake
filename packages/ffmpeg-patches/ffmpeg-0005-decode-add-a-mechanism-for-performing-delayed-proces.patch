@@ -1,8 +1,8 @@
-From a3b9dfd595b20adffeacc1c9d30694d7eaf9ce6a Mon Sep 17 00:00:00 2001
+From b2ffa10231bf1a6f17f7dd9e27664f6bab26f6d1 Mon Sep 17 00:00:00 2001
 From: Anton Khirnov <anton@khirnov.net>
 Date: Sat, 1 Jul 2017 12:09:58 +0200
-Subject: [PATCH] decode: add a mechanism for performing delayed
- processing on the decoded frames
+Subject: [PATCH] decode: add a mechanism for performing delayed processing on
+ the decoded frames
 
 This will be useful in the CUVID hwaccel.
 

@@ -1,4 +1,4 @@
-From ed5e7a6d5ca5453a97aa6bb12ec82fb2124bbf07 Mon Sep 17 00:00:00 2001
+From 528d799fcbd48991e854f9bfd508cea292084826 Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Tue, 24 Oct 2017 00:28:03 +0200
 Subject: [PATCH] lavc: fix hw_device_ctx operation

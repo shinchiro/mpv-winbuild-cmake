@@ -1,4 +1,4 @@
-From ee0f0a09e474d98b8dea047428c57b9b931bd5aa Mon Sep 17 00:00:00 2001
+From 86931225e7ee609b6230b4099a002913320500a5 Mon Sep 17 00:00:00 2001
 From: Anton Khirnov <anton@khirnov.net>
 Date: Sat, 1 Jul 2017 12:09:58 +0200
 Subject: [PATCH] decode: add a per-frame private data for hwaccel use

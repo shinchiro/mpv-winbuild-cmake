@@ -1,8 +1,8 @@
-From abaec4b324ded8e14adf7a9a064137d502569b19 Mon Sep 17 00:00:00 2001
+From fd55b7ecfdd1a11974b6df17061369de8ca8e87a Mon Sep 17 00:00:00 2001
 From: Anton Khirnov <anton@khirnov.net>
 Date: Sat, 1 Jul 2017 11:12:44 +0200
-Subject: [PATCH] decode: add a method for attaching lavc-internal data
- to frames
+Subject: [PATCH] decode: add a method for attaching lavc-internal data to
+ frames
 
 Use the AVFrame.opaque_ref field. The original user's opaque_ref is
 wrapped in the lavc struct and then unwrapped before the frame is

@@ -1,4 +1,4 @@
-From f7bae7198e5418f5fb84db8406f829e5b89d9288 Mon Sep 17 00:00:00 2001
+From 9711c5b65e03699c013e4149ccbc709370af0f91 Mon Sep 17 00:00:00 2001
 From: Anton Khirnov <anton@khirnov.net>
 Date: Sat, 11 Feb 2017 16:49:34 +0100
 Subject: [PATCH] hevcdec: add a CUVID hwaccel
@@ -28,10 +28,10 @@ index 2fda8d8263..4ebbf8d482 100644
  
  version 3.2:
 diff --git a/configure b/configure
-index 0f6f612bd6..02dd6da1ee 100755
+index e0ba0d9469..b2061eb098 100755
 --- a/configure
 +++ b/configure
-@@ -2685,6 +2685,8 @@ h264_videotoolbox_hwaccel_deps="videotoolbox"
+@@ -2686,6 +2686,8 @@ h264_videotoolbox_hwaccel_deps="videotoolbox"
  h264_videotoolbox_hwaccel_select="h264_decoder"
  hevc_cuvid_hwaccel_deps="cuda cuvid"
  hevc_cuvid_hwaccel_select="hevc_cuvid_decoder"
@@ -41,10 +41,10 @@ index 0f6f612bd6..02dd6da1ee 100755
  hevc_d3d11va_hwaccel_select="hevc_decoder"
  hevc_mediacodec_hwaccel_deps="mediacodec"
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index 17019748c4..5c7c463f64 100644
+index 699bb15fd1..41321c7543 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
-@@ -838,6 +838,7 @@ OBJS-$(CONFIG_H264_QSV_HWACCEL)           += qsvdec_h2645.o
+@@ -841,6 +841,7 @@ OBJS-$(CONFIG_H264_QSV_HWACCEL)           += qsvdec_h2645.o
  OBJS-$(CONFIG_H264_VAAPI_HWACCEL)         += vaapi_h264.o
  OBJS-$(CONFIG_H264_VDPAU_HWACCEL)         += vdpau_h264.o
  OBJS-$(CONFIG_H264_VIDEOTOOLBOX_HWACCEL)  += videotoolbox.o
@@ -362,7 +362,7 @@ index 0000000000..9993272828
 +    .priv_data_size       = sizeof(CUVIDContext),
 +};
 diff --git a/libavcodec/hevcdec.c b/libavcodec/hevcdec.c
-index d98fec3b8f..c5c5ba1407 100644
+index 403a8cf454..aef4a4a0aa 100644
 --- a/libavcodec/hevcdec.c
 +++ b/libavcodec/hevcdec.c
 @@ -356,7 +356,8 @@ static enum AVPixelFormat get_format(HEVCContext *s, const HEVCSPS *sps)

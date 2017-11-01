@@ -1,4 +1,4 @@
-From 3587db0168b85cbb076f791cc295f88f9ededffa Mon Sep 17 00:00:00 2001
+From b895ba39d4ef9e734eea2801ba5175f1fee167a3 Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Sat, 28 Oct 2017 19:53:38 +0200
 Subject: [PATCH] cuvid: add frames_params support

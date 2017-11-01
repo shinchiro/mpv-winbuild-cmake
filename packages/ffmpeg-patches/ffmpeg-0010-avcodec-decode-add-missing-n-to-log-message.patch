@@ -1,4 +1,4 @@
-From c9277ee95104488e69f3394b275e7ab1aa06ab90 Mon Sep 17 00:00:00 2001
+From 7c00475490ff138d64c3f817180b05e5fe005309 Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Tue, 3 Oct 2017 17:43:13 +0200
 Subject: [PATCH] avcodec/decode: add missing \n to log message

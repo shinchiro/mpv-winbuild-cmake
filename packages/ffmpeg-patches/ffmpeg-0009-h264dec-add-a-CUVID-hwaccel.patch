@@ -1,4 +1,4 @@
-From f459313b6b06857411d16129ff362ff7a741c80e Mon Sep 17 00:00:00 2001
+From a1272ea9c98b486b0ed1969e8e14cb647317c09c Mon Sep 17 00:00:00 2001
 From: Anton Khirnov <anton@khirnov.net>
 Date: Sat, 11 Feb 2017 16:49:34 +0100
 Subject: [PATCH] h264dec: add a CUVID hwaccel
@@ -46,7 +46,7 @@ index 8c45b2946d..2fda8d8263 100644
  
  version 3.2:
 diff --git a/configure b/configure
-index 2f259996ae..0f6f612bd6 100755
+index ef9edc9010..e0ba0d9469 100755
 --- a/configure
 +++ b/configure
 @@ -307,6 +307,7 @@ External library support:
@@ -65,7 +65,7 @@ index 2f259996ae..0f6f612bd6 100755
      d3d11va
      dxva2
      nvenc
-@@ -2664,6 +2666,8 @@ h263_videotoolbox_hwaccel_deps="videotoolbox"
+@@ -2665,6 +2667,8 @@ h263_videotoolbox_hwaccel_deps="videotoolbox"
  h263_videotoolbox_hwaccel_select="h263_decoder"
  h264_cuvid_hwaccel_deps="cuda cuvid"
  h264_cuvid_hwaccel_select="h264_cuvid_decoder"
@@ -74,7 +74,7 @@ index 2f259996ae..0f6f612bd6 100755
  h264_d3d11va_hwaccel_deps="d3d11va"
  h264_d3d11va_hwaccel_select="h264_decoder"
  h264_d3d11va2_hwaccel_deps="d3d11va"
-@@ -5944,6 +5948,8 @@ done
+@@ -5954,6 +5958,8 @@ done
  enabled cuda_sdk          && require cuda_sdk cuda.h cuCtxCreate -lcuda
  enabled cuvid             && { enabled cuda ||
                                 die "ERROR: CUVID requires CUDA"; }
@@ -83,7 +83,7 @@ index 2f259996ae..0f6f612bd6 100755
  enabled chromaprint       && require chromaprint chromaprint.h chromaprint_get_version -lchromaprint
  enabled decklink          && { require_header DeckLinkAPI.h &&
                                 { check_cpp_condition DeckLinkAPIVersion.h "BLACKMAGIC_DECKLINK_API_VERSION >= 0x0a060100" || die "ERROR: Decklink API version must be >= 10.6.1."; } }
-@@ -6299,11 +6305,11 @@ if enabled x86; then
+@@ -6309,11 +6315,11 @@ if enabled x86; then
          mingw32*|mingw64*|win32|win64|linux|cygwin*)
              ;;
          *)
@@ -125,10 +125,10 @@ index ca6f10d5ca..092367b51d 100644
      { 0 },
  };
 diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-index 5522e5f56c..17019748c4 100644
+index af3068b4db..699bb15fd1 100644
 --- a/libavcodec/Makefile
 +++ b/libavcodec/Makefile
-@@ -822,6 +822,7 @@ OBJS-$(CONFIG_ADPCM_YAMAHA_DECODER)       += adpcm.o adpcm_data.o
+@@ -825,6 +825,7 @@ OBJS-$(CONFIG_ADPCM_YAMAHA_DECODER)       += adpcm.o adpcm_data.o
  OBJS-$(CONFIG_ADPCM_YAMAHA_ENCODER)       += adpcmenc.o adpcm_data.o
  
  # hardware accelerators
@@ -136,7 +136,7 @@ index 5522e5f56c..17019748c4 100644
  OBJS-$(CONFIG_D3D11VA)                    += dxva2.o
  OBJS-$(CONFIG_DXVA2)                      += dxva2.o
  OBJS-$(CONFIG_VAAPI)                      += vaapi_decode.o
-@@ -830,6 +831,7 @@ OBJS-$(CONFIG_VDPAU)                      += vdpau.o
+@@ -833,6 +834,7 @@ OBJS-$(CONFIG_VDPAU)                      += vdpau.o
  
  OBJS-$(CONFIG_H263_VAAPI_HWACCEL)         += vaapi_mpeg4.o
  OBJS-$(CONFIG_H263_VIDEOTOOLBOX_HWACCEL)  += videotoolbox.o
@@ -157,7 +157,7 @@ index 98655ddd7c..880950f039 100644
      REGISTER_HWACCEL(H264_D3D11VA2,     h264_d3d11va2);
      REGISTER_HWACCEL(H264_DXVA2,        h264_dxva2);
 diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
-index 8f41c061cf..15e1197fed 100644
+index 19a1cd832c..5a73fcc821 100644
 --- a/libavcodec/avcodec.h
 +++ b/libavcodec/avcodec.h
 @@ -3543,7 +3543,9 @@ typedef struct AVHWAccel {

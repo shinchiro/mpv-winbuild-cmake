@@ -1,4 +1,4 @@
-From 290fea3eb1671884744a8df6722011b4ed72f6f3 Mon Sep 17 00:00:00 2001
+From 83eecd8d188a1eb1414a31bd9797a0ba38096133 Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Thu, 19 Oct 2017 16:38:20 +0200
 Subject: [PATCH] lavc: external hardware frame pool initialization
@@ -57,7 +57,7 @@ index 1490d67f27..a2050775f6 100644
  
  2017-09-28 - b6cf66ae1c - lavc 57.106.104 - avcodec.h
 diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
-index ee7834c8a2..b28a07e6e5 100644
+index c4134424f0..ba8c566eb1 100644
 --- a/libavcodec/avcodec.h
 +++ b/libavcodec/avcodec.h
 @@ -3531,6 +3531,16 @@ typedef struct AVHWAccel {

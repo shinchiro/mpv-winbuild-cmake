@@ -1,8 +1,7 @@
-From 71d0b5d4297ff30529a15acdb3a05f1e02594001 Mon Sep 17 00:00:00 2001
+From 7ef1107461c9119140e9d7c54ffbb212315991fb Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Tue, 3 Oct 2017 15:04:45 +0200
-Subject: [PATCH] avcodec: allow multiple hwaccels for the same
- codec/pixfmt
+Subject: [PATCH] avcodec: allow multiple hwaccels for the same codec/pixfmt
 
 Currently, AVHWAccels are looked up using a (codec_id, pixfmt) tuple.
 This means it's impossible to have 2 decoders for the same codec and
@@ -27,7 +26,7 @@ overhauled.
  4 files changed, 21 insertions(+), 5 deletions(-)
 
 diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
-index b28a07e6e5..8f41c061cf 100644
+index ba8c566eb1..19a1cd832c 100644
 --- a/libavcodec/avcodec.h
 +++ b/libavcodec/avcodec.h
 @@ -3541,6 +3541,11 @@ typedef struct AVHWAccel {
