@@ -11,3 +11,4 @@ ExternalProject_Add(libmodplug
 )
 
 extra_step(libmodplug)
+autoreconf(libmodplug)
