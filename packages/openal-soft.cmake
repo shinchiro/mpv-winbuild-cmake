@@ -1,5 +1,5 @@
 ExternalProject_Add(openal-soft
-    GIT_REPOSITORY git://repo.or.cz/openal-soft.git
+    GIT_REPOSITORY https://github.com/kcat/openal-soft.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/openal-soft-*.patch

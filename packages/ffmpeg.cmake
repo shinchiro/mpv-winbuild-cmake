@@ -16,9 +16,7 @@ ExternalProject_Add(ffmpeg
         vorbis
         x264
         xvidcore
-    #GIT_REPOSITORY git://github.com/FFmpeg/FFmpeg.git
-    #GIT_REPOSITORY git://git.videolan.org/ffmpeg.git
-    GIT_REPOSITORY git://repo.or.cz/ffmpeg.git
+    GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git apply --index ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-patches/ffmpeg-*.patch
