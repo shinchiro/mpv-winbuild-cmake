@@ -56,7 +56,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - crossc
 
 - Zip
-    - expat (2.2.4)
+    - expat (2.2.5)
     - bzip (1.0.6)
     - zlib (1.2.11)
     - xvidcore (1.3.4)
