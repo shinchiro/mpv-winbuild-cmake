@@ -1,4 +1,4 @@
-From 528d799fcbd48991e854f9bfd508cea292084826 Mon Sep 17 00:00:00 2001
+From 39abc8ce5c5531edbec3fbba72251eb73c9568e2 Mon Sep 17 00:00:00 2001
 From: wm4 <nfxjfg@googlemail.com>
 Date: Tue, 24 Oct 2017 00:28:03 +0200
 Subject: [PATCH] lavc: fix hw_device_ctx operation
@@ -12,10 +12,10 @@ Signed-off-by: Mark Thompson <sw@jkqxz.net>
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/libavcodec/decode.c b/libavcodec/decode.c
-index 618c49564e..ddf64ac87c 100644
+index 866ffd81f..7b5a9145a 100644
 --- a/libavcodec/decode.c
 +++ b/libavcodec/decode.c
-@@ -1109,11 +1109,9 @@ int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
+@@ -1135,11 +1135,9 @@ int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
      ret = avcodec_get_hw_frames_parameters(avctx,
                                             avctx->hw_device_ctx,
                                             avctx->hwaccel->pix_fmt,

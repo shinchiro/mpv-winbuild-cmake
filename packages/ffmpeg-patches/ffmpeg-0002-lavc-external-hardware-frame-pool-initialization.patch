@@ -14,9 +14,9 @@ Support for VDA and Cuvid missing.
 Signed-off-by: Anton Khirnov <anton@khirnov.net>
 ---
  doc/APIchanges              |   3 +
- libavcodec/avcodec.h        | 113 +++++++++++++++++++++++
+ libavcodec/avcodec.h        | 112 +++++++++++++++++++++++
  libavcodec/decode.c         |  82 +++++++++++++++++
- libavcodec/decode.h         |  12 +++
+ libavcodec/decode.h         |   8 ++
  libavcodec/dxva2.c          |  55 +++++------
  libavcodec/dxva2_h264.c     |   3 +
  libavcodec/dxva2_hevc.c     |   3 +
@@ -39,11 +39,10 @@ Signed-off-by: Anton Khirnov <anton@khirnov.net>
  libavcodec/vdpau_mpeg12.c   |   1 +
  libavcodec/vdpau_mpeg4.c    |   1 +
  libavcodec/vdpau_vc1.c      |   2 +
- libavcodec/version.h        |   2 +-
- 27 files changed, 401 insertions(+), 181 deletions(-)
+ 26 files changed, 395 insertions(+), 180 deletions(-)
 
 diff --git a/doc/APIchanges b/doc/APIchanges
-index 1490d67f27..a2050775f6 100644
+index 1490d67f2..a2050775f 100644
 --- a/doc/APIchanges
 +++ b/doc/APIchanges
 @@ -15,6 +15,9 @@ libavutil:     2017-10-21
@@ -57,14 +56,13 @@ index 1490d67f27..a2050775f6 100644
  
  2017-09-28 - b6cf66ae1c - lavc 57.106.104 - avcodec.h
 diff --git a/libavcodec/avcodec.h b/libavcodec/avcodec.h
-index c4134424f0..ba8c566eb1 100644
+index 15ca871b5..fd0bcf76c 100644
 --- a/libavcodec/avcodec.h
 +++ b/libavcodec/avcodec.h
-@@ -3531,6 +3531,16 @@ typedef struct AVHWAccel {
-      * Internal hwaccel capabilities.
+@@ -3539,6 +3539,15 @@ typedef struct AVHWAccel {
+      * FF_CODEC_CAP_HWACCEL_REQUIRE_CLASS set.
       */
-     int caps_internal;
-+
+     const AVClass *decoder_class;
 +    /**
 +     * Fill the given hw_frames context with current codec parameters. Called
 +     * from get_format. Refer to avcodec_get_hw_frames_parameters() for
@@ -77,7 +75,7 @@ index c4134424f0..ba8c566eb1 100644
  } AVHWAccel;
  
  /**
-@@ -4666,6 +4676,109 @@ int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
+@@ -4674,6 +4683,109 @@ int avcodec_send_frame(AVCodecContext *avctx, const AVFrame *frame);
   */
  int avcodec_receive_packet(AVCodecContext *avctx, AVPacket *avpkt);
  
@@ -188,10 +186,10 @@ index c4134424f0..ba8c566eb1 100644
  /**
   * @defgroup lavc_parsing Frame parsing
 diff --git a/libavcodec/decode.c b/libavcodec/decode.c
-index 86fe5aef52..618c49564e 100644
+index 570799f6d..866ffd81f 100644
 --- a/libavcodec/decode.c
 +++ b/libavcodec/decode.c
-@@ -1080,6 +1080,88 @@ static AVHWAccel *find_hwaccel(enum AVCodecID codec_id,
+@@ -1106,6 +1106,88 @@ static AVHWAccel *find_hwaccel(AVCodecContext *avctx,
      return NULL;
  }
  
@@ -281,24 +279,21 @@ index 86fe5aef52..618c49564e 100644
                           const enum AVPixelFormat fmt,
                           const char *name)
 diff --git a/libavcodec/decode.h b/libavcodec/decode.h
-index c9630228dc..1b92e58d96 100644
+index 03fc783bb..341665523 100644
 --- a/libavcodec/decode.h
 +++ b/libavcodec/decode.h
-@@ -21,6 +21,10 @@
- #ifndef AVCODEC_DECODE_H
- #define AVCODEC_DECODE_H
+@@ -23,6 +23,7 @@
  
-+#include "libavutil/buffer.h"
-+#include "libavutil/frame.h"
+ #include "libavutil/buffer.h"
+ #include "libavutil/frame.h"
 +#include "libavutil/hwcontext.h"
-+
+ 
  #include "avcodec.h"
  
- /**
-@@ -36,4 +40,12 @@ int ff_decode_get_packet(AVCodecContext *avctx, AVPacket *pkt);
- 
+@@ -66,5 +67,12 @@ int ff_decode_get_packet(AVCodecContext *avctx, AVPacket *pkt);
  void ff_decode_bsfs_uninit(AVCodecContext *avctx);
  
+ int ff_attach_decode_data(AVFrame *frame);
 +/**
 + * Make sure avctx.hw_frames_ctx is set. If it's not set, the function will
 + * try to allocate it from hw_device_ctx. If that is not possible, an error
@@ -306,10 +301,10 @@ index c9630228dc..1b92e58d96 100644
 + */
 +int ff_decode_get_hw_frames_ctx(AVCodecContext *avctx,
 +                                enum AVHWDeviceType dev_type);
-+
+ 
  #endif /* AVCODEC_DECODE_H */
 diff --git a/libavcodec/dxva2.c b/libavcodec/dxva2.c
-index afcd361ef6..6f294703fb 100644
+index afcd361ef..6f294703f 100644
 --- a/libavcodec/dxva2.c
 +++ b/libavcodec/dxva2.c
 @@ -29,6 +29,7 @@
@@ -414,7 +409,7 @@ index afcd361ef6..6f294703fb 100644
          ret = AVERROR(EINVAL);
          goto fail;
 diff --git a/libavcodec/dxva2_h264.c b/libavcodec/dxva2_h264.c
-index e3a3f7866e..ee35b20e82 100644
+index e3a3f7866..ee35b20e8 100644
 --- a/libavcodec/dxva2_h264.c
 +++ b/libavcodec/dxva2_h264.c
 @@ -528,6 +528,7 @@ AVHWAccel ff_h264_dxva2_hwaccel = {
@@ -442,7 +437,7 @@ index e3a3f7866e..ee35b20e82 100644
      .priv_data_size = sizeof(FFDXVASharedContext),
  };
 diff --git a/libavcodec/dxva2_hevc.c b/libavcodec/dxva2_hevc.c
-index 88f887a1b5..542afc383a 100644
+index 88f887a1b..542afc383 100644
 --- a/libavcodec/dxva2_hevc.c
 +++ b/libavcodec/dxva2_hevc.c
 @@ -432,6 +432,7 @@ AVHWAccel ff_hevc_dxva2_hwaccel = {
@@ -470,7 +465,7 @@ index 88f887a1b5..542afc383a 100644
      .priv_data_size = sizeof(FFDXVASharedContext),
  };
 diff --git a/libavcodec/dxva2_internal.h b/libavcodec/dxva2_internal.h
-index 352a9db1ab..8bb3344090 100644
+index 352a9db1a..8bb334409 100644
 --- a/libavcodec/dxva2_internal.h
 +++ b/libavcodec/dxva2_internal.h
 @@ -156,6 +156,9 @@ int ff_dxva2_decode_init(AVCodecContext *avctx);
@@ -484,7 +479,7 @@ index 352a9db1ab..8bb3344090 100644
  
  #endif /* AVCODEC_DXVA2_INTERNAL_H */
 diff --git a/libavcodec/dxva2_mpeg2.c b/libavcodec/dxva2_mpeg2.c
-index b7c69378f0..df5fe59a7d 100644
+index b7c69378f..df5fe59a7 100644
 --- a/libavcodec/dxva2_mpeg2.c
 +++ b/libavcodec/dxva2_mpeg2.c
 @@ -327,6 +327,7 @@ AVHWAccel ff_mpeg2_dxva2_hwaccel = {
@@ -512,7 +507,7 @@ index b7c69378f0..df5fe59a7d 100644
      .priv_data_size = sizeof(FFDXVASharedContext),
  };
 diff --git a/libavcodec/dxva2_vc1.c b/libavcodec/dxva2_vc1.c
-index e5353cdddc..f21c5d5544 100644
+index e5353cddd..f21c5d554 100644
 --- a/libavcodec/dxva2_vc1.c
 +++ b/libavcodec/dxva2_vc1.c
 @@ -388,6 +388,7 @@ AVHWAccel ff_wmv3_dxva2_hwaccel = {
@@ -556,7 +551,7 @@ index e5353cdddc..f21c5d5544 100644
      .priv_data_size = sizeof(FFDXVASharedContext),
  };
 diff --git a/libavcodec/dxva2_vp9.c b/libavcodec/dxva2_vp9.c
-index 6d87fdd9f2..a2e55f5736 100644
+index 6d87fdd9f..a2e55f573 100644
 --- a/libavcodec/dxva2_vp9.c
 +++ b/libavcodec/dxva2_vp9.c
 @@ -319,6 +319,7 @@ AVHWAccel ff_vp9_dxva2_hwaccel = {
@@ -584,7 +579,7 @@ index 6d87fdd9f2..a2e55f5736 100644
      .priv_data_size = sizeof(FFDXVASharedContext),
  };
 diff --git a/libavcodec/vaapi_decode.c b/libavcodec/vaapi_decode.c
-index 27ef33837c..d467bed874 100644
+index 27ef33837..d467bed87 100644
 --- a/libavcodec/vaapi_decode.c
 +++ b/libavcodec/vaapi_decode.c
 @@ -21,6 +21,7 @@
@@ -899,7 +894,7 @@ index 27ef33837c..d467bed874 100644
      vas = vaCreateContext(ctx->hwctx->display, ctx->va_config,
                            avctx->coded_width, avctx->coded_height,
 diff --git a/libavcodec/vaapi_decode.h b/libavcodec/vaapi_decode.h
-index 550ee05432..1fcecac468 100644
+index 550ee0543..1fcecac46 100644
 --- a/libavcodec/vaapi_decode.h
 +++ b/libavcodec/vaapi_decode.h
 @@ -53,8 +53,6 @@ typedef struct VAAPIDecodePicture {
@@ -920,7 +915,7 @@ index 550ee05432..1fcecac468 100644
 +
  #endif /* AVCODEC_VAAPI_DECODE_H */
 diff --git a/libavcodec/vaapi_h264.c b/libavcodec/vaapi_h264.c
-index 30e7026ccf..c7f9d7bcb4 100644
+index 30e7026cc..c7f9d7bcb 100644
 --- a/libavcodec/vaapi_h264.c
 +++ b/libavcodec/vaapi_h264.c
 @@ -399,6 +399,7 @@ AVHWAccel ff_h264_vaapi_hwaccel = {
@@ -932,7 +927,7 @@ index 30e7026ccf..c7f9d7bcb4 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vaapi_hevc.c b/libavcodec/vaapi_hevc.c
-index 69b8e478c6..718ccc92a2 100644
+index 69b8e478c..718ccc92a 100644
 --- a/libavcodec/vaapi_hevc.c
 +++ b/libavcodec/vaapi_hevc.c
 @@ -434,6 +434,7 @@ AVHWAccel ff_hevc_vaapi_hwaccel = {
@@ -944,7 +939,7 @@ index 69b8e478c6..718ccc92a2 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vaapi_mpeg2.c b/libavcodec/vaapi_mpeg2.c
-index 0d197c9692..fd5be8d8ae 100644
+index 0d197c969..fd5be8d8a 100644
 --- a/libavcodec/vaapi_mpeg2.c
 +++ b/libavcodec/vaapi_mpeg2.c
 @@ -183,6 +183,7 @@ AVHWAccel ff_mpeg2_vaapi_hwaccel = {
@@ -956,7 +951,7 @@ index 0d197c9692..fd5be8d8ae 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vaapi_mpeg4.c b/libavcodec/vaapi_mpeg4.c
-index f8c5ddf209..3fe029186e 100644
+index f8c5ddf20..3fe029186 100644
 --- a/libavcodec/vaapi_mpeg4.c
 +++ b/libavcodec/vaapi_mpeg4.c
 @@ -189,6 +189,7 @@ AVHWAccel ff_mpeg4_vaapi_hwaccel = {
@@ -976,7 +971,7 @@ index f8c5ddf209..3fe029186e 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vaapi_vc1.c b/libavcodec/vaapi_vc1.c
-index 30c9ed3c8b..49675744cd 100644
+index 30c9ed3c8..49675744c 100644
 --- a/libavcodec/vaapi_vc1.c
 +++ b/libavcodec/vaapi_vc1.c
 @@ -399,6 +399,7 @@ AVHWAccel ff_wmv3_vaapi_hwaccel = {
@@ -996,7 +991,7 @@ index 30c9ed3c8b..49675744cd 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vaapi_vp9.c b/libavcodec/vaapi_vp9.c
-index d8ece75df4..f295dc9ebb 100644
+index d8ece75df..f295dc9eb 100644
 --- a/libavcodec/vaapi_vp9.c
 +++ b/libavcodec/vaapi_vp9.c
 @@ -179,6 +179,7 @@ AVHWAccel ff_vp9_vaapi_hwaccel = {
@@ -1008,7 +1003,7 @@ index d8ece75df4..f295dc9ebb 100644
      .caps_internal        = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vdpau.c b/libavcodec/vdpau.c
-index ee3610428f..1b2ec989cd 100644
+index ee3610428..1b2ec989c 100644
 --- a/libavcodec/vdpau.c
 +++ b/libavcodec/vdpau.c
 @@ -24,6 +24,7 @@
@@ -1101,7 +1096,7 @@ index ee3610428f..1b2ec989cd 100644
  
          vdctx->device           = dev_ctx->device;
 diff --git a/libavcodec/vdpau_h264.c b/libavcodec/vdpau_h264.c
-index be6ba71433..70f83d76f5 100644
+index be6ba7143..70f83d76f 100644
 --- a/libavcodec/vdpau_h264.c
 +++ b/libavcodec/vdpau_h264.c
 @@ -273,6 +273,7 @@ AVHWAccel ff_h264_vdpau_hwaccel = {
@@ -1113,7 +1108,7 @@ index be6ba71433..70f83d76f5 100644
      .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vdpau_hevc.c b/libavcodec/vdpau_hevc.c
-index fcdf4b2747..70e76cfcaa 100644
+index fcdf4b274..70e76cfca 100644
 --- a/libavcodec/vdpau_hevc.c
 +++ b/libavcodec/vdpau_hevc.c
 @@ -424,6 +424,7 @@ AVHWAccel ff_hevc_vdpau_hwaccel = {
@@ -1125,7 +1120,7 @@ index fcdf4b2747..70e76cfcaa 100644
      .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vdpau_internal.h b/libavcodec/vdpau_internal.h
-index 30d01af65d..4d63e50b16 100644
+index 30d01af65..4d63e50b1 100644
 --- a/libavcodec/vdpau_internal.h
 +++ b/libavcodec/vdpau_internal.h
 @@ -119,5 +119,7 @@ int ff_vdpau_common_end_frame(AVCodecContext *avctx, AVFrame *frame,
@@ -1137,7 +1132,7 @@ index 30d01af65d..4d63e50b16 100644
  
  #endif /* AVCODEC_VDPAU_INTERNAL_H */
 diff --git a/libavcodec/vdpau_mpeg12.c b/libavcodec/vdpau_mpeg12.c
-index b657007ee7..71fe889abf 100644
+index b657007ee..71fe889ab 100644
 --- a/libavcodec/vdpau_mpeg12.c
 +++ b/libavcodec/vdpau_mpeg12.c
 @@ -149,6 +149,7 @@ AVHWAccel ff_mpeg2_vdpau_hwaccel = {
@@ -1149,7 +1144,7 @@ index b657007ee7..71fe889abf 100644
      .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vdpau_mpeg4.c b/libavcodec/vdpau_mpeg4.c
-index bbdd843a44..653ef7e7e7 100644
+index bbdd843a4..653ef7e7e 100644
 --- a/libavcodec/vdpau_mpeg4.c
 +++ b/libavcodec/vdpau_mpeg4.c
 @@ -121,6 +121,7 @@ AVHWAccel ff_mpeg4_vdpau_hwaccel = {
@@ -1161,7 +1156,7 @@ index bbdd843a44..653ef7e7e7 100644
      .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
  };
 diff --git a/libavcodec/vdpau_vc1.c b/libavcodec/vdpau_vc1.c
-index 665a2333f4..73d83f6577 100644
+index 665a2333f..73d83f657 100644
 --- a/libavcodec/vdpau_vc1.c
 +++ b/libavcodec/vdpau_vc1.c
 @@ -147,6 +147,7 @@ AVHWAccel ff_wmv3_vdpau_hwaccel = {
@@ -1180,19 +1175,6 @@ index 665a2333f4..73d83f6577 100644
      .priv_data_size = sizeof(VDPAUContext),
      .caps_internal  = HWACCEL_CAP_ASYNC_SAFE,
  };
-diff --git a/libavcodec/version.h b/libavcodec/version.h
-index 5e148023f3..a152a4f1c4 100644
---- a/libavcodec/version.h
-+++ b/libavcodec/version.h
-@@ -28,7 +28,7 @@
- #include "libavutil/version.h"
- 
- #define LIBAVCODEC_VERSION_MAJOR  58
--#define LIBAVCODEC_VERSION_MINOR   1
-+#define LIBAVCODEC_VERSION_MINOR   2
- #define LIBAVCODEC_VERSION_MICRO 100
- 
- #define LIBAVCODEC_VERSION_INT  AV_VERSION_INT(LIBAVCODEC_VERSION_MAJOR, \
 -- 
 2.14.2
 
