@@ -1,5 +1,5 @@
 ExternalProject_Add(xz
-    GIT_REPOSITORY http://git.tukaani.org/xz.git
+    GIT_REPOSITORY https://gitlab.com/shinchiro/xz.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
