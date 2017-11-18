@@ -1,0 +1,38 @@
+From 94e5432e6124192fb81893fc5fd40e26f3e09df4 Mon Sep 17 00:00:00 2001
+From: wm4 <nfxjfg@googlemail.com>
+Date: Fri, 17 Nov 2017 14:15:22 +0100
+Subject: [PATCH] vp9: use superframe split BSF
+
+This contains the important part of fa1749dd34c55fb9, which
+was apparently skipped in commit d417e95af76.
+---
+ libavcodec/version.h | 2 +-
+ libavcodec/vp9.c     | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libavcodec/version.h b/libavcodec/version.h
+index efe5e7329..b43a1730c 100644
+--- a/libavcodec/version.h
++++ b/libavcodec/version.h
+@@ -28,7 +28,7 @@
+ #include "libavutil/version.h"
+ 
+ #define LIBAVCODEC_VERSION_MAJOR  58
+-#define LIBAVCODEC_VERSION_MINOR   3
++#define LIBAVCODEC_VERSION_MINOR   4
+ #define LIBAVCODEC_VERSION_MICRO 102
+ 
+ #define LIBAVCODEC_VERSION_INT  AV_VERSION_INT(LIBAVCODEC_VERSION_MAJOR, \
+diff --git a/libavcodec/vp9.c b/libavcodec/vp9.c
+index 6ce9be61b..c827cafca 100644
+--- a/libavcodec/vp9.c
++++ b/libavcodec/vp9.c
+@@ -1794,4 +1794,5 @@ AVCodec ff_vp9_decoder = {
+     .init_thread_copy      = ONLY_IF_THREADS_ENABLED(vp9_decode_init_thread_copy),
+     .update_thread_context = ONLY_IF_THREADS_ENABLED(vp9_decode_update_thread_context),
+     .profiles              = NULL_IF_CONFIG_SMALL(ff_vp9_profiles),
++    .bsfs                  = "vp9_superframe_split",
+ };
+-- 
+2.15.0
+
