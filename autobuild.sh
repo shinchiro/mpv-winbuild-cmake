@@ -78,7 +78,6 @@ prepare() {
     download_mpv_package
     cd ./mpv-packaging-master
     7z x -y ./d3dcompiler*.7z
-    7z x -y ./vulkan*.7z
     cd ../..
 }
 
