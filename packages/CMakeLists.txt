@@ -118,6 +118,7 @@ list(APPEND ep
     openal-soft
     fribidi
     expat
+    nettle
     libarchive
     freetype2
     libbluray

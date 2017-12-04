@@ -56,6 +56,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - crossc
     - fribidi
     - libressl
+    - nettle
 
 - Zip
     - expat (2.2.5)
