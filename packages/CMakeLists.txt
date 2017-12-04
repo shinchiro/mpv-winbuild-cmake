@@ -125,6 +125,7 @@ list(APPEND ep
     libsoxr
     libzimg
     libass
+    libressl
     ffmpeg
     angle
     mujs

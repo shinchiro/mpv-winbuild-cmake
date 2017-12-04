@@ -55,6 +55,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - vulkan
     - crossc
     - fribidi
+    - libressl
 
 - Zip
     - expat (2.2.5)

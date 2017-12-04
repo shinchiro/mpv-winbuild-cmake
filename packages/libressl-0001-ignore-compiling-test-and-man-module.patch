@@ -1,0 +1,22 @@
+From 7a902381da24ee426734fe4e6dd9c28b9bc17e4f Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Mon, 4 Dec 2017 10:39:53 +0800
+Subject: [PATCH] ignore compiling test and man module
+
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index b4b9dfc..0cbe978 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -1,4 +1,4 @@
+-SUBDIRS = crypto ssl tls include apps tests man
++SUBDIRS = crypto ssl tls include apps
+ ACLOCAL_AMFLAGS = -I m4
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
+-- 
+2.15.0
+
