@@ -10,6 +10,9 @@ ExternalProject_Add(flac
         --disable-shared
         --disable-doxygen-docs
         --disable-xmms-plugin
+        --disable-thorough-tests
+        --disable-oggtest
+        --disable-examples
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
@@ -18,4 +21,3 @@ ExternalProject_Add(flac
 force_rebuild_git(flac)
 extra_step(flac)
 autogen(flac)
-autoreconf(flac)
