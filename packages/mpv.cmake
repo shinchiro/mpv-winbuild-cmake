@@ -44,7 +44,6 @@ ExternalProject_Add(mpv
         --enable-lcms2
         --enable-openal
         --enable-egl-angle-lib
-        --enable-ffmpeg-upstream
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
