@@ -5,12 +5,12 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
  loader/CMakeLists.txt       | 13 +++++--------
- loader/loader.c             |  6 +++---
+ loader/loader.c             |  4 ++--
  loader/loader.h             |  3 +++
  loader/loader.rc            |  4 ++++
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 6 files changed, 18 insertions(+), 14 deletions(-)
+ 6 files changed, 17 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
 index 9c8173f..d103beb 100644
@@ -66,7 +66,7 @@ index 9c8173f..d103beb 100644
          if(INSTALL_LVL_FILES)
              install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
 diff --git a/loader/loader.c b/loader/loader.c
-index 912d81c..6d36af5 100644
+index 2e75637..df07e7c 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -48,9 +48,9 @@
@@ -81,15 +81,6 @@ index 912d81c..6d36af5 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-@@ -514,7 +514,7 @@ bool loaderGetDeviceRegistryEntry(const struct loader_instance *inst, char **reg
-         } else {
-             (void)snprintf(*reg_data + strlen(*reg_data), requiredSize + 2, "%c%s", PATH_SEPARATOR, curr_filename);
-         }
--        loader_log(inst, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0, __FUNCTION__ ": Located json file \"%s\" from PnP registry: %s", curr_filename, value_name);
-+        // loader_log(inst, VK_DEBUG_REPORT_INFORMATION_BIT_EXT, 0, __FUNCTION__ ": Located json file \"%s\" from PnP registry: %s", curr_filename, value_name);
- 
-         if (data_type == REG_SZ) {
-             break;
 diff --git a/loader/loader.h b/loader/loader.h
 index 43600f9..c202b30 100644
 --- a/loader/loader.h
@@ -121,7 +112,7 @@ index 177de20..1c865bf 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 207e5a4..a6f4015 100644
+index c04d037..8a9ed20 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -24,7 +24,7 @@
@@ -147,5 +138,5 @@ index 2ce5aea..6e89703 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.14.1
+2.14.2
 
