@@ -133,6 +133,7 @@ list(APPEND ep
     vulkan
     shaderc
     crossc
+    curl
     mpv
     flac
     opus-tools

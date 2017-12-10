@@ -1,0 +1,25 @@
+From 1521b617218a0554f285f5217c193a8ed2e00296 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 8 Dec 2017 19:49:23 +0800
+Subject: [PATCH] Skip compiling unnecessary stuff
+
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 8e5ef911..2369e213 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -156,7 +156,7 @@ CLEANFILES = $(VC6_LIBDSP) $(VC6_SRCDSP) $(VC7_LIBVCPROJ) $(VC7_SRCVCPROJ)	\
+ bin_SCRIPTS = curl-config
+ 
+ SUBDIRS = lib src
+-DIST_SUBDIRS = $(SUBDIRS) tests packages scripts include docs
++DIST_SUBDIRS = $(SUBDIRS) include
+ 
+ pkgconfigdir = $(libdir)/pkgconfig
+ pkgconfig_DATA = libcurl.pc
+-- 
+2.15.0
+
