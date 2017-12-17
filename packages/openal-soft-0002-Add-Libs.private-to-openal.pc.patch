@@ -9,12 +9,12 @@ Subject: [PATCH] Add Libs.private to openal.pc
  2 files changed, 6 insertions(+)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index bff7618..df3f0a7 100644
+index 8a7744e..f2e8709 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -1202,6 +1202,11 @@ ENDIF()
+@@ -1229,6 +1229,11 @@ SET(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+ SET(PACKAGE_VERSION "${LIB_VERSION}")
  IF(LIBTYPE STREQUAL "STATIC")
-     ADD_DEFINITIONS(-DAL_LIBTYPE_STATIC)
      SET(PKG_CONFIG_CFLAGS -DAL_LIBTYPE_STATIC ${PKG_CONFIG_CFLAGS})
 +    FOREACH(l ${EXTRA_LIBS})
 +        IF(NOT l MATCHES "^-.*")
@@ -23,7 +23,7 @@ index bff7618..df3f0a7 100644
 +    ENDFOREACH()
  ENDIF()
  
- IF(NOT WIN32)
+ # End configuration
 diff --git a/openal.pc.in b/openal.pc.in
 index 8bdd4f3..d8759d0 100644
 --- a/openal.pc.in
