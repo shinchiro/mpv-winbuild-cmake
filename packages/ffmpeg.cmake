@@ -17,6 +17,7 @@ ExternalProject_Add(ffmpeg
         vorbis
         x264
         xvidcore
+        libxml2
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -53,6 +54,7 @@ ExternalProject_Add(ffmpeg
     --enable-libxvid
     --enable-libzimg
     --enable-openssl
+    --enable-libxml2
     --enable-cuda
     --enable-cuvid
     --disable-w32threads
