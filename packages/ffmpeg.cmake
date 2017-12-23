@@ -21,7 +21,6 @@ ExternalProject_Add(ffmpeg
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git apply --index ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg-patches/ffmpeg-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
     --cross-prefix=${TARGET_ARCH}-
     --prefix=${MINGW_INSTALL_PREFIX}
@@ -53,7 +52,7 @@ ExternalProject_Add(ffmpeg
     --enable-libx264
     --enable-libxvid
     --enable-libzimg
-    --enable-openssl
+    --enable-libtls
     --enable-libxml2
     --enable-cuda
     --enable-cuvid
