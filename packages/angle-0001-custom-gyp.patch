@@ -4,24 +4,23 @@ Date: Sun, 19 Feb 2017 20:00:11 +0800
 Subject: [PATCH] custom gyp
 
 ---
- gyp/common_defines.gypi |  9 +++++++++
- src/angle.gyp           | 43 ++-----------------------------------------
+ gyp/common_defines.gypi |  8 ++++++++
+ src/angle.gyp           | 51 ++-----------------------------------------------
  src/commit_id.py        |  4 ++--
  src/libEGL.gypi         |  1 +
  src/libGLESv2.gypi      |  7 -------
- 5 files changed, 14 insertions(+), 50 deletions(-)
+ 5 files changed, 13 insertions(+), 58 deletions(-)
 
 diff --git a/gyp/common_defines.gypi b/gyp/common_defines.gypi
-index bce49c4c..abd3752a 100644
+index bce49c4c..2857cd39 100644
 --- a/gyp/common_defines.gypi
 +++ b/gyp/common_defines.gypi
-@@ -35,6 +35,15 @@
+@@ -35,6 +35,14 @@
      [
          'ANGLE_STANDALONE_BUILD',
      ],
 +    'cflags_cc':
 +    [
-+        '-std=c++14',
 +        '-fpermissive',
 +        '-msse2', '-msse3',
 +        '-O2',
@@ -32,10 +31,25 @@ index bce49c4c..abd3752a 100644
      [
          4100, # Unreferenced formal parameter. Not interesting.
 diff --git a/src/angle.gyp b/src/angle.gyp
-index ccae2aa7..f69ea8e2 100644
+index 04c9c4f3..391e38bd 100644
 --- a/src/angle.gyp
 +++ b/src/angle.gyp
-@@ -283,7 +283,7 @@
+@@ -58,14 +58,6 @@
+         'libEGL.gypi',
+     ],
+ 
+-    'target_defaults':
+-    {
+-        'dependencies':
+-        [
+-            '../gyp/warnings.gyp:gyp_deprecation',
+-        ],
+-    },
+-
+     'targets':
+     [
+         {
+@@ -355,7 +347,7 @@
              [
                  {
                      'destination': '<(angle_gen_path)',
@@ -44,7 +58,7 @@ index ccae2aa7..f69ea8e2 100644
                  },
              ],
              'conditions':
-@@ -318,7 +318,7 @@
+@@ -390,7 +382,7 @@
                              'msvs_cygwin_shell': 0,
                              'action':
                              [
@@ -53,7 +67,7 @@ index ccae2aa7..f69ea8e2 100644
                              ],
                          },
                      ],
-@@ -371,44 +371,5 @@
+@@ -443,44 +435,5 @@
                  }
              ]
          }],
@@ -126,10 +140,10 @@ index fdce4ba2..82a73cc6 100644
              ],
              'includes':
 diff --git a/src/libGLESv2.gypi b/src/libGLESv2.gypi
-index 6709c34e..9656049c 100644
+index 157078f4..5975f5e2 100644
 --- a/src/libGLESv2.gypi
 +++ b/src/libGLESv2.gypi
-@@ -1093,13 +1093,6 @@
+@@ -1188,13 +1188,6 @@
                          '<@(libangle_null_sources)',
                      ],
                  }],
@@ -144,5 +158,5 @@ index 6709c34e..9656049c 100644
                  {
                      'msvs_requires_importlibrary' : 'true',
 -- 
-2.11.0
+2.15.0
 
