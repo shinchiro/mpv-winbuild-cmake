@@ -1,0 +1,12 @@
+prefix=@MINGW_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include/vapoursynth
+
+Name: vapoursynth-script
+Description: Library for interfacing VapourSynth with Python
+Version: @PC_VERSION@
+
+Requires: vapoursynth
+Libs: -L${libdir} -lvsscript
+Cflags: -I${includedir}
