@@ -32,6 +32,7 @@ ExternalProject_Add_Step(vapoursynth generate-def
     WORKING_DIRECTORY <SOURCE_DIR>
     COMMAND ${EXEC} ${GENERATE_DEF} VSScript
     COMMAND ${EXEC} ${GENERATE_DEF} VapourSynth
+    LOG 1
 )
 
 ExternalProject_Add_Step(vapoursynth generate-lib
@@ -39,6 +40,7 @@ ExternalProject_Add_Step(vapoursynth generate-lib
     WORKING_DIRECTORY <SOURCE_DIR>
     COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VSScript.def -l libvsscript.a
     COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VapourSynth.def -l libvapoursynth.a
+    LOG 1
 )
 
 ExternalProject_Add_Step(vapoursynth download-header
@@ -47,6 +49,7 @@ ExternalProject_Add_Step(vapoursynth download-header
     COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VapourSynth.h
     COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VSScript.h
     COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VSHelper.h
+    LOG 1
 )
 
 ExternalProject_Add_Step(vapoursynth manual-install
