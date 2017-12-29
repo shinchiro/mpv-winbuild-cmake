@@ -47,7 +47,6 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - freetype2
     - flac
     - opus-tools
-    - vapoursynth
     - mujs
     - libarchive
     - libjpeg
@@ -72,6 +71,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libiconv (1.15)
     - gmp (6.1.2)
+    - vapoursynth (R40)
 
 
 ## Setup Build Environment
