@@ -13,7 +13,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  6 files changed, 17 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 9c8173f..d103beb 100644
+index a2a70eb..d35de05 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -23,7 +23,7 @@ endif()
@@ -43,9 +43,9 @@ index 9c8173f..d103beb 100644
      # Use static MSVCRT libraries
      foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
                               CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-@@ -188,9 +188,8 @@ if (WIN32)
- else()
-     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wpointer-arith")
+@@ -194,9 +194,8 @@ else()
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
+     endif()
  
 -    add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
 +    add_library(${API_LOWERCASE} STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
@@ -54,7 +54,7 @@ index 9c8173f..d103beb 100644
      target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
  
      if(INSTALL_LVL_FILES)
-@@ -201,9 +200,7 @@ else()
+@@ -207,9 +206,7 @@ else()
      include(FindPkgConfig QUIET)
      if(PKG_CONFIG_FOUND)
          set(VK_API_VERSION "1.0.${vk_header_version}")
@@ -138,5 +138,5 @@ index 2ce5aea..6e89703 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.14.2
+2.15.0
 
