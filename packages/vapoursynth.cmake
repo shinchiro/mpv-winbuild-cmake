@@ -6,6 +6,7 @@ if(${TARGET_CPU} MATCHES "x86_64")
 else()
     set(link "https://github.com/vapoursynth/vapoursynth/releases/download/${rev}/VapourSynth32-Portable-${rev}.7z")
     set(hash "153998e065ed78238a027019995cf4a2b08c0cffe477e2ade2045347c0a51b20")
+    set(dlltool_opts "-U")
 endif()
 
 string(REPLACE "R" "" PC_VERSION ${rev})
@@ -39,8 +40,8 @@ ExternalProject_Add_Step(vapoursynth generate-def
 ExternalProject_Add_Step(vapoursynth generate-lib
     DEPENDEES generate-def
     WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VSScript.def -l libvsscript.a
-    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VapourSynth.def -l libvapoursynth.a
+    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VSScript.def -l libvsscript.a ${dlltool_opts}
+    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VapourSynth.def -l libvapoursynth.a ${dlltool_opts}
     LOG 1
 )
 
