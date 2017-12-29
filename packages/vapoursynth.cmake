@@ -11,6 +11,10 @@ endif()
 string(REPLACE "R" "" PC_VERSION ${rev})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vapoursynth.pc.in ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth.pc @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vapoursynth-script.pc.in ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth-script.pc @ONLY)
+set(GENERATE_DEF ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth-prefix/src/generate_def.sh)
+file(WRITE ${GENERATE_DEF}
+"#!/bin/sh
+gendef - $1.dll | sed -r -e 's|^_||' -e 's|@[1-9]+$||' > $1.def")
 
 ExternalProject_Add(vapoursynth
     URL ${link}
@@ -26,8 +30,8 @@ ExternalProject_Add(vapoursynth
 ExternalProject_Add_Step(vapoursynth generate-def
     DEPENDEES install
     WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND ${EXEC} gendef VSScript.dll
-    COMMAND ${EXEC} gendef VapourSynth.dll
+    COMMAND ${EXEC} ${GENERATE_DEF} VSScript
+    COMMAND ${EXEC} ${GENERATE_DEF} VapourSynth
 )
 
 ExternalProject_Add_Step(vapoursynth generate-lib
