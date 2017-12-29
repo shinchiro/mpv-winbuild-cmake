@@ -1,8 +1,3 @@
-if(${TARGET_CPU} MATCHES "x86_64")
-    set(vapoursynth "vapoursynth")
-    set(enable_vapoursynth "--enable-vapoursynth")
-endif()
-
 ExternalProject_Add(mpv
     DEPENDS
         angle
@@ -24,7 +19,7 @@ ExternalProject_Add(mpv
         vulkan
         shaderc
         crossc
-        ${vapoursynth}
+        vapoursynth
     GIT_REPOSITORY git://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
@@ -49,7 +44,7 @@ ExternalProject_Add(mpv
         --enable-lcms2
         --enable-openal
         --enable-egl-angle-lib
-        ${enable_vapoursynth}
+        --enable-vapoursynth
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
     INSTALL_COMMAND ""
