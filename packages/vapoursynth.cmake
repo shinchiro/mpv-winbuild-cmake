@@ -48,9 +48,9 @@ ExternalProject_Add_Step(vapoursynth generate-lib
 ExternalProject_Add_Step(vapoursynth download-header
     DEPENDEES generate-lib
     WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VapourSynth.h
-    COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VSScript.h
-    COMMAND curl -sOL https://github.com/vapoursynth/vapoursynth/raw/${rev}/include/VSHelper.h
+    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VapourSynth.h
+    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VSScript.h
+    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VSHelper.h
     LOG 1
 )
 
