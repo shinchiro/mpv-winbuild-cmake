@@ -40,8 +40,8 @@ ExternalProject_Add_Step(vapoursynth generate-def
 ExternalProject_Add_Step(vapoursynth generate-lib
     DEPENDEES generate-def
     WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VSScript.def -l libvsscript.a ${dlltool_opts}
-    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VapourSynth.def -l libvapoursynth.a ${dlltool_opts}
+    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VSScript.def -y libvsscript.a ${dlltool_opts}
+    COMMAND ${EXEC} ${TARGET_ARCH}-dlltool -d VapourSynth.def -y libvapoursynth.a ${dlltool_opts}
     LOG 1
 )
 
@@ -67,9 +67,6 @@ ExternalProject_Add_Step(vapoursynth manual-install
     # Copying .pc files
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/vapoursynth.pc
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth-script.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/vapoursynth-script.pc
-    # Copying .dll files
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/vsscript.dll
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/vapoursynth.dll
 )
 
 extra_step(vapoursynth)
