@@ -6,13 +6,12 @@ ExternalProject_Add(shaderc
     GIT_REPOSITORY https://github.com/google/shaderc.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
-    COMMAND mkdir -p <SOURCE_DIR>/build
-    CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build && cmake -B. -H..
+    CONFIGURE_COMMAND ${EXEC} cmake -H. -B<SOURCE_DIR>/build
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=<SOURCE_DIR>/cmake/linux-mingw-toolchain.cmake
         -DSHADERC_SKIP_TESTS=ON
         -DMINGW_COMPILER_PREFIX=${TARGET_ARCH}
-    BUILD_COMMAND ${MAKE} -i -C <SOURCE_DIR>/build
+    BUILD_COMMAND ${MAKE} -C <SOURCE_DIR>/build
     INSTALL_COMMAND ""
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
