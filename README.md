@@ -50,7 +50,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - mujs
     - libarchive
     - libjpeg
-    - shaderc
+    - shaderc (with spirv-headers, spirv-tools, glslang)
     - vulkan
     - crossc
     - fribidi

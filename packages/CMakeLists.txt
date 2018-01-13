@@ -131,6 +131,9 @@ list(APPEND ep
     ffmpeg
     angle
     mujs
+    spirv-headers
+    spirv-tools
+    glslang
     vulkan
     shaderc
     crossc
