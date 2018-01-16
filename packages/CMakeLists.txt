@@ -147,3 +147,12 @@ foreach(package IN LISTS ep)
     include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
     message(STATUS "Parsing package ${package}")
 endforeach()
+
+set(UPDATE_SCRIPT ${CMAKE_SOURCE_DIR}/scripts/update-repo.sh)
+add_custom_target(update
+    USES_TERMINAL
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMAND chmod 755 ${UPDATE_SCRIPT}
+    COMMAND ${EXEC} ${UPDATE_SCRIPT}
+    COMMENT "Updating git repo"
+)
