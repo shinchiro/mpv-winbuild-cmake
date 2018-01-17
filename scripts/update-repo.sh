@@ -25,9 +25,9 @@ gitupdate()
     git -C $src_dir reset --hard @{u} > /dev/null
     
     result=$(git -C $src_dir pull 2>&1)
-    result_module=$(git -C $src_dir submodule update --remote --recursive)
+    result_module=$(git -C $src_dir submodule update --remote --recursive 2>&1)
     
-    if [[ $result != *"up to date"* ]] || [[ ! -z $result_module ]]; then
+    if [[ ! "$result" =~ up[-\ ]to[-\ ]date ]] || [[ ! -z $result_module ]]; then
         echo "Deleting stamp files for $name"
         find $stamp_dir -maxdepth 1 -type f ! -iname "*.cmake" -size 0c -delete # remove stamp files to force rebuild
     fi
