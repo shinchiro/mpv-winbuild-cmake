@@ -1,19 +1,19 @@
-From 5d3c1ef7d81de3139d6522c2446f30c09c74e709 Mon Sep 17 00:00:00 2001
+From c2795c05f86b6488abf3300931c18f779f308f2a Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Wed, 11 Oct 2017 21:25:45 +0800
+Date: Sat, 20 Jan 2018 07:52:12 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 13 +++++--------
+ loader/CMakeLists.txt       | 14 +++++---------
  loader/loader.c             |  4 ++--
  loader/loader.h             |  3 +++
  loader/loader.rc            |  4 ++++
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 6 files changed, 17 insertions(+), 13 deletions(-)
+ 6 files changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index a2a70eb..d35de05 100644
+index f2bd1527..d76e74fe 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -23,7 +23,7 @@ endif()
@@ -34,7 +34,7 @@ index a2a70eb..d35de05 100644
      enable_language(ASM_MASM)
      if (CMAKE_ASM_MASM_COMPILER_WORKS)
          if (NOT CMAKE_CL_64)
-@@ -137,7 +137,7 @@ add_custom_target(loader_gen_files DEPENDS
+@@ -138,7 +138,7 @@ add_custom_target(loader_gen_files DEPENDS
          vk_loader_extensions.c
      )
  
@@ -43,18 +43,19 @@ index a2a70eb..d35de05 100644
      # Use static MSVCRT libraries
      foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
                               CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-@@ -194,9 +194,8 @@ else()
+@@ -205,10 +205,8 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
 -    add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
 +    add_library(${API_LOWERCASE} STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
      add_dependencies(${API_LOWERCASE} generate_helper_files loader_gen_files loader_asm_gen_files)
+-    target_compile_definitions(${API_LOWERCASE} PUBLIC -DLOADER_DYNAMIC_LIB)
 -    set_target_properties(${API_LOWERCASE} PROPERTIES SOVERSION "1" VERSION "1.0.${vk_header_version}")
      target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
  
      if(INSTALL_LVL_FILES)
-@@ -207,9 +206,7 @@ else()
+@@ -219,9 +217,7 @@ else()
      include(FindPkgConfig QUIET)
      if(PKG_CONFIG_FOUND)
          set(VK_API_VERSION "1.0.${vk_header_version}")
@@ -66,10 +67,10 @@ index a2a70eb..d35de05 100644
          if(INSTALL_LVL_FILES)
              install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
 diff --git a/loader/loader.c b/loader/loader.c
-index 2e75637..df07e7c 100644
+index f1bc5897..19c430b6 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -48,9 +48,9 @@
+@@ -49,9 +49,9 @@
  #include "murmurhash.h"
  
  #if defined(_WIN32)
@@ -82,7 +83,7 @@ index 2e75637..df07e7c 100644
  
  // This is a CMake generated file with #defines for any functions/includes
 diff --git a/loader/loader.h b/loader/loader.h
-index 43600f9..c202b30 100644
+index 58dfefed..f8525108 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -44,6 +44,9 @@
@@ -96,7 +97,7 @@ index 43600f9..c202b30 100644
  #define DEBUG_DISABLE_APP_ALLOCATORS 0
  
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 177de20..1c865bf 100755
+index 177de20b..1c865bf5 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -43,7 +43,11 @@
@@ -112,10 +113,10 @@ index 177de20..1c865bf 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index c04d037..8a9ed20 100644
+index 40de844e..5c92027b 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -24,7 +24,7 @@
+@@ -25,7 +25,7 @@
  
  #if defined(_WIN32)
  // WinSock2.h must be included *BEFORE* windows.h
@@ -125,7 +126,7 @@ index c04d037..8a9ed20 100644
  
  #include "vulkan/vk_platform.h"
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea..6e89703 100644
+index 2ce5aea4..6e897033 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
 @@ -1,6 +1,6 @@
