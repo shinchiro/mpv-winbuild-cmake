@@ -1,6 +1,6 @@
-From 05480e022ddee6228f2488c0d88686045f783665 Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 12 Nov 2017 07:42:51 +0000
+From 2de43bb54517aaca6530b3f2bb712ddaa2ca1c5e Mon Sep 17 00:00:00 2001
+From: myfreeer <myfreeer@users.noreply.github.com>
+Date: Tue, 23 Jan 2018 09:38:57 +0800
 Subject: [PATCH] Fix quotation around string
 
 ---
@@ -8,18 +8,18 @@ Subject: [PATCH] Fix quotation around string
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e212b4a..2e23fcc 100644
+index bf68ec0..4863a5c 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -44,7 +44,7 @@ if (BUILD_SHARED_LIBS)
- 	option(BUILD_STATIC "Build static library" ON)
+@@ -39,7 +39,7 @@ if (BUILD_SHARED_LIBS)
  endif (BUILD_SHARED_LIBS)
  
--string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)
-+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)
+ if (TARGET_ARCHITECTURE STREQUAL "")
+-    string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} TARGET_ARCHITECTURE)
++    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" TARGET_ARCHITECTURE)
+ endif (TARGET_ARCHITECTURE STREQUAL "")
+ 
  if (TARGET_ARCHITECTURE MATCHES ".*(x86)|(amd).*")
-     CHECK_C_COMPILER_FLAG(-msse2 SUPPORTS_CFLAG_SSE2)
-     CHECK_C_COMPILER_FLAG(-mfpmath=sse SUPPORTS_CFLAG_SSE_MATH)
 -- 
-2.14.2
+2.15.0
 
