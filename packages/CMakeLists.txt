@@ -130,6 +130,7 @@ list(APPEND ep
     libxml2
     ffmpeg
     angle
+    angle-headers
     mujs
     spirv-headers
     spirv-tools

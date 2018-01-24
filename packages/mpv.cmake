@@ -1,5 +1,6 @@
 ExternalProject_Add(mpv
     DEPENDS
+        angle-headers
         ffmpeg
         fribidi
         lcms2
@@ -42,7 +43,6 @@ ExternalProject_Add(mpv
         --enable-rubberband
         --enable-lcms2
         --enable-openal
-        --disable-egl-angle
         --enable-vapoursynth
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
