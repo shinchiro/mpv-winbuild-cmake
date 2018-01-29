@@ -1,6 +1,6 @@
 ExternalProject_Add(xvidcore
-    URL "http://downloads.xvid.org/downloads/xvidcore-1.3.4.tar.gz"
-    URL_HASH SHA256=4e9fd62728885855bc5007fe1be58df42e5e274497591fec37249e1052ae316f
+    URL "https://downloads.xvid.com/downloads/xvidcore-1.3.5.tar.gz"
+    URL_HASH SHA256=165ba6a2a447a8375f7b06db5a3c91810181f2898166e7c8137401d7fc894cf0
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/generic && ./configure # running configure outside that directory will make it happily ignore --host while building
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
