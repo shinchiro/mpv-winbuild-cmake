@@ -71,7 +71,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libiconv (1.15)
     - gmp (6.1.2)
-    - vapoursynth (R41)
+    - vapoursynth (R43)
 
 
 ## Setup Build Environment
