@@ -128,6 +128,7 @@ list(APPEND ep
     libass
     libressl
     libxml2
+    amf-headers
     ffmpeg
     angle
     angle-headers

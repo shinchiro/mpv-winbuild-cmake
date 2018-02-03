@@ -58,6 +58,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - nettle
     - curl
     - libxml2
+    - amf-headers
 
 - Zip
     - expat (2.2.5)
