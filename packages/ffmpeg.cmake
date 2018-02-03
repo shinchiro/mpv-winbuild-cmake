@@ -1,5 +1,6 @@
 ExternalProject_Add(ffmpeg
     DEPENDS
+        amf-headers
         bzip2
         game-music-emu
         gmp
@@ -56,6 +57,8 @@ ExternalProject_Add(ffmpeg
     --enable-libxml2
     --enable-cuda
     --enable-cuvid
+    --enable-nvenc
+    --enable-amf
     --disable-w32threads
     "--extra-cflags=-DMODPLUG_STATIC"
     BUILD_COMMAND ${MAKE}
