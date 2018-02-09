@@ -13,7 +13,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  6 files changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index f2bd1527..d76e74fe 100644
+index 816e4114..e1fbdacf 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -23,7 +23,7 @@ endif()
@@ -34,16 +34,16 @@ index f2bd1527..d76e74fe 100644
      enable_language(ASM_MASM)
      if (CMAKE_ASM_MASM_COMPILER_WORKS)
          if (NOT CMAKE_CL_64)
-@@ -138,7 +138,7 @@ add_custom_target(loader_gen_files DEPENDS
-         vk_loader_extensions.c
+@@ -140,7 +140,7 @@ add_custom_target(loader_gen_files DEPENDS
      )
+ set_target_properties(loader_gen_files PROPERTIES FOLDER ${LVL_TARGET_FOLDER})
  
 -if (WIN32)
 +if (WIN32 AND MSVC)
      # Use static MSVCRT libraries
      foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
                               CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-@@ -205,10 +205,8 @@ else()
+@@ -207,10 +207,8 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -55,7 +55,7 @@ index f2bd1527..d76e74fe 100644
      target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
  
      if(INSTALL_LVL_FILES)
-@@ -219,9 +217,7 @@ else()
+@@ -221,9 +219,7 @@ else()
      include(FindPkgConfig QUIET)
      if(PKG_CONFIG_FOUND)
          set(VK_API_VERSION "1.0.${vk_header_version}")

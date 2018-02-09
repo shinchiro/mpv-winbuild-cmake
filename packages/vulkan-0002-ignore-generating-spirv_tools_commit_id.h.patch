@@ -10,17 +10,17 @@ Since we only care building the loader, this can be safely ignored.
  1 file changed, 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 574f11f..3f66a28 100644
+index 26808788..ecaa7c19 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -335,7 +335,6 @@ add_custom_target(generate_helper_files DEPENDS
+@@ -342,7 +342,6 @@ add_custom_target(generate_helper_files DEPENDS
      vk_dispatch_table_helper.h
      vk_extension_helper.h
      vk_typemap_helper.h
 -    spirv_tools_commit_id.h
      )
+ set_target_properties(generate_helper_files PROPERTIES FOLDER ${LVL_TARGET_FOLDER})
  
- # Rules to build generated helper files
 -- 
 2.15.0
 
