@@ -28,6 +28,7 @@ build() {
     mkdir -p ./build$bit
     cd ./build$bit
     cmake -DTARGET_ARCH=$arch-w64-mingw32 -G Ninja ..
+    ninja update
     ninja mpv
     cd ..
 
