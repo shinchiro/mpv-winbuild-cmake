@@ -80,4 +80,5 @@ prepare() {
     cd ../..
 }
 
+cd $(dirname `realpath $0`)/..
 main $1
