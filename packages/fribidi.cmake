@@ -11,6 +11,7 @@ ExternalProject_Add(fribidi
         --disable-deprecated
         --without-glib
         --enable-charsets
+        --disable-docs
     BUILD_COMMAND ${MAKE} -j1 # breaks with parallel make
     INSTALL_COMMAND ${MAKE} -j1 install
     BUILD_IN_SOURCE 1
