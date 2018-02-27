@@ -9,6 +9,7 @@ ExternalProject_Add(opus-tools
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
+        --disable-stack-protector
         LDFLAGS='-static'
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
