@@ -59,6 +59,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - curl
     - libxml2
     - amf-headers
+    - nvcodec-headers
 
 - Zip
     - expat (2.2.5)

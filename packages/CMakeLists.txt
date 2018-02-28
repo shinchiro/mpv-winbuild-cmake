@@ -129,6 +129,7 @@ list(APPEND ep
     libressl
     libxml2
     amf-headers
+    nvcodec-headers
     ffmpeg
     angle
     angle-headers
