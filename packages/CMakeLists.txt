@@ -144,6 +144,8 @@ list(APPEND ep
     vapoursynth
     mpv
     flac
+    opusfile
+    libopusenc
     opus-tools
 )
 foreach(package IN LISTS ep)
