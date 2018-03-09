@@ -29,6 +29,7 @@ ExternalProject_Add(gcc-base
         --with-arch=${gcc_arch}
         --with-tune=generic
         --enable-threads=posix
+        --enable-checking=release
         ${exception}
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-strip-gcc
