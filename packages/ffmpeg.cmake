@@ -14,6 +14,7 @@ ExternalProject_Add(ffmpeg
         libsoxr
         libvpx
         libzimg
+        libmysofa
         opus
         speex
         vorbis
@@ -56,6 +57,7 @@ ExternalProject_Add(ffmpeg
     --enable-libzimg
     --enable-libtls
     --enable-libxml2
+    --enable-libmysofa
     --enable-cuda
     --enable-cuvid
     --enable-nvenc
