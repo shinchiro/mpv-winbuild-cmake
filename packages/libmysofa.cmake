@@ -1,4 +1,5 @@
 ExternalProject_Add(libmysofa
+    DEPENDS zlib
     GIT_REPOSITORY https://github.com/hoene/libmysofa.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
