@@ -148,6 +148,11 @@ list(APPEND ep
     opusfile
     libopusenc
     opus-tools
+    termcap
+    readline
+    cryptopp
+    sqlite
+    megasdk
 )
 foreach(package IN LISTS ep)
     include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)

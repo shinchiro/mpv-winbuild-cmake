@@ -1,0 +1,24 @@
+From ae0a3dd433d1acab751e6f287addbf65e85c0418 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 19 Nov 2016 18:52:11 +0800
+Subject: [PATCH] remove warn
+
+---
+ src/http.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/http.cpp b/src/http.cpp
+index 8504648..74ae251 100644
+--- a/src/http.cpp
++++ b/src/http.cpp
+@@ -293,7 +293,6 @@ void HttpReq::post(MegaClient* client, const char* data, unsigned len)
+ {
+     if (httpio)
+     {
+-        LOG_warn << "Ensuring that the request is finished before sending it again";
+         httpio->cancel(this);
+         init();
+     }
+-- 
+2.9.1
+

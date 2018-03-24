@@ -61,6 +61,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libxml2
     - amf-headers
     - nvcodec-headers
+    - megasdk (with termcap, readline, cryptopp, sqlite)
 
 - Zip
     - expat (2.2.5)
