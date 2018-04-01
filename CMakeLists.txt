@@ -14,8 +14,10 @@ execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE HOST_AR
 string(REGEX MATCH "^[^-]+" HOST_CPU ${HOST_ARCH})
 
 if(TARGET_CPU MATCHES "x86_64")
+    set(TARGET_CPU_FAMILY "x86_64")
     set(TARGET_BITS 64)
 else()
+    set(TARGET_CPU_FAMILY "x86")
     set(TARGET_BITS 32)
 endif()
 
@@ -24,7 +26,7 @@ if(CPU_COUNT EQUAL 0)
     set(CPU_COUNT 1)
 endif()
 
-set(MAKEJOBS ${CPU_COUNT}) 
+set(MAKEJOBS ${CPU_COUNT})
 # set(MAKEJOBS 5) # uncomment this line to manually change no. of cpu
 set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for each package build")
 
