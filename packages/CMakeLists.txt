@@ -131,6 +131,7 @@ list(APPEND ep
     amf-headers
     nvcodec-headers
     libmysofa
+    aom
     ffmpeg
     angle
     angle-headers
