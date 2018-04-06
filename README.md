@@ -62,6 +62,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - amf-headers
     - nvcodec-headers
     - megasdk (with termcap, readline, cryptopp, sqlite)
+    - aom
 
 - Zip
     - expat (2.2.5)
