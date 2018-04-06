@@ -21,6 +21,7 @@ ExternalProject_Add(ffmpeg
         x264
         xvidcore
         libxml2
+        aom
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -53,6 +54,7 @@ ExternalProject_Add(ffmpeg
     --enable-libvorbis
     --enable-libvpx
     --enable-libx264
+    --enable-libaom
     --enable-libxvid
     --enable-libzimg
     --enable-libtls
