@@ -148,9 +148,9 @@ The final `build64` folder's size will be around ~3GB.
 
 ## Building Software (Second Time)
 
-To build mpv for a second time, clean all packages' stamp files:
+To build mpv for a second time:
 
-    ninja clean
+    ninja update
 
 After that, build mpv as usual:
 
