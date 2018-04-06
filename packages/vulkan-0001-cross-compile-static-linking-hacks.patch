@@ -1,6 +1,6 @@
-From 93c0f39cf28c08eea60102476e58f5be6081c651 Mon Sep 17 00:00:00 2001
+From ea9718c9698a433cae9f0e084646634de829f040 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 3 Mar 2018 17:59:40 +0800
+Date: Fri, 6 Apr 2018 17:25:27 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -13,7 +13,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  6 files changed, 17 insertions(+), 14 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index f543f8617..1f48ce08f 100644
+index d83d75d..bd0da62 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -23,7 +23,7 @@ endif()
@@ -47,15 +47,15 @@ index f543f8617..1f48ce08f 100644
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
--    add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS} ${FRAMEWORK_HEADERS})
-+    add_library(${API_LOWERCASE} STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS} ${FRAMEWORK_HEADERS})
+-    add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
++    add_library(${API_LOWERCASE} STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
      add_dependencies(${API_LOWERCASE} generate_helper_files loader_gen_files loader_asm_gen_files)
 -    target_compile_definitions(${API_LOWERCASE} PUBLIC -DLOADER_DYNAMIC_LIB)
 -    set_target_properties(${API_LOWERCASE} PROPERTIES SOVERSION "1" VERSION "1.1.${vk_header_version}")
      target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
  
      if(APPLE)
-@@ -281,9 +279,7 @@ else()
+@@ -292,9 +290,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "1.1.${vk_header_version}")
@@ -67,10 +67,10 @@ index f543f8617..1f48ce08f 100644
              if(INSTALL_LVL_FILES)
                  install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
 diff --git a/loader/loader.c b/loader/loader.c
-index 1e7a80492..b4744d885 100644
+index 9908595..a755817 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -52,9 +52,9 @@
+@@ -53,9 +53,9 @@
  #include "murmurhash.h"
  
  #if defined(_WIN32)
@@ -83,7 +83,7 @@ index 1e7a80492..b4744d885 100644
  
  // This is a CMake generated file with #defines for any functions/includes
 diff --git a/loader/loader.h b/loader/loader.h
-index 8abc034a0..5d06ade51 100644
+index 9ffa3bb..c1583cd 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -44,6 +44,9 @@
@@ -97,7 +97,7 @@ index 8abc034a0..5d06ade51 100644
  #define DEBUG_DISABLE_APP_ALLOCATORS 0
  
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 177de20bf..1c865bf5b 100755
+index 177de20..1c865bf 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -43,7 +43,11 @@
@@ -113,7 +113,7 @@ index 177de20bf..1c865bf5b 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 416256026..2a45b646d 100644
+index 4162560..2a45b64 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
@@ -126,7 +126,7 @@ index 416256026..2a45b646d 100644
  
  #include "vulkan/vk_platform.h"
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea43..6e897033f 100644
+index 2ce5aea..6e89703 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
 @@ -1,6 +1,6 @@
@@ -139,5 +139,5 @@ index 2ce5aea43..6e897033f 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.16.2
+2.16.3
 
