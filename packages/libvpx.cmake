@@ -12,8 +12,11 @@ ExternalProject_Add(libvpx
         --target=${libvpx_target}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-examples
-        --disable-install-docs
+        --disable-docs
+        --disable-tools
         --disable-unit-tests
+        --disable-decode-perf-tests
+        --disable-encode-perf-tests
         --as=yasm
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
