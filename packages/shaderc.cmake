@@ -4,7 +4,6 @@ ExternalProject_Add(shaderc
         spirv-headers
         spirv-tools
     GIT_REPOSITORY https://github.com/google/shaderc.git
-    GIT_TAG 583fb1326b02c9bec31096b93bf5938e0d16346b
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H. -B<SOURCE_DIR>/build
         -DCMAKE_BUILD_TYPE=Release
@@ -34,5 +33,5 @@ ExternalProject_Add_Step(shaderc manual-install
     COMMENT "Manually installing"
 )
 
-# force_rebuild_git(shaderc)
+force_rebuild_git(shaderc)
 extra_step(shaderc)
