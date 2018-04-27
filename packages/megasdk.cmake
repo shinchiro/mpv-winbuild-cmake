@@ -5,6 +5,7 @@ ExternalProject_Add(megasdk
         sqlite
         termcap
         readline
+        libuv
     GIT_REPOSITORY https://github.com/meganz/sdk.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -23,6 +24,7 @@ ExternalProject_Add(megasdk
         --with-winhttp=${MINGW_INSTALL_PREFIX}
         --with-termcap=${MINGW_INSTALL_PREFIX}
         --with-readline=${MINGW_INSTALL_PREFIX}
+        --with-libuv=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1

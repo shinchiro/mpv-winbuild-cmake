@@ -61,7 +61,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libxml2
     - amf-headers
     - nvcodec-headers
-    - megasdk (with termcap, readline, cryptopp, sqlite)
+    - megasdk (with termcap, readline, cryptopp, sqlite, libuv)
     - aom
 
 - Zip

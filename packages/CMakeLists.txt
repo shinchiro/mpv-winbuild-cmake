@@ -153,6 +153,7 @@ list(APPEND ep
     readline
     cryptopp
     sqlite
+    libuv
     megasdk
 )
 foreach(package IN LISTS ep)
