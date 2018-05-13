@@ -13,9 +13,8 @@ ExternalProject_Add(gcc-base
     STAMP_DIR gcc-prefix/src/gcc-stamp
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
-    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-7.3.0/gcc-7.3.0.tar.xz
-    URL_HASH SHA512=ad41a7e4584e40e92cdf860bc0288500fbaf5dfb7e8c3fcabe9eba809c87bcfa85b46c19c19921b0cdf6d05483faede8287bb9ea120c0d1559449a70e602c8d4
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/gcc-0016-disable-weak-refs-in-libstdc++.patch
+    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/8-20180511/gcc-8-20180511.tar.xz
+    URL_HASH SHA512=6ae829e949ad757ffbbcf3d95ca6142f6bcf1cabff569277b95018229db43d2ead009e62ce152d02a6467fe970c51d90aa2d38522f1d820106646fd8c7c8fe58
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
