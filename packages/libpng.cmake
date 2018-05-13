@@ -4,6 +4,7 @@ ExternalProject_Add(libpng
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+        CFLAGS='-fno-asynchronous-unwind-tables'
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
