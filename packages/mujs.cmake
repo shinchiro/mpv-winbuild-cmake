@@ -3,6 +3,7 @@ ExternalProject_Add(mujs
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE}
+        CFLAGS='-UHAVE_READLINE' LIBREADLINE='' # undefine readline as we dont want readline
         CC=${TARGET_ARCH}-gcc
         AR=${TARGET_ARCH}-ar
         RANLIB=${TARGET_ARCH}-ranlib
