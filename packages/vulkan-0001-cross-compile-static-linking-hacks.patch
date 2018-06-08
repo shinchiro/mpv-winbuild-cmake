@@ -1,22 +1,21 @@
-From ea9718c9698a433cae9f0e084646634de829f040 Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 6 Apr 2018 17:25:27 +0800
+From a6b55313cb15b8c2a9a3d4d6444a46a70fc32ebd Mon Sep 17 00:00:00 2001
+From: myfreeer <myfreeer@users.noreply.github.com>
+Date: Fri, 8 Jun 2018 08:36:25 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 14 +++++---------
- loader/loader.c             |  4 ++--
- loader/loader.h             |  3 +++
- loader/loader.rc            |  4 ++++
+ loader/CMakeLists.txt       | 12 +++++-------
+ loader/loader.c             |  8 ++++++--
+ loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 6 files changed, 17 insertions(+), 14 deletions(-)
+ 5 files changed, 18 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index d83d75d..bd0da62 100644
+index 4057130..5ce425f 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -23,7 +23,7 @@ endif()
+@@ -28,7 +28,7 @@ endif()
  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
      add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
      set(DisplayServer Win32)
@@ -25,7 +24,7 @@ index d83d75d..bd0da62 100644
          # Enable control flow guard
          message(STATUS "Building loader with control flow guard")
          add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/guard:cf>")
-@@ -94,7 +94,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -92,7 +92,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -34,28 +33,23 @@ index d83d75d..bd0da62 100644
      enable_language(ASM_MASM)
      if (CMAKE_ASM_MASM_COMPILER_WORKS)
          if (NOT CMAKE_CL_64)
-@@ -147,7 +147,7 @@ add_custom_target(loader_gen_files DEPENDS
-     )
- set_target_properties(loader_gen_files PROPERTIES FOLDER ${LVL_TARGET_FOLDER})
- 
--if (WIN32)
-+if (MSVC AND WIN32)
-     # Use static MSVCRT libraries
-     foreach(configuration in CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
-                              CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELEASE CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-@@ -227,10 +227,8 @@ else()
-         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
+@@ -184,7 +184,7 @@ if (WIN32)
+         set_target_properties(vulkan PROPERTIES LINK_FLAGS_DEBUG "/ignore:4098" OUTPUT_NAME vulkan-1)
+     else()
+         add_library(vulkan STATIC $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm>)
+-        set_target_properties(vulkan PROPERTIES OUTPUT_NAME VKstatic.1)
++        set_target_properties(vulkan PROPERTIES OUTPUT_NAME vulkan)
      endif()
  
--    add_library(${API_LOWERCASE} SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-+    add_library(${API_LOWERCASE} STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-     add_dependencies(${API_LOWERCASE} generate_helper_files loader_gen_files loader_asm_gen_files)
--    target_compile_definitions(${API_LOWERCASE} PUBLIC -DLOADER_DYNAMIC_LIB)
--    set_target_properties(${API_LOWERCASE} PROPERTIES SOVERSION "1" VERSION "1.1.${vk_header_version}")
-     target_link_libraries(${API_LOWERCASE} -ldl -lpthread -lm)
+     if (ENABLE_WIN10_ONECORE)
+@@ -273,21 +273,19 @@ else()
+             FRAMEWORK DESTINATION loader
+         )
+     endif(APPLE)
++endif()
  
-     if(APPLE)
-@@ -292,9 +290,7 @@ else()
+     if(NOT APPLE)
+         # Generate pkg-config file.
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "1.1.${vk_header_version}")
@@ -64,10 +58,16 @@ index d83d75d..bd0da62 100644
 -            endforeach()
 +            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
              configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
-             if(INSTALL_LVL_FILES)
-                 install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
+             install(FILES       "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc"
+                     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+         endif()
+     endif()
+-endif()
+ 
+ install(TARGETS vulkan
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 diff --git a/loader/loader.c b/loader/loader.c
-index 9908595..a755817 100644
+index 71c4631..be54282 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -53,9 +53,9 @@
@@ -82,28 +82,26 @@ index 9908595..a755817 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-diff --git a/loader/loader.h b/loader/loader.h
-index 9ffa3bb..c1583cd 100644
---- a/loader/loader.h
-+++ b/loader/loader.h
-@@ -44,6 +44,9 @@
- #define LOADER_EXPORT
- #endif
- 
-+#define CM_GETIDLIST_FILTER_CLASS ( 0x00000200 )
-+#define CM_GETIDLIST_FILTER_PRESENT ( 0x00000100 )
-+
- // A debug option to disable allocators at compile time to investigate future issues.
- #define DEBUG_DISABLE_APP_ALLOCATORS 0
- 
+@@ -613,6 +613,10 @@ out:
+ //
+ // *reg_data contains a string list of filenames as pointer.
+ // When done using the returned string list, the caller should free the pointer.
++#ifdef __MINGW32__
++#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
++#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
++#endif
+ VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size, LPCTSTR value_name) {
+     static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
+     static const wchar_t *displayGUID = L"{4d36e968-e325-11ce-bfc1-08002be10318}";
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 177de20..1c865bf 100755
+index fca7462..f9f85d0 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
-@@ -43,7 +43,11 @@
+@@ -42,8 +42,11 @@
+ // End of customize section
  ///////////////////////////////////////////////////////////////////////////////
  ///////////////////////////////////////////////////////////////////////////////
- 
+-
 +#ifdef __MINGW64__
 +#include <winresrc.h>
 +#else // MSVC
@@ -139,5 +137,5 @@ index 2ce5aea..6e89703 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.16.3
+2.17.1
 
