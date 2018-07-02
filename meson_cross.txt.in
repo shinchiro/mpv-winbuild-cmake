@@ -1,0 +1,14 @@
+[binaries]
+c = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-gcc'
+cpp = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-g++'
+ar = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar'
+strip = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-strip'
+windres = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-windres'
+pkgconfig = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-pkg-config'
+exe_wrapper = 'wine'
+
+[host_machine]
+system = 'windows'
+cpu_family = '@TARGET_CPU_FAMILY@'
+cpu = '@TARGET_ARCH@'
+endian = 'little'
