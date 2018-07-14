@@ -62,6 +62,7 @@ ExternalProject_Add(ffmpeg
     --enable-libmysofa
     --enable-cuda
     --enable-cuvid
+    --enable-nvdec
     --enable-nvenc
     --enable-amf
     --disable-w32threads
