@@ -48,7 +48,7 @@ set(EXEC ${CMAKE_CURRENT_BINARY_DIR}/exec)
 set(MAKE ${EXEC} make -j${MAKEJOBS})
 set(DEBPATCH ${CMAKE_CURRENT_SOURCE_DIR}/debpatch)
 
-string(TIMESTAMP BUILDDATE "%Y%m%d")
+string(TIMESTAMP BUILDDATE "%Y%m%d" UTC)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/publish.in ${CMAKE_CURRENT_BINARY_DIR}/publish)
