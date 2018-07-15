@@ -172,3 +172,7 @@ This will also build all packages that `mpv` depends on.
 * **ninja update** -> Update all git repos. When a package pulling new changes, all of its stamp files will be deleted and will be force rebuild. If there is not changes, it will not remove the stamp files and not rebuild occur. Use this instead of `ninja clean` if you don't want rebuild everything in next run.
 
 `package` is package's name found in `packages` folder.
+
+## Acknowledgements
+
+This project originally created and maintained [lachs0r](https://github.com/lachs0r/mingw-w64-cmake). Since then, it heavily modified to suit my own need.
