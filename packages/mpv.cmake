@@ -77,7 +77,7 @@ ExternalProject_Add_Step(mpv copy-binary
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.debug ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/mpv.debug
 
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv-1.dll ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv-1.dll
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/libmpv.dll.a ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.dll.a ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.def ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv.def
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/client.h ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/client.h
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/opengl_cb.h ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/opengl_cb.h
