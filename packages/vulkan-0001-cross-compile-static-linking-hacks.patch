@@ -1,18 +1,18 @@
-From 5f96232be56a96f4d4fdd2b6fbd4cdadb624a77b Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 21 Jul 2018 08:55:29 +0800
+From 3979d97b02173f712a0ef8f183b692bd44930601 Mon Sep 17 00:00:00 2001
+From: Ricardo Constantino <wiiaboo@gmail.com>
+Date: Tue, 24 Jul 2018 20:00:19 +0100
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 10 ++++------
+ loader/CMakeLists.txt       | 14 +++++++-------
  loader/loader.c             |  8 ++++++--
  loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 5 files changed, 17 insertions(+), 12 deletions(-)
+ 5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index f0ab247..69abba5 100644
+index f0ab24738..b28e47f9a 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -31,7 +31,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/loader_cmake_config.h.in ${CMAKE_CURR
@@ -20,7 +20,7 @@ index f0ab247..69abba5 100644
      add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
      set(DisplayServer Win32)
 -    if(NOT MSVC_VERSION LESS 1900)
-+    if (MSVC AND NOT MSVC_VERSION LESS 1900)
++    if(MSVC AND NOT MSVC_VERSION LESS 1900)
          # Enable control flow guard
          message(STATUS "Building loader with control flow guard")
          add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/guard:cf>")
@@ -29,20 +29,34 @@ index f0ab247..69abba5 100644
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
 -if(WIN32)
-+if (MSVC AND WIN32)
++if(MSVC)
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -197,7 +197,7 @@ if(WIN32)
-         set_target_properties(vulkan PROPERTIES LINK_FLAGS_DEBUG "/ignore:4098" OUTPUT_NAME vulkan-1)
-     else()
-         add_library(vulkan STATIC $<TARGET_OBJECTS:loader-opt> $<TARGET_OBJECTS:loader-norm>)
--        set_target_properties(vulkan PROPERTIES OUTPUT_NAME VKstatic.1)
-+        set_target_properties(vulkan PROPERTIES OUTPUT_NAME vulkan)
+@@ -142,7 +142,7 @@ run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.c)
+ add_custom_target(loader_gen_files DEPENDS vk_loader_extensions.h vk_loader_extensions.c)
+ set_target_properties(loader_gen_files PROPERTIES FOLDER ${LOADER_HELPER_FOLDER})
+ 
+-if(WIN32)
++if(MSVC)
+     # Use static MSVCRT libraries
+     foreach(configuration
+             in
+@@ -219,10 +219,12 @@ else()
+         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
-     if(ENABLE_WIN10_ONECORE)
-@@ -280,9 +280,7 @@ else()
+-    add_library(vulkan SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
++    add_library(vulkan ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
+     add_dependencies(vulkan generate_helper_files loader_gen_files loader_asm_gen_files)
++    if (NOT ENABLE_STATIC_LOADER)
+     target_compile_definitions(vulkan PUBLIC -DLOADER_DYNAMIC_LIB)
+     set_target_properties(vulkan PROPERTIES SOVERSION "1" VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
++    endif()
+     target_link_libraries(vulkan -ldl -lpthread -lm)
+ 
+     if(APPLE)
+@@ -280,9 +282,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -54,7 +68,7 @@ index f0ab247..69abba5 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 1d8dfdf..71ba97f 100644
+index 1d8dfdf73..71ba97f04 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -53,9 +53,9 @@
@@ -81,7 +95,7 @@ index 1d8dfdf..71ba97f 100644
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
      static const wchar_t *displayGUID = L"{4d36e968-e325-11ce-bfc1-08002be10318}";
 diff --git a/loader/loader.rc b/loader/loader.rc
-index fca7462..f9f85d0 100755
+index fca746298..f9f85d06e 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -98,7 +112,7 @@ index fca7462..f9f85d0 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 4162560..2a45b64 100644
+index 416256026..2a45b646d 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
@@ -111,7 +125,7 @@ index 4162560..2a45b64 100644
  
  #include "vulkan/vk_platform.h"
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea..6e89703 100644
+index 2ce5aea43..6e897033f 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
 @@ -1,6 +1,6 @@
