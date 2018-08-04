@@ -8,6 +8,11 @@ ExternalProject_Add(binutils
         --disable-multilib
         --disable-nls
         --disable-shared
+        --disable-win32-registry
+        --without-included-gettext
+        --enable-lto
+        --enable-plugins
+        --enable-threads
     BUILD_COMMAND make -j${MAKEJOBS}
     INSTALL_COMMAND make install-strip
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

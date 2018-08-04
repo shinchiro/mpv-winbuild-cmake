@@ -28,6 +28,8 @@ ExternalProject_Add(gcc-base
         --with-arch=${gcc_arch}
         --with-tune=generic
         --enable-threads=posix
+        --without-included-gettext
+        --enable-lto
         --enable-checking=release
         ${exception}
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
