@@ -1,3 +1,8 @@
+if(${TARGET_CPU} MATCHES "x86_64")
+    # allow HEASLR
+    set(MPV_LDFLAGS "LDFLAGS=-Wl,--image-base,0x140000000,--high-entropy-va")
+endif()
+
 ExternalProject_Add(mpv
     DEPENDS
         angle-headers
@@ -39,6 +44,8 @@ ExternalProject_Add(mpv
         --enable-dvdread
         --enable-dvdnav
         --enable-uchardet
+        --enable-vulkan
+        --enable-shaderc
         --enable-rubberband
         --enable-lcms2
         --enable-openal
