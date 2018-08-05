@@ -123,6 +123,7 @@ list(APPEND ep
     freetype2
     libbluray
     harfbuzz
+    icu
     libsoxr
     libzimg
     libass
