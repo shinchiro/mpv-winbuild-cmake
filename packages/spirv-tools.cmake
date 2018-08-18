@@ -2,6 +2,7 @@ ExternalProject_Add(spirv-tools
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/spirv-tools-*.patch
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
