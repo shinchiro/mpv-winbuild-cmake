@@ -1,30 +1,21 @@
-From 3979d97b02173f712a0ef8f183b692bd44930601 Mon Sep 17 00:00:00 2001
-From: Ricardo Constantino <wiiaboo@gmail.com>
-Date: Tue, 24 Jul 2018 20:00:19 +0100
+From 67fe57b459c32efb271e6dfd7b1267a923c78999 Mon Sep 17 00:00:00 2001
+From: myfreeer <myfreeer@users.noreply.github.com>
+Date: Sat, 22 Sep 2018 17:45:42 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 14 +++++++-------
+ loader/CMakeLists.txt       | 12 ++++++------
  loader/loader.c             |  8 ++++++--
  loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 5 files changed, 20 insertions(+), 13 deletions(-)
+ 5 files changed, 19 insertions(+), 12 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index f0ab24738..b28e47f9a 100644
+index 6ed8dfc66..2ac019343 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -31,7 +31,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/loader_cmake_config.h.in ${CMAKE_CURR
- if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-     add_definitions(-DVK_USE_PLATFORM_WIN32_KHR -DWIN32_LEAN_AND_MEAN)
-     set(DisplayServer Win32)
--    if(NOT MSVC_VERSION LESS 1900)
-+    if(MSVC AND NOT MSVC_VERSION LESS 1900)
-         # Enable control flow guard
-         message(STATUS "Building loader with control flow guard")
-         add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/guard:cf>")
-@@ -91,7 +91,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -85,7 +85,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +24,7 @@ index f0ab24738..b28e47f9a 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -142,7 +142,7 @@ run_vk_xml_generate(loader_extension_generator.py vk_loader_extensions.c)
+@@ -136,7 +136,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
  add_custom_target(loader_gen_files DEPENDS vk_loader_extensions.h vk_loader_extensions.c)
  set_target_properties(loader_gen_files PROPERTIES FOLDER ${LOADER_HELPER_FOLDER})
  
@@ -42,7 +33,7 @@ index f0ab24738..b28e47f9a 100644
      # Use static MSVCRT libraries
      foreach(configuration
              in
-@@ -219,10 +219,12 @@ else()
+@@ -221,14 +221,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -51,12 +42,16 @@ index f0ab24738..b28e47f9a 100644
      add_dependencies(vulkan generate_helper_files loader_gen_files loader_asm_gen_files)
 +    if (NOT ENABLE_STATIC_LOADER)
      target_compile_definitions(vulkan PUBLIC -DLOADER_DYNAMIC_LIB)
-     set_target_properties(vulkan PROPERTIES SOVERSION "1" VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
+     set_target_properties(vulkan
+                           PROPERTIES SOVERSION
+                                      "1"
+                                      VERSION
+                                      "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 +    endif()
      target_link_libraries(vulkan -ldl -lpthread -lm)
  
      if(APPLE)
-@@ -280,9 +282,7 @@ else()
+@@ -286,9 +288,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -68,10 +63,10 @@ index f0ab24738..b28e47f9a 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 1d8dfdf73..71ba97f04 100644
+index 4437adc02..05856b88a 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -53,9 +53,9 @@
+@@ -55,9 +55,9 @@
  #include "murmurhash.h"
  
  #if defined(_WIN32)
@@ -83,7 +78,7 @@ index 1d8dfdf73..71ba97f04 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-@@ -613,6 +613,10 @@ out:
+@@ -615,6 +615,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -112,7 +107,7 @@ index fca746298..f9f85d06e 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 416256026..2a45b646d 100644
+index 5cbbd803b..d20153da4 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
@@ -138,5 +133,5 @@ index 2ce5aea43..6e897033f 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.18.0
+2.19.0
 
