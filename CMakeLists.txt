@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6.0)
-project(mpv-cross C)
+project(mpv-cross C CXX)
 include(ExternalProject)
 include(ProcessorCount)
 
