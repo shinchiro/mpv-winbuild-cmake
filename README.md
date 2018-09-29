@@ -63,6 +63,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - nvcodec-headers
     - megasdk (with termcap, readline, cryptopp, sqlite, libuv)
     - aom
+    - dav1d
 
 - Zip
     - expat (2.2.5)
