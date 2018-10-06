@@ -66,7 +66,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - dav1d
 
 - Zip
-    - expat (2.2.5)
+    - expat (2.2.6)
     - bzip (1.0.6)
     - zlib (1.2.11)
     - xvidcore (1.3.5)
