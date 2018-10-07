@@ -134,7 +134,6 @@ list(APPEND ep
     aom
     dav1d
     ffmpeg
-    angle
     angle-headers
     mujs
     spirv-headers
