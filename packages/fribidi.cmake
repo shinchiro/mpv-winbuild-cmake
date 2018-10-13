@@ -15,4 +15,5 @@ ExternalProject_Add(fribidi
 )
 
 force_rebuild_git(fribidi)
+force_meson_configure(fribidi)
 extra_step(fribidi)

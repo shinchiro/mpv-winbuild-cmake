@@ -13,4 +13,5 @@ ExternalProject_Add(dav1d
 )
 
 force_rebuild_git(dav1d)
+force_meson_configure(dav1d)
 extra_step(dav1d)

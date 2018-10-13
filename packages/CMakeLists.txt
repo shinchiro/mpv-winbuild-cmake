@@ -88,6 +88,14 @@ function(autoreconf _name)
     )
 endfunction()
 
+function(force_meson_configure _name)
+    ExternalProject_Add_Step(${_name} force-meson-configure
+        DEPENDERS configure
+        COMMAND ${EXEC} rm -rf <BINARY_DIR>/meson-*
+        LOG 1
+    )
+endfunction()
+
 list(APPEND ep
     gmp
     xz
