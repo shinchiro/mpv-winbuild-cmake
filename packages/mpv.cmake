@@ -26,7 +26,6 @@ ExternalProject_Add(mpv
         PKG_CONFIG=pkg-config
         TARGET=${TARGET_ARCH}
         DEST_OS=win32
-        LDFLAGS=-Wl,--allow-multiple-definition
         <SOURCE_DIR>/waf configure
         --enable-static-build
         --enable-pdf-build

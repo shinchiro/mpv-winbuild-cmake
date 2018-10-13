@@ -67,7 +67,6 @@ ExternalProject_Add(ffmpeg
     --enable-amf
     --disable-w32threads
     "--extra-cflags=-DMODPLUG_STATIC"
-    "--extra-ldflags='-Wl,--allow-multiple-definition'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
