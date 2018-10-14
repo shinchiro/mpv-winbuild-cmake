@@ -26,7 +26,7 @@ ExternalProject_Add(megasdk
         --with-readline=${MINGW_INSTALL_PREFIX}
         --with-libuv=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    INSTALL_COMMAND ${MAKE} install-strip
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
