@@ -18,6 +18,7 @@ ExternalProject_Add_Step(crossc update-submodule
     DEPENDERS build
     WORKING_DIRECTORY <SOURCE_DIR>
     COMMAND git submodule update --remote --recursive
+    COMMAND git -C "SPIRV-Cross" reset --hard cc5c0204d8bc # would fail if the repo just cloned today
     LOG 1
 )
 
