@@ -1,6 +1,6 @@
 ExternalProject_Add(cryptopp
-    URL https://github.com/weidai11/cryptopp/archive/CRYPTOPP_6_1_0.tar.gz
-    URL_HASH SHA256=69ee71fdff9cc0d56634712703c8eba97204bf58feacdfe1a94df87faffeff55
+    URL https://github.com/weidai11/cryptopp/archive/CRYPTOPP_7_0_0.tar.gz
+    URL_HASH SHA256=3ee97903882b5f58c88b6f9d2ce50fd1000be95479180c7b4681cd3f4c1c7629
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE}
         CXX=${TARGET_ARCH}-g++
