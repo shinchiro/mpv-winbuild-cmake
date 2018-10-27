@@ -17,7 +17,15 @@ function(extra_step _name)
         EXCLUDE_FROM_MAIN TRUE
         COMMENT "Deleting build, clean stamp files of ${_name} package"
     )
-    ExternalProject_Add_StepTargets(${_name} fullclean liteclean)
+
+    ExternalProject_Add_Step(${_name} removebuild
+        COMMAND ${EXEC} rm -rf <BINARY_DIR>
+        ALWAYS TRUE
+        EXCLUDE_FROM_MAIN TRUE
+        COMMENT "Deleting build directory of ${_name} package"
+    )
+
+    ExternalProject_Add_StepTargets(${_name} fullclean liteclean removebuild)
 endfunction()
 
 function(force_rebuild_git _name)
