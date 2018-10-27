@@ -1,21 +1,17 @@
 function(extra_step _name)
-    set(stamp_dir ${CMAKE_CURRENT_BINARY_DIR}/${_name}-prefix/src/${_name}-stamp)
-
     ExternalProject_Add_Step(${_name} fullclean
-        WORKING_DIRECTORY <SOURCE_DIR>
-        COMMAND ${EXEC} find ${stamp_dir} -type f " ! -iname '*.cmake' " -size 0c -delete # remove 0 byte files which are stamp files
+        COMMAND ${EXEC} find <DOWNLOAD_DIR>/${_name}-stamp -type f " ! -iname '*.cmake' " -size 0c -delete # remove 0 byte files which are stamp files
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
         COMMENT "Deleting all stamp files of ${_name} package"
     )
 
     ExternalProject_Add_Step(${_name} liteclean
-        WORKING_DIRECTORY <SOURCE_DIR>
-        COMMAND ${EXEC} rm -f ${CMAKE_CURRENT_BINARY_DIR}/${_name}-prefix/src/${_name}-stamp/${_name}-build
-                              ${CMAKE_CURRENT_BINARY_DIR}/${_name}-prefix/src/${_name}-stamp/${_name}-install
+        COMMAND ${EXEC} rm -f <DOWNLOAD_DIR>/${_name}-stamp/${_name}-build
+                              <DOWNLOAD_DIR>/${_name}-stamp/${_name}-install
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
-        COMMENT "Deleting build, clean stamp files of ${_name} package"
+        COMMENT "Deleting build, install stamp files of ${_name} package"
     )
 
     ExternalProject_Add_Step(${_name} removebuild
