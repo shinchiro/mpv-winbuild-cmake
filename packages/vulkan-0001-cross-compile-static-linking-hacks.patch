@@ -1,21 +1,30 @@
-From 67fe57b459c32efb271e6dfd7b1267a923c78999 Mon Sep 17 00:00:00 2001
+From 543596f756b028d5fed09b6805449d6036e18816 Mon Sep 17 00:00:00 2001
 From: myfreeer <myfreeer@users.noreply.github.com>
 Date: Sat, 22 Sep 2018 17:45:42 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 12 ++++++------
+ loader/CMakeLists.txt       | 14 +++++++-------
  loader/loader.c             |  8 ++++++--
  loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h |  2 +-
  loader/vulkan.pc.in         |  4 ++--
- 5 files changed, 19 insertions(+), 12 deletions(-)
+ 5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6ed8dfc66..2ac019343 100644
+index 34f6c97c5..336b8a6d7 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -85,7 +85,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -56,7 +56,7 @@ endif()
+ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
+ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+ 
+-if(WIN32)
++if(MSVC)
+     # Use static MSVCRT libraries
+     foreach(configuration
+             in
+@@ -119,7 +119,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -24,16 +33,16 @@ index 6ed8dfc66..2ac019343 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -136,7 +136,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
+@@ -174,7 +174,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
  add_custom_target(loader_gen_files DEPENDS vk_loader_extensions.h vk_loader_extensions.c)
  set_target_properties(loader_gen_files PROPERTIES FOLDER ${LOADER_HELPER_FOLDER})
  
 -if(WIN32)
 +if(MSVC)
-     # Use static MSVCRT libraries
-     foreach(configuration
-             in
-@@ -221,14 +221,16 @@ else()
+     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
+     add_dependencies(loader-norm generate_helper_files loader_gen_files)
+     target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
+@@ -229,14 +229,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -51,7 +60,7 @@ index 6ed8dfc66..2ac019343 100644
      target_link_libraries(vulkan -ldl -lpthread -lm)
  
      if(APPLE)
-@@ -286,9 +288,7 @@ else()
+@@ -293,9 +295,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -63,10 +72,10 @@ index 6ed8dfc66..2ac019343 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 4437adc02..05856b88a 100644
+index 0cb266346..3e1995028 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -55,9 +55,9 @@
+@@ -60,9 +60,9 @@
  #include "murmurhash.h"
  
  #if defined(_WIN32)
@@ -78,7 +87,7 @@ index 4437adc02..05856b88a 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-@@ -615,6 +615,10 @@ out:
+@@ -629,6 +629,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -107,7 +116,7 @@ index fca746298..f9f85d06e 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 5cbbd803b..d20153da4 100644
+index dd6b3fde6..e405c2108 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
@@ -133,5 +142,5 @@ index 2ce5aea43..6e897033f 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.19.0
+2.19.1
 
