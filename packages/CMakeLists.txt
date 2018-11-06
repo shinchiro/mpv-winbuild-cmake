@@ -29,6 +29,7 @@ function(extra_step _name)
     )
 
     ExternalProject_Add_Step(${_name} removebuild
+        DEPENDEES fullclean
         COMMAND ${EXEC} ${remove_cmd}
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
