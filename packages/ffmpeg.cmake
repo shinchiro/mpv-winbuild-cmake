@@ -21,6 +21,7 @@ ExternalProject_Add(ffmpeg
         x264
         xvidcore
         libxml2
+        aom
         dav1d
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
@@ -54,6 +55,7 @@ ExternalProject_Add(ffmpeg
     --enable-libvorbis
     --enable-libvpx
     --enable-libx264
+    --enable-libaom
     --enable-libdav1d
     --enable-libxvid
     --enable-libzimg
@@ -65,6 +67,7 @@ ExternalProject_Add(ffmpeg
     --enable-nvdec
     --enable-nvenc
     --enable-amf
+    --disable-decoder=libaom_av1
     --disable-w32threads
     "--extra-cflags=-DMODPLUG_STATIC"
     BUILD_COMMAND ${MAKE}
