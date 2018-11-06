@@ -14,6 +14,7 @@ ExternalProject_Add(aom
         -DENABLE_TESTS=OFF
         -DENABLE_TESTDATA=OFF
         -DCONFIG_UNIT_TESTS=0
+        -DCONFIG_AV1_DECODER=0
         -DCMAKE_BUILD_TYPE=Release
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
