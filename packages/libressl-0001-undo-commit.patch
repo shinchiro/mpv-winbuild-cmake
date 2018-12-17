@@ -1,0 +1,25 @@
+From c3499fa1e77219f975b0793890052ed37ac42a1a Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Mon, 17 Dec 2018 21:25:29 +0800
+Subject: [PATCH] undo commit
+
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9fe5837..20dedfe 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -232,7 +232,7 @@ if(HAVE_GETENTROPY)
+ 	add_definitions(-DHAVE_GETENTROPY)
+ endif()
+ 
+-check_symbol_exists(getpagesize unistd.h HAVE_GETPAGESIZE)
++check_function_exists(getpagesize HAVE_GETPAGESIZE)
+ if(HAVE_GETPAGESIZE)
+ 	add_definitions(-DHAVE_GETPAGESIZE)
+ endif()
+-- 
+2.19.2
+

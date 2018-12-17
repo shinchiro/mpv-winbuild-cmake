@@ -1,6 +1,7 @@
 ExternalProject_Add(libressl
     GIT_REPOSITORY https://github.com/libressl-portable/portable.git
     GIT_SHALLOW 1
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libressl-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
