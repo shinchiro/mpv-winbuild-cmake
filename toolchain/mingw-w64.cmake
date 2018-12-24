@@ -1,6 +1,6 @@
 ExternalProject_Add(mingw-w64
     PREFIX mingw-w64-prefix
-    GIT_REPOSITORY git://github.com/mirror/mingw-w64.git
+    GIT_REPOSITORY https://github.com/mirror/mingw-w64.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
