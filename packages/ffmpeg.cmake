@@ -21,6 +21,7 @@ ExternalProject_Add(ffmpeg
         x264
         xvidcore
         libxml2
+        libmfx
         aom
         dav1d
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
@@ -66,6 +67,7 @@ ExternalProject_Add(ffmpeg
     --enable-cuvid
     --enable-nvdec
     --enable-nvenc
+    --enable-libmfx
     --enable-amf
     --disable-decoder=libaom_av1
     --disable-w32threads

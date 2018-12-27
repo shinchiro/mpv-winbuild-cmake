@@ -156,6 +156,7 @@ list(APPEND ep
     libass
     libressl
     libxml2
+    libmfx
     amf-headers
     nvcodec-headers
     libmysofa
