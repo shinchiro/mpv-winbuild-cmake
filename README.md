@@ -94,10 +94,9 @@ These packages need to be installed first before compiling mpv:
 
 **Note:**
 
-* Works for Ubuntu 15.10 and later. Ubuntu 14.04 used outdated packages which make compilation failed. For WSL, upgrade with [this](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-230551101) [step](https://github.com/Microsoft/BashOnWindows/issues/482#issuecomment-234695431)
 * Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
 * It is advised to use bash over dash. Set `sudo ln -sf /bin/bash /bin/sh`. Revert back by `sudo ln -sf /bin/dash /bin/sh`.
-* For WSL, some packages will fail when compiling to 32bit. This is because WSL [doesn't support multilib ABI](https://github.com/Microsoft/BashOnWindows/issues/711/) yet.
+* On WSL platform, compiling 32bit require qemu to run 32bit ELF. Refer to [this](https://github.com/Microsoft/WSL/issues/2468#issuecomment-374904520).
 
 ### Cygwin
 
