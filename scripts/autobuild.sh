@@ -2,6 +2,13 @@
 # Automatically build mpv for 32-bit and 64-bit version
 
 main() {
+    gitdir=$(pwd)
+
+    if [ -z "$2" ]; then
+        buildroot=$(pwd)
+    else
+        buildroot=$2
+    fi
     prepare
     if [ "$1" == "32" ]; then
         package "32" "i686"
@@ -25,14 +32,12 @@ package() {
 build() {
     local bit=$1
     local arch=$2
-    mkdir -p ./build$bit
-    cd ./build$bit
-    cmake -DTARGET_ARCH=$arch-w64-mingw32 -G Ninja ..
-    ninja update
-    ninja mpv
-    cd ..
+    mkdir -p $buildroot/build$bit
+    cmake -DTARGET_ARCH=$arch-w64-mingw32 -G Ninja -H$gitdir -B$buildroot/build$bit
+    ninja -C $buildroot/build$bit update
+    ninja -C $buildroot/build$bit mpv
 
-    if [ -d ./build$bit/mpv-$arch* ] ; then
+    if [ -d $buildroot/build$bit/mpv-$arch* ] ; then
         echo "Successfully compiled $bit-bit. Continue"
     else
         echo "Failed compiled $bit-bit. Stop"
@@ -44,7 +49,7 @@ zip() {
     local bit=$1
     local arch=$2
 
-    mv ./build$bit/mpv-* ./release
+    mv $buildroot/build$bit/mpv-* $gitdir/release
     cd ./release/mpv-packaging-master
     cp -r ./mpv-root/* ./$arch/d3dcompiler_43.dll ../mpv-$arch*
     cd ..
@@ -82,4 +87,4 @@ prepare() {
 }
 
 cd $(dirname `realpath $0`)/..
-main $1
+main $1 $2
