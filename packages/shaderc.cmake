@@ -3,12 +3,14 @@ ExternalProject_Add(shaderc
         glslang
         spirv-headers
         spirv-tools
+        spirv-cross
     GIT_REPOSITORY https://github.com/google/shaderc.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=<SOURCE_DIR>/cmake/linux-mingw-toolchain.cmake
         -DSHADERC_SKIP_TESTS=ON
+        -DSHADERC_SKIP_SPVC=ON
         -DMINGW_COMPILER_PREFIX=${TARGET_ARCH}
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -std=c++11'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
@@ -23,7 +25,8 @@ ExternalProject_Add_Step(shaderc symlink
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/glslang-prefix/src/glslang glslang
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/spirv-headers-prefix/src/spirv-headers spirv-headers
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/spirv-tools-prefix/src/spirv-tools spirv-tools
-    COMMENT "Symlinking glslang, spirv-headers, spirv-tools"
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-prefix/src/spirv-cross spirv-cross
+    COMMENT "Symlinking glslang, spirv-headers, spirv-tools, spirv-cross"
 )
 
 ExternalProject_Add_Step(shaderc manual-install
