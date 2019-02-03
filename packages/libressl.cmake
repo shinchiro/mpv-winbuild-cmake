@@ -2,7 +2,6 @@ ExternalProject_Add(libressl
     GIT_REPOSITORY https://github.com/libressl-portable/portable.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} curl -L https://github.com/libressl-portable/portable/pull/500.patch | git am -
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
