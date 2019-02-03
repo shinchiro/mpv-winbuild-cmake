@@ -172,6 +172,7 @@ list(APPEND ep
     vulkan
     shaderc
     crossc
+    libplacebo
     curl
     vapoursynth
     mpv
