@@ -1,4 +1,8 @@
 ExternalProject_Add(libplacebo
+    DEPENDS
+        vulkan
+        shaderc
+        lcms2
     GIT_REPOSITORY https://github.com/haasn/libplacebo.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
