@@ -1,9 +1,8 @@
 ExternalProject_Add(readline
     DEPENDS
         termcap
-    URL https://ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
-    URL_HASH SHA256=56ba6071b9462f980c5a72ab0023893b65ba6debb4eeb475d7a563dc65cafd43
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/readline-0001-mingw.patch
+    URL https://ftp.gnu.org/gnu/readline/readline-8.0.tar.gz
+    URL_HASH SHA256=e339f51971478d369f8a053a330a190781acb9864cf4c541060f12078948e461
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
