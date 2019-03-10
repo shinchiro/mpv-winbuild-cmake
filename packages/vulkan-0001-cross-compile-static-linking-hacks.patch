@@ -1,6 +1,6 @@
-From 543596f756b028d5fed09b6805449d6036e18816 Mon Sep 17 00:00:00 2001
-From: myfreeer <myfreeer@users.noreply.github.com>
-Date: Sat, 22 Sep 2018 17:45:42 +0800
+From ce11ede85cfcf1fdf4c9f35443854ca52a691df2 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 10 Mar 2019 09:36:29 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 34f6c97c5..336b8a6d7 100644
+index bedf8a1..5cb683f 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -56,7 +56,7 @@ endif()
@@ -33,7 +33,7 @@ index 34f6c97c5..336b8a6d7 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -174,7 +174,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
+@@ -181,7 +181,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
  add_custom_target(loader_gen_files DEPENDS vk_loader_extensions.h vk_loader_extensions.c)
  set_target_properties(loader_gen_files PROPERTIES FOLDER ${LOADER_HELPER_FOLDER})
  
@@ -42,7 +42,7 @@ index 34f6c97c5..336b8a6d7 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      add_dependencies(loader-norm generate_helper_files loader_gen_files)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
-@@ -229,14 +229,16 @@ else()
+@@ -239,14 +239,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -58,9 +58,9 @@ index 34f6c97c5..336b8a6d7 100644
                                       "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 +    endif()
      target_link_libraries(vulkan -ldl -lpthread -lm)
+     target_link_libraries(vulkan Vulkan::Headers)
  
-     if(APPLE)
-@@ -293,9 +295,7 @@ else()
+@@ -305,9 +307,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -72,7 +72,7 @@ index 34f6c97c5..336b8a6d7 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 0cb266346..3e1995028 100644
+index 0c480d7..3f1f238 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -60,9 +60,9 @@
@@ -87,7 +87,7 @@ index 0cb266346..3e1995028 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-@@ -629,6 +629,10 @@ out:
+@@ -636,6 +636,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -99,7 +99,7 @@ index 0cb266346..3e1995028 100644
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
      static const wchar_t *displayGUID = L"{4d36e968-e325-11ce-bfc1-08002be10318}";
 diff --git a/loader/loader.rc b/loader/loader.rc
-index fca746298..f9f85d06e 100755
+index f705126..831ccb9 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -116,7 +116,7 @@ index fca746298..f9f85d06e 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index dd6b3fde6..e405c2108 100644
+index dd6b3fd..e405c21 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
@@ -129,7 +129,7 @@ index dd6b3fde6..e405c2108 100644
  
  #include "vulkan/vk_platform.h"
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea43..6e897033f 100644
+index 2ce5aea..6e89703 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
 @@ -1,6 +1,6 @@
@@ -142,5 +142,5 @@ index 2ce5aea43..6e897033f 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.19.1
+2.17.1
 
