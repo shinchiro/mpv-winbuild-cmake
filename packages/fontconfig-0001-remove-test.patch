@@ -1,0 +1,25 @@
+From 3328fb52ff424386c90be6d14a4801b9d6c0f7bb Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 16 Mar 2019 19:35:28 +0800
+Subject: [PATCH 1/2] remove test
+
+---
+ Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index cc3024e..e58f868 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -24,7 +24,7 @@
+ SUBDIRS=fontconfig fc-case fc-lang src \
+ 	fc-cache fc-cat fc-conflist fc-list fc-match \
+ 	fc-pattern fc-query fc-scan fc-validate conf.d \
+-	its po po-conf test
++	its po po-conf
+ if ENABLE_DOCS
+ SUBDIRS += doc
+ endif
+-- 
+2.17.1
+

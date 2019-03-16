@@ -153,6 +153,7 @@ list(APPEND ep
     harfbuzz
     libsoxr
     libzimg
+    fontconfig
     libass
     libressl
     libxml2

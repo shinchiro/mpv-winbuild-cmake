@@ -66,6 +66,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - aom
     - dav1d
     - libplacebo
+    - fontconfig
 
 - Zip
     - expat (2.2.6)
