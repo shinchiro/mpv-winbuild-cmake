@@ -1,7 +1,7 @@
 ExternalProject_Add(vulkan-header
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
     GIT_SHALLOW 1
-    GIT_TAG v1.1.102
+    GIT_TAG v1.1.106
     UPDATE_COMMAND ""
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=Release
@@ -11,7 +11,6 @@ ExternalProject_Add(vulkan-header
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_INSTALL 1
 )
 
-force_rebuild_git(vulkan-header)
 extra_step(vulkan-header)
 
 ExternalProject_Add(vulkan
