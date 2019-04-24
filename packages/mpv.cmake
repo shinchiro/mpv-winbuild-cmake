@@ -18,6 +18,7 @@ ExternalProject_Add(mpv
         mujs
         vulkan
         shaderc
+        libplacebo
         crossc
         vapoursynth
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
@@ -42,6 +43,7 @@ ExternalProject_Add(mpv
         --enable-rubberband
         --enable-lcms2
         --enable-openal
+        --enable-vulkan
         --enable-vapoursynth
         --prefix=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
