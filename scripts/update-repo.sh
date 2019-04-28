@@ -9,7 +9,7 @@ main() {
 
         if [[ -d "$src_dir/.git" ]] ; then
             # Skip updating these packages
-            if [[ $name =~ ^(angle|megasdk|vulkan-header)$ ]]; then
+            if [[ $name =~ ^(angle|megasdk)$ ]]; then
                 continue
             fi
 
