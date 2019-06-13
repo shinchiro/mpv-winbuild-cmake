@@ -53,7 +53,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libjpeg
     - shaderc (with spirv-headers, spirv-tools, glslang)
     - vulkan
-    - crossc
+    - spirv-cross
     - fribidi
     - libressl
     - nettle

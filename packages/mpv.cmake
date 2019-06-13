@@ -19,7 +19,7 @@ ExternalProject_Add(mpv
         vulkan
         shaderc
         libplacebo
-        crossc
+        spirv-cross
         vapoursynth
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
@@ -43,6 +43,7 @@ ExternalProject_Add(mpv
         --enable-rubberband
         --enable-lcms2
         --enable-openal
+        --enable-spirv-cross
         --enable-vulkan
         --enable-vapoursynth
         --prefix=${MINGW_INSTALL_PREFIX}
