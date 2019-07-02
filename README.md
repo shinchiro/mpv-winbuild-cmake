@@ -130,13 +130,17 @@ To set up the build environment, create a directory to store build files in:
     mkdir build64
     cd build64
 
-Once you’ve changed into that directory, run CMake, e.g.
+Once you’ve changed into that directory, clone the Git repository
 
-    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja ..
+    git clone --depth 1 https://github.com/shinchiro/mpv-winbuild-cmake.git ./
+
+and run CMake:    
+
+    cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja .
 
 or for 32bit:
 
-    cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
+    cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja .
 
 First, you need to build toolchain. By default, it will be installed in `install` folder. This take ~20 minutes on my 4-core machine.
 
@@ -164,15 +168,15 @@ This will also build all packages that `mpv` depends on.
 
 ## Available Commands
 
-* **ninja package** -> compile a package
+* **ninja** package -> compile a package
 
 * **ninja clean** -> remove all stamp files in all packages.
 
-* **ninja package-fullclean** -> Remove all stamp files of a package.
+* **ninja** package-**fullclean** -> Remove all stamp files of a package.
 
-* **ninja package-liteclean** -> Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case.
+* **ninja** package-**liteclean** -> Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case.
 
-* **ninja package-removebuild** -> Remove 'build' directory of a package.
+* **ninja** package-**removebuild** -> Remove 'build' directory of a package.
 
 * **ninja update** -> Update all git repos. When a package pulling new changes, all of its stamp files will be deleted and will be force rebuild. If there is not changes, it will not remove the stamp files and not rebuild occur. Use this instead of `ninja clean` if you don't want rebuild everything in next run.
 
