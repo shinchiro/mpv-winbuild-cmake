@@ -1,6 +1,6 @@
-From ce11ede85cfcf1fdf4c9f35443854ca52a691df2 Mon Sep 17 00:00:00 2001
+From b381dd6a631a6f06fd10860cf44766c24a665dfe Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 10 Mar 2019 09:36:29 +0800
+Date: Sun, 7 Jul 2019 08:39:10 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index bedf8a1..5cb683f 100644
+index da63d1e..5e2ee8f 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -56,7 +56,7 @@ endif()
@@ -57,7 +57,7 @@ index bedf8a1..5cb683f 100644
                                       VERSION
                                       "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 +    endif()
-     target_link_libraries(vulkan -ldl -lpthread -lm)
+     target_link_libraries(vulkan ${CMAKE_DL_LIBS} -lpthread -lm)
      target_link_libraries(vulkan Vulkan::Headers)
  
 @@ -305,9 +307,7 @@ else()
@@ -72,7 +72,7 @@ index bedf8a1..5cb683f 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 0c480d7..3f1f238 100644
+index f2db792..4eb22dc 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -60,9 +60,9 @@
@@ -87,7 +87,7 @@ index 0c480d7..3f1f238 100644
  #endif
  
  // This is a CMake generated file with #defines for any functions/includes
-@@ -636,6 +636,10 @@ out:
+@@ -635,6 +635,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
