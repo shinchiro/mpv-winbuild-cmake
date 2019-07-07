@@ -3,8 +3,8 @@ if(CYGWIN OR MSYS)
 endif()
 
 ExternalProject_Add(libiconv
-    URL "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.15.tar.gz"
-    URL_HASH SHA256=ccf536620a45458d26ba83887a983b96827001e92a13847b45e4925cc8913178
+    URL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz
+    URL_HASH SHA256=e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         ${build}
         --host=${TARGET_ARCH}
