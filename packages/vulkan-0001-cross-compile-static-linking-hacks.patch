@@ -1,6 +1,6 @@
-From b381dd6a631a6f06fd10860cf44766c24a665dfe Mon Sep 17 00:00:00 2001
+From 5965c8d4aecbda0d1bf252fabf48e46081817d06 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 7 Jul 2019 08:39:10 +0800
+Date: Sun, 14 Jul 2019 12:11:26 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index da63d1e..5e2ee8f 100644
+index 6bbdae7..e092a9e 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -56,7 +56,7 @@ endif()
@@ -42,7 +42,7 @@ index da63d1e..5e2ee8f 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      add_dependencies(loader-norm generate_helper_files loader_gen_files)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
-@@ -239,14 +239,16 @@ else()
+@@ -240,14 +240,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -60,7 +60,7 @@ index da63d1e..5e2ee8f 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} -lpthread -lm)
      target_link_libraries(vulkan Vulkan::Headers)
  
-@@ -305,9 +307,7 @@ else()
+@@ -306,9 +308,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -72,10 +72,10 @@ index da63d1e..5e2ee8f 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index f2db792..4eb22dc 100644
+index 260b193..e293776 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -60,9 +60,9 @@
+@@ -66,9 +66,9 @@
  #include "murmurhash.h"
  
  #if defined(_WIN32)
@@ -84,10 +84,10 @@ index f2db792..4eb22dc 100644
  #include <initguid.h>
 -#include <Devpkey.h>
 +#include <devpkey.h>
- #endif
+ #include <winternl.h>
+ #include <d3dkmthk.h>
  
- // This is a CMake generated file with #defines for any functions/includes
-@@ -635,6 +635,10 @@ out:
+@@ -646,6 +646,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -116,7 +116,7 @@ index f705126..831ccb9 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index dd6b3fd..e405c21 100644
+index a91c648..f25bf31 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@
