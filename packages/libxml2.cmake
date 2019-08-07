@@ -10,7 +10,6 @@ ExternalProject_Add(libxml2
         --with-minimum
         --with-threads
         --with-tree
-        --without-zlib
         --without-lzma
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
