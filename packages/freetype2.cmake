@@ -3,7 +3,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ft2exec.in ${CMAKE_CURRENT_BINARY_DIR
 ExternalProject_Add(freetype2
     DEPENDS libpng zlib
     #GIT_REPOSITORY git://git.sv.gnu.org/freetype/freetype2.git
-    GIT_REPOSITORY http://git.sv.nongnu.org/r/freetype/freetype2.git
+    GIT_REPOSITORY https://git.sv.nongnu.org/r/freetype/freetype2.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ft2exec <SOURCE_DIR>/configure
