@@ -69,7 +69,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - fontconfig
 
 - Zip
-    - expat (2.2.6)
+    - expat (2.2.7)
     - bzip (1.0.6)
     - zlib (1.2.11)
     - xvidcore (1.3.5)
@@ -80,7 +80,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libiconv (1.16)
     - gmp (6.1.2)
-    - vapoursynth (R46)
+    - vapoursynth (R47)
 
 
 ## Setup Build Environment
