@@ -1,6 +1,6 @@
-From 5965c8d4aecbda0d1bf252fabf48e46081817d06 Mon Sep 17 00:00:00 2001
+From c5ff53cafc2a728aeeb65998809de2dfcdbff08c Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 14 Jul 2019 12:11:26 +0800
+Date: Thu, 8 Aug 2019 21:04:21 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,10 +12,10 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6bbdae7..e092a9e 100644
+index 6739b3a..6ba5774 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -56,7 +56,7 @@ endif()
+@@ -58,7 +58,7 @@ endif()
  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
  
@@ -24,7 +24,7 @@ index 6bbdae7..e092a9e 100644
      # Use static MSVCRT libraries
      foreach(configuration
              in
-@@ -119,7 +119,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -121,7 +121,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,22 +33,22 @@ index 6bbdae7..e092a9e 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -181,7 +181,7 @@ GenerateFromVkXml(vk_loader_extensions.c loader_extension_generator.py)
- add_custom_target(loader_gen_files DEPENDS vk_loader_extensions.h vk_loader_extensions.c)
- set_target_properties(loader_gen_files PROPERTIES FOLDER ${LOADER_HELPER_FOLDER})
+@@ -173,7 +173,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+     endif()
+ endif()
  
 -if(WIN32)
 +if(MSVC)
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
-     add_dependencies(loader-norm generate_helper_files loader_gen_files)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
-@@ -240,14 +240,16 @@ else()
+     target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
+@@ -231,14 +231,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
 -    add_library(vulkan SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
 +    add_library(vulkan ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-     add_dependencies(vulkan generate_helper_files loader_gen_files loader_asm_gen_files)
+     add_dependencies(vulkan loader_asm_gen_files)
 +    if (NOT ENABLE_STATIC_LOADER)
      target_compile_definitions(vulkan PUBLIC -DLOADER_DYNAMIC_LIB)
      set_target_properties(vulkan
@@ -60,7 +60,7 @@ index 6bbdae7..e092a9e 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} -lpthread -lm)
      target_link_libraries(vulkan Vulkan::Headers)
  
-@@ -306,9 +308,7 @@ else()
+@@ -297,9 +299,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -72,7 +72,7 @@ index 6bbdae7..e092a9e 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 260b193..e293776 100644
+index 871095d..0bc262c 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -66,9 +66,9 @@
@@ -87,7 +87,7 @@ index 260b193..e293776 100644
  #include <winternl.h>
  #include <d3dkmthk.h>
  
-@@ -646,6 +646,10 @@ out:
+@@ -645,6 +645,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -95,9 +95,9 @@ index 260b193..e293776 100644
 +#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
 +#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
 +#endif
- VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size, LPCTSTR value_name) {
+ VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
+                                       LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-     static const wchar_t *displayGUID = L"{4d36e968-e325-11ce-bfc1-08002be10318}";
 diff --git a/loader/loader.rc b/loader/loader.rc
 index f705126..831ccb9 100755
 --- a/loader/loader.rc
@@ -116,7 +116,7 @@ index f705126..831ccb9 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index a91c648..f25bf31 100644
+index c697293..2ffda55 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -25,7 +25,7 @@

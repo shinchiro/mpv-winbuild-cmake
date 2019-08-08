@@ -1,0 +1,38 @@
+From 661bfe05f16947f29a540ab2157d2dd61fb53d59 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Thu, 8 Aug 2019 23:30:00 +0800
+Subject: [PATCH] remove windows driver kits dependency
+
+---
+ CMakeLists.txt        | 1 -
+ loader/CMakeLists.txt | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 85bddd6..a1379a7 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -118,7 +118,6 @@ if(UNIX AND NOT APPLE) # i.e.: Linux
+ endif()
+ 
+ if(WIN32)
+-    find_package(WDK REQUIRED)
+     option(ENABLE_WIN10_ONECORE "Link the loader with OneCore umbrella libraries" OFF)
+     option(ENABLE_STATIC_LOADER "Build the loader as a static library" OFF)
+ endif()
+diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
+index 6ba5774..de6cb6c 100644
+--- a/loader/CMakeLists.txt
++++ b/loader/CMakeLists.txt
+@@ -178,7 +178,7 @@ if(MSVC)
+     target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
+     target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
+     target_include_directories(loader-norm PRIVATE "$<TARGET_PROPERTY:Vulkan::Headers,INTERFACE_INCLUDE_DIRECTORIES>")
+-    target_include_directories(loader-norm PRIVATE "${WDK_INCLUDE_DIRS}")
++    target_include_directories(loader-norm PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+ 
+     add_library(loader-opt OBJECT ${OPT_LOADER_SRCS})
+     add_dependencies(loader-opt loader_asm_gen_files)
+-- 
+2.17.1
+
