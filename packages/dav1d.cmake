@@ -8,8 +8,8 @@ ExternalProject_Add(dav1d
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
-        -Dbuild_tools=false
-        -Dbuild_tests=false
+        -Denable_tools=false
+        -Denable_tests=false
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
