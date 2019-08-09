@@ -70,7 +70,6 @@ ExternalProject_Add(ffmpeg
         --enable-libmfx
         --enable-amf
         --disable-decoder=libaom_av1
-        --disable-w32threads
         "--extra-cflags=-DMODPLUG_STATIC"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
