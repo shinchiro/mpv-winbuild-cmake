@@ -10,6 +10,7 @@ ExternalProject_Add(megasdk
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-*.patch
+          COMMAND curl -sL https://github.com/meganz/sdk/pull/1555.patch | git am
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
