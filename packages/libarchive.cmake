@@ -16,6 +16,7 @@ ExternalProject_Add(libarchive
         --disable-bsdtar
         --disable-bsdcat
         --disable-bsdcpio
+        --with-lzo2
         --without-xml2
         --without-cng
         --without-openssl
