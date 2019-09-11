@@ -80,7 +80,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libiconv (1.16)
     - gmp (6.1.2)
-    - vapoursynth (R47)
+    - vapoursynth (R47.2)
 
 
 ## Setup Build Environment
