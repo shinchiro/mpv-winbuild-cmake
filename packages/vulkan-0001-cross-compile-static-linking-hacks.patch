@@ -1,17 +1,17 @@
-From 8472b53e3c6bc1fbb396f9593ea9cc8daa38f813 Mon Sep 17 00:00:00 2001
+From f125f467c4aa05d6caaf363f2134bebf9ae118d7 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 9 Aug 2019 17:45:01 +0800
+Date: Sun, 15 Sep 2019 08:33:51 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
  loader/CMakeLists.txt | 14 +++++++-------
- loader/loader.c       |  4 ++++
+ loader/loader.c       |  6 +++++-
  loader/loader.rc      |  5 ++++-
  loader/vulkan.pc.in   |  4 ++--
- 4 files changed, 17 insertions(+), 10 deletions(-)
+ 4 files changed, 18 insertions(+), 11 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6739b3a..6ba5774 100644
+index ed78054..fa930ca 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -58,7 +58,7 @@ endif()
@@ -66,15 +66,24 @@ index 6739b3a..6ba5774 100644
 -            foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
 -                set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
 -            endforeach()
-+            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
++            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32 -ldxgi")
              configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 6b69e3a..0bc262c 100644
+index 9d783b1..eb675d1 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -645,6 +645,10 @@ out:
+@@ -71,7 +71,7 @@
+ #include <devpkey.h>
+ #include <winternl.h>
+ #include <d3dkmthk.h>
+-#include <Dxgi1_6.h>
++#include <dxgi1_6.h>
+ 
+ typedef _Check_return_ NTSTATUS (APIENTRY *PFN_D3DKMTEnumAdapters2)(const D3DKMT_ENUMADAPTERS2*);
+ typedef _Check_return_ NTSTATUS (APIENTRY *PFN_D3DKMTQueryAdapterInfo)(const D3DKMT_QUERYADAPTERINFO*);
+@@ -675,6 +675,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
