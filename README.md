@@ -32,6 +32,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - mpv
     - luajit
     - libvpx
+    - libwebp
     - libpng
     - libsoxr
     - libzimg
