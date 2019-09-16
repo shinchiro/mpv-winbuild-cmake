@@ -163,6 +163,7 @@ list(APPEND ep
     libmysofa
     aom
     dav1d
+    libwebp
     ffmpeg
     angle-headers
     mujs
