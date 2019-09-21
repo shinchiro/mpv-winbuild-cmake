@@ -1,35 +1,35 @@
-From a6d6098e7629f1ac0f3eee5e5c4c2a6aea70244e Mon Sep 17 00:00:00 2001
+From b8e69f30c38d693a9b5fea818752d22453367612 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 16 Jun 2019 10:29:52 +0800
+Date: Sat, 21 Sep 2019 11:21:10 +0800
 Subject: [PATCH] static linking hacks
 
 ---
- CMakeLists.txt | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ CMakeLists.txt | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index a6eb533..2e7f584 100644
+index b2b9b04..4e49dab 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -296,10 +296,10 @@ if (SPIRV_CROSS_SHARED)
- 	set(SPIRV_CROSS_INSTALL_INC_DIR ${CMAKE_INSTALL_PREFIX}/include/spirv_cross)
- 	configure_file(
+@@ -319,11 +319,11 @@ if (SPIRV_CROSS_SHARED)
+ 	if (NOT SPIRV_CROSS_SKIP_INSTALL)
+ 		configure_file(
  			${CMAKE_CURRENT_SOURCE_DIR}/pkg-config/spirv-cross-c-shared.pc.in
 -			${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc @ONLY)
--	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pkgconfig)
+-		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pkgconfig)
 +			${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc @ONLY)
-+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
++			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+ 	endif()
  
 -	spirv_cross_add_library(spirv-cross-c-shared spirv_cross_c_shared SHARED
 +	spirv_cross_add_library(spirv-cross-c-shared spirv_cross_c_shared STATIC
  			${spirv-cross-core-sources}
  			${spirv-cross-c-sources})
  
-@@ -354,12 +354,6 @@ if (SPIRV_CROSS_SHARED)
- 			set_target_properties(spirv-cross-c-shared PROPERTIES LINK_FLAGS "${spirv-cross-link-flags}")
+@@ -379,11 +379,6 @@ if (SPIRV_CROSS_SHARED)
  		endif()
  	endif()
--
+ 
 -	target_compile_definitions(spirv-cross-c-shared PRIVATE SPVC_EXPORT_SYMBOLS)
 -
 -	set_target_properties(spirv-cross-c-shared PROPERTIES
