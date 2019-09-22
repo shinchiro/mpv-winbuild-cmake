@@ -1,20 +1,33 @@
-From f125f467c4aa05d6caaf363f2134bebf9ae118d7 Mon Sep 17 00:00:00 2001
+From ca22aa03a46503b2f428868bea9227716f8c17f3 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 15 Sep 2019 08:33:51 +0800
+Date: Sun, 22 Sep 2019 16:51:51 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
+ CMakeLists.txt        |  1 -
  loader/CMakeLists.txt | 14 +++++++-------
- loader/loader.c       |  6 +++++-
+ loader/loader.c       |  4 ++++
  loader/loader.rc      |  5 ++++-
  loader/vulkan.pc.in   |  4 ++--
- 4 files changed, 18 insertions(+), 11 deletions(-)
+ 5 files changed, 17 insertions(+), 11 deletions(-)
 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 81532fd..d6daec8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -119,7 +119,6 @@ if(UNIX AND NOT APPLE) # i.e.: Linux
+ endif()
+ 
+ if(WIN32)
+-    find_package(WDK REQUIRED)
+     option(ENABLE_WIN10_ONECORE "Link the loader with OneCore umbrella libraries" OFF)
+     option(ENABLE_STATIC_LOADER "Build the loader as a static library" OFF)
+ endif()
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index ed78054..fa930ca 100644
+index 6b1b4c2..a294f9d 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -58,7 +58,7 @@ endif()
+@@ -59,7 +59,7 @@ endif()
  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
  
@@ -23,7 +36,7 @@ index ed78054..fa930ca 100644
      # Use static MSVCRT libraries
      foreach(configuration
              in
-@@ -121,7 +121,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -122,7 +122,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -32,21 +45,21 @@ index ed78054..fa930ca 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -173,7 +173,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -174,7 +174,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
 -if(WIN32)
 +if(MSVC)
-     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
+     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c dxgi_loader.c)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -231,14 +231,16 @@ else()
+@@ -232,14 +232,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
 -    add_library(vulkan SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-+    add_library(vulkan ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
++    add_library(vulkan ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS} dxgi_loader.c)
      add_dependencies(vulkan loader_asm_gen_files)
 +    if (NOT ENABLE_STATIC_LOADER)
      target_compile_definitions(vulkan PUBLIC -DLOADER_DYNAMIC_LIB)
@@ -59,30 +72,21 @@ index ed78054..fa930ca 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} -lpthread -lm)
      target_link_libraries(vulkan Vulkan::Headers)
  
-@@ -297,9 +299,7 @@ else()
+@@ -298,9 +300,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 -            foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
 -                set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
 -            endforeach()
-+            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32 -ldxgi")
++            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
              configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 9d783b1..eb675d1 100644
+index 39ccc25..dc9b55a 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -71,7 +71,7 @@
- #include <devpkey.h>
- #include <winternl.h>
- #include <d3dkmthk.h>
--#include <Dxgi1_6.h>
-+#include <dxgi1_6.h>
- 
- typedef _Check_return_ NTSTATUS (APIENTRY *PFN_D3DKMTEnumAdapters2)(const D3DKMT_ENUMADAPTERS2*);
- typedef _Check_return_ NTSTATUS (APIENTRY *PFN_D3DKMTQueryAdapterInfo)(const D3DKMT_QUERYADAPTERINFO*);
 @@ -675,6 +675,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
