@@ -1,6 +1,6 @@
-From ca22aa03a46503b2f428868bea9227716f8c17f3 Mon Sep 17 00:00:00 2001
+From cc938336b44dc228ebee66e365d5efa2d74a77bb Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 22 Sep 2019 16:51:51 +0800
+Date: Sun, 29 Sep 2019 09:14:48 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 17 insertions(+), 11 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 81532fd..d6daec8 100644
+index 6bd819d..d659ef8 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -119,7 +119,6 @@ if(UNIX AND NOT APPLE) # i.e.: Linux
@@ -24,10 +24,10 @@ index 81532fd..d6daec8 100644
      option(ENABLE_STATIC_LOADER "Build the loader as a static library" OFF)
  endif()
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6b1b4c2..a294f9d 100644
+index 3e8d2a2..1580e3e 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -59,7 +59,7 @@ endif()
+@@ -58,7 +58,7 @@ endif()
  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
  
@@ -36,7 +36,7 @@ index 6b1b4c2..a294f9d 100644
      # Use static MSVCRT libraries
      foreach(configuration
              in
-@@ -122,7 +122,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -121,7 +121,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -45,7 +45,7 @@ index 6b1b4c2..a294f9d 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -174,7 +174,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -173,7 +173,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
@@ -54,7 +54,7 @@ index 6b1b4c2..a294f9d 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c dxgi_loader.c)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -232,14 +232,16 @@ else()
+@@ -231,14 +231,16 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -62,17 +62,17 @@ index 6b1b4c2..a294f9d 100644
 +    add_library(vulkan ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS} dxgi_loader.c)
      add_dependencies(vulkan loader_asm_gen_files)
 +    if (NOT ENABLE_STATIC_LOADER)
-     target_compile_definitions(vulkan PUBLIC -DLOADER_DYNAMIC_LIB)
+     target_compile_definitions(vulkan PUBLIC LOADER_DYNAMIC_LIB)
      set_target_properties(vulkan
                            PROPERTIES SOVERSION
                                       "1"
                                       VERSION
                                       "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 +    endif()
-     target_link_libraries(vulkan ${CMAKE_DL_LIBS} -lpthread -lm)
+     target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
      target_link_libraries(vulkan Vulkan::Headers)
  
-@@ -298,9 +300,7 @@ else()
+@@ -297,9 +299,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
