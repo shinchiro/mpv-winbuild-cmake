@@ -1,6 +1,6 @@
 ExternalProject_Add(expat
-    URL "https://download.sourceforge.net/expat/expat-2.2.7.tar.bz2"
-    URL_HASH SHA256=cbc9102f4a31a8dafd42d642e9a3aa31e79a0aedaa1f6efd2795ebc83174ec18
+    URL "https://download.sourceforge.net/expat/expat-2.2.9.tar.bz2"
+    URL_HASH SHA256=f1063084dc4302a427dabcca499c8312b3a32a29b7d2506653ecc8f950a9a237
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}

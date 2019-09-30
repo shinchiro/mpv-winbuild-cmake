@@ -70,7 +70,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - fontconfig
 
 - Zip
-    - expat (2.2.7)
+    - expat (2.2.9)
     - bzip (1.0.8)
     - zlib (1.2.11)
     - xvidcore (1.3.5)
