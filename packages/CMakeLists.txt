@@ -186,6 +186,7 @@ list(APPEND ep
     cryptopp
     sqlite
     libuv
+    libsodium
     megasdk
 )
 foreach(package IN LISTS ep)

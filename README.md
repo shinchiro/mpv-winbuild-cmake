@@ -63,7 +63,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - amf-headers
     - nvcodec-headers
     - libmfx
-    - megasdk (with termcap, readline, cryptopp, sqlite, libuv)
+    - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
     - aom
     - dav1d
     - libplacebo
