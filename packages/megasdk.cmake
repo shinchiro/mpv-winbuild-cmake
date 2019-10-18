@@ -6,6 +6,7 @@ ExternalProject_Add(megasdk
         termcap
         readline
         libuv
+        libsodium
     GIT_REPOSITORY https://github.com/meganz/sdk.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -17,7 +18,6 @@ ExternalProject_Add(megasdk
         --disable-shared
         --disable-silent-rules
         --without-openssl
-        --without-sodium
         --without-cares
         --without-curl
         --without-freeimage
@@ -25,6 +25,7 @@ ExternalProject_Add(megasdk
         --with-termcap=${MINGW_INSTALL_PREFIX}
         --with-readline=${MINGW_INSTALL_PREFIX}
         --with-libuv=${MINGW_INSTALL_PREFIX}
+        --with-sodium=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
     BUILD_IN_SOURCE 1
