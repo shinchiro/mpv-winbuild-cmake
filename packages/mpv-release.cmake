@@ -92,18 +92,17 @@ ExternalProject_Add_Step(mpv-release copy-binary
     COMMENT "Copying mpv binaries and manual"
 )
 
-set(RENAME ${CMAKE_CURRENT_BINARY_DIR}/mpv-prefix/src/rename.sh)
+set(RENAME ${CMAKE_CURRENT_BINARY_DIR}/mpv-prefix/src/rename-stable.sh)
 file(WRITE ${RENAME}
 "#!/bin/bash
 cd $1
 TAG=$(cat VERSION)
-mv $2 $2-\${TAG}-$3")
+mv $2 $3/mpv-\${TAG}-$4")
 
 ExternalProject_Add_Step(mpv-release copy-package-dir
     DEPENDEES copy-binary
     COMMAND chmod 755 ${RENAME}
-    COMMAND mv ${CMAKE_CURRENT_BINARY_DIR}/mpv-package ${CMAKE_BINARY_DIR}/mpv-${TARGET_CPU}-${BUILDDATE}
-    COMMAND ${RENAME} <SOURCE_DIR> ${CMAKE_BINARY_DIR}/mpv ${TARGET_CPU}
+    COMMAND ${RENAME} <SOURCE_DIR> ${CMAKE_CURRENT_BINARY_DIR}/mpv-package ${CMAKE_BINARY_DIR} ${TARGET_CPU}
     COMMENT "Moving mpv package folder"
     LOG 1
 )
