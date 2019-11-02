@@ -177,7 +177,7 @@ list(APPEND ep
     curl
     vapoursynth
     mpv
-    mpv-release
+    mpv-stable
     flac
     opusfile
     libopusenc
