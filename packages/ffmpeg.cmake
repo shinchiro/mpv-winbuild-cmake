@@ -3,7 +3,6 @@ ExternalProject_Add(ffmpeg
         amf-headers
         nvcodec-headers
         bzip2
-        game-music-emu
         gmp
         lame
         libressl
@@ -48,7 +47,6 @@ ExternalProject_Add(ffmpeg
         --enable-libbluray
         --enable-libfreetype
         --enable-libfribidi
-        --enable-libgme
         --enable-libmodplug
         --enable-libmp3lame
         --enable-libopus
