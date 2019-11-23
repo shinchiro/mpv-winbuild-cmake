@@ -8,7 +8,7 @@ printf 'https://github.com/mpv-player/mpv/archive/%s.tar.gz' $tag")
 # Workaround since cmake dont allow you to change file permission easily
 file(COPY ${PREFIX_DIR}/get_latest_tag.sh
      DESTINATION ${PREFIX_DIR}/src
-     FILE_PERMISSIONS OWNER_EXECUTE)
+     FILE_PERMISSIONS OWNER_EXECUTE OWNER_READ)
 
 execute_process(COMMAND ${PREFIX_DIR}/src/get_latest_tag.sh
                 OUTPUT_VARIABLE LINK)
