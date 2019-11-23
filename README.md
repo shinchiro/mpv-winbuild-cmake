@@ -82,6 +82,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libiconv (1.16)
     - gmp (6.1.2)
     - vapoursynth (R47.2)
+    - libsdl2 (2.0.10)
 
 
 ## Setup Build Environment

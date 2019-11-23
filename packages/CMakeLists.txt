@@ -176,6 +176,7 @@ list(APPEND ep
     libplacebo
     curl
     vapoursynth
+    libsdl2
     mpv
     mpv-stable
     flac
