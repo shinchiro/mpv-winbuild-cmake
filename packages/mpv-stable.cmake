@@ -36,6 +36,7 @@ ExternalProject_Add(mpv-stable
         libplacebo
         spirv-cross
         vapoursynth
+        libsdl2
     URL ${LINK}
     CONFIGURE_COMMAND ${EXEC}
         PKG_CONFIG=pkg-config
@@ -48,6 +49,7 @@ ExternalProject_Add(mpv-stable
         --enable-libmpv-shared
         --enable-lua
         --enable-javascript
+        --enable-sdl2
         --enable-libarchive
         --enable-libass
         --enable-libbluray

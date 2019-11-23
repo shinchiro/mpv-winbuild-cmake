@@ -21,6 +21,7 @@ ExternalProject_Add(mpv
         libplacebo
         spirv-cross
         vapoursynth
+        libsdl2
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
@@ -34,6 +35,7 @@ ExternalProject_Add(mpv
         --enable-libmpv-shared
         --enable-lua
         --enable-javascript
+        --enable-sdl2
         --enable-libarchive
         --enable-libass
         --enable-libbluray
