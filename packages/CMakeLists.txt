@@ -164,6 +164,7 @@ list(APPEND ep
     aom
     dav1d
     libwebp
+    vapoursynth
     ffmpeg
     angle-headers
     mujs
@@ -175,7 +176,6 @@ list(APPEND ep
     shaderc
     libplacebo
     curl
-    vapoursynth
     libsdl2
     mpv
     mpv-stable

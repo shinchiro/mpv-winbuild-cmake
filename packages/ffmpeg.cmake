@@ -24,6 +24,7 @@ ExternalProject_Add(ffmpeg
         libmfx
         aom
         dav1d
+        vapoursynth
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -42,6 +43,7 @@ ExternalProject_Add(ffmpeg
         --enable-avresample
         --enable-postproc
         --enable-avisynth
+        --enable-vapoursynth
         --enable-gmp
         --enable-libass
         --enable-libbluray
