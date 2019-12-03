@@ -6,7 +6,7 @@ ExternalProject_Add(libsodium
         --prefix=${MINGW_INSTALL_PREFIX}
         --enable-static
         --disable-shared
-    BUILD_COMMAND ${MAKE}
+    BUILD_COMMAND ${MAKE} CFLAGS='-D_FORTIFY_SOURCE=0'
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
