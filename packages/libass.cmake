@@ -4,6 +4,7 @@ ExternalProject_Add(libass
         freetype2
         fribidi
         libiconv
+        fontconfig
     GIT_REPOSITORY https://github.com/libass/libass.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
@@ -11,7 +12,7 @@ ExternalProject_Add(libass
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
-        --disable-fontconfig
+        --disable-directwrite
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
