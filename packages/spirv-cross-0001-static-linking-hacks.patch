@@ -1,6 +1,6 @@
-From b8e69f30c38d693a9b5fea818752d22453367612 Mon Sep 17 00:00:00 2001
+From ce143b59d274002423506234db1e326f34976e82 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 21 Sep 2019 11:21:10 +0800
+Date: Sun, 9 Feb 2020 08:27:41 +0800
 Subject: [PATCH] static linking hacks
 
 ---
@@ -8,17 +8,17 @@ Subject: [PATCH] static linking hacks
  1 file changed, 3 insertions(+), 8 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b2b9b04..4e49dab 100644
+index d7e211d..c2fdadd 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -319,11 +319,11 @@ if (SPIRV_CROSS_SHARED)
+@@ -332,11 +332,11 @@ if (SPIRV_CROSS_SHARED)
  	if (NOT SPIRV_CROSS_SKIP_INSTALL)
  		configure_file(
  			${CMAKE_CURRENT_SOURCE_DIR}/pkg-config/spirv-cross-c-shared.pc.in
 -			${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc @ONLY)
--		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pkgconfig)
+-		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross-c-shared.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 +			${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc @ONLY)
-+			install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
++		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/spirv-cross.pc DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
  	endif()
  
 -	spirv_cross_add_library(spirv-cross-c-shared spirv_cross_c_shared SHARED
@@ -26,7 +26,7 @@ index b2b9b04..4e49dab 100644
  			${spirv-cross-core-sources}
  			${spirv-cross-c-sources})
  
-@@ -379,11 +379,6 @@ if (SPIRV_CROSS_SHARED)
+@@ -392,11 +392,6 @@ if (SPIRV_CROSS_SHARED)
  		endif()
  	endif()
  
