@@ -1,15 +1,15 @@
-From b4f9a32c771fbf8869ccd95683e8decb3b92d8f9 Mon Sep 17 00:00:00 2001
+From dce3ad5987efa9b41741bde7f8ab159618d52eff Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 23 Feb 2020 17:47:20 +0800
+Date: Sun, 23 Feb 2020 19:04:18 +0800
 Subject: [PATCH] Build library only
 
 ---
- configure.ac    | 5 -----
+ configure.ac    | 8 +-------
  src/Makefile.am | 5 -----
- 2 files changed, 10 deletions(-)
+ 2 files changed, 1 insertion(+), 12 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index c3d1c59..84fcbfd 100644
+index c3d1c59..126bf65 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -14,11 +14,6 @@ AC_PROG_CC
@@ -24,6 +24,16 @@ index c3d1c59..84fcbfd 100644
  # Checks for header files.
  AC_CHECK_HEADERS([fcntl.h malloc.h string.h])
  
+@@ -27,8 +22,7 @@ AC_HEADER_STDBOOL
+ AC_TYPE_SIZE_T
+ 
+ # Checks for library functions.
+-AC_FUNC_MALLOC
+-AC_CHECK_FUNCS([strrchr])
++AC_CHECK_FUNCS([malloc strrchr])
+ 
+ AC_CONFIG_FILES([libbs2b.pc
+                  Makefile
 diff --git a/src/Makefile.am b/src/Makefile.am
 index 414aeec..98ed494 100644
 --- a/src/Makefile.am
