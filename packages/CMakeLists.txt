@@ -165,6 +165,7 @@ list(APPEND ep
     dav1d
     libwebp
     vapoursynth
+    libbs2b
     ffmpeg
     angle-headers
     mujs
