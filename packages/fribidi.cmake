@@ -1,6 +1,7 @@
 ExternalProject_Add(fribidi
     GIT_REPOSITORY https://github.com/fribidi/fribidi.git
-    GIT_SHALLOW 1
+    # GIT_SHALLOW 1
+    GIT_TAG f503e576c8345dd32d7438569346d6ca9aa50044
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
