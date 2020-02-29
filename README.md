@@ -69,6 +69,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libplacebo
     - fontconfig
     - libbs2b
+    - libssh
 
 - Zip
     - expat (2.2.9)

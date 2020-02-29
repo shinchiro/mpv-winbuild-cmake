@@ -1,0 +1,60 @@
+From 2f104a4d88f1c5a8bf216d5f769cf3c676d26087 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 1 Mar 2020 00:21:37 +0800
+Subject: [PATCH] Install modified .pc file
+
+---
+ CMakeLists.txt  |  6 +++---
+ libssh.pc.cmake | 16 ++++++++++++----
+ 2 files changed, 15 insertions(+), 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b333522..97c5928 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -118,8 +118,8 @@ add_subdirectory(include)
+ add_subdirectory(src)
+ 
+ # pkg-config file
+-if (UNIX)
+-configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc)
++if (UNIX OR MINGW)
++configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc @ONLY)
+ install(
+   FILES
+     ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc
+@@ -128,7 +128,7 @@ install(
+   COMPONENT
+     pkgconfig
+ )
+-endif (UNIX)
++endif (UNIX OR MINGW)
+ 
+ # CMake config files
+ include(CMakePackageConfigHelpers)
+diff --git a/libssh.pc.cmake b/libssh.pc.cmake
+index b37cb3f..2962d16 100644
+--- a/libssh.pc.cmake
++++ b/libssh.pc.cmake
+@@ -1,6 +1,14 @@
+-Name: ${PROJECT_NAME}
++prefix=@CMAKE_INSTALL_PREFIX@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=${prefix}/include/libssh
++
++Name: @PROJECT_NAME@
+ Description: The SSH Library
+-Version: ${PROJECT_VERSION}
+-Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lssh
+-Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
++Version: @PROJECT_VERSION@
++
++Requires.private: libssl zlib
++Libs: -L${libdir} -lssh
++Libs.private: -L${libdir} -lssl -lz
++Cflags: -I${includedir}
+ 
+-- 
+2.17.1
+
