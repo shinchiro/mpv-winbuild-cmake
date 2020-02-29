@@ -6,6 +6,7 @@ ExternalProject_Add(ffmpeg
         gmp
         lame
         libressl
+        libssh
         libass
         libbluray
         libmodplug
@@ -67,6 +68,7 @@ ExternalProject_Add(ffmpeg
         --enable-libtls
         --enable-libxml2
         --enable-libmysofa
+        --enable-libssh
         --enable-cuda
         --enable-cuvid
         --enable-nvdec
@@ -74,7 +76,7 @@ ExternalProject_Add(ffmpeg
         --enable-libmfx
         --enable-amf
         --disable-decoder=libaom_av1
-        "--extra-cflags=-DMODPLUG_STATIC"
+        "--extra-cflags='-DMODPLUG_STATIC -DLIBSSH_STATIC'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
