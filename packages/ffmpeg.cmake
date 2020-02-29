@@ -71,11 +71,11 @@ ExternalProject_Add(ffmpeg
         --enable-libxml2
         --enable-libmysofa
         --enable-libssh
+        --enable-libmfx
         --enable-cuda
         --enable-cuvid
         --enable-nvdec
         --enable-nvenc
-        --enable-libmfx
         --enable-amf
         --disable-decoder=libaom_av1
         "--extra-cflags='-DMODPLUG_STATIC -DLIBSSH_STATIC'"
