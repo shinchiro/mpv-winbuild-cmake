@@ -21,6 +21,7 @@ ExternalProject_Add(ffmpeg
         speex
         vorbis
         x264
+        x265-10bit
         xvidcore
         libxml2
         libmfx
@@ -61,6 +62,7 @@ ExternalProject_Add(ffmpeg
         --enable-libvpx
         --enable-libwebp
         --enable-libx264
+        --enable-libx265
         --enable-libaom
         --enable-libdav1d
         --enable-libxvid
