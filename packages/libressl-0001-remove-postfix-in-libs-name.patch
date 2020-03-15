@@ -1,0 +1,53 @@
+From 3d3edec7866fea90ee2c5c2d6d22458fabbeef7d Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 15 Mar 2020 21:31:40 +0800
+Subject: [PATCH] remove postfix in libs name
+
+---
+ crypto/CMakeLists.txt | 2 +-
+ ssl/CMakeLists.txt    | 2 +-
+ tls/CMakeLists.txt    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/crypto/CMakeLists.txt b/crypto/CMakeLists.txt
+index e6cfc65..31e33ba 100644
+--- a/crypto/CMakeLists.txt
++++ b/crypto/CMakeLists.txt
+@@ -985,7 +985,7 @@ target_include_directories(crypto
+ 
+ export_symbol(crypto ${CMAKE_CURRENT_BINARY_DIR}/crypto_p.sym)
+ target_link_libraries(crypto ${PLATFORM_LIBS})
+-if (WIN32)
++if (BUILD_SHARED_LIBS AND WIN32)
+ 	set(CRYPTO_POSTFIX -${CRYPTO_MAJOR_VERSION})
+ endif()
+ set_target_properties(crypto PROPERTIES
+diff --git a/ssl/CMakeLists.txt b/ssl/CMakeLists.txt
+index 39f8192..9d71986 100644
+--- a/ssl/CMakeLists.txt
++++ b/ssl/CMakeLists.txt
+@@ -62,7 +62,7 @@ target_include_directories(ssl
+ 
+ export_symbol(ssl ${CMAKE_CURRENT_SOURCE_DIR}/ssl.sym)
+ target_link_libraries(ssl crypto ${PLATFORM_LIBS})
+-if (WIN32)
++if (BUILD_SHARED_LIBS AND WIN32)
+ 	set(SSL_POSTFIX -${SSL_MAJOR_VERSION})
+ endif()
+ set_target_properties(ssl PROPERTIES
+diff --git a/tls/CMakeLists.txt b/tls/CMakeLists.txt
+index f64b1c3..71270b1 100644
+--- a/tls/CMakeLists.txt
++++ b/tls/CMakeLists.txt
+@@ -39,7 +39,7 @@ target_include_directories(tls
+ 
+ export_symbol(tls ${CMAKE_CURRENT_SOURCE_DIR}/tls.sym)
+ target_link_libraries(tls ssl crypto ${PLATFORM_LIBS})
+-if (WIN32)
++if (BUILD_SHARED_LIBS AND WIN32)
+ 	set(TLS_POSTFIX -${TLS_MAJOR_VERSION})
+ endif()
+ set_target_properties(tls PROPERTIES
+-- 
+2.17.1
+
