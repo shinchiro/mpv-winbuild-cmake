@@ -159,6 +159,7 @@ list(APPEND ep
     libxml2
     libmfx
     amf-headers
+    avisynth-headers
     nvcodec-headers
     libmysofa
     aom
