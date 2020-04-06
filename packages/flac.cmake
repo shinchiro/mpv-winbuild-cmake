@@ -14,7 +14,8 @@ ExternalProject_Add(flac
         --disable-oggtest
         --disable-examples
         --disable-stack-smash-protection
-    BUILD_COMMAND ${MAKE} CFLAGS='-D_FORTIFY_SOURCE=0'
+        CFLAGS='-D_FORTIFY_SOURCE=0'
+    BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
