@@ -12,7 +12,9 @@ ExternalProject_Add(opus-tools
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-stack-protector
+        CFLAGS='-D_FORTIFY_SOURCE=0'
         LDFLAGS='-static'
+        FLAC_CFLAGS='-DFLAC__NO_DLL'
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
