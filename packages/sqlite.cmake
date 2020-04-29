@@ -1,6 +1,6 @@
 ExternalProject_Add(sqlite
-    URL https://www.sqlite.org/2019/sqlite-autoconf-3290000.tar.gz
-    URL_HASH SHA1=053d8237eb9741b0e297073810668c2611a8e38e
+    URL https://www.sqlite.org/2020/sqlite-autoconf-3310100.tar.gz
+    URL_HASH SHA1=0c30f5b22152a8166aa3bebb0f4bc1f3e9cc508b
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
