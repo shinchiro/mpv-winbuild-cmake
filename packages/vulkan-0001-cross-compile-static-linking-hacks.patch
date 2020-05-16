@@ -1,6 +1,6 @@
-From 8c07e3176e6a3c86f6ef82ee8c9d547fda8d8515 Mon Sep 17 00:00:00 2001
-From: myfreeer <myfreeer@users.noreply.github.com>
-Date: Sat, 11 Apr 2020 17:54:48 +0800
+From 7963bd5cbf24fe77bbd822b94715524d8f23823c Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 17 May 2020 02:21:10 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -76,10 +76,10 @@ index 382664e..3582c54 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 15e4faa..54b34b7 100644
+index 02de3c2..1a94d1b 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -682,6 +682,10 @@ out:
+@@ -683,6 +683,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -90,7 +90,7 @@ index 15e4faa..54b34b7 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7440,7 +7444,7 @@ out:
+@@ -7442,7 +7446,7 @@ out:
      return result;
  }
  
@@ -100,7 +100,7 @@ index 15e4faa..54b34b7 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 0182c74..b66c30f 100644
+index 463b74e..4d5091d 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -420,6 +420,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
@@ -112,7 +112,7 @@ index 0182c74..b66c30f 100644
 +#endif
  extern loader_platform_thread_mutex loader_lock;
  extern loader_platform_thread_mutex loader_json_lock;
- 
+ extern loader_platform_thread_mutex loader_preload_icd_lock;
 diff --git a/loader/loader.rc b/loader/loader.rc
 index 18eb5e6..cdb9793 100755
 --- a/loader/loader.rc
