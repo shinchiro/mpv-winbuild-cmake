@@ -1,6 +1,6 @@
-From 91605ca881b5f98a206695af69e3f365ab9d0559 Mon Sep 17 00:00:00 2001
+From 1d55d8b026597c7df9f88fde89db41c2dadea31c Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 14 May 2020 15:37:44 +0800
+Date: Sun, 17 May 2020 02:02:58 +0800
 Subject: [PATCH] Add win32 UTF-8 filesystem functions
 
 Taken from https://github.com/wm4/libinsanity
@@ -10,13 +10,13 @@ Taken from https://github.com/wm4/libinsanity
  src/lib_io.c           |   1 +
  src/lib_package.c      |   1 +
  src/lj_clib.c          |   1 +
- src/lj_fs_io.c         | 505 +++++++++++++++++++++++++++++++++++++++++
- src/lj_fs_io.h         |  57 +++++
- src/lj_fs_io_replace.h |  49 ++++
+ src/lj_fs_io.c         | 581 +++++++++++++++++++++++++++++++++++++++++
+ src/lj_fs_io.h         |  60 +++++
+ src/lj_fs_io_replace.h |  50 ++++
  src/lj_load.c          |   1 +
  src/lj_trace.c         |   1 +
  src/ljamalg.c          |   1 +
- 11 files changed, 620 insertions(+), 2 deletions(-)
+ 11 files changed, 700 insertions(+), 2 deletions(-)
  create mode 100644 src/lj_fs_io.c
  create mode 100644 src/lj_fs_io.h
  create mode 100644 src/lj_fs_io_replace.h
@@ -93,10 +93,10 @@ index df20aca..21e98af 100644
  
 diff --git a/src/lj_fs_io.c b/src/lj_fs_io.c
 new file mode 100644
-index 0000000..33e03c9
+index 0000000..b69f391
 --- /dev/null
 +++ b/src/lj_fs_io.c
-@@ -0,0 +1,505 @@
+@@ -0,0 +1,581 @@
 +// This file is copyrighted.
 +
 +#define lj_fs_io_c
@@ -110,6 +110,7 @@ index 0000000..33e03c9
 +#include <direct.h>
 +#include <io.h>
 +#include <fcntl.h>
++#include <strings.h>
 +#include <stdbool.h>
 +#include <stdio.h>
 +#include <errno.h>
@@ -601,13 +602,88 @@ index 0000000..33e03c9
 +    return _lseeki64(fd, offset, whence);
 +}
 +
++static INIT_ONCE init_getenv_once = INIT_ONCE_STATIC_INIT;
++static char **utf8_environ;
++
++static void free_env(void)
++{
++    for (size_t n = 0; utf8_environ && utf8_environ[n]; n++)
++        free(utf8_environ[n]);
++    free(utf8_environ);
++    utf8_environ = NULL;
++}
++
++// Note: UNIX getenv() returns static strings, and we try to do the same. Since
++// using putenv() is not multithreading safe, we don't expect env vars to change
++// at runtime, and converting/allocating them in advance is ok.
++static void init_getenv(void)
++{
++    wchar_t *wenv = GetEnvironmentStringsW();
++    if (!wenv)
++        goto done;
++
++    wchar_t *wenv_cur = wenv;
++    size_t num_env = 0;
++    while (1) {
++        size_t len = wcslen(wenv_cur);
++        if (!len)
++            break;
++        num_env++;
++        wenv_cur += len + 1;
++    }
++
++    utf8_environ = calloc(sizeof(utf8_environ[0]), num_env + 1);
++    if (!utf8_environ)
++        goto done;
++
++    wenv_cur = wenv;
++    size_t cur_env = 0;
++    while (1) {
++        size_t len = wcslen(wenv_cur);
++        if (!len)
++            break;
++        assert(cur_env < num_env);
++        // On OOM, best-effort
++        utf8_environ[cur_env] = lin_winchar_to_utf8(wenv_cur);
++        if (utf8_environ[cur_env])
++            cur_env++;
++        wenv_cur += len + 1;
++    }
++
++done:
++    FreeEnvironmentStringsW(wenv);
++
++    // Avoid showing up in leak detectors etc.
++    atexit(free_env);
++}
++
++char *lin_getenv(const char *name)
++{
++    BOOL pending;
++    if (!InitOnceBeginInitialize(&init_getenv_once, 0, &pending, NULL))
++        return NULL;
++    if (pending) {
++        init_getenv();
++        InitOnceComplete(&init_getenv_once, 0, NULL);
++    }
++
++    size_t name_len = strlen(name);
++    for (size_t n = 0; utf8_environ && utf8_environ[n]; n++) {
++        char *env = utf8_environ[n];
++        if (strncasecmp(env, name, name_len) == 0 && env[name_len] == '=')
++            return env + name_len + 1;
++    }
++
++    return NULL;
++}
++
 +#endif
 diff --git a/src/lj_fs_io.h b/src/lj_fs_io.h
 new file mode 100644
-index 0000000..c4721bf
+index 0000000..0bdcd20
 --- /dev/null
 +++ b/src/lj_fs_io.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,60 @@
 +// This file is copyrighted.
 +
 +#ifndef _LJ_FS_IO_H
@@ -617,6 +693,7 @@ index 0000000..c4721bf
 +#include <fcntl.h>
 +#include <stdint.h>
 +#include <stdio.h>
++#include <stdlib.h>
 +#include <sys/stat.h>
 +#include <sys/types.h>
 +#include <unistd.h>
@@ -662,15 +739,17 @@ index 0000000..c4721bf
 +int lin_stat(const char *path, struct lin_stat *buf);
 +int lin_fstat(int fd, struct lin_stat *buf);
 +
++char *lin_getenv(const char *name);
++
 +#endif /* __MINGW32__ */
 +
 +#endif
 diff --git a/src/lj_fs_io_replace.h b/src/lj_fs_io_replace.h
 new file mode 100644
-index 0000000..65574ee
+index 0000000..604e279
 --- /dev/null
 +++ b/src/lj_fs_io_replace.h
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,50 @@
 +// This file is copyrighted.
 +
 +#ifndef _LJ_FS_IO_REPLACE
@@ -691,6 +770,7 @@ index 0000000..65574ee
 +#define closedir(...) lin_closedir(__VA_ARGS__)
 +#define mkdir(...) lin_mkdir(__VA_ARGS__)
 +#define getcwd(...) lin_getcwd(__VA_ARGS__)
++#define getenv(...) lin_getenv(__VA_ARGS__)
 +
 +#undef lseek
 +#define lseek(...) lin_lseek(__VA_ARGS__)
