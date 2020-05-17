@@ -6,7 +6,7 @@ RANLIB=${TARGET_ARCH}-ranlib
 prefix=${MINGW_INSTALL_PREFIX}")
 
 ExternalProject_Add(mujs
-    GIT_REPOSITORY git://git.ghostscript.com/mujs.git
+    GIT_REPOSITORY https://github.com/ccxvii/mujs.git
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} ${flag}
