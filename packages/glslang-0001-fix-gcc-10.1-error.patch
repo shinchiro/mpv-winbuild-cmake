@@ -1,0 +1,26 @@
+From e252312ebd9bff3f8716ad61cd02da16873e63db Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 17 May 2020 19:53:07 +0800
+Subject: [PATCH] Fix gcc 10.1 error
+
+ref: https://github.com/KhronosGroup/glslang/pull/1269
+---
+ glslang/Include/Common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/glslang/Include/Common.h b/glslang/Include/Common.h
+index 733a790..cf41b1d 100644
+--- a/glslang/Include/Common.h
++++ b/glslang/Include/Common.h
+@@ -50,7 +50,7 @@ std::string to_string(const T& val) {
+ }
+ #endif
+ 
+-#if (defined(_MSC_VER) && _MSC_VER < 1900 /*vs2015*/) || defined MINGW_HAS_SECURE_API
++#if (defined(_MSC_VER) && _MSC_VER < 1900 /*vs2015*/)
+     #include <basetsd.h>
+     #ifndef snprintf
+     #define snprintf sprintf_s
+-- 
+2.17.1
+
