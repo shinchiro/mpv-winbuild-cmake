@@ -1,6 +1,6 @@
-From 1d55d8b026597c7df9f88fde89db41c2dadea31c Mon Sep 17 00:00:00 2001
+From 804dea0fa0b525ea23e5a10385c388778a0d5a63 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 17 May 2020 02:02:58 +0800
+Date: Mon, 18 May 2020 16:10:58 +0800
 Subject: [PATCH] Add win32 UTF-8 filesystem functions
 
 Taken from https://github.com/wm4/libinsanity
@@ -8,6 +8,7 @@ Taken from https://github.com/wm4/libinsanity
  src/Makefile           |   2 +-
  src/Makefile.dep       |   3 +-
  src/lib_io.c           |   1 +
+ src/lib_os.c           |   1 +
  src/lib_package.c      |   1 +
  src/lj_clib.c          |   1 +
  src/lj_fs_io.c         | 581 +++++++++++++++++++++++++++++++++++++++++
@@ -16,7 +17,7 @@ Taken from https://github.com/wm4/libinsanity
  src/lj_load.c          |   1 +
  src/lj_trace.c         |   1 +
  src/ljamalg.c          |   1 +
- 11 files changed, 700 insertions(+), 2 deletions(-)
+ 12 files changed, 701 insertions(+), 2 deletions(-)
  create mode 100644 src/lj_fs_io.c
  create mode 100644 src/lj_fs_io.h
  create mode 100644 src/lj_fs_io_replace.h
@@ -67,6 +68,18 @@ index f13cf04..27b7ca9 100644
  
  /* Userdata payload for I/O file. */
  typedef struct IOFileUD {
+diff --git a/src/lib_os.c b/src/lib_os.c
+index a8e1708..4713009 100644
+--- a/src/lib_os.c
++++ b/src/lib_os.c
+@@ -19,6 +19,7 @@
+ #include "lj_obj.h"
+ #include "lj_err.h"
+ #include "lj_lib.h"
++#include "lj_fs_io_replace.h"
+ 
+ #if LJ_TARGET_POSIX
+ #include <unistd.h>
 diff --git a/src/lib_package.c b/src/lib_package.c
 index a8bdcf1..7b1b195 100644
 --- a/src/lib_package.c
