@@ -56,7 +56,6 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - vulkan
     - spirv-cross
     - fribidi
-    - libressl
     - nettle
     - curl
     - libxml2
@@ -86,6 +85,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - gmp (6.1.2)
     - vapoursynth (R50)
     - libsdl2 (2.0.10)
+    - libressl (3.1.2)
 
 
 ## Setup Build Environment
