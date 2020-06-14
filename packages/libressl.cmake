@@ -1,8 +1,7 @@
 ExternalProject_Add(libressl
-    GIT_REPOSITORY https://github.com/libressl-portable/portable.git
-    GIT_SHALLOW 1
-    UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libressl-*.patch
+    URL https://cloudflare.cdn.openbsd.org/pub/OpenBSD/LibreSSL/libressl-3.2.0.tar.gz
+    URL_HASH SHA256=47bd2eb4b4503e47c02efa7e67d2fcd95c7eac6bc9d06b343a1b4705793ed1d5
+    PATCH_COMMAND patch -p1 -i ${CMAKE_CURRENT_SOURCE_DIR}/libressl-0001-remove-postfix-in-libs-name.patch
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
@@ -16,6 +15,5 @@ ExternalProject_Add(libressl
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-force_rebuild_git(libressl)
+autoreconf(libressl)
 extra_step(libressl)
-autogen(libressl)
