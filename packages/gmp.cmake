@@ -1,6 +1,6 @@
 ExternalProject_Add(gmp
-    URL "ftp://ftp.gnu.org/gnu/gmp/gmp-6.1.2.tar.bz2"
-    URL_HASH SHA256=5275bb04f4863a13516b2f39392ac5e272f5e1bb8057b18aec1c9b79d73d8fb2
+    URL https://ftp.gnu.org/gnu/gmp/gmp-6.2.0.tar.xz
+    URL_HASH SHA256=258e6cd51b3fbdfc185c716d55f82c08aff57df0c6fbd143cf6ed561267a1526
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         CC_FOR_BUILD=cc
         --host=${TARGET_ARCH}

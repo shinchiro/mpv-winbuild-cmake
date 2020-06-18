@@ -82,7 +82,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - lzo (2.10)
     - libmodplug (0.8.9.0)
     - libiconv (1.16)
-    - gmp (6.1.2)
+    - gmp (6.2.0)
     - vapoursynth (R50)
     - libsdl2 (2.0.10)
     - libressl (3.1.2)
