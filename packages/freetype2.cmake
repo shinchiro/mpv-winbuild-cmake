@@ -4,7 +4,6 @@ ExternalProject_Add(freetype2
     DEPENDS libpng zlib
     GIT_REPOSITORY https://gitlab.com/shinchiro/freetype2.git
     GIT_SHALLOW 1
-    GIT_TAG VER-2-10-2
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ft2exec <SOURCE_DIR>/configure
         --build=${HOST_ARCH}
