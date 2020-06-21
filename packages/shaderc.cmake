@@ -4,6 +4,7 @@ ExternalProject_Add(shaderc
         spirv-headers
         spirv-tools
     GIT_REPOSITORY https://github.com/google/shaderc.git
+    GIT_TAG origin/main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
