@@ -1,0 +1,22 @@
+From 6737c4d7d7acc8ce4808825a9e114a7512d6e992 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 21 Jun 2020 22:47:34 +0800
+Subject: [PATCH] add -DFRIBIDI_LIB_STATIC in .pc file
+
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 7c11f13..4707014 100644
+--- a/meson.build
++++ b/meson.build
+@@ -105,4 +105,5 @@ pkg.generate(name: 'GNU FriBidi',
+   description: 'Unicode Bidirectional Algorithm Library',
+   libraries: libfribidi, 
+   subdirs: 'fribidi',
++  extra_cflags: '-DFRIBIDI_LIB_STATIC',
+   version: meson.project_version())
+-- 
+2.27.0
+
