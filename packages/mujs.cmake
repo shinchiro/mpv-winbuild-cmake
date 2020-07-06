@@ -7,7 +7,6 @@ prefix=${MINGW_INSTALL_PREFIX}")
 
 ExternalProject_Add(mujs
     GIT_REPOSITORY https://github.com/ccxvii/mujs.git
-    GIT_TAG 1.0.7
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} ${flag} build/release/libmujs.a build/release/mujs.pc
