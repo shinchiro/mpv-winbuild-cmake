@@ -1,6 +1,6 @@
-From 54701b0f1455838922f9c98a1344ecda1c778f44 Mon Sep 17 00:00:00 2001
+From 643583ce3f9fd0f1456ac9d63d3610e4035d714e Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Mon, 4 Dec 2017 20:02:55 +0800
+Date: Sun, 2 Aug 2020 07:57:24 +0800
 Subject: [PATCH] skip compiling testsuite and examples
 
 ---
@@ -8,12 +8,12 @@ Subject: [PATCH] skip compiling testsuite and examples
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 6a0c13e..b0ce215 100644
+index c73a9e0..73a804d 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -17,7 +17,7 @@ OPT_HOGWEED_OBJS = @OPT_HOGWEED_OBJS@
+@@ -19,7 +19,7 @@ OPT_NETTLE_SOURCES = @OPT_NETTLE_SOURCES@
  
- OPT_NETTLE_SOURCES = @OPT_NETTLE_SOURCES@
+ FAT_TEST_LIST = @FAT_TEST_LIST@
  
 -SUBDIRS = tools testsuite examples
 +SUBDIRS = tools
@@ -21,5 +21,5 @@ index 6a0c13e..b0ce215 100644
  include config.make
  
 -- 
-2.14.2
+2.27.0
 
