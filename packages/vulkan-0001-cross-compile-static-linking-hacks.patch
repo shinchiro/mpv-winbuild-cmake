@@ -1,6 +1,6 @@
-From e522a75aa779a72729ac2df22180090b6b9b17a4 Mon Sep 17 00:00:00 2001
+From 878742e1d49efa7825ebc97c1370d074e411e9f4 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 31 May 2020 11:50:31 +0800
+Date: Sun, 16 Aug 2020 13:52:15 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -13,10 +13,10 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  6 files changed, 37 insertions(+), 15 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 67277aa..1c066d0 100644
+index d0541b1..db2ff9e 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -61,7 +61,7 @@ endif()
+@@ -65,7 +65,7 @@ endif()
  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
  
@@ -25,7 +25,7 @@ index 67277aa..1c066d0 100644
      # Use static MSVCRT libraries
      foreach(configuration
              in
-@@ -128,7 +128,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -132,7 +132,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -34,16 +34,16 @@ index 67277aa..1c066d0 100644
      enable_language(ASM_MASM)
      if(CMAKE_ASM_MASM_COMPILER_WORKS)
          if(NOT CMAKE_CL_64)
-@@ -178,7 +178,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -182,7 +182,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
 -if(WIN32)
 +if(MSVC)
-     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c dxgi_loader.c)
+     add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -223,17 +223,15 @@ else()
+@@ -227,17 +227,15 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -52,7 +52,7 @@ index 67277aa..1c066d0 100644
 -    else()
 -        add_library(vulkan SHARED ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
 -    endif()
-+    add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS} dxgi_loader.c)
++    add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
      add_dependencies(vulkan loader_asm_gen_files)
 +    if (NOT ENABLE_STATIC_LOADER)
      set_target_properties(vulkan
@@ -64,7 +64,7 @@ index 67277aa..1c066d0 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
      target_link_libraries(vulkan Vulkan::Headers)
      if(APPLE)
-@@ -296,9 +294,7 @@ else()
+@@ -300,9 +298,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -76,10 +76,10 @@ index 67277aa..1c066d0 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index d17c358..2e1825f 100644
+index ca6fda9..2f65d8e 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -683,6 +683,10 @@ out:
+@@ -691,6 +691,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -90,7 +90,7 @@ index d17c358..2e1825f 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7591,7 +7595,7 @@ out:
+@@ -7864,7 +7868,7 @@ out:
      return result;
  }
  
@@ -100,10 +100,10 @@ index d17c358..2e1825f 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 7f29ab6..d29703c 100644
+index 621eb0b..a3c1f6b 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
-@@ -422,6 +422,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
+@@ -428,6 +428,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
  // Global variables used across files
  extern struct loader_struct loader;
  extern THREAD_LOCAL_DECL struct loader_instance *tls_instance;
@@ -131,10 +131,10 @@ index 18eb5e6..cdb9793 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index f1b7ad2..b8e02bc 100644
+index e227bf0..b7664f5 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -359,9 +359,25 @@ typedef HANDLE loader_platform_thread;
+@@ -368,9 +368,25 @@ typedef HANDLE loader_platform_thread;
  // The once init functionality is not used when building a DLL on Windows. This is because there is no way to clean up the
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
@@ -174,5 +174,5 @@ index 2ce5aea..6e89703 100644
  
  Name: @CMAKE_PROJECT_NAME@
 -- 
-2.17.1
+2.27.0
 
