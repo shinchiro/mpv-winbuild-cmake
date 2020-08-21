@@ -1,18 +1,19 @@
-From 16e2d84cfd5d49249ef38682285e9ad70be5e3e1 Mon Sep 17 00:00:00 2001
+From 01872a956d8bc077bdcded88edceed3c505887ea Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Wed, 29 Apr 2020 20:42:38 +0800
+Date: Fri, 21 Aug 2020 19:45:01 +0800
 Subject: [PATCH] megacli: remove warn & never print file attributes
 
 ---
- examples/megacli.cpp | 6 ------
- src/http.cpp         | 1 -
- 2 files changed, 7 deletions(-)
+ examples/megacli.cpp      | 6 ------
+ include/mega/filesystem.h | 2 +-
+ src/http.cpp              | 1 -
+ 3 files changed, 1 insertion(+), 8 deletions(-)
 
 diff --git a/examples/megacli.cpp b/examples/megacli.cpp
-index 9f0a3fb61..916952679 100644
+index 7d77e10a7..454aba86a 100644
 --- a/examples/megacli.cpp
 +++ b/examples/megacli.cpp
-@@ -1799,12 +1799,6 @@ static void dumptree(Node* n, bool recurse, int depth, const char* title, ofstre
+@@ -1858,12 +1858,6 @@ static void dumptree(Node* n, bool recurse, int depth, const char* title, ofstre
                      stream << " " << handlestr.chars;
                  }
  
@@ -25,8 +26,21 @@ index 9f0a3fb61..916952679 100644
                  if (n->plink)
                  {
                      stream << ", shared as exported";
+diff --git a/include/mega/filesystem.h b/include/mega/filesystem.h
+index 1f36b7d04..6358dec68 100644
+--- a/include/mega/filesystem.h
++++ b/include/mega/filesystem.h
+@@ -33,7 +33,7 @@
+ #include <sys/param.h>
+ #elif defined(_WIN32) || defined(WINDOWS_PHONE)
+ #include <winsock2.h>
+-#include <Windows.h>
++#include <windows.h>
+ #endif
+ 
+ #include "types.h"
 diff --git a/src/http.cpp b/src/http.cpp
-index 2331bb60d..74fb7a9ed 100644
+index c6321a9ad..ff53d6ee3 100644
 --- a/src/http.cpp
 +++ b/src/http.cpp
 @@ -340,7 +340,6 @@ void HttpReq::post(MegaClient* client, const char* data, unsigned len)
@@ -38,5 +52,5 @@ index 2331bb60d..74fb7a9ed 100644
          init();
      }
 -- 
-2.17.1
+2.27.0
 
