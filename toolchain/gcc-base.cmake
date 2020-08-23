@@ -13,8 +13,8 @@ ExternalProject_Add(gcc-base
     STAMP_DIR gcc-prefix/src/gcc-stamp
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
-    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/10-20200725/gcc-10-20200725.tar.xz
-    URL_HASH SHA512=df5528008918d5374d1ad8d49932785f9d6847cb050ee24d5c3be35d5c33600aa94788f7a1943f5e37f3ee3bae91747047c46b7c22d0751a385f15252e2d4174
+    URL ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/10-20200822/gcc-10-20200822.tar.xz
+    URL_HASH SHA512=bedcba6cc049007ff3874c84a359f6d678cb38e28000cdb06b729293e697aab01f5e6f670222c37aecdc797d5a84691499e1b46eb5983ca539494a7eb37cbf94
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
