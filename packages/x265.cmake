@@ -7,7 +7,6 @@ endif()
 
 ExternalProject_Add(x265-base
     GIT_REPOSITORY https://bitbucket.org/multicoreware/x265_git.git
-    GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
