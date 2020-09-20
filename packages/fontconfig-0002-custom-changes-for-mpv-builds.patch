@@ -1,6 +1,6 @@
-From 9a17cadaa905b8866ef8c8e0ca09fb37dcb53b9d Mon Sep 17 00:00:00 2001
+From d536009803d37608e4ac85966e6a55c9812aa1ba Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 3 Jan 2020 23:02:52 +0800
+Date: Sun, 20 Sep 2020 10:44:07 +0800
 Subject: [PATCH] Custom changes for mpv builds
 
 Based on original lachs0r's patch for fontconfig
@@ -10,10 +10,10 @@ Based on original lachs0r's patch for fontconfig
  2 files changed, 59 insertions(+), 12 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index 693c845..6addf48 100644
+index 06644a0..26ffa69 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
-@@ -69,18 +69,9 @@ FcFileScanFontConfig (FcFontSet		*set,
+@@ -72,18 +72,9 @@ FcFileScanFontConfig (FcFontSet		*set,
      int		old_nfont = set->nfont;
      const FcChar8 *sysroot = FcConfigGetSysRoot (config);
  
@@ -32,18 +32,18 @@ index 693c845..6addf48 100644
      for (i = old_nfont; i < set->nfont; i++)
      {
  	FcPattern *font = set->fonts[i];
-@@ -221,8 +212,8 @@ FcDirScanConfig (FcFontSet	*set,
-     base = file + strlen ((char *) file);
+@@ -236,8 +227,8 @@ FcDirScanConfig (FcFontSet	*set,
+     }
  
      if (FcDebug () & FC_DBG_SCAN)
--	printf ("\tScanning dir %s\n", dir);
+-	printf ("\tScanning dir %s\n", s_dir);
 -	
 +	fprintf (stderr, "[fontconfig] Scanning dir %s\n", dir);
 +
-     d = opendir ((char *) dir);
+     d = opendir ((char *) s_dir);
      if (!d)
      {
-@@ -258,8 +249,29 @@ FcDirScanConfig (FcFontSet	*set,
+@@ -273,8 +264,29 @@ FcDirScanConfig (FcFontSet	*set,
      /*
       * Scan file files to build font patterns
       */
@@ -75,7 +75,7 @@ index 693c845..6addf48 100644
  bail2:
      FcStrSetDestroy (files);
 diff --git a/src/fcinit.c b/src/fcinit.c
-index 6f82ebd..3202a2c 100644
+index 99df9b4..318d57b 100644
 --- a/src/fcinit.c
 +++ b/src/fcinit.c
 @@ -35,6 +35,12 @@
@@ -91,7 +91,7 @@ index 6f82ebd..3202a2c 100644
  static FcConfig *
  FcInitFallbackConfig (const FcChar8 *sysroot)
  {
-@@ -52,12 +58,41 @@ FcInitFallbackConfig (const FcChar8 *sysroot)
+@@ -53,12 +59,41 @@ FcInitFallbackConfig (const FcChar8 *sysroot)
      config = FcConfigCreate ();
      if (!config)
  	goto bail0;
@@ -134,5 +134,5 @@ index 6f82ebd..3202a2c 100644
      FcConfigDestroy (config);
  bail0:
 -- 
-2.17.1
+2.27.0
 
