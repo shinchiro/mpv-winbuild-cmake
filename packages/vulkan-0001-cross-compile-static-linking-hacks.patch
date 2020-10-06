@@ -1,4 +1,4 @@
-From 878742e1d49efa7825ebc97c1370d074e411e9f4 Mon Sep 17 00:00:00 2001
+From ad71528392fc228146db4f8afdd5302191d2addc Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sun, 16 Aug 2020 13:52:15 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -13,7 +13,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  6 files changed, 37 insertions(+), 15 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index d0541b1..db2ff9e 100644
+index f16c014ed..c9660eb06 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -65,7 +65,7 @@ endif()
@@ -31,10 +31,10 @@ index d0541b1..db2ff9e 100644
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
 -if(WIN32)
 +if(MSVC)
-     enable_language(ASM_MASM)
-     if(CMAKE_ASM_MASM_COMPILER_WORKS)
-         if(NOT CMAKE_CL_64)
-@@ -182,7 +182,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+     if(MINGW)
+         find_program(JWASM_FOUND jwasm)
+         if (JWASM_FOUND)
+@@ -198,7 +198,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
@@ -43,7 +43,7 @@ index d0541b1..db2ff9e 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -227,17 +227,15 @@ else()
+@@ -243,17 +243,15 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -64,7 +64,7 @@ index d0541b1..db2ff9e 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
      target_link_libraries(vulkan Vulkan::Headers)
      if(APPLE)
-@@ -300,9 +298,7 @@ else()
+@@ -316,9 +314,7 @@ else()
          include(FindPkgConfig QUIET)
          if(PKG_CONFIG_FOUND)
              set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -76,10 +76,10 @@ index d0541b1..db2ff9e 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index ca6fda9..2f65d8e 100644
+index 509f2f420..f972669d8 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -691,6 +691,10 @@ out:
+@@ -694,6 +694,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -90,7 +90,7 @@ index ca6fda9..2f65d8e 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7864,7 +7868,7 @@ out:
+@@ -7851,7 +7855,7 @@ out:
      return result;
  }
  
@@ -100,7 +100,7 @@ index ca6fda9..2f65d8e 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 621eb0b..a3c1f6b 100644
+index 621eb0be3..a3c1f6b63 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -428,6 +428,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
@@ -114,7 +114,7 @@ index 621eb0b..a3c1f6b 100644
  extern loader_platform_thread_mutex loader_json_lock;
  extern loader_platform_thread_mutex loader_preload_icd_lock;
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 18eb5e6..cdb9793 100755
+index 18eb5e6c1..cdb9793c1 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -131,7 +131,7 @@ index 18eb5e6..cdb9793 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index e227bf0..b7664f5 100644
+index e227bf07b..b7664f50a 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -368,9 +368,25 @@ typedef HANDLE loader_platform_thread;
@@ -161,7 +161,7 @@ index e227bf0..b7664f5 100644
  // Thread IDs:
  typedef DWORD loader_platform_thread_id;
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea..6e89703 100644
+index 2ce5aea43..6e897033f 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
 @@ -1,6 +1,6 @@
