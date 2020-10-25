@@ -1,6 +1,6 @@
-From ad71528392fc228146db4f8afdd5302191d2addc Mon Sep 17 00:00:00 2001
+From 80689ef269323f96c305ca828d090e0300f8c930 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 16 Aug 2020 13:52:15 +0800
+Date: Sun, 25 Oct 2020 10:22:39 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -9,11 +9,10 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  loader/loader.h             |  3 +++
  loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h | 16 ++++++++++++++++
- loader/vulkan.pc.in         |  4 ++--
- 6 files changed, 37 insertions(+), 15 deletions(-)
+ 5 files changed, 35 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index f16c014ed..c9660eb06 100644
+index 7341403..d460e5c 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -65,7 +65,7 @@ endif()
@@ -76,10 +75,10 @@ index f16c014ed..c9660eb06 100644
              install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
          endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 509f2f420..f972669d8 100644
+index 7c7e1cd..658416e 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -694,6 +694,10 @@ out:
+@@ -696,6 +696,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -90,7 +89,7 @@ index 509f2f420..f972669d8 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7851,7 +7855,7 @@ out:
+@@ -7865,7 +7869,7 @@ out:
      return result;
  }
  
@@ -100,7 +99,7 @@ index 509f2f420..f972669d8 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 621eb0be3..a3c1f6b63 100644
+index 621eb0b..a3c1f6b 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -428,6 +428,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
@@ -114,7 +113,7 @@ index 621eb0be3..a3c1f6b63 100644
  extern loader_platform_thread_mutex loader_json_lock;
  extern loader_platform_thread_mutex loader_preload_icd_lock;
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 18eb5e6c1..cdb9793c1 100755
+index 18eb5e6..cdb9793 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -131,10 +130,10 @@ index 18eb5e6c1..cdb9793c1 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index e227bf07b..b7664f50a 100644
+index abf078c..36698f7 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -368,9 +368,25 @@ typedef HANDLE loader_platform_thread;
+@@ -392,9 +392,25 @@ typedef HANDLE loader_platform_thread;
  // The once init functionality is not used when building a DLL on Windows. This is because there is no way to clean up the
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
@@ -160,19 +159,6 @@ index e227bf07b..b7664f50a 100644
  
  // Thread IDs:
  typedef DWORD loader_platform_thread_id;
-diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 2ce5aea43..6e897033f 100644
---- a/loader/vulkan.pc.in
-+++ b/loader/vulkan.pc.in
-@@ -1,6 +1,6 @@
- prefix=@CMAKE_INSTALL_PREFIX@
--exec_prefix=@CMAKE_INSTALL_PREFIX@
--libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
-+exec_prefix=${prefix}
-+libdir=${exec_prefix}/lib
- includedir=${prefix}/include
- 
- Name: @CMAKE_PROJECT_NAME@
 -- 
 2.27.0
 
