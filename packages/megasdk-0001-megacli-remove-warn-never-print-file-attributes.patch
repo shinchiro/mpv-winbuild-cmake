@@ -1,19 +1,19 @@
-From 01872a956d8bc077bdcded88edceed3c505887ea Mon Sep 17 00:00:00 2001
-From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 21 Aug 2020 19:45:01 +0800
+From 45e6d25b66c94b594069d2fcab7dbb3b8da3fde1 Mon Sep 17 00:00:00 2001
+From: root <root@DESKTOP-GHVTBEO.localdomain>
+Date: Sun, 11 Oct 2020 19:30:12 +0800
 Subject: [PATCH] megacli: remove warn & never print file attributes
 
 ---
- examples/megacli.cpp      | 6 ------
- include/mega/filesystem.h | 2 +-
- src/http.cpp              | 1 -
+ examples/megacli.cpp | 6 ------
+ src/http.cpp         | 1 -
+ src/win32/fs.cpp     | 2 +-
  3 files changed, 1 insertion(+), 8 deletions(-)
 
 diff --git a/examples/megacli.cpp b/examples/megacli.cpp
-index 7d77e10a7..454aba86a 100644
+index 419bbb5a0..a79efffe7 100644
 --- a/examples/megacli.cpp
 +++ b/examples/megacli.cpp
-@@ -1858,12 +1858,6 @@ static void dumptree(Node* n, bool recurse, int depth, const char* title, ofstre
+@@ -1872,12 +1872,6 @@ static void dumptree(Node* n, bool recurse, int depth, const char* title, ofstre
                      stream << " " << handlestr.chars;
                  }
  
@@ -26,24 +26,11 @@ index 7d77e10a7..454aba86a 100644
                  if (n->plink)
                  {
                      stream << ", shared as exported";
-diff --git a/include/mega/filesystem.h b/include/mega/filesystem.h
-index 1f36b7d04..6358dec68 100644
---- a/include/mega/filesystem.h
-+++ b/include/mega/filesystem.h
-@@ -33,7 +33,7 @@
- #include <sys/param.h>
- #elif defined(_WIN32) || defined(WINDOWS_PHONE)
- #include <winsock2.h>
--#include <Windows.h>
-+#include <windows.h>
- #endif
- 
- #include "types.h"
 diff --git a/src/http.cpp b/src/http.cpp
-index c6321a9ad..ff53d6ee3 100644
+index 1c7d61567..391849218 100644
 --- a/src/http.cpp
 +++ b/src/http.cpp
-@@ -340,7 +340,6 @@ void HttpReq::post(MegaClient* client, const char* data, unsigned len)
+@@ -388,7 +388,6 @@ void HttpReq::post(MegaClient* client, const char* data, unsigned len)
  {
      if (httpio)
      {
@@ -51,6 +38,19 @@ index c6321a9ad..ff53d6ee3 100644
          httpio->cancel(this);
          init();
      }
+diff --git a/src/win32/fs.cpp b/src/win32/fs.cpp
+index 590fb005c..d6abdcfd3 100644
+--- a/src/win32/fs.cpp
++++ b/src/win32/fs.cpp
+@@ -24,7 +24,7 @@
+ 
+ #if defined(_WIN32) || defined(WINDOWS_PHONE)
+ #include <winsock2.h>
+-#include <Windows.h>
++#include <windows.h>
+ #endif
+ 
+ namespace mega {
 -- 
 2.27.0
 
