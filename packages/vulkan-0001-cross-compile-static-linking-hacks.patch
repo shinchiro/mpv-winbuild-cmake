@@ -1,6 +1,6 @@
-From 80689ef269323f96c305ca828d090e0300f8c930 Mon Sep 17 00:00:00 2001
+From a5cc478bf502780e9e50f0cd138398e64d9b6ce1 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 25 Oct 2020 10:22:39 +0800
+Date: Sun, 1 Nov 2020 08:58:01 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 35 insertions(+), 13 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 7341403..d460e5c 100644
+index 6983c93..38e73d5 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -65,7 +65,7 @@ endif()
@@ -33,7 +33,7 @@ index 7341403..d460e5c 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -198,7 +198,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -201,7 +201,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index 7341403..d460e5c 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -243,17 +243,15 @@ else()
+@@ -246,17 +246,15 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -63,17 +63,17 @@ index 7341403..d460e5c 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
      target_link_libraries(vulkan Vulkan::Headers)
      if(APPLE)
-@@ -316,9 +314,7 @@ else()
-         include(FindPkgConfig QUIET)
-         if(PKG_CONFIG_FOUND)
-             set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
--            foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
--                set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
--            endforeach()
-+            set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
-             configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
-             install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-         endif()
+@@ -321,9 +319,7 @@ endif()
+ include(FindPkgConfig QUIET)
+ if(PKG_CONFIG_FOUND)
+     set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
+-    foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
+-        set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
+-    endforeach()
++    set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
+     configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
+     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+ endif()
 diff --git a/loader/loader.c b/loader/loader.c
 index 7c7e1cd..658416e 100644
 --- a/loader/loader.c
@@ -99,10 +99,10 @@ index 7c7e1cd..658416e 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 621eb0b..a3c1f6b 100644
+index 4779f8e..efec34b 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
-@@ -428,6 +428,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
+@@ -431,6 +431,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
  // Global variables used across files
  extern struct loader_struct loader;
  extern THREAD_LOCAL_DECL struct loader_instance *tls_instance;
