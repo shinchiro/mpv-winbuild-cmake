@@ -1,5 +1,5 @@
 From 45e6d25b66c94b594069d2fcab7dbb3b8da3fde1 Mon Sep 17 00:00:00 2001
-From: root <root@DESKTOP-GHVTBEO.localdomain>
+From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sun, 11 Oct 2020 19:30:12 +0800
 Subject: [PATCH] megacli: remove warn & never print file attributes
 
