@@ -1,18 +1,18 @@
-From a5cc478bf502780e9e50f0cd138398e64d9b6ce1 Mon Sep 17 00:00:00 2001
+From fc161190582b0b50468c5ec7976afc03cff6fc9c Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 1 Nov 2020 08:58:01 +0800
+Date: Sun, 22 Nov 2020 14:54:06 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 18 +++++++-----------
+ loader/CMakeLists.txt       | 21 +++++++--------------
  loader/loader.c             |  6 +++++-
  loader/loader.h             |  3 +++
  loader/loader.rc            |  5 ++++-
  loader/vk_loader_platform.h | 16 ++++++++++++++++
- 5 files changed, 35 insertions(+), 13 deletions(-)
+ 5 files changed, 35 insertions(+), 16 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6983c93..38e73d5 100644
+index 7cc5fd7..8fa87a4 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -65,7 +65,7 @@ endif()
@@ -63,19 +63,22 @@ index 6983c93..38e73d5 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
      target_link_libraries(vulkan Vulkan::Headers)
      if(APPLE)
-@@ -321,9 +319,7 @@ endif()
+@@ -321,12 +319,7 @@ endif()
  include(FindPkgConfig QUIET)
  if(PKG_CONFIG_FOUND)
      set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 -    foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
 -        set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
 -    endforeach()
+-    if(WIN32)
+-        set(LIB_SUFFIX "-1")
+-    endif ()
 +    set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 7c7e1cd..658416e 100644
+index 7ae2289..a33cfdc 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -696,6 +696,10 @@ out:
