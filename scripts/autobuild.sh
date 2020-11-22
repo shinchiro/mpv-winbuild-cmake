@@ -25,7 +25,11 @@ package() {
     local bit=$1
     local arch=$2
 
-    build $bit $arch
+    if [ -d $buildroot/build$bit/mpv-$arch* ] ; then
+        continue
+    else
+        build $bit $arch
+    fi
     zip $bit $arch
 }
 
