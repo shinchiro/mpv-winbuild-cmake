@@ -2,7 +2,7 @@
 set(PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR}/mpv-stable-prefix)
 file(WRITE ${PREFIX_DIR}/get_latest_tag.sh
 "#!/bin/bash
-tag=$(curl -sI https://github.com/mpv-player/mpv/releases/latest | grep 'Location' | sed 's#.*/##g' | tr -d '\r')
+tag=$(curl -sI https://github.com/mpv-player/mpv/releases/latest | grep 'location' | sed 's#.*/##g' | tr -d '\r')
 printf 'https://github.com/mpv-player/mpv/archive/%s.tar.gz' $tag")
 
 # Workaround since cmake dont allow you to change file permission easily
