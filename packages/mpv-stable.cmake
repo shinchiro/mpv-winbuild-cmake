@@ -51,7 +51,6 @@ ExternalProject_Add(mpv-stable
         --enable-javascript
         --enable-sdl2
         --enable-libarchive
-        --enable-libass
         --enable-libbluray
         --enable-dvdnav
         --enable-uchardet
