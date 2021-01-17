@@ -168,6 +168,8 @@ list(APPEND ep
     vapoursynth
     libbs2b
     libssh
+    libsdl2
+    libopenmpt
     ffmpeg
     angle-headers
     mujs
@@ -179,7 +181,6 @@ list(APPEND ep
     shaderc
     libplacebo
     curl
-    libsdl2
     mpv
     mpv-stable
     mpv-packaging

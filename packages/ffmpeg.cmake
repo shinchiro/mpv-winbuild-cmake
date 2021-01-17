@@ -26,6 +26,7 @@ ExternalProject_Add(ffmpeg
         xvidcore
         libxml2
         libmfx
+        libopenmpt
         aom
         dav1d
         vapoursynth
@@ -54,6 +55,7 @@ ExternalProject_Add(ffmpeg
         --enable-libfreetype
         --enable-libfribidi
         --enable-libmodplug
+        --enable-libopenmpt
         --enable-libmp3lame
         --enable-libopus
         --enable-libsoxr
