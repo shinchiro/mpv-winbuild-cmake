@@ -83,7 +83,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libmodplug (0.8.9.0)
     - libopenmpt (0.5.4)
     - libiconv (1.16)
-    - gmp (6.2.0)
+    - gmp (6.2.1)
     - vapoursynth (R52)
     - libsdl2 (2.0.14)
     - libressl (3.1.2)
