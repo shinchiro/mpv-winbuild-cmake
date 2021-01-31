@@ -1,6 +1,6 @@
-From ca542376ed5cc9064ed00cc70d1f002cfaa961f5 Mon Sep 17 00:00:00 2001
+From 6e4b78ed351370b7ddd3129c442d66c0371d15cd Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 20 Dec 2020 10:07:51 +0800
+Date: Sun, 31 Jan 2021 09:47:04 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 35 insertions(+), 16 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index ba9f460..b53a9c1 100644
+index db1ad78..fb4a921 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -65,7 +65,7 @@ endif()
@@ -60,10 +60,10 @@ index ba9f460..b53a9c1 100644
                                       VERSION
                                       "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
 +    endif()
-     target_link_libraries(vulkan ${CMAKE_DL_LIBS} pthread m)
-     target_link_libraries(vulkan Vulkan::Headers)
-     if(APPLE)
-@@ -323,12 +321,7 @@ endif()
+     target_link_libraries(vulkan ${CMAKE_DL_LIBS} m)
+     if (NOT ANDROID)
+         target_link_libraries(vulkan pthread)
+@@ -326,12 +324,7 @@ endif()
  include(FindPkgConfig QUIET)
  if(PKG_CONFIG_FOUND)
      set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -78,7 +78,7 @@ index ba9f460..b53a9c1 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index c1b4cc1..2f34096 100644
+index 5c88b22..9bd56db 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -695,6 +695,10 @@ out:
@@ -92,7 +92,7 @@ index c1b4cc1..2f34096 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7869,7 +7873,7 @@ out:
+@@ -7874,7 +7878,7 @@ out:
      return result;
  }
  
