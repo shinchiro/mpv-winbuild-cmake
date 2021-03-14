@@ -1,6 +1,6 @@
 ExternalProject_Add(binutils
-    URL https://ftp.gnu.org/gnu/binutils/binutils-2.35.1.tar.xz
-    URL_HASH SHA512=94ff72708403413b70b247f3af4099ebaa882b6659249869f1ed9941a0f1912e313f08357d470f9fd2359e7f5e5b0eb86285e5eaf883fa8187789d6b1bd304eb
+    URL https://ftp.gnu.org/gnu/binutils/binutils-2.36.1.tar.xz
+    URL_HASH SHA512=cc24590bcead10b90763386b6f96bb027d7594c659c2d95174a6352e8b98465a50ec3e4088d0da038428abe059bbc4ae5f37b269f31a40fc048072c8a234f4e9
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
