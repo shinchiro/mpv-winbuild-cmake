@@ -45,7 +45,6 @@ ExternalProject_Add(ffmpeg
         --enable-gpl
         --enable-version3
         --enable-nonfree
-        --enable-avresample
         --enable-postproc
         --enable-avisynth
         --enable-vapoursynth
