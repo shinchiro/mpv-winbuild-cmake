@@ -1,0 +1,31 @@
+From f57bf534da22998e52d48cff0ff2803cb95fe981 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 2 May 2021 10:03:38 +0800
+Subject: [PATCH] remove pkg-config detection
+
+For some reason, pkg-config detection failed on my system.
+---
+ loader/CMakeLists.txt | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
+index 11da2bf..ba0af76 100644
+--- a/loader/CMakeLists.txt
++++ b/loader/CMakeLists.txt
+@@ -326,13 +326,10 @@ else()
+ endif()
+ 
+ # Generate pkg-config file.
+-include(FindPkgConfig QUIET)
+-if(PKG_CONFIG_FOUND)
+     set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
+     set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
+     configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
+     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+-endif()
+ 
+ target_link_libraries(vulkan Vulkan::Headers)
+ add_library(Vulkan::Vulkan ALIAS vulkan)
+-- 
+2.31.1
+
