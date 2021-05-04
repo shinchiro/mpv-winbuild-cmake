@@ -1,3 +1,4 @@
+cmake_policy(SET CMP0114 OLD)
 function(extra_step _name)
     get_property(_build_in_source TARGET ${_name} PROPERTY _EP_BUILD_IN_SOURCE)
     get_property(_git_repository TARGET ${_name} PROPERTY _EP_GIT_REPOSITORY)
