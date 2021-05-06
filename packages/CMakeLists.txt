@@ -1,4 +1,7 @@
-cmake_policy(SET CMP0114 OLD)
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19.0")
+    cmake_policy(SET CMP0114 OLD)
+endif()
+
 function(extra_step _name)
     get_property(_build_in_source TARGET ${_name} PROPERTY _EP_BUILD_IN_SOURCE)
     get_property(_git_repository TARGET ${_name} PROPERTY _EP_GIT_REPOSITORY)
