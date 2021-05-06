@@ -159,6 +159,8 @@ After it done, you're ready to build mpv and all its dependencies:
 
 This will take a while (about ~10 minutes on my machine).
 
+On **WSL2**, you might see it stuck with 100% disk usage and never finished. To fix it, build package `shaderc`, `spirv-cross` and `harfbuzz` separately first before `mpv`.
+
 The final `build64` folder's size will be around ~3GB.
 
 ## Building Software (Second Time)
