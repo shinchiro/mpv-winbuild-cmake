@@ -94,7 +94,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl
+    pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2
 
     pip3 install rst2pdf mako
 
