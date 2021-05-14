@@ -46,12 +46,16 @@ endfunction()
 
 function(force_rebuild_git _name)
     get_property(git_tag TARGET ${_name} PROPERTY _EP_GIT_TAG)
-    if(NOT git_tag)
-      set(git_tag "@{u}")
-      set(pull COMMAND git pull)
+    get_property(git_remote_name TARGET ${_name} PROPERTY _EP_GIT_REMOTE_NAME)
+
+    if("${git_tag}" STREQUAL "")
+        set(git_tag "@{u}")
+        set(pull COMMAND git pull)
+    elseif(NOT "${git_remote_name}" STREQUAL "" AND NOT "${git_tag}" STREQUAL "")
+        set(pull COMMAND git pull ${git_remote_name} ${git_tag})
     else()
-      set(git_tag ${git_tag})
-      set(pull "")
+        # eg. commit hash
+        set(pull "")
     endif()
 
     if(ENABLE_VCS_UPDATES)
