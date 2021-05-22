@@ -1,7 +1,6 @@
 ExternalProject_Add(fribidi
     GIT_REPOSITORY https://github.com/fribidi/fribidi.git
     GIT_SHALLOW 1
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/fribidi-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
