@@ -1,6 +1,6 @@
-From 607f583b26adf08635b3b81661bdd6c42620d86a Mon Sep 17 00:00:00 2001
+From 878ee85a2008c8355e80ec759677bcf3f4398f6a Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 30 May 2021 18:18:18 +0800
+Date: Sun, 6 Jun 2021 08:45:26 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 35 insertions(+), 16 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index e01c973..2611b81 100644
+index 89e7032..aaab480 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -69,7 +69,7 @@ endif()
@@ -20,11 +20,11 @@ index e01c973..2611b81 100644
  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
  
 -if(WIN32)
-+if(MSVC)
++if(WIN32 AND NOT MINGW)
+     if(MSVC)
      # Use static MSVCRT libraries
      foreach(configuration
-             in
-@@ -139,7 +139,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -141,7 +141,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index e01c973..2611b81 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -208,7 +208,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -210,7 +210,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index e01c973..2611b81 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      # target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -255,17 +255,15 @@ else()
+@@ -265,17 +265,15 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -63,7 +63,7 @@ index e01c973..2611b81 100644
      target_link_libraries(vulkan ${CMAKE_DL_LIBS} m)
      if (NOT ANDROID)
          target_link_libraries(vulkan pthread)
-@@ -334,12 +332,7 @@ endif()
+@@ -344,12 +342,7 @@ endif()
  include(FindPkgConfig QUIET)
  if(PKG_CONFIG_FOUND)
      set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -78,7 +78,7 @@ index e01c973..2611b81 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index c3f482b..bfc22f8 100644
+index 8705734..61ad1d8 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
 @@ -711,6 +711,10 @@ out:
