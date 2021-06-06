@@ -23,6 +23,7 @@ ExternalProject_Add(mpv-packaging
     COMMAND chmod 755 ${PACKAGE}
     COMMAND ${PACKAGE} <SOURCE_DIR> ${CMAKE_BINARY_DIR} ${TARGET_CPU}
     BUILD_IN_SOURCE 1
+    BUILD_ALWAYS 1
 )
 
 extra_step(mpv-packaging)
