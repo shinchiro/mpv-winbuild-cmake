@@ -84,7 +84,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libopenmpt (0.5.4)
     - libiconv (1.16)
     - gmp (6.2.1)
-    - vapoursynth (R52)
+    - vapoursynth (R53)
     - libsdl2 (2.0.14)
     - libressl (3.1.2)
 
