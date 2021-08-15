@@ -1,5 +1,5 @@
 ExternalProject_Add(uchardet
-    GIT_REPOSITORY git://anongit.freedesktop.org/uchardet/uchardet
+    GIT_REPOSITORY https://gitlab.freedesktop.org/uchardet/uchardet.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CMAKE_ARGS
