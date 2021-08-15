@@ -1,6 +1,6 @@
-From 878ee85a2008c8355e80ec759677bcf3f4398f6a Mon Sep 17 00:00:00 2001
+From 2a591dbbcd34134ce347315fc67f8802b2a7d4f4 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 6 Jun 2021 08:45:26 +0800
+Date: Sun, 15 Aug 2021 16:54:08 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 35 insertions(+), 16 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 89e7032..aaab480 100644
+index 4f54c32..58cf722 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -69,7 +69,7 @@ endif()
@@ -42,7 +42,7 @@ index 89e7032..aaab480 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      # target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -265,17 +265,15 @@ else()
+@@ -258,11 +258,7 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -53,17 +53,25 @@ index 89e7032..aaab480 100644
 -    endif()
 +    add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
      add_dependencies(vulkan loader_asm_gen_files)
-+    if (NOT ENABLE_STATIC_LOADER)
-     set_target_properties(vulkan
-                           PROPERTIES SOVERSION
-                                      "1"
-                                      VERSION
-                                      "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
-+    endif()
-     target_link_libraries(vulkan ${CMAKE_DL_LIBS} m)
-     if (NOT ANDROID)
-         target_link_libraries(vulkan pthread)
-@@ -344,12 +342,7 @@ endif()
+     # set version based on VK_HEADER_VERSION used to generate the code
+     include(generated/loader_generated_header_version.cmake)
+@@ -309,6 +305,7 @@ else()
+         # https://forums.developer.apple.com/thread/65963
+ 
+ # cmake-format: off
++        if (NOT ENABLE_STATIC_LOADER)
+         set_target_properties(vulkan-framework PROPERTIES
+             OUTPUT_NAME vulkan
+             FRAMEWORK TRUE
+@@ -322,6 +319,7 @@ else()
+             PUBLIC_HEADER DESTINATION vulkan
+             FRAMEWORK DESTINATION loader
+         )
++        endif()
+ # cmake-format: on
+     endif()
+ 
+@@ -334,12 +332,7 @@ endif()
  include(FindPkgConfig QUIET)
  if(PKG_CONFIG_FOUND)
      set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
@@ -78,10 +86,10 @@ index 89e7032..aaab480 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index 8705734..61ad1d8 100644
+index e93bb51..60aa635 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -711,6 +711,10 @@ out:
+@@ -697,6 +697,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -92,7 +100,7 @@ index 8705734..61ad1d8 100644
  VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
                                        LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7901,7 +7905,7 @@ out:
+@@ -7872,7 +7876,7 @@ out:
      return result;
  }
  
@@ -102,10 +110,10 @@ index 8705734..61ad1d8 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 2182f18..86fb571 100644
+index 6cc0f83..a86dd25 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
-@@ -437,6 +437,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
+@@ -447,6 +447,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
  // Global variables used across files
  extern struct loader_struct loader;
  extern THREAD_LOCAL_DECL struct loader_instance *tls_instance;
@@ -116,7 +124,7 @@ index 2182f18..86fb571 100644
  extern loader_platform_thread_mutex loader_json_lock;
  extern loader_platform_thread_mutex loader_preload_icd_lock;
 diff --git a/loader/loader.rc b/loader/loader.rc
-index 18eb5e6..cdb9793 100755
+index a29c507..55235dd 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -133,7 +141,7 @@ index 18eb5e6..cdb9793 100755
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 437b3c3..0edce3d 100644
+index d9381c2..e773d91 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -416,9 +416,25 @@ typedef HANDLE loader_platform_thread;
@@ -163,5 +171,5 @@ index 437b3c3..0edce3d 100644
  // Thread IDs:
  typedef DWORD loader_platform_thread_id;
 -- 
-2.31.1
+2.32.0
 
