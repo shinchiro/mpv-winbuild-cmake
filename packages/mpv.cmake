@@ -33,6 +33,7 @@ ExternalProject_Add(mpv
         --enable-pdf-build
         --disable-manpage-build
         --enable-libmpv-shared
+        --enable-ffmpeg-strict-abi
         --enable-lua
         --enable-javascript
         --enable-sdl2
