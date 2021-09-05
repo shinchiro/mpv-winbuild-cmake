@@ -86,7 +86,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - gmp (6.2.1)
     - vapoursynth (R54)
     - libsdl2 (2.0.16)
-    - libressl (3.1.2)
+    - libressl (3.1.5)
 
 
 ## Setup Build Environment
