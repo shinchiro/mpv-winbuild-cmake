@@ -1,6 +1,6 @@
-From 2a591dbbcd34134ce347315fc67f8802b2a7d4f4 Mon Sep 17 00:00:00 2001
+From 759231579898a4c6a15c6010982e9e628f253faf Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 15 Aug 2021 16:54:08 +0800
+Date: Sun, 5 Sep 2021 22:19:29 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -86,10 +86,10 @@ index 4f54c32..58cf722 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.c b/loader/loader.c
-index e93bb51..60aa635 100644
+index 98fdde4..6fc9f10 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -697,6 +697,10 @@ out:
+@@ -699,6 +699,10 @@ out:
  //
  // *reg_data contains a string list of filenames as pointer.
  // When done using the returned string list, the caller should free the pointer.
@@ -97,10 +97,10 @@ index e93bb51..60aa635 100644
 +#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
 +#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
 +#endif
- VkResult loaderGetDeviceRegistryFiles(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
-                                       LPCSTR value_name) {
+ VkResult loader_get_device_registry_files(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
+                                           LPCSTR value_name) {
      static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7872,7 +7876,7 @@ out:
+@@ -7966,7 +7970,7 @@ out:
      return result;
  }
  
@@ -110,7 +110,7 @@ index e93bb51..60aa635 100644
      switch (reason) {
          case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 6cc0f83..a86dd25 100644
+index 7fcf04c..940ba5e 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -447,6 +447,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
@@ -171,5 +171,5 @@ index d9381c2..e773d91 100644
  // Thread IDs:
  typedef DWORD loader_platform_thread_id;
 -- 
-2.32.0
+2.33.0
 
