@@ -1,0 +1,28 @@
+From 6706bb6631a0c727e1bbcca5ef1aa2ca4eb4ff6d Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 12 Sep 2021 09:54:32 +0800
+Subject: [PATCH] avoid name collision
+
+---
+ src/misc.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/src/misc.c b/src/misc.c
+index 6472d58..b7c86a8 100644
+--- a/src/misc.c
++++ b/src/misc.c
+@@ -70,6 +70,11 @@
+ #include "libssh/misc.h"
+ #include "libssh/session.h"
+ 
++/*
++ * Avoid the collision with mingw
++ */
++#define gettimeofday ssh_gettimeofday
++
+ #ifdef HAVE_LIBGCRYPT
+ #define GCRYPT_STRING "/gnutls"
+ #else
+-- 
+2.33.0
+
