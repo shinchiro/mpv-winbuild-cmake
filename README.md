@@ -70,6 +70,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - fontconfig
     - libbs2b
     - libssh
+    - libsrt
 
 - Zip
     - expat (2.4.1)

@@ -175,6 +175,7 @@ list(APPEND ep
     libbs2b
     libssh
     libsdl2
+    libsrt
     libopenmpt
     ffmpeg
     angle-headers
