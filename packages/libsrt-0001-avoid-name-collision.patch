@@ -1,0 +1,31 @@
+From fc75c00465c548e8debb69a5ed7c845b4c7b8586 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 12 Sep 2021 09:19:38 +0800
+Subject: [PATCH] avoid name collision
+
+---
+ srtcore/md5.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/srtcore/md5.h b/srtcore/md5.h
+index f7402e7..8e39410 100644
+--- a/srtcore/md5.h
++++ b/srtcore/md5.h
+@@ -50,6 +50,14 @@
+ #ifndef md5_INCLUDED
+ #  define md5_INCLUDED
+ 
++/*
++ * To avoid the collision with libssh, lets
++ * rename the methods here with some defines
++ */
++#define md5_init srt_md5_init
++#define md5_append srt_md5_append
++#define md5_finish srt_md5_finish
++
+ /*
+  * This package supports both compile-time and run-time determination of CPU
+  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
+-- 
+2.33.0
+
