@@ -8,6 +8,7 @@ ExternalProject_Add(ffmpeg
         lame
         libressl
         libssh
+        libsrt
         libass
         libbluray
         libmodplug
