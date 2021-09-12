@@ -73,6 +73,7 @@ ExternalProject_Add(ffmpeg
         --enable-libxml2
         --enable-libmysofa
         --enable-libssh
+        --enable-libsrt
         --enable-libmfx
         --enable-cuda
         --enable-cuvid
