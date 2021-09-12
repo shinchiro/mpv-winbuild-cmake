@@ -1,30 +1,30 @@
-From 759231579898a4c6a15c6010982e9e628f253faf Mon Sep 17 00:00:00 2001
+From 0d00d7d83af45bf96cb4b320bbf473ffd62928cb Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 5 Sep 2021 22:19:29 +0800
+Date: Sun, 12 Sep 2021 11:22:05 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
  loader/CMakeLists.txt       | 21 +++++++--------------
- loader/loader.c             |  6 +++++-
  loader/loader.h             |  3 +++
  loader/loader.rc            |  5 ++++-
+ loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h | 16 ++++++++++++++++
- 5 files changed, 35 insertions(+), 16 deletions(-)
+ 5 files changed, 34 insertions(+), 15 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 4f54c32..58cf722 100644
+index 20361b3..5d2b40e 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -69,7 +69,7 @@ endif()
- set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG")
- set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+@@ -75,7 +75,7 @@ set(CMAKE_C_FLAGS_DEBUG
+ set(CMAKE_CXX_FLAGS_DEBUG
+         "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -DGIT_BRANCH_NAME=${GIT_BRANCH_NAME} -DGIT_TAG_INFO=${GIT_TAG_INFO}")
  
 -if(WIN32)
 +if(WIN32 AND NOT MINGW)
      if(MSVC)
      # Use static MSVCRT libraries
      foreach(configuration
-@@ -141,7 +141,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -145,7 +145,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index 4f54c32..58cf722 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -210,7 +210,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -214,7 +214,7 @@ else(UNIX AND NOT APPLE) # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index 4f54c32..58cf722 100644
      add_library(loader-norm OBJECT ${NORMAL_LOADER_SRCS} dirent_on_windows.c)
      # target_compile_options(loader-norm PUBLIC "$<$<CONFIG:DEBUG>:${LOCAL_C_FLAGS_DBG}>")
      target_compile_options(loader-norm PUBLIC ${MSVC_LOADER_COMPILE_OPTIONS})
-@@ -258,11 +258,7 @@ else()
+@@ -262,11 +262,7 @@ else()
          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-typedef-redefinition")
      endif()
  
@@ -53,9 +53,9 @@ index 4f54c32..58cf722 100644
 -    endif()
 +    add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
      add_dependencies(vulkan loader_asm_gen_files)
-     # set version based on VK_HEADER_VERSION used to generate the code
-     include(generated/loader_generated_header_version.cmake)
-@@ -309,6 +305,7 @@ else()
+     # set version based on LOADER_GENERATED_HEADER_VERSION used to generate the code
+     set_target_properties(vulkan
+@@ -317,6 +313,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -63,7 +63,7 @@ index 4f54c32..58cf722 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -322,6 +319,7 @@ else()
+@@ -330,6 +327,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -71,10 +71,10 @@ index 4f54c32..58cf722 100644
  # cmake-format: on
      endif()
  
-@@ -334,12 +332,7 @@ endif()
+@@ -342,12 +340,7 @@ endif()
  include(FindPkgConfig QUIET)
  if(PKG_CONFIG_FOUND)
-     set(VK_API_VERSION "${VulkanHeaders_VERSION_MAJOR}.${VulkanHeaders_VERSION_MINOR}.${VulkanHeaders_VERSION_PATCH}")
+     set(VK_API_VERSION "${LOADER_GENERATED_HEADER_VERSION}")
 -    foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
 -        set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
 -    endforeach()
@@ -85,46 +85,22 @@ index 4f54c32..58cf722 100644
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
-diff --git a/loader/loader.c b/loader/loader.c
-index 98fdde4..6fc9f10 100644
---- a/loader/loader.c
-+++ b/loader/loader.c
-@@ -699,6 +699,10 @@ out:
- //
- // *reg_data contains a string list of filenames as pointer.
- // When done using the returned string list, the caller should free the pointer.
-+#ifdef __MINGW32__
-+#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
-+#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
-+#endif
- VkResult loader_get_device_registry_files(const struct loader_instance *inst, char **reg_data, PDWORD reg_data_size,
-                                           LPCSTR value_name) {
-     static const wchar_t *softwareComponentGUID = L"{5c4c3332-344d-483c-8739-259e934c9cc8}";
-@@ -7966,7 +7970,7 @@ out:
-     return result;
- }
- 
--#if defined(_WIN32)
-+#if defined(_WIN32) && defined(LOADER_DYNAMIC_LIB)
- BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
-     switch (reason) {
-         case DLL_PROCESS_ATTACH:
 diff --git a/loader/loader.h b/loader/loader.h
-index 7fcf04c..940ba5e 100644
+index cfebfba..517b830 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
-@@ -447,6 +447,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
+@@ -65,6 +65,9 @@ static inline void loader_init_dispatch(void *obj, const void *data) {
+ }
+ 
  // Global variables used across files
- extern struct loader_struct loader;
- extern THREAD_LOCAL_DECL struct loader_instance *tls_instance;
 +#if defined(_WIN32) && !defined(LOADER_DYNAMIC_LIB)
 +extern LOADER_PLATFORM_THREAD_ONCE_DEFINITION(once_init);
 +#endif
+ extern struct loader_struct loader;
  extern loader_platform_thread_mutex loader_lock;
  extern loader_platform_thread_mutex loader_json_lock;
- extern loader_platform_thread_mutex loader_preload_icd_lock;
 diff --git a/loader/loader.rc b/loader/loader.rc
-index a29c507..55235dd 100755
+index f62a945..864453c 100755
 --- a/loader/loader.rc
 +++ b/loader/loader.rc
 @@ -42,8 +42,11 @@
@@ -140,11 +116,40 @@ index a29c507..55235dd 100755
  
  #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_BUILDNO
  
+diff --git a/loader/loader_windows.c b/loader/loader_windows.c
+index 62f67f3..afd7c18 100644
+--- a/loader/loader_windows.c
++++ b/loader/loader_windows.c
+@@ -47,6 +47,8 @@
+ #include <strsafe.h>
+ #ifdef __MINGW32__
+ #undef strcpy  // fix error with redfined strcpy when building with MinGW-w64
++#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
++#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
+ #endif
+ #include <dxgi1_6.h>
+ #include "adapters.h"
+@@ -86,6 +88,7 @@ void windows_initialization(void) {
+ #endif
+ }
+ 
++#if defined(LOADER_DYNAMIC_LIB)
+ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+     switch (reason) {
+         case DLL_PROCESS_ATTACH:
+@@ -102,6 +105,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+     }
+     return TRUE;
+ }
++#endif
+ 
+ bool windows_add_json_entry(const struct loader_instance *inst,
+                             char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index d9381c2..e773d91 100644
+index f603f19..a02e16e 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -416,9 +416,25 @@ typedef HANDLE loader_platform_thread;
+@@ -424,9 +424,25 @@ typedef HANDLE loader_platform_thread;
  // The once init functionality is not used when building a DLL on Windows. This is because there is no way to clean up the
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
