@@ -1,6 +1,6 @@
-From 1b5886e01a2d33204d34d917806b6f0b65d7a4ce Mon Sep 17 00:00:00 2001
+From 8875049d927ff422ca5e55f4cbd6c395fcbfb8b5 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 12 Sep 2021 11:11:26 +0800
+Date: Sun, 3 Oct 2021 11:23:03 +0800
 Subject: [PATCH] remove pkg-config detection
 
 ---
@@ -8,16 +8,19 @@ Subject: [PATCH] remove pkg-config detection
  1 file changed, 3 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 5d2b40e..9dcf7b5 100644
+index b26d667..b12a6b8 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -337,13 +337,10 @@ else()
+@@ -364,8 +364,6 @@ else()
  endif()
  
  # Generate pkg-config file.
 -include(FindPkgConfig QUIET)
 -if(PKG_CONFIG_FOUND)
      set(VK_API_VERSION "${LOADER_GENERATED_HEADER_VERSION}")
+     if(WIN32 AND NOT MINGW)
+         set(VULKAN_LIB_SUFFIX "-1")
+@@ -382,7 +380,6 @@ if(PKG_CONFIG_FOUND)
      set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
