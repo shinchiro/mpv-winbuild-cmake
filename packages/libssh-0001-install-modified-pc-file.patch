@@ -1,39 +1,28 @@
-From 2f104a4d88f1c5a8bf216d5f769cf3c676d26087 Mon Sep 17 00:00:00 2001
+From e3786bef288580efd5688c869f2c3ae9b25b621e Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 1 Mar 2020 00:21:37 +0800
+Date: Sun, 3 Oct 2021 11:36:34 +0800
 Subject: [PATCH] Install modified .pc file
 
 ---
- CMakeLists.txt  |  6 +++---
+ CMakeLists.txt  |  2 +-
  libssh.pc.cmake | 16 ++++++++++++----
- 2 files changed, 15 insertions(+), 7 deletions(-)
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index b333522..97c5928 100644
+index 32172d9..a295551 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -118,8 +118,8 @@ add_subdirectory(include)
- add_subdirectory(src)
+@@ -125,7 +125,7 @@ add_subdirectory(src)
  
  # pkg-config file
--if (UNIX)
+ if (UNIX OR MINGW)
 -configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc)
-+if (UNIX OR MINGW)
 +configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc @ONLY)
  install(
    FILES
      ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc
-@@ -128,7 +128,7 @@ install(
-   COMPONENT
-     pkgconfig
- )
--endif (UNIX)
-+endif (UNIX OR MINGW)
- 
- # CMake config files
- include(CMakePackageConfigHelpers)
 diff --git a/libssh.pc.cmake b/libssh.pc.cmake
-index b37cb3f..2962d16 100644
+index b37cb3f..2b2f25c 100644
 --- a/libssh.pc.cmake
 +++ b/libssh.pc.cmake
 @@ -1,6 +1,14 @@
@@ -56,5 +45,5 @@ index b37cb3f..2962d16 100644
 +Cflags: -I${includedir} -DLIBSSH_STATIC
  
 -- 
-2.17.1
+2.33.0
 
