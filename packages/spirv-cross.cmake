@@ -17,5 +17,11 @@ ExternalProject_Add(spirv-cross
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+ExternalProject_Add_Step(spirv-cross symlink
+    DEPENDEES install
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/spirv-cross-c-shared.pc
+                                               ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/spirv-cross.pc
+)
+
 force_rebuild_git(spirv-cross)
 extra_step(spirv-cross)
