@@ -1,4 +1,6 @@
 ExternalProject_Add(libsrt
+    DEPENDS
+        libressl
     GIT_REPOSITORY https://github.com/Haivision/srt.git
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
