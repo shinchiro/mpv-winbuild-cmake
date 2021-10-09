@@ -3,19 +3,17 @@ set(flag
 CC=${TARGET_ARCH}-gcc
 AR=${TARGET_ARCH}-ar
 RANLIB=${TARGET_ARCH}-ranlib
-prefix=${MINGW_INSTALL_PREFIX}")
+prefix=${MINGW_INSTALL_PREFIX}
+host=mingw")
 
 ExternalProject_Add(mujs
     GIT_REPOSITORY https://github.com/ccxvii/mujs.git
+    GIT_SHALLOW 1
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mujs-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE} ${flag} build/release/libmujs.a build/release/mujs.pc
-    INSTALL_COMMAND install -d ${MINGW_INSTALL_PREFIX}/include
-            COMMAND install -d ${MINGW_INSTALL_PREFIX}/lib
-            COMMAND install -d ${MINGW_INSTALL_PREFIX}/lib/pkgconfig
-            COMMAND install -m 644 mujs.h                  ${MINGW_INSTALL_PREFIX}/include
-            COMMAND install -m 644 build/release/libmujs.a ${MINGW_INSTALL_PREFIX}/lib
-            COMMAND install -m 644 build/release/mujs.pc   ${MINGW_INSTALL_PREFIX}/lib/pkgconfig
+    BUILD_COMMAND ${MAKE} ${flag}
+    INSTALL_COMMAND ${MAKE} ${flag} install
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

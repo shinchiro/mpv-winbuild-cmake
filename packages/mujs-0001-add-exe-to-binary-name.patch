@@ -1,0 +1,36 @@
+From 62a7dfb6df568ed1337c1288a13b2b2d7b4c0ec4 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 10 Oct 2021 00:03:25 +0800
+Subject: [PATCH] Add .exe to binary name
+
+---
+ Makefile | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index 896c510..da45721 100644
+--- a/Makefile
++++ b/Makefile
+@@ -42,6 +42,10 @@ ifeq "$(HAVE_READLINE)" "yes"
+   LIBREADLINE += -lreadline
+ endif
+ 
++ifeq "$(host)" "mingw"
++  EXT := .exe
++endif
++
+ CFLAGS += $(XCFLAGS)
+ CPPFLAGS += $(XCPPFLAGS)
+ 
+@@ -112,7 +116,7 @@ install-common: $(OUT)/mujs $(OUT)/mujs.pc
+ 	install -d $(DESTDIR)$(bindir)
+ 	install -m 644 mujs.h $(DESTDIR)$(incdir)
+ 	install -m 644 $(OUT)/mujs.pc $(DESTDIR)$(libdir)/pkgconfig
+-	install -m 755 $(OUT)/mujs $(DESTDIR)$(bindir)
++	install -m 755 $(OUT)/mujs$(EXT) $(DESTDIR)$(bindir)
+ 
+ install-static: install-common $(OUT)/libmujs.a
+ 	install -m 644 $(OUT)/libmujs.a $(DESTDIR)$(libdir)
+-- 
+2.33.0
+
