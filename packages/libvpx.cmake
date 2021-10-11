@@ -21,7 +21,7 @@ ExternalProject_Add(libvpx
         --as=yasm
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
-    COMMAND ${EXEC} ${TARGET_ARCH}-ranlib ${MINGW_INSTALL_PREFIX}/lib/libvpx.a
+            COMMAND ${EXEC} ${TARGET_ARCH}-ranlib ${MINGW_INSTALL_PREFIX}/lib/libvpx.a
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
