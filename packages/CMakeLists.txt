@@ -39,12 +39,14 @@ function(cleanup _name _last_step)
         set(remove_cmd "rm -rf <SOURCE_DIR> <BINARY_DIR>")
     endif()
 
-    ExternalProject_Add_Step(${_name} postremovebuild
-        DEPENDEES ${_last_step}
-        COMMAND ${EXEC} ${remove_cmd}
-        LOG 1
-        COMMENT "Deleting build directory of ${_name} package after install"
-    )
+    if(ALWAYS_REMOVE_BUILDFILES)
+        ExternalProject_Add_Step(${_name} postremovebuild
+            DEPENDEES ${_last_step}
+            COMMAND ${EXEC} ${remove_cmd}
+            LOG 1
+            COMMENT "Deleting build directory of ${_name} package after install"
+        )
+    endif()
 
     ExternalProject_Add_Step(${_name} removebuild
         DEPENDEES fullclean
