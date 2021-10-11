@@ -18,3 +18,4 @@ ExternalProject_Add(xz
 force_rebuild_git(xz)
 extra_step(xz)
 autogen(xz)
+cleanup(xz install)

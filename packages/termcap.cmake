@@ -17,3 +17,4 @@ ExternalProject_Add(termcap
 )
 
 extra_step(termcap)
+cleanup(termcap install)

@@ -70,3 +70,4 @@ ExternalProject_Add_Step(vapoursynth manual-install
 )
 
 extra_step(vapoursynth)
+cleanup(vapoursynth manual-install)

@@ -17,3 +17,4 @@ ExternalProject_Add(libopusenc
 
 force_rebuild_git(libopusenc)
 extra_step(libopusenc)
+cleanup(libopusenc install)

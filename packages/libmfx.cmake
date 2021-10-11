@@ -15,3 +15,4 @@ ExternalProject_Add(libmfx
 force_rebuild_git(libmfx)
 extra_step(libmfx)
 autoreconf(libmfx)
+cleanup(libmfx install)

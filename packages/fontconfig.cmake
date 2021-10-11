@@ -24,3 +24,4 @@ ExternalProject_Add(fontconfig
 force_rebuild_git(fontconfig)
 extra_step(fontconfig)
 autogen(fontconfig)
+cleanup(fontconfig install)

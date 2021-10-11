@@ -19,3 +19,4 @@ ExternalProject_Add(libxml2
 force_rebuild_git(libxml2)
 autogen(libxml2)
 extra_step(libxml2)
+cleanup(libxml2 install)

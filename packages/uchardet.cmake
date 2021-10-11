@@ -17,3 +17,4 @@ ExternalProject_Add(uchardet
 
 force_rebuild_git(uchardet)
 extra_step(uchardet)
+cleanup(uchardet install)

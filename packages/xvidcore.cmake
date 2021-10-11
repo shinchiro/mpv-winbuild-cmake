@@ -31,3 +31,4 @@ if(${TARGET_CPU} MATCHES "x86_64")
 endif()
 
 extra_step(xvidcore)
+cleanup(xvidcore install)

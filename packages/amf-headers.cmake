@@ -9,3 +9,4 @@ ExternalProject_Add(amf-headers
 )
 
 extra_step(amf-headers)
+cleanup(amf-headers install)

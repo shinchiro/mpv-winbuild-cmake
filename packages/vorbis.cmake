@@ -13,3 +13,4 @@ ExternalProject_Add(vorbis
 )
 
 extra_step(vorbis)
+cleanup(vorbis install)

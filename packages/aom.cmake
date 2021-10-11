@@ -23,3 +23,4 @@ ExternalProject_Add(aom
 
 force_rebuild_git(aom)
 extra_step(aom)
+cleanup(aom install)

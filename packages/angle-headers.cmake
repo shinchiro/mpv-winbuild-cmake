@@ -9,3 +9,4 @@ ExternalProject_Add(angle-headers
 )
 
 extra_step(angle-headers)
+cleanup(angle-headers install)

@@ -13,3 +13,4 @@ ExternalProject_Add(libsdl2
 
 autogen(libsdl2)
 extra_step(libsdl2)
+cleanup(libsdl2 install)

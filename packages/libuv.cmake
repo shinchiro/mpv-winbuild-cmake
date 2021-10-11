@@ -13,3 +13,4 @@ ExternalProject_Add(libuv
 
 autogen(libuv)
 extra_step(libuv)
+cleanup(libuv install)

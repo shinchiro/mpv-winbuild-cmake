@@ -35,3 +35,4 @@ ExternalProject_Add(megasdk
 force_rebuild_git(megasdk)
 autogen(megasdk)
 extra_step(megasdk)
+cleanup(megasdk install)

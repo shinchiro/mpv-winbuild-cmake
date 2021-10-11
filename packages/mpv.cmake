@@ -115,3 +115,4 @@ ExternalProject_Add_Step(mpv copy-package-dir
 
 force_rebuild_git(mpv)
 extra_step(mpv)
+cleanup(mpv copy-package-dir)

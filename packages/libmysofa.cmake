@@ -16,3 +16,4 @@ ExternalProject_Add(libmysofa
 
 force_rebuild_git(libmysofa)
 extra_step(libmysofa)
+cleanup(libmysofa install)

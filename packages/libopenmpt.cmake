@@ -24,3 +24,4 @@ ExternalProject_Add(libopenmpt
 
 extra_step(libopenmpt)
 autoreconf(libopenmpt)
+cleanup(libopenmpt install)

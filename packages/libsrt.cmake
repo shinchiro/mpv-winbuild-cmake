@@ -21,3 +21,4 @@ ExternalProject_Add(libsrt
 
 force_rebuild_git(libsrt)
 extra_step(libsrt)
+cleanup(libsrt install)

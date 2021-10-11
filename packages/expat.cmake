@@ -11,3 +11,4 @@ ExternalProject_Add(expat
 )
 
 extra_step(expat)
+cleanup(expat install)

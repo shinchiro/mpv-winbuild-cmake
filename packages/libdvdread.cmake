@@ -16,3 +16,4 @@ ExternalProject_Add(libdvdread
 force_rebuild_git(libdvdread)
 extra_step(libdvdread)
 autoreconf(libdvdread)
+cleanup(libdvdread install)

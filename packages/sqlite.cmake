@@ -14,3 +14,4 @@ ExternalProject_Add(sqlite
 
 autoreconf(sqlite)
 extra_step(sqlite)
+cleanup(sqlite install)

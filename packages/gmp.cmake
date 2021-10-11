@@ -13,3 +13,4 @@ ExternalProject_Add(gmp
 )
 
 extra_step(gmp)
+cleanup(gmp install)

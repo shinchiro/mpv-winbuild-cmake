@@ -19,3 +19,4 @@ ExternalProject_Add(mujs
 
 force_rebuild_git(mujs)
 extra_step(mujs)
+cleanup(mujs install)

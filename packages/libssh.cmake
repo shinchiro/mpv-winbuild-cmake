@@ -24,3 +24,4 @@ ExternalProject_Add(libssh
 
 force_rebuild_git(libssh)
 extra_step(libssh)
+cleanup(libssh install)

@@ -15,3 +15,4 @@ ExternalProject_Add(lame
 force_rebuild_git(lame)
 extra_step(lame)
 autoreconf(lame)
+cleanup(lame install)

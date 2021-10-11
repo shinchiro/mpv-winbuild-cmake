@@ -44,3 +44,4 @@ ExternalProject_Add_Step(vulkan copy-wdk-headers
 
 force_rebuild_git(vulkan)
 extra_step(vulkan)
+cleanup(vulkan install)
