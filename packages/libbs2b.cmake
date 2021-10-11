@@ -16,3 +16,4 @@ ExternalProject_Add(libbs2b
 force_rebuild_git(libbs2b)
 extra_step(libbs2b)
 autogen(libbs2b)
+cleanup(libbs2b install)

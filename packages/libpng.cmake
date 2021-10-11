@@ -18,3 +18,4 @@ ExternalProject_Add(libpng
 force_rebuild_git(libpng)
 extra_step(libpng)
 autoreconf(libpng)
+cleanup(libpng install)

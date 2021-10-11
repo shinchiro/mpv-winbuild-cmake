@@ -14,3 +14,4 @@ ExternalProject_Add(libwebp
 force_rebuild_git(libwebp)
 extra_step(libwebp)
 autogen(libwebp)
+cleanup(libwebp install)

@@ -20,3 +20,4 @@ ExternalProject_Add(x264
 
 force_rebuild_git(x264)
 extra_step(x264)
+cleanup(x264 install)

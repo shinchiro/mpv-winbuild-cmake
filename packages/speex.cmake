@@ -16,3 +16,4 @@ ExternalProject_Add(speex
 
 extra_step(speex)
 autoreconf(speex)
+cleanup(speex install)

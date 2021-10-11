@@ -18,3 +18,4 @@ ExternalProject_Add(libiconv
 )
 
 extra_step(libiconv)
+cleanup(libiconv install)

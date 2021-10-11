@@ -18,3 +18,4 @@ ExternalProject_Add(opus
 
 force_rebuild_git(opus)
 extra_step(opus)
+cleanup(opus install)

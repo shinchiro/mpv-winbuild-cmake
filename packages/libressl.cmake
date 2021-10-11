@@ -17,3 +17,4 @@ ExternalProject_Add(libressl
 
 autoreconf(libressl)
 extra_step(libressl)
+cleanup(libressl install)

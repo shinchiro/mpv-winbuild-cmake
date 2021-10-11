@@ -90,3 +90,4 @@ ExternalProject_Add(ffmpeg
 
 force_rebuild_git(ffmpeg)
 extra_step(ffmpeg)
+cleanup(ffmpeg install)

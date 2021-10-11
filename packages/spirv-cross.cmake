@@ -25,3 +25,4 @@ ExternalProject_Add_Step(spirv-cross symlink
 
 force_rebuild_git(spirv-cross)
 extra_step(spirv-cross)
+cleanup(spirv-cross install)

@@ -27,3 +27,4 @@ ExternalProject_Add(harfbuzz
 force_rebuild_git(harfbuzz)
 force_meson_configure(harfbuzz)
 extra_step(harfbuzz)
+cleanup(harfbuzz install)

@@ -12,3 +12,4 @@ ExternalProject_Add(zlib
 )
 
 extra_step(zlib)
+cleanup(zlib install)

@@ -15,3 +15,4 @@ ExternalProject_Add(libdvdcss
 force_rebuild_git(libdvdcss)
 extra_step(libdvdcss)
 autoreconf(libdvdcss)
+cleanup(libdvdcss install)

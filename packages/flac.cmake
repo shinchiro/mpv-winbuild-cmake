@@ -23,3 +23,4 @@ ExternalProject_Add(flac
 force_rebuild_git(flac)
 extra_step(flac)
 autogen(flac)
+cleanup(flac install)

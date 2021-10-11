@@ -10,3 +10,4 @@ ExternalProject_Add(spirv-tools
 
 force_rebuild_git(spirv-tools)
 extra_step(spirv-tools)
+cleanup(spirv-tools install)

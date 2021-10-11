@@ -13,3 +13,4 @@ ExternalProject_Add(libsodium
 
 autogen(libsodium)
 extra_step(libsodium)
+cleanup(libsodium install)

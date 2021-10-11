@@ -21,3 +21,4 @@ ExternalProject_Add(freetype2
 force_rebuild_git(freetype2)
 extra_step(freetype2)
 autogen(freetype2)
+cleanup(freetype2 install)

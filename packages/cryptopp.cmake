@@ -15,3 +15,4 @@ ExternalProject_Add(cryptopp
 )
 
 extra_step(cryptopp)
+cleanup(cryptopp install)

@@ -27,3 +27,4 @@ ExternalProject_Add(libvpx
 
 force_rebuild_git(libvpx)
 extra_step(libvpx)
+cleanup(libvpx install)

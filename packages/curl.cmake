@@ -17,6 +17,7 @@ ExternalProject_Add(curl
 force_rebuild_git(curl)
 autoreconf(curl)
 extra_step(curl)
+cleanup(curl install)
 
 # Download the cacert.pem file: https://curl.haxx.se/docs/caextract.html
 # Rename the cacert.pem file to curl-ca-bundle.crt

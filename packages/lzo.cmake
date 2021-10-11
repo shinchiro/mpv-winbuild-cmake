@@ -12,3 +12,4 @@ ExternalProject_Add(lzo
 )
 
 extra_step(lzo)
+cleanup(lzo install)

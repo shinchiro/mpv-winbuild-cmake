@@ -17,3 +17,4 @@ ExternalProject_Add(bzip2
 )
 
 extra_step(bzip2)
+cleanup(bzip2 install)

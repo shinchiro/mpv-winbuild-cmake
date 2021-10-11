@@ -10,3 +10,4 @@ ExternalProject_Add(spirv-headers
 
 force_rebuild_git(spirv-headers)
 extra_step(spirv-headers)
+cleanup(spirv-headers install)

@@ -17,3 +17,4 @@ ExternalProject_Add(nettle
 force_rebuild_git(nettle)
 autoreconf(nettle)
 extra_step(nettle)
+cleanup(nettle install)

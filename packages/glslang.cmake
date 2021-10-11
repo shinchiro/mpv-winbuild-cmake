@@ -10,3 +10,4 @@ ExternalProject_Add(glslang
 
 force_rebuild_git(glslang)
 extra_step(glslang)
+cleanup(glslang install)

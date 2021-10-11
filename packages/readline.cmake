@@ -17,3 +17,4 @@ ExternalProject_Add(readline
 )
 
 extra_step(readline)
+cleanup(readline install)

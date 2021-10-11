@@ -27,3 +27,4 @@ ExternalProject_Add(mpv-packaging
 )
 
 extra_step(mpv-packaging)
+cleanup(mpv-packaging install)

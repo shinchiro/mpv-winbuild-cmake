@@ -13,3 +13,4 @@ ExternalProject_Add(nvcodec-headers
 
 force_rebuild_git(nvcodec-headers)
 extra_step(nvcodec-headers)
+cleanup(nvcodec-headers install)

@@ -11,3 +11,4 @@ ExternalProject_Add(rubberband
 
 force_rebuild_git(rubberband)
 extra_step(rubberband)
+cleanup(rubberband install)

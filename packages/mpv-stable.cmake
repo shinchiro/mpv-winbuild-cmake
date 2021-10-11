@@ -110,3 +110,4 @@ ExternalProject_Add_Step(mpv-stable copy-package-dir
 )
 
 extra_step(mpv-stable)
+cleanup(mpv-stable copy-package-dir)

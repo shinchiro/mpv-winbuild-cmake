@@ -13,3 +13,4 @@ ExternalProject_Add(ogg
 
 extra_step(ogg)
 autoreconf(ogg)
+cleanup(ogg install)

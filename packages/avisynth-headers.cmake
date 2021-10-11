@@ -12,3 +12,4 @@ ExternalProject_Add(avisynth-headers
 )
 force_rebuild_git(avisynth-headers)
 extra_step(avisynth-headers)
+cleanup(avisynth-headers install)
