@@ -29,9 +29,6 @@ function(cleanup _name _last_step)
     if(_git_repository)
         if(_build_in_source)
             set(remove_cmd "git -C <SOURCE_DIR> clean -dfx")
-            if("${_name}" STREQUAL "mpv")
-                set(remove_cmd "${remove_cmd} -e /*waf*")
-            endif()
         else()
             set(remove_cmd "rm -rf <BINARY_DIR>")
         endif()
@@ -40,6 +37,10 @@ function(cleanup _name _last_step)
     endif()
 
     if(ALWAYS_REMOVE_BUILDFILES)
+        if("${_name}" STREQUAL "mpv")
+            set(remove_cmd "git -C <SOURCE_DIR> clean -dfx -e /*waf*")
+        endif()
+
         ExternalProject_Add_Step(${_name} postremovebuild
             DEPENDEES ${_last_step}
             COMMAND ${EXEC} ${remove_cmd}
