@@ -1,5 +1,5 @@
 # Make it fetch latest tarball release since I'm too lazy to manually change it
-set(PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR}/mpv-stable-prefix)
+set(PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR}/mpv-release-prefix)
 file(WRITE ${PREFIX_DIR}/get_latest_tag.sh
 "#!/bin/bash
 tag=$(curl -sI https://github.com/mpv-player/mpv/releases/latest | grep 'location: https://github.com/mpv-player/mpv/releases' | sed 's#.*/##g' | tr -d '\r')
@@ -13,7 +13,7 @@ file(COPY ${PREFIX_DIR}/get_latest_tag.sh
 execute_process(COMMAND ${PREFIX_DIR}/src/get_latest_tag.sh
                 OUTPUT_VARIABLE LINK)
 
-ExternalProject_Add(mpv-stable
+ExternalProject_Add(mpv-release
     DEPENDS
         angle-headers
         ffmpeg
@@ -67,7 +67,7 @@ ExternalProject_Add(mpv-stable
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(mpv-stable bootstrap
+ExternalProject_Add_Step(mpv-release bootstrap
     DEPENDEES download
     DEPENDERS configure
     COMMAND <SOURCE_DIR>/bootstrap.py
@@ -75,7 +75,7 @@ ExternalProject_Add_Step(mpv-stable bootstrap
     LOG 1
 )
 
-ExternalProject_Add_Step(mpv-stable strip-binary
+ExternalProject_Add_Step(mpv-release strip-binary
     DEPENDEES build
     COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --only-keep-debug <SOURCE_DIR>/build/mpv.exe <SOURCE_DIR>/build/mpv.debug
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <SOURCE_DIR>/build/mpv.exe
@@ -85,7 +85,7 @@ ExternalProject_Add_Step(mpv-stable strip-binary
     COMMENT "Stripping mpv binaries"
 )
 
-ExternalProject_Add_Step(mpv-stable copy-binary
+ExternalProject_Add_Step(mpv-release copy-binary
     DEPENDEES strip-binary
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.exe                     ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/build/mpv.com                     ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
@@ -101,7 +101,7 @@ cd $1
 TAG=$(cat VERSION)
 mv $2 $3/mpv-\${TAG}-$4")
 
-ExternalProject_Add_Step(mpv-stable copy-package-dir
+ExternalProject_Add_Step(mpv-release copy-package-dir
     DEPENDEES copy-binary
     COMMAND chmod 755 ${RENAME}
     COMMAND ${RENAME} <SOURCE_DIR> ${CMAKE_CURRENT_BINARY_DIR}/mpv-package ${CMAKE_BINARY_DIR} ${TARGET_CPU}
@@ -109,5 +109,5 @@ ExternalProject_Add_Step(mpv-stable copy-package-dir
     LOG 1
 )
 
-extra_step(mpv-stable)
-cleanup(mpv-stable copy-package-dir)
+extra_step(mpv-release)
+cleanup(mpv-release copy-package-dir)

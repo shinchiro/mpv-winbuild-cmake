@@ -200,7 +200,7 @@ list(APPEND ep
     libplacebo
     curl
     mpv
-    mpv-stable
+    mpv-release
     mpv-packaging
     flac
     opusfile
