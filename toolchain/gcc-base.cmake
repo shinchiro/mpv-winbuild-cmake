@@ -13,8 +13,8 @@ ExternalProject_Add(gcc-base
     STAMP_DIR gcc-prefix/src/gcc-stamp
     SOURCE_DIR gcc-prefix/src/gcc
     BINARY_DIR gcc-prefix/src/gcc-build
-    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-11.2.0/gcc-11.2.0.tar.xz
-    URL_HASH SHA512=d53a0a966230895c54f01aea38696f818817b505f1e2bfa65e508753fcd01b2aedb4a61434f41f3a2ddbbd9f41384b96153c684ded3f0fa97c82758d9de5c7cf
+    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/11-20211127/gcc-11-20211127.tar.xz
+    URL_HASH SHA512=ba0dad9073cd16fdaad5cc05c8ee637fa89f20dca4b0cdf256487e54fa6b88a5a759ae851b946e2122c60f28d295a4ee47bcca3dbcaedcb53bd8a66edd0f5b45
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
