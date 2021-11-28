@@ -1,3 +1,9 @@
+if(${TARGET_CPU} MATCHES "x86_64")
+    set(disable_lib "--disable-lib32")
+else()
+    set(disable_lib "--disable-lib64")
+endif()
+
 ExternalProject_Add(mingw-w64-crt
     DEPENDS
         mingw-w64
@@ -8,6 +14,8 @@ ExternalProject_Add(mingw-w64-crt
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
+        --with-default-msvcrt=ucrt
+        ${disable_lib}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

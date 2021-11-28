@@ -8,9 +8,8 @@ ExternalProject_Add(mingw-w64-headers
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --enable-sdk=all
-        --enable-secure-api
         --enable-idl
-        --with-default-win32-winnt=0x600
+        --with-default-msvcrt=ucrt
     BUILD_COMMAND ""
     INSTALL_COMMAND make install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
