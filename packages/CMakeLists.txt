@@ -197,6 +197,7 @@ list(APPEND ep
     glslang
     vulkan
     shaderc
+    libepoxy
     libplacebo
     curl
     mpv

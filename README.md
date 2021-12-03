@@ -66,7 +66,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
     - aom
     - dav1d
-    - libplacebo
+    - libplacebo (with libepoxy)
     - fontconfig
     - libbs2b
     - libssh
