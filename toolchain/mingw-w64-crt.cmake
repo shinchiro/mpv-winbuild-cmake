@@ -14,7 +14,7 @@ ExternalProject_Add(mingw-w64-crt
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
-        --with-default-msvcrt=ucrt
+        --with-default-msvcrt=msvcrt-os
         ${disable_lib}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
