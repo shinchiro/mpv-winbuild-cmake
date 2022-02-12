@@ -1,6 +1,8 @@
 ExternalProject_Add(libwebp
     GIT_REPOSITORY https://chromium.googlesource.com/webm/libwebp.git
     GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
