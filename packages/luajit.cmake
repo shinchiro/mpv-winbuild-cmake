@@ -19,8 +19,10 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/luajit.pc.in ${CMAKE_CURRENT_BINARY_D
 ExternalProject_Add(luajit
     DEPENDS
         libiconv
-    GIT_REPOSITORY https://github.com/LuaJIT/LuaJIT.git
+    GIT_REPOSITORY https://github.com/openresty/luajit2.git
     GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG v2.1-agentzh
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/luajit-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -30,7 +32,7 @@ ExternalProject_Add(luajit
         TARGET_SYS=Windows
         BUILDMODE=static
         CFLAGS='-D_WIN32_WINNT=0x0602 -DUNICODE'
-        XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT ${ENABLE_GC64}'
+        XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_JIT ${ENABLE_GC64}'
         amalg
     INSTALL_COMMAND ${MAKE}
         "HOST_CC='${LUAJIT_HOST_GCC} ${LUAJIT_GCC_ARGS}'"
@@ -39,7 +41,7 @@ ExternalProject_Add(luajit
         BUILDMODE=static
         FILE_T=luajit.exe
         CFLAGS='-D_WIN32_WINNT=0x0602 -DUNICODE'
-        XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT ${ENABLE_GC64}'
+        XCFLAGS='-DLUAJIT_ENABLE_LUA52COMPAT -DLUAJIT_DISABLE_JIT ${ENABLE_GC64}'
         PREFIX=${MINGW_INSTALL_PREFIX}
         install
     BUILD_IN_SOURCE 1
