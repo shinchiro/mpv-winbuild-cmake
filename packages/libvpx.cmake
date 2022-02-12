@@ -7,6 +7,8 @@ endif()
 ExternalProject_Add(libvpx
     GIT_REPOSITORY https://chromium.googlesource.com/webm/libvpx.git
     GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --extra-cflags='-fno-asynchronous-unwind-tables'
