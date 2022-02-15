@@ -11,6 +11,7 @@ ExternalProject_Add(x265-base
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
+    LOG_DOWNLOAD 1 LOG_UPDATE 1
 )
 
 get_property(source_dir TARGET x265-base PROPERTY _EP_SOURCE_DIR)
