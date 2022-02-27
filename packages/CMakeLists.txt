@@ -37,10 +37,6 @@ function(cleanup _name _last_step)
     endif()
 
     if(ALWAYS_REMOVE_BUILDFILES)
-        if("${_name}" STREQUAL "mpv")
-            set(remove_cmd "git -C <SOURCE_DIR> clean -dfx -e /*waf*")
-        endif()
-
         ExternalProject_Add_Step(${_name} postremovebuild
             DEPENDEES ${_last_step}
             COMMAND ${EXEC} ${remove_cmd}
