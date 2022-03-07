@@ -71,6 +71,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libbs2b
     - libssh
     - libsrt
+    - libsixel
 
 - Zip
     - expat (2.4.1)

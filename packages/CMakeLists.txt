@@ -195,6 +195,7 @@ list(APPEND ep
     shaderc
     libepoxy
     libplacebo
+    libsixel
     curl
     mpv
     mpv-release
