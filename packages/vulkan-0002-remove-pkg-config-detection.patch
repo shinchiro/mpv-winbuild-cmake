@@ -1,6 +1,6 @@
-From 8875049d927ff422ca5e55f4cbd6c395fcbfb8b5 Mon Sep 17 00:00:00 2001
+From 5e3a44335617250ebda73656b2438ed2d5d1fe8a Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 3 Oct 2021 11:23:03 +0800
+Date: Thu, 10 Mar 2022 22:02:43 +0800
 Subject: [PATCH] remove pkg-config detection
 
 ---
@@ -8,10 +8,10 @@ Subject: [PATCH] remove pkg-config detection
  1 file changed, 3 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index b26d667..b12a6b8 100644
+index a69c9f6..8bb5aae 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -364,8 +364,6 @@ else()
+@@ -318,8 +318,6 @@ if (TARGET asm_offset)
  endif()
  
  # Generate pkg-config file.
@@ -20,7 +20,7 @@ index b26d667..b12a6b8 100644
      set(VK_API_VERSION "${LOADER_GENERATED_HEADER_VERSION}")
      if(WIN32 AND NOT MINGW)
          set(VULKAN_LIB_SUFFIX "-1")
-@@ -382,7 +380,6 @@ if(PKG_CONFIG_FOUND)
+@@ -336,7 +334,6 @@ if(PKG_CONFIG_FOUND)
      set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
@@ -29,5 +29,5 @@ index b26d667..b12a6b8 100644
  target_link_libraries(vulkan Vulkan::Headers)
  add_library(Vulkan::Vulkan ALIAS vulkan)
 -- 
-2.33.0
+2.35.1
 
