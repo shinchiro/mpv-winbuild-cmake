@@ -3,6 +3,7 @@ set(flag
 CC=${TARGET_ARCH}-gcc
 AR=${TARGET_ARCH}-ar
 RANLIB=${TARGET_ARCH}-ranlib
+OUT=<BINARY_DIR>
 prefix=${MINGW_INSTALL_PREFIX}
 host=mingw")
 
@@ -11,9 +12,8 @@ ExternalProject_Add(mujs
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mujs-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE} ${flag}
-    INSTALL_COMMAND ${MAKE} ${flag} install
-    BUILD_IN_SOURCE 1
+    BUILD_COMMAND ${MAKE} -C <SOURCE_DIR> ${flag}
+    INSTALL_COMMAND ${MAKE} -C <SOURCE_DIR> ${flag} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
