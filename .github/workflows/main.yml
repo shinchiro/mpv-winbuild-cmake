@@ -1,0 +1,164 @@
+name: mpv
+defaults:
+  run:
+    shell: bash
+
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Run custom command before building'
+        required: false
+        type: string
+      b_32bit:
+        description: 'Build 32-bit'
+        required: false
+        default: true
+        type: boolean
+      b_64bit:
+        description: 'Build 64-bit'
+        required: false
+        default: true
+        type: boolean
+      sourceforge:
+        description: 'Upload to Sourceforge'
+        required: false
+        default: true
+        type: boolean
+      github_release:
+        description: 'Upload to Github release'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  build_mpv:
+    name: Building mpv
+    runs-on: ubuntu-latest
+    container:
+      image: docker://archlinux:base-devel
+      env:
+        BUILD_32BIT: ${{ github.event.inputs.b_32bit }}
+        BUILD_64BIT: ${{ github.event.inputs.b_64bit }}
+
+    steps:
+
+      - name: Get current date and random hash
+        run: |
+          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_ENV
+          echo "random_hash=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_ENV
+
+      - name: Installing dependencies
+        run: |
+          echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed github-cli openssh pacman-contrib git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
+          pip3 install rst2pdf mako meson >/dev/null 2>&1
+          paccache -rk 1
+          git config --global user.name "github-actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/checkout@v3
+        with:
+          ref: dev
+
+      - name: Cache
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: |
+            src_packages
+            build32
+            build64
+          key: ${{ runner.os }}-build-mycache-${{ secrets.CACHE_VERSION }}-${{ env.short_date }}-${{ env.random_hash }}
+          restore-keys: |
+            ${{ runner.os }}-build-mycache-${{ secrets.CACHE_VERSION }}-${{ env.short_date }}-${{ env.random_hash }}
+            ${{ runner.os }}-build-mycache-${{ secrets.CACHE_VERSION }}-${{ env.short_date }}
+            ${{ runner.os }}-build-mycache-${{ secrets.CACHE_VERSION }}
+
+      - name: Running custom command
+        if: ${{ github.event.inputs.command != '' }}
+        continue-on-error: true
+        run: ${{ github.event.inputs.command }}
+
+      - name: Downloading source
+        run: |
+          cmake -DTARGET_ARCH=i686-w64-mingw32   -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$(pwd)/src_packages -G Ninja -Bbuild32 -H.
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$(pwd)/src_packages -G Ninja -Bbuild64 -H.
+          ninja -C build32 download || true
+          ninja -C build64 download || true
+
+      - name: Building toolchain
+        id: build_toolchain
+        continue-on-error: true
+        run: |
+          if [[ ! "$(ls -A build32/install/bin)" ]]; then ninja -C build32 gcc; fi
+          if [[ ! "$(ls -A build64/install/bin)" ]]; then ninja -C build64 gcc; fi
+
+      - name: Building mpv
+        id: build_mpv
+        if: ${{ steps.build_toolchain.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          if $BUILD_32BIT; then ninja -C build32 update; ninja -C build32 mpv; fi
+          if $BUILD_64BIT; then ninja -C build64 update; ninja -C build64 mpv; fi
+
+      - name: Packaging mpv
+        id: packaging_mpv
+        if: ${{ steps.build_toolchain.outcome == 'success' && steps.build_mpv.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          mkdir -p release
+          if $BUILD_32BIT; then rm -rf build32/mpv-debug*; ninja -C build32 mpv-packaging; mv build32/mpv*.7z release; fi
+          if $BUILD_64BIT; then rm -rf build64/mpv-debug*; ninja -C build64 mpv-packaging; mv build64/mpv*.7z release; fi
+
+      - name: Uploading packages to Sourceforge
+        id: upload_packages_sf
+        if: ${{ steps.packaging_mpv.outcome == 'success' && github.event.inputs.sourceforge == 'true' }}
+        continue-on-error: true
+        run: |
+          mkdir -p /root/.ssh/
+          echo "${{ secrets.SF_PRIVATE_KEY }}" > sf_key
+          ssh-keyscan frs.sourceforge.net > /root/.ssh/known_hosts
+          chmod 400 sf_key
+          chmod -R 700 /root
+          sftp -i sf_key shinchiro@frs.sourceforge.net:/home/frs/project/mpv-player-windows <<END
+          put release/mpv-dev* libmpv
+          put release/mpv-i* 32bit
+          put release/mpv-x* 64bit
+          END
+
+      - name: Uploading packages to Github release
+        id: upload_packages_gh
+        if: ${{ steps.packaging_mpv.outcome == 'success' && github.event.inputs.github_release == 'true' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+          SHORT_DATE: ${{ env.short_date }}
+        run: |
+          gh release create $SHORT_DATE ./release/*.7z --notes "none"
+
+      - name: Collecting logs
+        id: collect_logs
+        run: |
+          mkdir -p build32_logs
+          mkdir -p build64_logs
+          cp -fr $(find build32 -type f -iname "*-*.log") build32_logs || true
+          cp -fr $(find build64 -type f -iname "*-*.log") build64_logs || true
+          7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
+
+      - name: Uploading logs
+        id: upload_logs
+        continue-on-error: true
+        uses: actions/upload-artifact@master
+        with:
+          name: logs
+          path: logs.7z
+          retention-days: 1
+
+      - name: Cleaning build directory
+        id: delete_build_dir
+        run: |
+          rm -rf build32/mpv*
+          rm -rf build64/mpv*
+          du -sh build32 build64 src_packages /var/cache/pacman/pkg || true
