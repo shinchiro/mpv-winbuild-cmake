@@ -74,7 +74,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libsixel
 
 - Zip
-    - expat (2.4.1)
+    - expat (2.4.7)
     - bzip (1.0.8)
     - zlib (1.2.11)
     - xvidcore (1.3.7)
