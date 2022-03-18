@@ -52,9 +52,8 @@ jobs:
         run: |
           echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed github-cli openssh pacman-contrib git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
+          pacman -S --noconfirm --needed github-cli openssh git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
           pip3 install rst2pdf mako meson >/dev/null 2>&1
-          paccache -rk 1
           git config --global user.name "github-actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -136,7 +135,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GIT_TOKEN }}
           SHORT_DATE: ${{ env.short_date }}
         run: |
-          gh release create $SHORT_DATE ./release/*.7z --notes "none"
+          gh release create $SHORT_DATE ./release/*.7z
 
       - name: Collecting logs
         id: collect_logs
