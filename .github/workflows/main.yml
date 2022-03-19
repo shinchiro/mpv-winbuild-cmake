@@ -52,7 +52,7 @@ jobs:
         run: |
           echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed github-cli openssh git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
+          pacman -S --noconfirm --needed jq openssh git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
           pip3 install rst2pdf mako meson >/dev/null 2>&1
           git config --global user.name "github-actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -135,7 +135,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GIT_TOKEN }}
           SHORT_DATE: ${{ env.short_date }}
         run: |
-          gh release create $SHORT_DATE ./release/*.7z
+          id=$(curl -u shinchiro:$GH_TOKEN -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d '{"tag_name":"'$SHORT_DATE'", "body":"meow~"}' | jq -r '.id')
+          for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Collecting logs
         id: collect_logs
