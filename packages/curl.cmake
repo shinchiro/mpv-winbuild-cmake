@@ -2,6 +2,7 @@ ExternalProject_Add(curl
     DEPENDS
         libressl
     GIT_REPOSITORY https://github.com/curl/curl.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/curl-*.patch
     UPDATE_COMMAND ""
@@ -16,7 +17,6 @@ ExternalProject_Add(curl
 
 force_rebuild_git(curl)
 autoreconf(curl)
-extra_step(curl)
 cleanup(curl install)
 
 # Download the cacert.pem file: https://curl.haxx.se/docs/caextract.html

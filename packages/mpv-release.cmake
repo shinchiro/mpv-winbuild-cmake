@@ -109,5 +109,4 @@ ExternalProject_Add_Step(mpv-release copy-package-dir
     LOG 1
 )
 
-extra_step(mpv-release)
 cleanup(mpv-release copy-package-dir)

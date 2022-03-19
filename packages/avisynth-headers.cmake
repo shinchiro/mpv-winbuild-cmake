@@ -1,6 +1,8 @@
 ExternalProject_Add(avisynth-headers
     GIT_REPOSITORY https://github.com/AviSynth/AviSynthPlus.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
+    GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
@@ -11,5 +13,4 @@ ExternalProject_Add(avisynth-headers
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_INSTALL 1
 )
 force_rebuild_git(avisynth-headers)
-extra_step(avisynth-headers)
 cleanup(avisynth-headers install)

@@ -1,5 +1,6 @@
 ExternalProject_Add(libwebp
     GIT_REPOSITORY https://chromium.googlesource.com/webm/libwebp.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     GIT_REMOTE_NAME origin
     GIT_TAG main
@@ -14,6 +15,5 @@ ExternalProject_Add(libwebp
 )
 
 force_rebuild_git(libwebp)
-extra_step(libwebp)
 autogen(libwebp)
 cleanup(libwebp install)

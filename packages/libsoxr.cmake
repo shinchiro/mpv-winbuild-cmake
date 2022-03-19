@@ -1,5 +1,6 @@
 ExternalProject_Add(libsoxr
     GIT_REPOSITORY https://gitlab.com/shinchiro/soxr.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     GIT_SHALLOW 1
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTS=OFF -DHAVE_WORDS_BIGENDIAN_EXITCODE=1
@@ -9,5 +10,4 @@ ExternalProject_Add(libsoxr
 )
 
 force_rebuild_git(libsoxr)
-extra_step(libsoxr)
 cleanup(libsoxr install)

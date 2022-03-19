@@ -1,6 +1,7 @@
 ExternalProject_Add(libmysofa
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/hoene/libmysofa.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CMAKE_ARGS
@@ -15,5 +16,4 @@ ExternalProject_Add(libmysofa
 )
 
 force_rebuild_git(libmysofa)
-extra_step(libmysofa)
 cleanup(libmysofa install)

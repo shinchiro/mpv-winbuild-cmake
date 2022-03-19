@@ -2,6 +2,7 @@ ExternalProject_Add(libsrt
     DEPENDS
         libressl
     GIT_REPOSITORY https://github.com/Haivision/srt.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libsrt-*.patch
@@ -19,5 +20,4 @@ ExternalProject_Add(libsrt
 )
 
 force_rebuild_git(libsrt)
-extra_step(libsrt)
 cleanup(libsrt install)

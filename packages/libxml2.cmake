@@ -1,5 +1,6 @@
 ExternalProject_Add(libxml2
     GIT_REPOSITORY https://gitlab.gnome.org/GNOME/libxml2.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -18,5 +19,4 @@ ExternalProject_Add(libxml2
 
 force_rebuild_git(libxml2)
 autogen(libxml2)
-extra_step(libxml2)
 cleanup(libxml2 install)

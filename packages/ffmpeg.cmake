@@ -32,6 +32,7 @@ ExternalProject_Add(ffmpeg
         dav1d
         vapoursynth
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -89,5 +90,4 @@ ExternalProject_Add(ffmpeg
 )
 
 force_rebuild_git(ffmpeg)
-extra_step(ffmpeg)
 cleanup(ffmpeg install)

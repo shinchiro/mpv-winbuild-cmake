@@ -3,7 +3,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ft2exec.in ${CMAKE_CURRENT_BINARY_DIR
 ExternalProject_Add(freetype2
     DEPENDS libpng zlib
     GIT_REPOSITORY https://gitlab.com/shinchiro/freetype2.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
+    GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ft2exec <SOURCE_DIR>/configure
         --build=${HOST_ARCH}
@@ -19,6 +21,5 @@ ExternalProject_Add(freetype2
 )
 
 force_rebuild_git(freetype2)
-extra_step(freetype2)
 autogen(freetype2)
 cleanup(freetype2 install)

@@ -30,6 +30,7 @@ ExternalProject_Add(luajit
     DEPENDS
         libiconv
     GIT_REPOSITORY https://github.com/openresty/luajit2.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     GIT_REMOTE_NAME origin
     GIT_TAG v2.1-agentzh
@@ -54,5 +55,4 @@ ExternalProject_Add_Step(luajit install-pc
 )
 
 force_rebuild_git(luajit)
-extra_step(luajit)
 cleanup(luajit install-pc)

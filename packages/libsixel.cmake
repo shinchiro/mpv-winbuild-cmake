@@ -21,5 +21,4 @@ ExternalProject_Add(libsixel
 )
 
 force_rebuild_git(libsixel)
-extra_step(libsixel)
 cleanup(libsixel install)

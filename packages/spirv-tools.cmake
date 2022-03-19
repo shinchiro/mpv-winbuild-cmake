@@ -1,5 +1,6 @@
 ExternalProject_Add(spirv-tools
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -9,5 +10,4 @@ ExternalProject_Add(spirv-tools
 )
 
 force_rebuild_git(spirv-tools)
-extra_step(spirv-tools)
 cleanup(spirv-tools install)

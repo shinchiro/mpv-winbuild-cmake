@@ -1,22 +1,7 @@
-ExternalProject_Add(vulkan-header
-    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-    GIT_SHALLOW 1
-    UPDATE_COMMAND ""
-    GIT_REMOTE_NAME origin
-    GIT_TAG main
-    CMAKE_ARGS
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_INSTALL 1
-)
-force_rebuild_git(vulkan-header)
-extra_step(vulkan-header)
-
 ExternalProject_Add(vulkan
     DEPENDS vulkan-header
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/vulkan-*.patch
@@ -44,5 +29,4 @@ ExternalProject_Add_Step(vulkan copy-wdk-headers
 )
 
 force_rebuild_git(vulkan)
-extra_step(vulkan)
 cleanup(vulkan install)

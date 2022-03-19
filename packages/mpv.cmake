@@ -23,6 +23,7 @@ ExternalProject_Add(mpv
         vapoursynth
         libsdl2
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
         PKG_CONFIG=pkg-config
@@ -114,5 +115,4 @@ ExternalProject_Add_Step(mpv copy-package-dir
 )
 
 force_rebuild_git(mpv)
-extra_step(mpv)
 cleanup(mpv copy-package-dir)

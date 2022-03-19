@@ -1,5 +1,6 @@
 ExternalProject_Add(spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/spirv-cross-*.patch
@@ -24,5 +25,4 @@ ExternalProject_Add_Step(spirv-cross symlink
 )
 
 force_rebuild_git(spirv-cross)
-extra_step(spirv-cross)
 cleanup(spirv-cross install)

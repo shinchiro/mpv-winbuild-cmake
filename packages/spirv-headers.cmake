@@ -1,5 +1,6 @@
 ExternalProject_Add(spirv-headers
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Headers.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -9,5 +10,4 @@ ExternalProject_Add(spirv-headers
 )
 
 force_rebuild_git(spirv-headers)
-extra_step(spirv-headers)
 cleanup(spirv-headers install)

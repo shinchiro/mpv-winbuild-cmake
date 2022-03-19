@@ -9,6 +9,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libiconv.pc.in ${CMAKE_CURRENT_BINARY
 ExternalProject_Add(libiconv
     URL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz
     URL_HASH SHA256=e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04
+    DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         ${build}
         --host=${TARGET_ARCH}
@@ -26,5 +27,4 @@ ExternalProject_Add_Step(libiconv install-pc
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/libiconv.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/iconv.pc
 )
 
-extra_step(libiconv)
 cleanup(libiconv install-pc)

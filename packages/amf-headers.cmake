@@ -8,5 +8,4 @@ ExternalProject_Add(amf-headers
     LOG_DOWNLOAD 1
 )
 
-extra_step(amf-headers)
 cleanup(amf-headers install)

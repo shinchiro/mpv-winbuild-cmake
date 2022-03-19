@@ -1,6 +1,7 @@
 ExternalProject_Add(flac
     DEPENDS ogg
     GIT_REPOSITORY https://github.com/xiph/flac.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -21,6 +22,5 @@ ExternalProject_Add(flac
 )
 
 force_rebuild_git(flac)
-extra_step(flac)
 autogen(flac)
 cleanup(flac install)

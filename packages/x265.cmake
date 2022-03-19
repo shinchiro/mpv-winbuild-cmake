@@ -5,8 +5,9 @@ else()
     set(high_bit_depth "-DHIGH_BIT_DEPTH=OFF")
 endif()
 
-ExternalProject_Add(x265-base
+ExternalProject_Add(x265
     GIT_REPOSITORY https://bitbucket.org/multicoreware/x265_git.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
@@ -14,11 +15,11 @@ ExternalProject_Add(x265-base
     LOG_DOWNLOAD 1 LOG_UPDATE 1
 )
 
-get_property(source_dir TARGET x265-base PROPERTY _EP_SOURCE_DIR)
+get_property(source_dir TARGET x265 PROPERTY _EP_SOURCE_DIR)
 
 ExternalProject_Add(x265-10bit
     DEPENDS
-        x265-base
+        x265
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
@@ -35,7 +36,7 @@ ExternalProject_Add(x265-10bit
 
 ExternalProject_Add(x265-12bit-lib
     DEPENDS
-        x265-base
+        x265
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
@@ -54,7 +55,7 @@ ExternalProject_Add(x265-12bit-lib
 
 ExternalProject_Add(x265-10bit-lib
     DEPENDS
-        x265-base
+        x265
         x265-12bit-lib
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
@@ -73,7 +74,7 @@ ExternalProject_Add(x265-10bit-lib
 
 ExternalProject_Add(x265-multilibs
     DEPENDS
-        x265-base
+        x265
         x265-12bit-lib
         x265-10bit-lib
     DOWNLOAD_COMMAND ""
@@ -122,9 +123,9 @@ ExternalProject_Add_Step(x265-multilibs combine-libs
     LOG 1
 )
 
-extra_step(x265-base)
-extra_step(x265-12bit-lib)
-extra_step(x265-10bit-lib)
-extra_step(x265-multilibs)
-extra_step(x265-10bit)
+force_rebuild_git(x265)
+cleanup(x265 install)
+cleanup(x265-12bit-lib install)
+cleanup(x265-10bit-lib install)
+cleanup(x265-multilibs install)
 cleanup(x265-10bit install)

@@ -3,6 +3,7 @@ ExternalProject_Add(harfbuzz
         freetype2
         libpng
     GIT_REPOSITORY https://github.com/harfbuzz/harfbuzz.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_REMOTE_NAME origin
     GIT_TAG main
     GIT_SHALLOW 1
@@ -26,5 +27,4 @@ ExternalProject_Add(harfbuzz
 
 force_rebuild_git(harfbuzz)
 force_meson_configure(harfbuzz)
-extra_step(harfbuzz)
 cleanup(harfbuzz install)

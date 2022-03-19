@@ -2,6 +2,7 @@ ExternalProject_Add(opusfile
     DEPENDS
         opus
     GIT_REPOSITORY https://github.com/xiph/opusfile.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh
     COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -17,5 +18,4 @@ ExternalProject_Add(opusfile
 )
 
 force_rebuild_git(opusfile)
-extra_step(opusfile)
 cleanup(opusfile install)

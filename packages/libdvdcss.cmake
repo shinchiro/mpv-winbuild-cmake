@@ -1,5 +1,6 @@
 ExternalProject_Add(libdvdcss
     GIT_REPOSITORY https://code.videolan.org/videolan/libdvdcss.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -13,6 +14,5 @@ ExternalProject_Add(libdvdcss
 )
 
 force_rebuild_git(libdvdcss)
-extra_step(libdvdcss)
 autoreconf(libdvdcss)
 cleanup(libdvdcss install)

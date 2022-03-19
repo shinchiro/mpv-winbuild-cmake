@@ -1,5 +1,6 @@
 ExternalProject_Add(xz
     GIT_REPOSITORY https://gitlab.com/shinchiro/xz.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
@@ -16,6 +17,5 @@ ExternalProject_Add(xz
 )
 
 force_rebuild_git(xz)
-extra_step(xz)
 autoreconf(xz)
 cleanup(xz install)

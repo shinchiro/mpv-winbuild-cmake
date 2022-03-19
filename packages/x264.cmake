@@ -1,5 +1,6 @@
 ExternalProject_Add(x264
     GIT_REPOSITORY https://code.videolan.org/videolan/x264.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -19,5 +20,4 @@ ExternalProject_Add(x264
 )
 
 force_rebuild_git(x264)
-extra_step(x264)
 cleanup(x264 install)

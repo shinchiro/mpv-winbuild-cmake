@@ -8,6 +8,7 @@ ExternalProject_Add(megasdk
         libuv
         libsodium
     GIT_REPOSITORY https://github.com/meganz/sdk.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-*.patch
@@ -34,5 +35,4 @@ ExternalProject_Add(megasdk
 
 force_rebuild_git(megasdk)
 autogen(megasdk)
-extra_step(megasdk)
 cleanup(megasdk install)

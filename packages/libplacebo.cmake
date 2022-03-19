@@ -5,7 +5,9 @@ ExternalProject_Add(libplacebo
         lcms2
         libepoxy
     GIT_REPOSITORY https://github.com/haasn/libplacebo.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
+    GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -22,5 +24,4 @@ ExternalProject_Add(libplacebo
 
 force_rebuild_git(libplacebo)
 force_meson_configure(libplacebo)
-extra_step(libplacebo)
 cleanup(libplacebo install)

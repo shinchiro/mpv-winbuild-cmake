@@ -2,6 +2,7 @@ ExternalProject_Add(speex
     DEPENDS ogg
     URL "https://ftp.osuosl.org/pub/xiph/releases/speex/speex-1.2.0.tar.gz"
     URL_HASH SHA256=eaae8af0ac742dc7d542c9439ac72f1f385ce838392dc849cae4536af9210094
+    DOWNLOAD_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC}
         LIBS=-lwinmm
@@ -14,6 +15,5 @@ ExternalProject_Add(speex
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-extra_step(speex)
 autoreconf(speex)
 cleanup(speex install)

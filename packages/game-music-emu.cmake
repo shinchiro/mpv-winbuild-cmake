@@ -1,5 +1,6 @@
 ExternalProject_Add(game-music-emu
     GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} -DBUILD_SHARED_LIBS=OFF -DENABLE_UBSAN=NO
@@ -9,5 +10,4 @@ ExternalProject_Add(game-music-emu
 )
 
 force_rebuild_git(game-music-emu)
-extra_step(game-music-emu)
 cleanup(game-music-emu install)

@@ -1,5 +1,6 @@
 ExternalProject_Add(aom
     GIT_REPOSITORY https://aomedia.googlesource.com/aom
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
@@ -22,5 +23,4 @@ ExternalProject_Add(aom
 )
 
 force_rebuild_git(aom)
-extra_step(aom)
 cleanup(aom install)

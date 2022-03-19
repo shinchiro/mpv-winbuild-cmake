@@ -39,6 +39,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libdvdread
     - libdvdnav
     - libdvdcss
+    - libudfread
     - libbluray
     - libass
     - libmysofa
@@ -53,6 +54,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libarchive
     - libjpeg
     - shaderc (with spirv-headers, spirv-tools, glslang)
+    - vulkan-header
     - vulkan
     - spirv-cross
     - fribidi
@@ -179,17 +181,17 @@ This will also build all packages that `mpv` depends on.
 
 ## Available Commands
 
-* **ninja package** -> compile a package
-
-* **ninja clean** -> remove all stamp files in all packages.
-
-* **ninja package-fullclean** -> Remove all stamp files of a package.
-
-* **ninja package-liteclean** -> Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case.
-
-* **ninja package-removebuild** -> Remove 'build' directory of a package.
-
-* **ninja update** -> Update all git repos. When a package pulling new changes, all of its stamp files will be deleted and will be force rebuild. If there is not changes, it will not remove the stamp files and not rebuild occur. Use this instead of `ninja clean` if you don't want rebuild everything in next run.
+| Commands                   | Description |
+| -------------------------- | ----------- |
+| ninja package              | compile a package |
+| ninja clean                | remove all stamp files in all packages. |
+| ninja download             | Download all packages' sources at once without compiling. |
+| ninja update               | Update all git repos. When a package pulling new changes, all of its stamp files will be deleted and will be force rebuild. If there is not changes, it will not remove the stamp files and not rebuild occur. Use this instead of `ninja clean` if you don't want rebuild everything in next run. |
+| ninja package-fullclean    | Remove all stamp files of a package. |
+| ninja package-liteclean    | Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case. |
+| ninja package-removebuild  | Remove 'build' directory of a package. |
+| ninja package-removeprefix | Remove 'prefix' directory. |
+| ninja package-force-update | Update a package. Only git repo will be updated. |
 
 `package` is package's name found in `packages` folder.
 

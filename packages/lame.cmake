@@ -1,5 +1,6 @@
 ExternalProject_Add(lame
     GIT_REPOSITORY https://gitlab.com/shinchiro/lame.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     PATCH_COMMAND ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
@@ -13,6 +14,5 @@ ExternalProject_Add(lame
 )
 
 force_rebuild_git(lame)
-extra_step(lame)
 autoreconf(lame)
 cleanup(lame install)

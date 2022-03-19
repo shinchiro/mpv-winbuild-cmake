@@ -8,5 +8,4 @@ ExternalProject_Add(angle-headers
     LOG_DOWNLOAD 1
 )
 
-extra_step(angle-headers)
 cleanup(angle-headers install)

@@ -1,5 +1,6 @@
 ExternalProject_Add(openal-soft
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
@@ -17,5 +18,4 @@ ExternalProject_Add(openal-soft
 )
 
 force_rebuild_git(openal-soft)
-extra_step(openal-soft)
 cleanup(openal-soft install)

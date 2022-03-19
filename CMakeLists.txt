@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.15.0)
 project(mpv-cross C)
 include(ExternalProject)
 include(ProcessorCount)
+include(${CMAKE_CURRENT_SOURCE_DIR}/custom_steps.cmake)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19.0")
+    cmake_policy(SET CMP0097 NEW)
+    cmake_policy(SET CMP0114 NEW)
+endif()
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
@@ -36,6 +42,7 @@ endif()
 set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
 option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful compilation." OFF)
+set(SINGLE_SOURCE_LOCATION "" CACHE STRING "Absolute path to download git & zip")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)

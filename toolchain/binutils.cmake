@@ -1,6 +1,7 @@
 ExternalProject_Add(binutils
     URL https://ftpmirror.gnu.org/binutils/binutils-2.38.tar.xz
     URL_HASH SHA512=8bf0b0d193c9c010e0518ee2b2e5a830898af206510992483b427477ed178396cd210235e85fd7bd99a96fc6d5eedbeccbd48317a10f752b7336ada8b2bb826d
+    DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
@@ -31,3 +32,5 @@ ExternalProject_Add_Step(binutils basedirs
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/${TARGET_ARCH}/lib ${CMAKE_INSTALL_PREFIX}/${TARGET_ARCH}/lib64
     COMMENT "Setting up target directories and symlinks"
 )
+
+cleanup(binutils install)

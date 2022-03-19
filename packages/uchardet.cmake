@@ -1,5 +1,6 @@
 ExternalProject_Add(uchardet
     GIT_REPOSITORY https://github.com/freedesktop/uchardet.git
+    SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CMAKE_ARGS
@@ -16,5 +17,4 @@ ExternalProject_Add(uchardet
 )
 
 force_rebuild_git(uchardet)
-extra_step(uchardet)
 cleanup(uchardet install)
