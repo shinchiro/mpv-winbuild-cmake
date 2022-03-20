@@ -135,7 +135,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GIT_TOKEN }}
           SHORT_DATE: ${{ env.short_date }}
         run: |
-          id=$(curl -u shinchiro:$GH_TOKEN -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d '{"tag_name":"'$SHORT_DATE'", "body":"meow~"}' | jq -r '.id')
+          body=$(cat <<END
+          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$SHORT_DATE/total?label=Downloads)
+          END
+          )
+          id=$(curl -u shinchiro:$GH_TOKEN -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d '{"tag_name":"'$SHORT_DATE'", "body":"'${body// /_}'"}' | jq -r '.id')
           for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Collecting logs
