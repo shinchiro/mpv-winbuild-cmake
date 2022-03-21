@@ -35,11 +35,13 @@ jobs:
   build_mpv:
     name: Building mpv
     runs-on: ubuntu-latest
+    env:
+      BUILD_32BIT: ${{ github.event.inputs.b_32bit }}
+      BUILD_64BIT: ${{ github.event.inputs.b_64bit }}
+      GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+      CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
     container:
       image: docker://archlinux:base-devel
-      env:
-        BUILD_32BIT: ${{ github.event.inputs.b_32bit }}
-        BUILD_64BIT: ${{ github.event.inputs.b_64bit }}
 
     steps:
 
@@ -52,17 +54,18 @@ jobs:
         run: |
           echo -e "[multilib]\nInclude = /etc/pacman.d/mirrorlist" >> /etc/pacman.conf
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed jq openssh git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
-          pip3 install rst2pdf mako meson >/dev/null 2>&1
+          pacman -S --noconfirm --needed jq openssh git gyp mercurial subversion ninja cmake ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2 wget
+          pip3 install rst2pdf mako meson
           git config --global user.name "github-actions"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global --add safe.directory $PWD
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3.0.1
         with:
-          ref: dev
+          ref: master
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3.0.2
         id: cache
         with:
           path: |
@@ -82,8 +85,8 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=i686-w64-mingw32   -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$(pwd)/src_packages -G Ninja -Bbuild32 -H.
-          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$(pwd)/src_packages -G Ninja -Bbuild64 -H.
+          cmake -DTARGET_ARCH=i686-w64-mingw32   -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild32 -H.
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild64 -H.
           ninja -C build32 download || true
           ninja -C build64 download || true
 
@@ -132,15 +135,21 @@ jobs:
         if: ${{ steps.packaging_mpv.outcome == 'success' && github.event.inputs.github_release == 'true' }}
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GIT_TOKEN }}
           SHORT_DATE: ${{ env.short_date }}
         run: |
           body=$(cat <<END
           ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$SHORT_DATE/total?label=Downloads)
           END
           )
-          id=$(curl -u shinchiro:$GH_TOKEN -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d '{"tag_name":"'$SHORT_DATE'", "body":"'${body// /_}'"}' | jq -r '.id')
-          for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
+          id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
+          {
+            "tag_name": "$SHORT_DATE",
+            "name": "$SHORT_DATE",
+            "body": "$(echo ${body//$'\n'/'\n'})"
+          }
+          END
+          )
+          for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Collecting logs
         id: collect_logs
@@ -166,3 +175,18 @@ jobs:
           rm -rf build32/mpv*
           rm -rf build64/mpv*
           du -sh build32 build64 src_packages /var/cache/pacman/pkg || true
+
+      - name: Pruning tags
+        id: prune_tags
+        continue-on-error: true
+        run: |
+          # Keep latest 30 tags/releases
+          git fetch --tags
+          tag_list=($(git tag | sort -r))
+          old=${tag_list[@]:30}
+          for tag in ${old[@]}; do
+            id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X GET -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/tags/$tag | jq -r '.id')
+            curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id
+            git tag -d $tag
+          done
+          git push --tags --prune https://shinchiro:$GH_TOKEN@github.com/shinchiro/mpv-winbuild-cmake
