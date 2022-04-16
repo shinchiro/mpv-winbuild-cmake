@@ -1,6 +1,6 @@
 ExternalProject_Add(libsdl2
-    URL https://www.libsdl.org/release/SDL2-2.0.16.tar.gz
-    URL_HASH SHA256=65be9ff6004034b5b2ce9927b5a4db1814930f169c4b2dae0a1e4697075f287b
+    URL https://www.libsdl.org/release/SDL2-2.0.20.tar.gz
+    URL_HASH SHA256=c56aba1d7b5b0e7e999e4a7698c70b63a3394ff9704b5f6e1c57e0c16f04dd06
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
