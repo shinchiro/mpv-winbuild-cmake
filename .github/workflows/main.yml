@@ -114,6 +114,15 @@ jobs:
           if $BUILD_32BIT; then rm -rf build32/mpv-debug*; ninja -C build32 mpv-packaging; mv build32/mpv*.7z release; fi
           if $BUILD_64BIT; then rm -rf build64/mpv-debug*; ninja -C build64 mpv-packaging; mv build64/mpv*.7z release; fi
 
+      - name: Copying ffmpeg
+        id: copying_ffmpeg
+        if: ${{ steps.build_toolchain.outcome == 'success' && steps.packaging_mpv.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          hash=$(git -C src_packages/ffmpeg rev-parse --short HEAD)
+          if $BUILD_32BIT; then 7z a -m0=lzma2 -mx=9 -ms=on release/ffmpeg-i686-git-$hash.7z ./build32/install/mingw/bin/ffmpeg.exe; fi
+          if $BUILD_64BIT; then 7z a -m0=lzma2 -mx=9 -ms=on release/ffmpeg-x86_64-git-$hash.7z ./build64/install/mingw/bin/ffmpeg.exe; fi
+
       - name: Uploading packages to Sourceforge
         id: upload_packages_sf
         if: ${{ steps.packaging_mpv.outcome == 'success' && github.event.inputs.sourceforge == 'true' }}
