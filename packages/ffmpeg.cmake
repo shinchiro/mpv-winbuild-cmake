@@ -82,6 +82,7 @@ ExternalProject_Add(ffmpeg
         --enable-nvdec
         --enable-nvenc
         --enable-amf
+        --disable-doc
         --disable-decoder=libaom_av1
         "--extra-cflags='-DMODPLUG_STATIC'"
     BUILD_COMMAND ${MAKE}
