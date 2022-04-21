@@ -1,6 +1,6 @@
-From fc75c00465c548e8debb69a5ed7c845b4c7b8586 Mon Sep 17 00:00:00 2001
+From dee9bb9aadc86b91e5daf6012e4efef3e7d39360 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 12 Sep 2021 09:19:38 +0800
+Date: Thu, 21 Apr 2022 15:49:04 +0800
 Subject: [PATCH] avoid name collision
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] avoid name collision
  1 file changed, 8 insertions(+)
 
 diff --git a/srtcore/md5.h b/srtcore/md5.h
-index f7402e7..8e39410 100644
+index 98bd076..75e4c8a 100644
 --- a/srtcore/md5.h
 +++ b/srtcore/md5.h
 @@ -50,6 +50,14 @@
@@ -24,8 +24,8 @@ index f7402e7..8e39410 100644
 +#define md5_finish srt_md5_finish
 +
  /*
-  * This package supports both compile-time and run-time determination of CPU
-  * byte order.  If ARCH_IS_BIG_ENDIAN is defined as 0, the code will be
+  * All symbols have been put under the srt namespace
+  * to avoid potential linkage conflicts.
 -- 
-2.33.0
+2.35.2
 
