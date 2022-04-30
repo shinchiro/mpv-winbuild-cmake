@@ -55,6 +55,9 @@ list(APPEND ep
     libsdl2
     libsrt
     libopenmpt
+    brotli
+    highway
+    libjxl
     ffmpeg
     angle-headers
     mujs

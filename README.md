@@ -73,6 +73,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libbs2b
     - libssh
     - libsrt
+    - libjxl (with brotli, highway)
     - libsixel
 
 - Zip
