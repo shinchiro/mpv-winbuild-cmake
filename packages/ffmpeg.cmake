@@ -28,6 +28,7 @@ ExternalProject_Add(ffmpeg
         libxml2
         libmfx
         libopenmpt
+        libjxl
         aom
         dav1d
         vapoursynth
@@ -77,6 +78,7 @@ ExternalProject_Add(ffmpeg
         --enable-libssh
         --enable-libsrt
         --enable-libmfx
+        --enable-libjxl
         --enable-cuda
         --enable-cuvid
         --enable-nvdec
