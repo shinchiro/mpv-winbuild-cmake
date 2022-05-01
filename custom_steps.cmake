@@ -79,8 +79,7 @@ function(force_rebuild_git _name)
         set(COMMAND_GIT_PULL "")
     else()
         set(git_tag "@{u}")
-        set(COMMAND_GIT_PULL COMMAND bash -c "git pull > /dev/null"
-                             COMMAND bash -c "git submodule update --remote --recursive > /dev/null")
+        set(COMMAND_GIT_PULL COMMAND bash -c "git pull > /dev/null")
     endif()
 
 file(WRITE ${stamp_dir}/get_HEAD.sh
@@ -96,6 +95,7 @@ fi")
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
         WORKING_DIRECTORY <SOURCE_DIR>
+        COMMAND bash -c "git am --abort 2> /dev/null || true"
         COMMAND bash -c "git reset --hard ${git_tag} > /dev/null"
         ${COMMAND_GIT_PULL}
         COMMAND chmod 755 ${stamp_dir}/get_HEAD.sh && ${stamp_dir}/get_HEAD.sh
