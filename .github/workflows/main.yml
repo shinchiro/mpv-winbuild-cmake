@@ -167,8 +167,8 @@ jobs:
         run: |
           mkdir -p build32_logs
           mkdir -p build64_logs
-          cp -fr $(find build32 -type f -iname "*-*.log") build32_logs || true
-          cp -fr $(find build64 -type f -iname "*-*.log") build64_logs || true
+          cp -fr $(find build32 -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build32_logs || true
+          cp -fr $(find build64 -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build64_logs || true
           7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
 
       - name: Uploading logs
