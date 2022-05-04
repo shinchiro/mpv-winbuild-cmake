@@ -74,6 +74,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libssh
     - libsrt
     - libjxl (with brotli, highway)
+    - libmodplug
     - libsixel
 
 - Zip
@@ -85,7 +86,6 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - speex (1.2.0)
     - ogg (1.3.5)
     - lzo (2.10)
-    - libmodplug (0.8.9.0)
     - libopenmpt (0.6.2)
     - libiconv (1.16)
     - gmp (6.2.1)

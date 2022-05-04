@@ -1,7 +1,9 @@
 ExternalProject_Add(libmodplug
-    URL "http://download.sourceforge.net/modplug-xmms/libmodplug-0.8.9.0.tar.gz"
-    URL_HASH SHA256=457ca5a6c179656d66c01505c0d95fafaead4329b9dbaa0f997d00a3508ad9de
-    DOWNLOAD_DIR ${SOURCE_LOCATION}
+    GIT_REPOSITORY https://github.com/Konstanty/libmodplug.git
+    SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_SHALLOW 1
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libmodplug-*.patch
+    UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
@@ -11,5 +13,6 @@ ExternalProject_Add(libmodplug
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+force_rebuild_git(libmodplug)
 autoreconf(libmodplug)
 cleanup(libmodplug install)

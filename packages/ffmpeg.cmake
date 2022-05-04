@@ -86,7 +86,6 @@ ExternalProject_Add(ffmpeg
         --enable-amf
         --disable-doc
         --disable-decoder=libaom_av1
-        "--extra-cflags='-DMODPLUG_STATIC'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
