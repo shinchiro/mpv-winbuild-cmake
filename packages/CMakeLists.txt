@@ -40,6 +40,7 @@ list(APPEND ep
     fontconfig
     libass
     libressl
+    mbedtls
     libxml2
     libmfx
     amf-headers

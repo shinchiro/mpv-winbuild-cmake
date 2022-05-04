@@ -92,6 +92,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - vapoursynth (R58)
     - libsdl2 (2.0.22)
     - libressl (3.1.5)
+    - mbedtls (3.1.0)
 
 
 ## Setup Build Environment
