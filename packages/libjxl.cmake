@@ -13,6 +13,7 @@ ExternalProject_Add(libjxl
     GIT_TAG main
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libjxl-*.patch
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -49,13 +50,6 @@ ExternalProject_Add_Step(libjxl symlink
     COMMAND rm -r brotli
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_brotli} brotli
     COMMENT "Symlinking brotli"
-)
-
-ExternalProject_Add_Step(libjxl manual-install
-    DEPENDEES build
-    WORKING_DIRECTORY <BINARY_DIR>
-    COMMAND echo "Cflags.private: -DJXL_STATIC_DEFINE"  | tee -a lib/libjxl.pc lib/libjxl_threads.pc > /dev/null
-    COMMAND echo "Libs.private: -lstdc++"               | tee -a lib/libjxl.pc lib/libjxl_threads.pc > /dev/null
 )
 
 ExternalProject_Add_Step(libjxl fix-lib
