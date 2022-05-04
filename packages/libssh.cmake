@@ -1,7 +1,7 @@
 ExternalProject_Add(libssh
     DEPENDS
         zlib
-        libressl
+        mbedtls
     GIT_REPOSITORY https://git.libssh.org/projects/libssh.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
@@ -12,12 +12,12 @@ ExternalProject_Add(libssh
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
         -DWITH_ZLIB=ON
+        -DWITH_MBEDTLS=ON
+        -DMBEDTLS_INCLUDE_DIR=${MINGW_INSTALL_PREFIX}/include
         -DBUILD_STATIC_LIB=ON
         -DWITH_EXAMPLES=OFF
         -DBUILD_SHARED_LIBS=OFF
-        # These functions will be declared in libcrypto. Assume they're exist to avoid linking problem later.
-        -DHAVE_STRNDUP=ON
-        -DHAVE_EXPLICIT_BZERO=ON
+        -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -DMBEDTLS_ALLOW_PRIVATE_ACCESS -DMBEDTLS_THREADING_C -DMBEDTLS_THREADING_PTHREAD'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

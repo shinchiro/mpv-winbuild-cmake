@@ -1,6 +1,6 @@
 ExternalProject_Add(curl
     DEPENDS
-        libressl
+        mbedtls
     GIT_REPOSITORY https://github.com/curl/curl.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
@@ -10,6 +10,7 @@ ExternalProject_Add(curl
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
+        --with-mbedtls=${MINGW_INSTALL_PREFIX}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
