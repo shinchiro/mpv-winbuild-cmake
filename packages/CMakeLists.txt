@@ -39,7 +39,6 @@ list(APPEND ep
     libzimg
     fontconfig
     libass
-    libressl
     mbedtls
     libxml2
     libmfx
