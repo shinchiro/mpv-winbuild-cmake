@@ -1,12 +1,26 @@
-From dee9bb9aadc86b91e5daf6012e4efef3e7d39360 Mon Sep 17 00:00:00 2001
+From c1c7e687618f89ee6cf73282bb4d4f88834a73d8 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Thu, 21 Apr 2022 15:49:04 +0800
 Subject: [PATCH] avoid name collision
 
+also fix libs.private's lib name
 ---
- srtcore/md5.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ CMakeLists.txt | 1 -
+ srtcore/md5.h  | 8 ++++++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 24595f6..dea8be5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -324,7 +324,6 @@ if (ENABLE_ENCRYPTION)
+ 			set(MBEDTLS_PREFIX "${CMAKE_PREFIX_PATH}" CACHE PATH "The path of mbedtls")
+ 			find_package(MbedTLS REQUIRED)
+ 			set (SSL_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
+-			set (SSL_LIBRARIES  ${MBEDTLS_LIBRARIES})
+ 		endif()
+ 		if ("${SSL_LIBRARIES}" STREQUAL "")
+ 			set (SSL_LIBRARIES  mbedtls mbedcrypto)
 diff --git a/srtcore/md5.h b/srtcore/md5.h
 index 98bd076..75e4c8a 100644
 --- a/srtcore/md5.h
@@ -27,5 +41,5 @@ index 98bd076..75e4c8a 100644
   * All symbols have been put under the srt namespace
   * to avoid potential linkage conflicts.
 -- 
-2.35.2
+2.36.0
 
