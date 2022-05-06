@@ -1,12 +1,13 @@
-From e3786bef288580efd5688c869f2c3ae9b25b621e Mon Sep 17 00:00:00 2001
+From 9b5e9dc7ac94660eb0f08fe9d5eac4e30218c3d5 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sun, 3 Oct 2021 11:36:34 +0800
 Subject: [PATCH] Install modified .pc file
 
+for mbedtls support
 ---
  CMakeLists.txt  |  2 +-
- libssh.pc.cmake | 16 ++++++++++++----
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ libssh.pc.cmake | 16 +++++++++++-----
+ 2 files changed, 12 insertions(+), 6 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 32172d9..a295551 100644
@@ -22,28 +23,27 @@ index 32172d9..a295551 100644
    FILES
      ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc
 diff --git a/libssh.pc.cmake b/libssh.pc.cmake
-index b37cb3f..2b2f25c 100644
+index b37cb3f..a4e1b2b 100644
 --- a/libssh.pc.cmake
 +++ b/libssh.pc.cmake
-@@ -1,6 +1,14 @@
+@@ -1,6 +1,12 @@
 -Name: ${PROJECT_NAME}
+-Description: The SSH Library
+-Version: ${PROJECT_VERSION}
+-Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lssh
+-Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
 +prefix=@CMAKE_INSTALL_PREFIX@
 +exec_prefix=${prefix}
 +libdir=${exec_prefix}/lib
 +includedir=${prefix}/include/libssh
-+
-+Name: @PROJECT_NAME@
- Description: The SSH Library
--Version: ${PROJECT_VERSION}
--Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lssh
--Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
-+Version: @PROJECT_VERSION@
-+
-+Requires.private: libssl zlib
-+Libs: -L${libdir} -lssh
-+Libs.private: -L${libdir} -lssl -lz
-+Cflags: -I${includedir} -DLIBSSH_STATIC
  
++Name: @PROJECT_NAME@
++Description: The SSH Library
++Version: @PROJECT_VERSION@
++Libs: -L${libdir} -lssh
++Libs.private: -lmbedtls -lmbedx509 -lmbedcrypto -lz -lwsock32 -lws2_32 -lpthread
++Cflags: -I${includedir}
++Cflags.private: -DLIBSSH_STATIC
 -- 
-2.33.0
+2.36.0
 
