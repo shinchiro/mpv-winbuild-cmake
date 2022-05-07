@@ -25,42 +25,32 @@ ExternalProject_Add(mpv
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC}
-        PKG_CONFIG=pkg-config
-        TARGET=${TARGET_ARCH}
-        DEST_OS=win32
-        <SOURCE_DIR>/waf configure
-        --out=<BINARY_DIR>
-        --top=<SOURCE_DIR>
-        --enable-static-build
-        --enable-pdf-build
-        --disable-manpage-build
-        --enable-libmpv-shared
-        --enable-lua
-        --enable-javascript
-        --enable-sdl2
-        --enable-libarchive
-        --enable-libbluray
-        --enable-dvdnav
-        --enable-uchardet
-        --enable-rubberband
-        --enable-lcms2
-        --enable-openal
-        --enable-spirv-cross
-        --enable-vulkan
-        --enable-vapoursynth
+    CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
-    BUILD_COMMAND ${EXEC} <SOURCE_DIR>/waf
+        --libdir=${MINGW_INSTALL_PREFIX}/lib
+        --cross-file=${MESON_CROSS}
+        --buildtype=release
+        --default-library=shared
+        --prefer-static
+        -Dlibmpv=true
+        -Dpdf-build=enabled
+        -Dlua=enabled
+        -Djavascript=enabled
+        -Dsdl2=enabled
+        -Dlibarchive=enabled
+        -Dlibbluray=enabled
+        -Ddvdnav=enabled
+        -Duchardet=enabled
+        -Drubberband=enabled
+        -Dlcms2=enabled
+        -Dopenal=enabled
+        -Dspirv-cross=enabled
+        -Dvulkan=enabled
+        -Dvapoursynth=enabled
+        -Degl-angle=enabled
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-ExternalProject_Add_Step(mpv bootstrap
-    DEPENDEES download
-    DEPENDERS configure
-    COMMAND <SOURCE_DIR>/bootstrap.py
-    WORKING_DIRECTORY <SOURCE_DIR>
-    LOG 1
 )
 
 ExternalProject_Add_Step(mpv strip-binary
@@ -68,22 +58,22 @@ ExternalProject_Add_Step(mpv strip-binary
     COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --only-keep-debug <BINARY_DIR>/mpv.exe <BINARY_DIR>/mpv.debug
     COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/mpv.exe
     COMMAND ${EXEC} ${TARGET_ARCH}-objcopy --add-gnu-debuglink=<BINARY_DIR>/mpv.debug <BINARY_DIR>/mpv.exe
-    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/mpv.com
-    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/mpv-2.dll
+    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/generated/mpv.com
+    COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/libmpv-2.dll
     COMMENT "Stripping mpv binaries"
 )
 
 ExternalProject_Add_Step(mpv copy-binary
     DEPENDEES strip-binary
     COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.exe                           ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
-    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.com                           ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
-    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/DOCS/man/mpv.pdf                  ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/doc/manual.pdf
+    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/generated/mpv.com                 ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
+    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.pdf                           ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/doc/manual.pdf
     COMMAND ${CMAKE_COMMAND} -E copy ${MINGW_INSTALL_PREFIX}/etc/fonts/fonts.conf   ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv/fonts.conf
     COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.debug                         ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/mpv.debug
 
-    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv-2.dll             ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv-2.dll
-    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.dll.a             ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
-    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.def               ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv.def
+    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libmpv-2.dll          ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv-2.dll
+    COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libmpv.dll.a          ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/libmpv.dll.a
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/mpv.def        ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/mpv.def
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/client.h       ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/client.h
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/stream_cb.h    ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/stream_cb.h
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libmpv/render.h       ${CMAKE_CURRENT_BINARY_DIR}/mpv-dev/include/render.h
@@ -115,4 +105,5 @@ ExternalProject_Add_Step(mpv copy-package-dir
 )
 
 force_rebuild_git(mpv)
+force_meson_configure(mpv)
 cleanup(mpv copy-package-dir)
