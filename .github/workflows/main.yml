@@ -201,3 +201,28 @@ jobs:
             git tag -d $tag
           done
           git push --tags --prune https://shinchiro:$GH_TOKEN@github.com/shinchiro/mpv-winbuild-cmake
+
+  gist:
+    name: Gist
+    runs-on: ubuntu-latest
+    needs: build_mpv
+    if: ${{ always() }}
+    env:
+      GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+      RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Setup git credentials
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Upload job logs to gist
+        id: upload_job_log
+        run: |
+          url=$(curl -su shinchiro:$GH_TOKEN -X GET -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/runs/$RUN_ID/jobs | jq -r '.jobs[0] | .url')
+          curl -sLu shinchiro:$GH_TOKEN -X GET -H "Accept: application/vnd.github.v3+json" $url/logs -o mpv_log
+          git clone --depth 1 https://shinchiro:$GH_TOKEN@gist.github.com/90308c6632c9010d03b325c9ca6a4b6f job_log
+          cp -f mpv_log job_log/mpv_log
+          git -C job_log add .
+          git -C job_log commit --amend --no-edit
+          git -C job_log push -f https://shinchiro:$GH_TOKEN@gist.github.com/90308c6632c9010d03b325c9ca6a4b6f
