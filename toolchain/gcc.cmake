@@ -9,8 +9,8 @@ endif()
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
-    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/11-20220429/gcc-11-20220429.tar.xz
-    URL_HASH SHA512=218b2bc9cba09829d76f695fa3d0db8ea4c15b4af3cb8364eb65adc6c8e0dd80765f0b7ae36e111ad0355bb2883599413f9d93feb12d880a4baa7c499d47758c
+    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/releases/gcc-12.1.0/gcc-12.1.0.tar.xz
+    URL_HASH SHA512=2121d295292814a6761edf1fba08c5f633ebe16f52b80e7b73a91050e71e1d2ed98bf17eebad263e191879561c02b48906c53faa4c4670c486a26fc75df23900
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
