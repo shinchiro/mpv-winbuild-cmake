@@ -2,6 +2,8 @@ ExternalProject_Add(aom
     GIT_REPOSITORY https://aomedia.googlesource.com/aom
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
