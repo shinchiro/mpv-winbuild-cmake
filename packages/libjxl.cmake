@@ -45,20 +45,13 @@ ExternalProject_Add(libjxl
 get_property(src_brotli TARGET brotli PROPERTY _EP_SOURCE_DIR)
 
 ExternalProject_Add_Step(libjxl symlink
-    DEPENDEES download
+    DEPENDEES download update patch
+    DEPENDERS configure
     WORKING_DIRECTORY <SOURCE_DIR>/third_party
     COMMAND rm -r brotli
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_brotli} brotli
     COMMENT "Symlinking brotli"
 )
 
-ExternalProject_Add_Step(libjxl fix-lib
-    DEPENDEES install
-    WORKING_DIRECTORY ${MINGW_INSTALL_PREFIX}/lib
-    COMMAND mv libjxl-static.a          libjxl.a
-    COMMAND mv libjxl_dec-static.a      libjxl_dec.a
-    COMMAND mv libjxl_threads-static.a  libjxl_threads.a
-)
-
 force_rebuild_git(libjxl)
-cleanup(libjxl fix-lib)
+cleanup(libjxl install)
