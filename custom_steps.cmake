@@ -2,6 +2,15 @@ function(cleanup _name _last_step)
     get_property(_build_in_source TARGET ${_name} PROPERTY _EP_BUILD_IN_SOURCE)
     get_property(_git_repository TARGET ${_name} PROPERTY _EP_GIT_REPOSITORY)
     get_property(_url TARGET ${_name} PROPERTY _EP_URL)
+    get_property(git_tag TARGET ${_name} PROPERTY _EP_GIT_TAG)
+    get_property(git_remote_name TARGET ${_name} PROPERTY _EP_GIT_REMOTE_NAME)
+
+    if("${git_remote_name}" STREQUAL "" AND NOT "${git_tag}" STREQUAL "")
+        # GIT_REMOTE_NAME is not set when commit hash is specified
+        set(git_tag "")
+    else()
+        set(git_tag "@{u}")
+    endif()
 
     if(_git_repository)
         if(_build_in_source)
@@ -9,7 +18,7 @@ function(cleanup _name _last_step)
         else()
             set(remove_cmd "rm -rf <BINARY_DIR>/*")
         endif()
-        set(COMMAND_FORCE_UPDATE COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${_name}-force-update)
+        set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null")
     elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
@@ -82,12 +91,12 @@ function(force_rebuild_git _name)
         set(COMMAND_GIT_PULL COMMAND bash -c "git pull > /dev/null")
     endif()
 
-file(WRITE ${stamp_dir}/get_HEAD.sh
+file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
-if [[ ! -f \"${stamp_dir}/HEAD\" ]]; then exit; fi
-if [[ \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse --short HEAD)\" ]]; then
-    find \"${stamp_dir}\" -type f  ! -iname '*.cmake'  -size 0c -delete
-    echo \"Updated and remove stamp files.\"
+if [[ ! -z $(sudo git fetch --dry-run 2>&1) ]]; then
+    git reset --hard ${git_tag} > /dev/null
+    find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
+    echo \"Removing ${_name} stamp files.\"
 fi")
 
     ExternalProject_Add_Step(${_name} force-update
@@ -96,10 +105,8 @@ fi")
         INDEPENDENT TRUE
         WORKING_DIRECTORY <SOURCE_DIR>
         COMMAND bash -c "git am --abort 2> /dev/null || true"
-        COMMAND bash -c "git reset --hard ${git_tag} > /dev/null"
+        COMMAND chmod 755 ${stamp_dir}/reset_head.sh && ${stamp_dir}/reset_head.sh
         ${COMMAND_GIT_PULL}
-        COMMAND chmod 755 ${stamp_dir}/get_HEAD.sh && ${stamp_dir}/get_HEAD.sh
-        COMMAND bash -c "git rev-parse --short HEAD > ${stamp_dir}/HEAD"
     )
     ExternalProject_Add_StepTargets(${_name} force-update)
 
