@@ -18,7 +18,8 @@ function(cleanup _name _last_step)
         else()
             set(remove_cmd "rm -rf <BINARY_DIR>/*")
         endif()
-        set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null")
+        set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
+                                 COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null")
     elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
@@ -88,12 +89,14 @@ function(force_rebuild_git _name)
         set(COMMAND_GIT_PULL "")
     else()
         set(git_tag "@{u}")
-        set(COMMAND_GIT_PULL COMMAND bash -c "git pull > /dev/null")
+        set(COMMAND_GIT_PULL COMMAND bash -c "git pull -q")
     endif()
 
 file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
-if [[ ! -z $(sudo git fetch --dry-run 2>&1) ]]; then
+if [[ ! -f \"${stamp_dir}/HEAD\" ]]; then exit; fi
+git fetch --no-tags
+if [[ \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]; then
     git reset --hard ${git_tag} > /dev/null
     find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
     echo \"Removing ${_name} stamp files.\"
@@ -109,6 +112,14 @@ fi")
         ${COMMAND_GIT_PULL}
     )
     ExternalProject_Add_StepTargets(${_name} force-update)
+
+    ExternalProject_Add_Step(${_name} write-head
+        DEPENDERS patch
+        INDEPENDENT TRUE
+        WORKING_DIRECTORY <SOURCE_DIR>
+        COMMAND bash -c "git rev-parse HEAD > ${stamp_dir}/HEAD"
+        LOG 1
+    )
 
     if(EXISTS ${source_dir}/.git)
         ExternalProject_Add_Step(${_name} check-git
