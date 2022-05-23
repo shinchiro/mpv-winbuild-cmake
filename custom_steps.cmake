@@ -97,9 +97,11 @@ file(WRITE ${stamp_dir}/reset_head.sh
 if [[ ! -f \"${stamp_dir}/HEAD\" ]]; then exit; fi
 git fetch --no-tags
 if [[ \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]; then
-    git reset --hard ${git_tag} > /dev/null
+    git reset --hard ${git_tag} -q
     find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
     echo \"Removing ${_name} stamp files.\"
+else
+    git reset --hard -q
 fi")
 
     ExternalProject_Add_Step(${_name} force-update
