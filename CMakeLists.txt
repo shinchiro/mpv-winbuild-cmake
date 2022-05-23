@@ -1,13 +1,11 @@
-cmake_minimum_required(VERSION 3.15.0)
+cmake_minimum_required(VERSION 3.19.0)
 project(mpv-cross C)
 include(ExternalProject)
 include(ProcessorCount)
 include(${CMAKE_CURRENT_SOURCE_DIR}/custom_steps.cmake)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.19.0")
-    cmake_policy(SET CMP0097 NEW)
-    cmake_policy(SET CMP0114 NEW)
-endif()
+cmake_policy(SET CMP0097 NEW)
+cmake_policy(SET CMP0114 NEW)
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
