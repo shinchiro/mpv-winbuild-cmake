@@ -13,6 +13,12 @@ ExternalProject_Add(libmfx
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+ExternalProject_Add_Step(libmfx fix-pc
+    DEPENDEES install
+    WORKING_DIRECTORY ${MINGW_INSTALL_PREFIX}/lib/pkgconfig
+    COMMAND mv libmfx.pc mfx.pc
+)
+
 force_rebuild_git(libmfx)
 autoreconf(libmfx)
-cleanup(libmfx install)
+cleanup(libmfx fix-pc)
