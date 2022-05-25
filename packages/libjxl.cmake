@@ -13,7 +13,7 @@ ExternalProject_Add(libjxl
     GIT_TAG main
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/libjxl-*.patch
+    PATCH_COMMAND ${EXEC} curl -sL https://github.com/libjxl/libjxl/pull/1444.patch | git am -3 --whitespace=fix
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
