@@ -87,7 +87,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - ogg (1.3.5)
     - lzo (2.10)
     - libopenmpt (0.6.2)
-    - libiconv (1.16)
+    - libiconv (1.17)
     - gmp (6.2.1)
     - vapoursynth (R59)
     - libsdl2 (2.0.22)
