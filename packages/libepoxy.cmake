@@ -2,7 +2,7 @@ ExternalProject_Add(libepoxy
     GIT_REPOSITORY https://github.com/anholt/libepoxy.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
-    PATCH_COMMAND ${EXEC} curl -s https://patch-diff.githubusercontent.com/raw/anholt/libepoxy/pull/265.patch | git am -3 --whitespace=fix
+    PATCH_COMMAND ${EXEC} curl -s https://patch-diff.githubusercontent.com/raw/anholt/libepoxy/pull/265.patch | git am --3way --whitespace=fix
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}

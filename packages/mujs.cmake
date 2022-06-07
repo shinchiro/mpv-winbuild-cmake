@@ -10,7 +10,7 @@ host=mingw")
 ExternalProject_Add(mujs
     GIT_REPOSITORY https://github.com/ccxvii/mujs.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/mujs-*.patch
+    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/mujs-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} -C <SOURCE_DIR> ${flag}

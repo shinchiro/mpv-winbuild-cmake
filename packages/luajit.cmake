@@ -34,7 +34,7 @@ ExternalProject_Add(luajit
     GIT_SHALLOW 1
     GIT_REMOTE_NAME origin
     GIT_TAG v2.1-agentzh
-    PATCH_COMMAND ${EXEC} git am ${CMAKE_CURRENT_SOURCE_DIR}/luajit-*.patch
+    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/luajit-*.patch
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE} -C <SOURCE_DIR>/src
