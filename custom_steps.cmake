@@ -95,7 +95,7 @@ function(force_rebuild_git _name)
 file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
 git fetch --no-tags
-if [[ ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]; then
+if [[ ! -f \"${stamp_dir}/${_name}-patch\" || \"${stamp_dir}/${_name}-download\" -nt \"${stamp_dir}/${_name}-patch\" || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]; then
     git reset --hard ${git_tag} -q
     find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
     echo \"Removing ${_name} stamp files.\"
