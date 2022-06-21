@@ -1,6 +1,6 @@
-From 5e3a44335617250ebda73656b2438ed2d5d1fe8a Mon Sep 17 00:00:00 2001
+From d42faaa5e8814b1d096fd00a64bbf3e7759e22f6 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 10 Mar 2022 22:02:43 +0800
+Date: Tue, 21 Jun 2022 15:29:10 +0800
 Subject: [PATCH] remove pkg-config detection
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] remove pkg-config detection
  1 file changed, 3 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index a69c9f6..8bb5aae 100644
+index 25beab2..8f34de3 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -318,8 +318,6 @@ if (TARGET asm_offset)
@@ -26,8 +26,8 @@ index a69c9f6..8bb5aae 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 -endif()
  
- target_link_libraries(vulkan Vulkan::Headers)
+ target_link_libraries(vulkan PRIVATE Vulkan::Headers)
  add_library(Vulkan::Vulkan ALIAS vulkan)
 -- 
-2.35.1
+2.36.1
 
