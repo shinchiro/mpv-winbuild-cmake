@@ -1,6 +1,7 @@
 ExternalProject_Add(libzimg
     GIT_REPOSITORY https://github.com/sekrit-twc/zimg.git
     SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_TAG c9a15ec4f86adfef6c7cede8dae79762d34f2564
     GIT_SHALLOW 1
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
