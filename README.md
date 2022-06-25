@@ -35,7 +35,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libwebp
     - libpng
     - libsoxr
-    - libzimg
+    - libzimg (with graphengine)
     - libdvdread
     - libdvdnav
     - libdvdcss
