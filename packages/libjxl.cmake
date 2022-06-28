@@ -48,7 +48,7 @@ ExternalProject_Add_Step(libjxl symlink
     DEPENDEES download update patch
     DEPENDERS configure
     WORKING_DIRECTORY <SOURCE_DIR>/third_party
-    COMMAND rm -r brotli
+    COMMAND rm -rf brotli
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_brotli} brotli
     COMMENT "Symlinking brotli"
 )

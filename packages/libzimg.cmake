@@ -22,7 +22,6 @@ ExternalProject_Add_Step(libzimg symlink
     DEPENDEES download update patch
     DEPENDERS configure
     WORKING_DIRECTORY <SOURCE_DIR>
-    COMMAND rm -r graphengine
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_graphengine} graphengine
     COMMENT "Symlinking graphengine"
 )
