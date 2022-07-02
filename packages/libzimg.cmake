@@ -3,7 +3,6 @@ ExternalProject_Add(libzimg
         graphengine
     GIT_REPOSITORY https://github.com/sekrit-twc/zimg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_TAG c9a15ec4f86adfef6c7cede8dae79762d34f2564
     GIT_SHALLOW 1
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
@@ -22,6 +21,7 @@ ExternalProject_Add_Step(libzimg symlink
     DEPENDEES download update patch
     DEPENDERS configure
     WORKING_DIRECTORY <SOURCE_DIR>
+    COMMAND rm -rf graphengine
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_graphengine} graphengine
     COMMENT "Symlinking graphengine"
 )
