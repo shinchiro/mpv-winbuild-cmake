@@ -1,0 +1,25 @@
+From 360940095951acd5e95b12c73eace37b4b5d2cda Mon Sep 17 00:00:00 2001
+From: fakeuser <fakeuser@outlook.com>
+Date: Thu, 7 Jul 2022 14:42:32 -0400
+Subject: [PATCH] Fix appmodel.h header
+
+---
+ loader/loader_windows.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/loader/loader_windows.c b/loader/loader_windows.c
+index fb51390..e17a5a1 100644
+--- a/loader/loader_windows.c
++++ b/loader/loader_windows.c
+@@ -53,7 +53,7 @@
+ #include <dxgi1_6.h>
+ #include "adapters.h"
+ 
+-#include <appmodel.h>
++//#include <appmodel.h>
+ 
+ #if !defined(NDEBUG)
+ #include <crtdbg.h>
+-- 
+2.37.0
+

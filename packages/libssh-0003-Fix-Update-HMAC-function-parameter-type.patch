@@ -1,0 +1,25 @@
+From 993d9c90f9f86c81357ab2aec108e338fc0e5872 Mon Sep 17 00:00:00 2001
+From: fakeuser <fakeuser@outlook.com>
+Date: Thu, 7 Jul 2022 14:25:40 -0400
+Subject: [PATCH] Fix Update HMAC function parameter type
+
+---
+ src/libmbedcrypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/libmbedcrypto.c b/src/libmbedcrypto.c
+index 6b8ecf6d..902b1686 100644
+--- a/src/libmbedcrypto.c
++++ b/src/libmbedcrypto.c
+@@ -457,7 +457,7 @@ int hmac_update(HMACCTX c, const void *data, size_t len)
+ int hmac_final(HMACCTX c, unsigned char *hashmacbuf, size_t *len)
+ {
+     int rc;
+-    *len = (unsigned int)mbedtls_md_get_size(c->md_info);
++    *len = (unsigned int)mbedtls_md_get_size(c->MBEDTLS_PRIVATE(md_info));
+     rc = !mbedtls_md_hmac_finish(c, hashmacbuf);
+     mbedtls_md_free(c);
+     SAFE_FREE(c);
+-- 
+2.37.0
+
