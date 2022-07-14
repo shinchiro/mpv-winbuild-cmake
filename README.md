@@ -91,7 +91,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - gmp (6.2.1)
     - vapoursynth (R59)
     - libsdl2 (2.0.22)
-    - mbedtls (3.1.0)
+    - mbedtls (3.2.1)
     - ~~libressl (3.1.5)~~
 
 
