@@ -69,7 +69,7 @@ list(APPEND ep
     vulkan-header
     vulkan
     shaderc
-    libepoxy
+    glad
     libplacebo
     libsixel
     curl
