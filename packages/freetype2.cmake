@@ -1,25 +1,28 @@
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/ft2exec.in ${CMAKE_CURRENT_BINARY_DIR}/ft2exec)
-
 ExternalProject_Add(freetype2
-    DEPENDS libpng zlib
+    DEPENDS
+        libpng
+        zlib
     GIT_REPOSITORY https://gitlab.com/shinchiro/freetype2.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ft2exec <SOURCE_DIR>/configure
-        --build=${HOST_ARCH}
-        --host=${TARGET_ARCH}
+    CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
-        --without-harfbuzz
-        --with-sysroot=${MINGW_INSTALL_PREFIX}
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${MINGW_INSTALL_PREFIX}/bin/freetype-config ${CMAKE_INSTALL_PREFIX}/bin/freetype-config
+        --libdir=${MINGW_INSTALL_PREFIX}/lib
+        --cross-file=${MESON_CROSS}
+        --buildtype=release
+        --default-library=static
+        -Dharfbuzz=disabled
+        -Dtests=disabled
+        -Dbrotli=disabled
+        -Dzlib=enabled
+        -Dpng=enabled
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
 force_rebuild_git(freetype2)
-autogen(freetype2)
+force_meson_configure(freetype2)
 cleanup(freetype2 install)
