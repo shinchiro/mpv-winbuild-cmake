@@ -1,3 +1,4 @@
+get_property(src_brotli TARGET brotli PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libjxl
     DEPENDS
         lcms2
@@ -14,7 +15,10 @@ ExternalProject_Add(libjxl
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} curl -sL https://github.com/libjxl/libjxl/pull/1444.patch | git am --3way --whitespace=fix
-    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+    CONFIGURE_COMMAND ""
+    COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/brotli"
+    COMMAND bash -c "ln -s ${src_brotli} <SOURCE_DIR>/third_party/brotli"
+    COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
         -DBUILD_SHARED_LIBS=OFF
@@ -40,17 +44,6 @@ ExternalProject_Add(libjxl
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-get_property(src_brotli TARGET brotli PROPERTY _EP_SOURCE_DIR)
-
-ExternalProject_Add_Step(libjxl symlink
-    DEPENDEES download update patch
-    DEPENDERS configure
-    WORKING_DIRECTORY <SOURCE_DIR>/third_party
-    COMMAND rm -rf brotli
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${src_brotli} brotli
-    COMMENT "Symlinking brotli"
 )
 
 force_rebuild_git(libjxl)
