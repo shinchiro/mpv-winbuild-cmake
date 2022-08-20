@@ -1,5 +1,5 @@
 if(${TARGET_CPU} MATCHES "x86_64")
-    set(gcc_arch "x86-64")
+    set(gcc_arch "x86-64-v3")
     set(exception "--enable-seh-exceptions")
 else()
     set(gcc_arch "i686")
