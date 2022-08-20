@@ -39,6 +39,7 @@ list(APPEND ep
     graphengine
     libzimg
     fontconfig
+    libunibreak
     libass
     mbedtls
     libxml2
