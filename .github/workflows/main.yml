@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        bit: [32, 64]
+        bit: [32, 64, 64-v3]
     env:
       BIT: ${{ matrix.bit }}
     container:
@@ -42,6 +42,10 @@ jobs:
             echo "arch=i686" >> $GITHUB_ENV
           elif [[ $BIT == 64 ]]; then
             echo "arch=x86_64" >> $GITHUB_ENV
+          elif [[ $BIT == 64-v3 ]]; then
+            echo "arch=x86_64" >> $GITHUB_ENV
+            echo "gcc_arch=-DGCC_ARCH=x86-64-v3" >> $GITHUB_ENV
+            echo "x86_64_level=-v3" >> $GITHUB_ENV
           fi
 
       - name: Setup git config
@@ -90,7 +94,7 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild$BIT -H.
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild$BIT -H.
           ninja -C build$BIT download || true
 
       - name: Building toolchain
@@ -120,7 +124,7 @@ jobs:
         continue-on-error: true
         run: |
           hash=$(git -C src_packages/ffmpeg rev-parse --short HEAD)
-          7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
+          7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
 
       - name: Collecting logs
         id: collect_logs
@@ -142,7 +146,7 @@ jobs:
         id: delete_build_dir
         run: |
           rm -rf build$BIT/mpv*
-          if [[ $BIT == 64 ]]; then rm -rf src_packages/*; fi
+          if [[ $BIT == 64 || $BIT == 64-v3 ]]; then rm -rf src_packages/*; fi
           du -sh build$BIT src_packages /var/cache/pacman/pkg || true
 
   release:
@@ -181,10 +185,16 @@ jobs:
           path: release64
           key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
 
+      - name: Loading release64 cache
+        uses: actions/cache@main
+        with:
+          path: release64-v3
+          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
+
       - name: Moving archives
         run: |
           mkdir -p release
-          mv release32/* release64/* release
+          mv release32/* release64/* release64-v3/* release
           du -ah release/*
 
       - name: Uploading packages to Sourceforge

@@ -1,8 +1,8 @@
 if(${TARGET_CPU} MATCHES "x86_64")
-    set(gcc_arch "x86-64-v3")
+    set(arch "${GCC_ARCH}")
     set(exception "--enable-seh-exceptions")
 else()
-    set(gcc_arch "i686")
+    set(arch "i686")
     set(exception "--enable-dw2-exceptions")
 endif()
 
@@ -22,7 +22,7 @@ ExternalProject_Add(gcc
         --disable-nls
         --disable-shared
         --disable-win32-registry
-        --with-arch=${gcc_arch}
+        --with-arch=${arch}
         --with-tune=generic
         --enable-threads=posix
         --without-included-gettext

@@ -152,6 +152,8 @@ Once you’ve changed into that directory, run CMake, e.g.
 
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja ..
 
+add `-DGCC_ARCH=x86-64-v3` to commandline if you want to compile gcc with new `x86-64-v3` instructions. Other value like `native`, `znver3` should work too in theory.
+
 or for 32bit:
 
     cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
