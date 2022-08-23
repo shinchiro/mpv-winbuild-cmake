@@ -3,6 +3,7 @@ ExternalProject_Add(brotli
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/brotli-*.patch
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -14,14 +15,5 @@ ExternalProject_Add(brotli
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(brotli fix-lib
-    DEPENDEES install
-    WORKING_DIRECTORY ${MINGW_INSTALL_PREFIX}/lib
-    COMMAND mv libbrotlienc-static.a     libbrotlienc.a
-    COMMAND mv libbrotlidec-static.a     libbrotlidec.a
-    COMMAND mv libbrotlicommon-static.a  libbrotlicommon.a
-    COMMAND rm libbrotlicommon.dll.a libbrotlidec.dll.a libbrotlienc.dll.a
-)
-
 force_rebuild_git(brotli)
-cleanup(brotli fix-lib)
+cleanup(brotli install)
