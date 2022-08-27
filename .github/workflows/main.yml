@@ -208,9 +208,10 @@ jobs:
           chmod 400 sf_key
           chmod -R 700 /root
           sftp -i sf_key shinchiro@frs.sourceforge.net:/home/frs/project/mpv-player-windows <<END
-          put release/mpv-dev* libmpv
-          put release/mpv-i* 32bit
-          put release/mpv-x* 64bit
+          put release/mpv-dev*           libmpv
+          put release/mpv-i686*          32bit
+          put release/mpv-x86_64-[!v3]*  64bit
+          put release/mpv-x86_64-v3*     64bit-v3
           END
 
       - name: Uploading packages to Github release
