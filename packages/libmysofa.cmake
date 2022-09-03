@@ -2,6 +2,8 @@ ExternalProject_Add(libmysofa
     DEPENDS zlib
     GIT_REPOSITORY https://github.com/hoene/libmysofa.git
     SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     GIT_SHALLOW 1
     UPDATE_COMMAND ""
     CMAKE_ARGS
