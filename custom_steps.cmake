@@ -4,6 +4,7 @@ function(cleanup _name _last_step)
     get_property(_url TARGET ${_name} PROPERTY _EP_URL)
     get_property(git_tag TARGET ${_name} PROPERTY _EP_GIT_TAG)
     get_property(git_remote_name TARGET ${_name} PROPERTY _EP_GIT_REMOTE_NAME)
+    get_property(source_dir TARGET ${_name} PROPERTY _EP_SOURCE_DIR)
 
     if("${git_remote_name}" STREQUAL "" AND NOT "${git_tag}" STREQUAL "")
         # GIT_REMOTE_NAME is not set when commit hash is specified
@@ -19,7 +20,7 @@ function(cleanup _name _last_step)
             set(remove_cmd "rm -rf <BINARY_DIR>/*")
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
-                                 COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null")
+                                 COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null || true")
     elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
@@ -66,7 +67,7 @@ function(cleanup _name _last_step)
     )
 
     ExternalProject_Add_Step(${_name} removeprefix
-        COMMAND ${EXEC} rm -rf <INSTALL_DIR>
+        COMMAND ${EXEC} rm -rf <INSTALL_DIR> ${source_dir}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rebuild_cache
         ${COMMAND_FORCE_UPDATE}
         ALWAYS TRUE
