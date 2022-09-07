@@ -8,7 +8,6 @@ ExternalProject_Add(shaderc
     GIT_REMOTE_NAME origin
     GIT_TAG main
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} curl -sL https://github.com/google/shaderc/pull/1264.patch | git am --3way --whitespace=fix
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
