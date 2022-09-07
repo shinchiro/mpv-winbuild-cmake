@@ -1,18 +1,18 @@
-From 4cdde96d1f122acc312c0abdfe05b3ba1d626d65 Mon Sep 17 00:00:00 2001
+From b86604f400583fbef0c695f137490ee0324d9000 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 8 Jul 2022 22:12:59 +0800
+Date: Wed, 7 Sep 2022 09:03:52 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 16 ++++++++--------
+ loader/CMakeLists.txt       | 13 ++++++++-----
  loader/loader.h             |  2 ++
  loader/loader.rc            |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
- 5 files changed, 20 insertions(+), 9 deletions(-)
+ 5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 3e99612..36e3d51 100644
+index bf43087..50cf245 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -24,7 +24,7 @@ add_library(loader_specific_options INTERFACE)
@@ -24,7 +24,7 @@ index 3e99612..36e3d51 100644
      if(MSVC)
          # Use static MSVCRT libraries
          foreach(configuration
-@@ -126,7 +126,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -130,7 +130,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index 3e99612..36e3d51 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -215,7 +215,7 @@ else() # i.e.: Linux
+@@ -219,7 +219,7 @@ else() # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index 3e99612..36e3d51 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -251,7 +251,7 @@ if(WIN32)
+@@ -261,7 +261,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -51,7 +51,7 @@ index 3e99612..36e3d51 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -295,6 +295,7 @@ else()
+@@ -305,6 +305,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index 3e99612..36e3d51 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -308,6 +309,7 @@ else()
+@@ -318,6 +319,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,19 +67,16 @@ index 3e99612..36e3d51 100644
  # cmake-format: on
      endif()
  endif()
-@@ -324,10 +326,7 @@ endif()
- include(FindPkgConfig QUIET)
- if(PKG_CONFIG_FOUND)
-     set(VK_API_VERSION "${LOADER_GENERATED_HEADER_VERSION}")
--    foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
--        set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
--    endforeach()
+@@ -337,7 +339,7 @@ if(PKG_CONFIG_FOUND)
+     foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
+         set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
+     endforeach()
 -    if(WIN32)
-+    if(WIN32 AND NOT MINGW)
-         set(VULKAN_LIB_SUFFIX "-1")
-         # Set libdir path as in cmake's FindVulkan.cmake
-         # https://github.com/KhronosGroup/Vulkan-Loader/issues/668
-@@ -339,6 +338,7 @@ if(PKG_CONFIG_FOUND)
++    if(WIN32 AND NOT BUILD_STATIC_LOADER)
+         if(MINGW)
+             set(VULKAN_LIB_SUFFIX "-1.dll")
+         else()
+@@ -353,6 +355,7 @@ if(PKG_CONFIG_FOUND)
      else()
          set(CMAKE_INSTALL_FULL_LIBDIR_PC ${CMAKE_INSTALL_FULL_LIBDIR})
      endif ()
@@ -118,7 +115,7 @@ index 996d9c5..90863da 100644
  // All set through CMake
  #define VER_FILE_VERSION 1, 0, 1111, 2222
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 1ad74e9..fb51390 100644
+index 4015acb..0262dc7 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -130,7 +127,7 @@ index 1ad74e9..fb51390 100644
  #endif
  #include <dxgi1_6.h>
  #include "adapters.h"
-@@ -88,6 +90,7 @@ void windows_initialization(void) {
+@@ -91,6 +93,7 @@ void windows_initialization(void) {
  #endif
  }
  
@@ -138,7 +135,7 @@ index 1ad74e9..fb51390 100644
  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      switch (reason) {
          case DLL_PROCESS_ATTACH:
-@@ -104,6 +107,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+@@ -107,6 +110,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      }
      return TRUE;
  }
@@ -147,7 +144,7 @@ index 1ad74e9..fb51390 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 864eaf4..3613c59 100644
+index ebfa2eb..06cf9cf 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -65,6 +65,7 @@
@@ -168,5 +165,5 @@ index 864eaf4..3613c59 100644
      assert(func != NULL);
      assert(ctl != NULL);
 -- 
-2.37.0
+2.37.2
 
