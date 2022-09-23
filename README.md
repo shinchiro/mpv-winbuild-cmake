@@ -79,7 +79,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libsixel
 
 - Zip
-    - expat (2.4.8)
+    - expat (2.4.9)
     - bzip (1.0.8)
     - zlib (1.2.12)
     - xvidcore (1.3.7)
@@ -87,11 +87,11 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - speex (1.2.1)
     - ogg (1.3.5)
     - lzo (2.10)
-    - libopenmpt (0.6.4)
+    - libopenmpt (0.6.5)
     - libiconv (1.17)
     - gmp (6.2.1)
     - vapoursynth (R60)
-    - libsdl2 (2.0.22)
+    - libsdl2 (2.24.0)
     - mbedtls (3.2.1)
     - ~~libressl (3.1.5)~~
 
