@@ -1,49 +1,23 @@
-From 9b5e9dc7ac94660eb0f08fe9d5eac4e30218c3d5 Mon Sep 17 00:00:00 2001
+From a12f0be65454ff1864807f11e84e78eed51e64ee Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 3 Oct 2021 11:36:34 +0800
+Date: Sat, 24 Sep 2022 07:00:18 +0800
 Subject: [PATCH] Install modified .pc file
 
-for mbedtls support
 ---
- CMakeLists.txt  |  2 +-
- libssh.pc.cmake | 16 +++++++++++-----
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ libssh.pc.cmake | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 32172d9..a295551 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -125,7 +125,7 @@ add_subdirectory(src)
- 
- # pkg-config file
- if (UNIX OR MINGW)
--configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc)
-+configure_file(libssh.pc.cmake ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc @ONLY)
- install(
-   FILES
-     ${CMAKE_CURRENT_BINARY_DIR}/libssh.pc
 diff --git a/libssh.pc.cmake b/libssh.pc.cmake
-index b37cb3f..a4e1b2b 100644
+index f288b94..5728e43 100644
 --- a/libssh.pc.cmake
 +++ b/libssh.pc.cmake
-@@ -1,6 +1,12 @@
--Name: ${PROJECT_NAME}
--Description: The SSH Library
--Version: ${PROJECT_VERSION}
--Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lssh
--Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
-+prefix=@CMAKE_INSTALL_PREFIX@
-+exec_prefix=${prefix}
-+libdir=${exec_prefix}/lib
-+includedir=${prefix}/include/libssh
- 
-+Name: @PROJECT_NAME@
-+Description: The SSH Library
-+Version: @PROJECT_VERSION@
-+Libs: -L${libdir} -lssh
+@@ -7,4 +7,6 @@ Name: @PROJECT_NAME@
+ Description: The SSH Library
+ Version: @PROJECT_VERSION@
+ Libs: -L${libdir} -lssh
 +Libs.private: -lmbedtls -lmbedx509 -lmbedcrypto -lz -lwsock32 -lws2_32 -lpthread
-+Cflags: -I${includedir}
+ Cflags: -I${includedir}
 +Cflags.private: -DLIBSSH_STATIC
 -- 
-2.36.0
+2.37.2
 
