@@ -115,7 +115,7 @@ These packages need to be installed first before compiling mpv:
 
 * Use [apt-fast](https://github.com/ilikenwf/apt-fast) if apt-get is too slow.
 * It is advised to use bash over dash. Set `sudo ln -sf /bin/bash /bin/sh`. Revert back by `sudo ln -sf /bin/dash /bin/sh`.
-* On WSL platform, compiling 32bit require qemu. Refer to [this](https://github.com/Microsoft/WSL/issues/2468#issuecomment-374904520).
+* On WSL platform, compiling 32bit requires qemu. Refer to [this](https://github.com/Microsoft/WSL/issues/2468#issuecomment-374904520).
 * To update package installed by pip, run `pip3 install <package> --upgrade`.
 
 ### Cygwin
@@ -152,7 +152,7 @@ Once you’ve changed into that directory, run CMake, e.g.
 
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja ..
 
-add `-DGCC_ARCH=x86-64-v3` to commandline if you want to compile gcc with new `x86-64-v3` instructions. Other value like `native`, `znver3` should work too in theory.
+add `-DGCC_ARCH=x86-64-v3` to command-line if you want to compile gcc with new `x86-64-v3` instructions. Other value like `native`, `znver3` should work too in theory.
 
 or for 32bit:
 
@@ -191,9 +191,9 @@ This will also build all packages that `mpv` depends on.
 | ninja package              | compile a package |
 | ninja clean                | remove all stamp files in all packages. |
 | ninja download             | Download all packages' sources at once without compiling. |
-| ninja update               | Update all git repos. When a package pulling new changes, all of its stamp files will be deleted and will be force rebuild. If there is not changes, it will not remove the stamp files and not rebuild occur. Use this instead of `ninja clean` if you don't want rebuild everything in next run. |
+| ninja update               | Update all git repos. When a package pulls new changes, all of its stamp files will be deleted and will be forced rebuild. If there is no change, it will not remove the stamp files and no rebuild occur. Use this instead of `ninja clean` if you don't want to rebuild everything in the next run. |
 | ninja package-fullclean    | Remove all stamp files of a package. |
-| ninja package-liteclean    | Remove build, clean stamp files only. This will skip re-configure in next running `ninja package` (after first time compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` target in `package.cmake` should be temporarily commented or deleted. Might be useful in some case. |
+| ninja package-liteclean    | Remove build, clean stamp files only. This will skip re-configure in the next running `ninja package` (after the first compile). Updating repo or patching need to do manually. Ideally, all `DEPENDS` targets in `package.cmake` should be temporarily commented or deleted. Might be useful in some cases. |
 | ninja package-removebuild  | Remove 'build' directory of a package. |
 | ninja package-removeprefix | Remove 'prefix' directory. |
 | ninja package-force-update | Update a package. Only git repo will be updated. |
@@ -202,4 +202,4 @@ This will also build all packages that `mpv` depends on.
 
 ## Acknowledgements
 
-This project originally created and maintained [lachs0r](https://github.com/lachs0r/mingw-w64-cmake). Since then, it heavily modified to suit my own need.
+This project was originally created and maintained [lachs0r](https://github.com/lachs0r/mingw-w64-cmake). Since then, it heavily modified to suit my own need.
