@@ -39,7 +39,7 @@ ExternalProject_Add(mpv-release
         libsdl2
     URL ${LINK}
     CONFIGURE_COMMAND ${EXEC}
-        PKG_CONFIG=pkg-config
+        PKG_CONFIG=pkgconf
         TARGET=${TARGET_ARCH}
         DEST_OS=win32
         <SOURCE_DIR>/waf configure
