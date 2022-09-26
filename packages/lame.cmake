@@ -1,8 +1,15 @@
+set(DEBPATCH ${CMAKE_CURRENT_BINARY_DIR}/lame-prefix/src/patch.sh)
+file(WRITE ${DEBPATCH}
+"#!/bin/bash
+for i in $(cat debian/patches/series); do
+    patch -N -p1 < debian/patches/$i || true
+done")
+
 ExternalProject_Add(lame
     GIT_REPOSITORY https://gitlab.com/shinchiro/lame.git
     SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${DEBPATCH}
+    PATCH_COMMAND chmod 755 ${DEBPATCH} && ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
