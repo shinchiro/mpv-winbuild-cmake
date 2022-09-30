@@ -1,9 +1,9 @@
 ExternalProject_Add(rubberband
     GIT_REPOSITORY https://github.com/breakfastquay/rubberband.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    # GIT_SHALLOW 1
-    # GIT_REMOTE_NAME origin
-    GIT_TAG e90f377600d6097c6e37d0824f98bf60f77a0841
+    GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG default
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
