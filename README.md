@@ -81,7 +81,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 - Zip
     - expat (2.4.9)
     - bzip (1.0.8)
-    - zlib (1.2.12)
+    - zlib (1.2.13)
     - xvidcore (1.3.7)
     - vorbis (1.3.7)
     - speex (1.2.1)
