@@ -60,6 +60,8 @@ list(APPEND ep
     brotli
     highway
     libjxl
+    uavs3d
+    davs2
     ffmpeg
     angle-headers
     mujs

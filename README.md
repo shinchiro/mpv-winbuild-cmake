@@ -76,6 +76,8 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libsrt
     - libjxl (with brotli, highway)
     - libmodplug
+    - uavs3d
+    - davs2
     - libsixel
 
 - Zip
