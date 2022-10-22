@@ -1,3 +1,7 @@
+if(${TARGET_CPU} MATCHES "i686")
+    set(disable_asm "--disable-asm")
+endif()
+
 ExternalProject_Add(davs2
     GIT_REPOSITORY https://github.com/pkuvcl/davs2.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -8,17 +12,12 @@ ExternalProject_Add(davs2
         --cross-prefix=${TARGET_CPU}-w64-mingw32-
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-cli
+        ${disable_asm}
     BUILD_COMMAND ${MAKE} -C <SOURCE_DIR>/build/linux
     INSTALL_COMMAND ${MAKE} -C <SOURCE_DIR>/build/linux install
+    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(davs2 force-cleanup
-    DEPENDEES build install
-    COMMAND ${EXEC} git clean -dfx
-    WORKING_DIRECTORY <SOURCE_DIR>
-    LOG 1
-)
-
 force_rebuild_git(davs2)
-cleanup(davs2 force-cleanup)
+cleanup(davs2 install)
