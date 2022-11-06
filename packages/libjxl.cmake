@@ -39,7 +39,7 @@ ExternalProject_Add(libjxl
         -DJPEGXL_ENABLE_DEVTOOLS=OFF
         -DJPEGXL_ENABLE_BENCHMARK=OFF
         -DJPEGXL_ENABLE_SJPEG=OFF
-        -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -Wa,-muse-unaligned-vector-move' # fix crash on AVX2 proc (64bit) due to unaligned stack memory
+        -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -mf16c -Wa,-muse-unaligned-vector-move' # fix crash on AVX2 proc (64bit) due to unaligned stack memory
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -Wa,-muse-unaligned-vector-move'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
