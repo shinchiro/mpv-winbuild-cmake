@@ -20,6 +20,11 @@ on:
         required: false
         default: true
         type: boolean
+      mpv_tarball:
+        description: 'Build latest mpv tarball'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build_mpv:
@@ -106,14 +111,21 @@ jobs:
 
       - name: Building mpv
         id: build_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' }}
+        if: ${{ github.event.inputs.mpv_tarball == 'false' && steps.build_toolchain.outcome == 'success' }}
         continue-on-error: true
         run: |
           ninja -C build$BIT update; ninja -C build$BIT mpv
 
+      - name: Building mpv tarball
+        id: build_mpv_tarball
+        if: ${{ github.event.inputs.mpv_tarball == 'true' && steps.build_toolchain.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          ninja -C build$BIT update; ninja -C build$BIT mpv-release
+
       - name: Packaging mpv
         id: packaging_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' && steps.build_mpv.outcome == 'success' }}
+        if: ${{ steps.build_toolchain.outcome == 'success' && (steps.build_mpv.outcome == 'success' || steps.build_mpv_tarball.outcome == 'success') }}
         continue-on-error: true
         run: |
           mkdir -p release$BIT
@@ -213,11 +225,12 @@ jobs:
           put release/mpv-i686*          32bit
           put release/mpv-x86_64-[!v3]*  64bit
           put release/mpv-x86_64-v3*     64bit-v3
+          put release/mpv-*-[xi6864]*.7z release
           END
 
       - name: Uploading packages to Github release
         id: upload_packages_gh
-        if: ${{ github.event.inputs.github_release == 'true' }}
+        if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
         continue-on-error: true
         env:
           SHORT_DATE: ${{ env.short_date }}
