@@ -1,4 +1,4 @@
-From c197988447865ad3d34887a086cbd21c426e76e5 Mon Sep 17 00:00:00 2001
+From 03d0e61b9da7490ac73783ad368c508503d53d68 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 5 Nov 2022 02:18:00 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index e46a36725..4cf6da612 100644
+index b24c037b4..aa0332c5d 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -24,7 +24,7 @@ add_library(loader_specific_options INTERFACE)
@@ -51,7 +51,7 @@ index e46a36725..4cf6da612 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -354,6 +354,7 @@ else()
+@@ -355,6 +355,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index e46a36725..4cf6da612 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -367,6 +368,7 @@ else()
+@@ -368,6 +369,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,7 +67,7 @@ index e46a36725..4cf6da612 100644
  # cmake-format: on
      endif()
  endif()
-@@ -392,7 +394,7 @@ if(PKG_CONFIG_FOUND)
+@@ -393,7 +395,7 @@ if(PKG_CONFIG_FOUND)
          list(REMOVE_DUPLICATES PRIVATE_LIBS)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
@@ -76,16 +76,16 @@ index e46a36725..4cf6da612 100644
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -408,6 +410,7 @@ if(PKG_CONFIG_FOUND)
-     else()
-         set(CMAKE_INSTALL_FULL_LIBDIR_PC ${CMAKE_INSTALL_FULL_LIBDIR})
-     endif ()
+@@ -416,6 +418,7 @@ if(PKG_CONFIG_FOUND)
+         file(RELATIVE_PATH CMAKE_INSTALL_REL_LIBDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_LIBDIR_PC})
+         file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+     endif()
 +    set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index add6fb603..c95e2480d 100644
+index a7fe0481c..106225a3f 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -32,7 +32,9 @@
