@@ -92,7 +92,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libopenmpt (0.6.6)
     - libiconv (1.17)
     - gmp (6.2.1)
-    - vapoursynth (R60)
+    - vapoursynth (R61)
     - libsdl2 (2.24.1)
     - mbedtls (3.2.1)
     - ~~libressl (3.1.5)~~

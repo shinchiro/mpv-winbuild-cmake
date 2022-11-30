@@ -1,11 +1,11 @@
-set(rev "R60")
+set(rev "R61")
 
 if(${TARGET_CPU} MATCHES "x86_64")
     set(link "https://github.com/vapoursynth/vapoursynth/releases/download/${rev}/VapourSynth64-Portable-${rev}.7z")
-    set(hash "83A4F577881516066E14091A7183D1F167D41A97F5AB499830F0FC95BCC30D69")
+    set(hash "910E2F5FDE95F07C64168537C14BBFD4CEB0FB6CBF4ED86D77FEB62CBF664D85")
 else()
     set(link "https://github.com/vapoursynth/vapoursynth/releases/download/${rev}/VapourSynth32-Portable-${rev}.7z")
-    set(hash "A254C245D09A5FD16E519436E70D8E0AEDB8ECF3ED63A8B7CE7969F38FCDBD28")
+    set(hash "5464B915500B4678A0E6C5214FD25018D24CF1B0B6358CEA4E97E59FF3D4BAAA")
     set(dlltool_opts "-U")
 endif()
 
