@@ -94,7 +94,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - gmp (6.2.1)
     - vapoursynth (R61)
     - libsdl2 (2.24.1)
-    - mbedtls (3.2.1)
+    - mbedtls (3.3.0)
     - ~~libressl (3.1.5)~~
 
 
@@ -105,13 +105,13 @@ These packages need to be installed first before compiling mpv:
 
     pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang python-pip curl lib32-glib2
 
-    pip3 install rst2pdf mako
+    pip3 install rst2pdf mako jsonschema
 
 ### Ubuntu Linux / WSL (Windows 10)
 
     apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm nasm automake pkgconf libtool libtool-bin gcc-multilib g++-multilib clang libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python3-pip docbook2x unzip p7zip-full curl
 
-    pip3 install rst2pdf meson mako
+    pip3 install rst2pdf meson mako jsonschema
 
 **Note:**
 
