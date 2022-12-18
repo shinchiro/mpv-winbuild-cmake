@@ -1,6 +1,6 @@
 ExternalProject_Add(mbedtls
-    URL https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.2.1.tar.gz
-    URL_HASH SHA256=d0e77a020f69ad558efc660d3106481b75bd3056d6301c31564e04a0faae88cc
+    URL https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.3.0.tar.gz
+    URL_HASH SHA256=113fa84bc3cf862d56e7be0a656806a5d02448215d1e22c98176b1c372345d33
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
