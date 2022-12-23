@@ -13,6 +13,8 @@ ExternalProject_Add(gcc
     # https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/12-20221217/sha512.sum
     URL_HASH SHA512=64a0f8f9b8ea07b1dcd0807c4fdae9de5cb0f1986c02a81798a47a116539695ce2408bdcea723ac55d892ccc0435319e7e7f4e472f2692407a77205669563d67
     DOWNLOAD_DIR ${SOURCE_LOCATION}
+    # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54412
+    PATCH_COMMAND ${EXEC} curl -sL https://salsa.debian.org/mingw-w64-team/gcc-mingw-w64/-/raw/5e7d749d80e47d08e34a17971479d06cd423611e/debian/patches/vmov-alignment.patch | patch -p2
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
