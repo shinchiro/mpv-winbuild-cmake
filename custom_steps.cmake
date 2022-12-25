@@ -20,7 +20,7 @@ function(cleanup _name _last_step)
             set(remove_cmd "rm -rf <BINARY_DIR>/* && git -C <SOURCE_DIR> clean -df")
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
-                                 COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null || true")
+                                 COMMAND bash -c "git -C <SOURCE_DIR> restore .")
     elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
