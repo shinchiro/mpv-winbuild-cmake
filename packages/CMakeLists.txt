@@ -43,7 +43,7 @@ list(APPEND ep
     libass
     mbedtls
     libxml2
-    libmfx
+    libvpl
     amf-headers
     avisynth-headers
     nvcodec-headers

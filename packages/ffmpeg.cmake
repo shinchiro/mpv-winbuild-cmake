@@ -26,7 +26,7 @@ ExternalProject_Add(ffmpeg
         x265-10bit
         xvidcore
         libxml2
-        libmfx
+        libvpl
         libopenmpt
         libjxl
         aom
@@ -81,7 +81,7 @@ ExternalProject_Add(ffmpeg
         --enable-libmysofa
         --enable-libssh
         --enable-libsrt
-        --enable-libmfx
+        --enable-libvpl
         --enable-libjxl
         --enable-cuda
         --enable-cuvid
