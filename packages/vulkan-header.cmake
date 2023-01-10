@@ -1,10 +1,10 @@
 ExternalProject_Add(vulkan-header
     GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    # GIT_SHALLOW 1
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
-    GIT_TAG main
+    GIT_TAG 18963a6cc03fe15e3785d353dea6a1ff95115a5e
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
