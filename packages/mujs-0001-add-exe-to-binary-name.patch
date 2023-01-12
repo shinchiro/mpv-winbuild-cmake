@@ -1,16 +1,25 @@
-From 36ee767a3928fcd61f220d0e046686ba308a9fb0 Mon Sep 17 00:00:00 2001
+From 197efe6f822497ef4853ba8736662fb44919815c Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Thu, 12 Jan 2023 20:52:15 +0800
 Subject: [PATCH] Add .exe to binary name
 
 ---
- Makefile | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ Makefile | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 8255463..756c3f9 100644
+index 8255463..b365155 100644
 --- a/Makefile
 +++ b/Makefile
+@@ -2,7 +2,7 @@
+ #
+ # Useful targets are: release, install, uninstall.
+ 
+-default: build/debug/mujs build/debug/mujs-pp
++default: build/release/mujs build/release/mujs-pp
+ 
+ CFLAGS = -std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter
+ 
 @@ -19,6 +19,10 @@ else
    VERSION = $(patsubst mujs-%,%,$(notdir $(CURDIR)))
  endif
@@ -22,6 +31,15 @@ index 8255463..756c3f9 100644
  ifeq ($(shell uname),Darwin)
    SO = dylib
  else
+@@ -99,7 +103,7 @@ build/release/libmujs.o: one.c $(SRCS) $(HDRS)
+ build/release/libmujs.a: build/release/libmujs.o
+ 	$(AR) cr $@ $^
+ build/release/mujs: main.c build/release/libmujs.o
+-	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm -DHAVE_READLINE -lreadline
++	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
+ build/release/mujs-pp: pp.c build/release/libmujs.o
+ 	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
+ 
 @@ -119,7 +123,7 @@ install: build/release/mujs build/release/libmujs.a build/release/libmujs.$(SO)
  	install -d $(DESTDIR)$(bindir)
  	install -m 644 mujs.h $(DESTDIR)$(incdir)
