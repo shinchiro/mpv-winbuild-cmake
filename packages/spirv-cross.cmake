@@ -2,6 +2,8 @@ ExternalProject_Add(spirv-cross
     GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_SHALLOW 1
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/spirv-cross-*.patch
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
