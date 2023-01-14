@@ -1,6 +1,6 @@
 ExternalProject_Add(libsdl2
-    URL https://www.libsdl.org/release/SDL2-2.24.1.tar.gz
-    URL_HASH SHA256=bc121588b1105065598ce38078026a414c28ea95e66ed2adab4c44d80b309e1b
+    URL https://www.libsdl.org/release/SDL2-2.26.2.tar.gz
+    URL_HASH SHA256=95D39BC3DE037FBDFA722623737340648DE4F180A601B0AFAD27645D150B99E0
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
