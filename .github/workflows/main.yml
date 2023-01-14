@@ -121,6 +121,7 @@ jobs:
         if: ${{ github.event.inputs.mpv_tarball == 'true' && steps.build_toolchain.outcome == 'success' }}
         continue-on-error: true
         run: |
+          echo "mpv_ver=$(cat $PWD/src_packages/mpv-release/VERSION)" >> $GITHUB_ENV
           ninja -C build$BIT update; ninja -C build$BIT mpv-release
 
       - name: Packaging mpv
@@ -198,7 +199,7 @@ jobs:
           path: release64
           key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
 
-      - name: Loading release64 cache
+      - name: Loading release64-v3 cache
         uses: actions/cache@main
         with:
           path: release64-v3
@@ -225,7 +226,7 @@ jobs:
           put release/mpv-i686*          32bit
           put release/mpv-x86_64-[!v3]*  64bit
           put release/mpv-x86_64-v3*     64bit-v3
-          put release/mpv-*-[xi6864]*.7z release
+          put release/mpv-${{ env.mpv_ver }}* release
           END
 
       - name: Uploading packages to Github release
