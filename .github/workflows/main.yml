@@ -37,11 +37,14 @@ jobs:
       BIT: ${{ matrix.bit }}
     container:
       image: docker://ghcr.io/shinchiro/archlinux:latest
-
+    outputs:
+      short_date: ${{ steps.init_var.outputs.short_date }}
+      mpv_ver: ${{ steps.build_mpv.outputs.mpv_ver }}
     steps:
-      - name: Get current date and random hash
+      - name: Init variable
+        id: init_var
         run: |
-          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_ENV
+          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_OUTPUT
           echo "random_hash=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_ENV
           if [[ $BIT == 32 ]]; then
             echo "arch=i686" >> $GITHUB_ENV
@@ -113,20 +116,16 @@ jobs:
         id: build_mpv
         if: ${{ github.event.inputs.mpv_tarball == 'false' && steps.build_toolchain.outcome == 'success' }}
         continue-on-error: true
+        env:
+          MPV_TARBALL: ${{ github.event.inputs.mpv_tarball }}
         run: |
-          ninja -C build$BIT update; ninja -C build$BIT mpv
-
-      - name: Building mpv tarball
-        id: build_mpv_tarball
-        if: ${{ github.event.inputs.mpv_tarball == 'true' && steps.build_toolchain.outcome == 'success' }}
-        continue-on-error: true
-        run: |
-          echo "mpv_ver=$(cat $PWD/src_packages/mpv-release/VERSION)" >> $GITHUB_ENV
-          ninja -C build$BIT update; ninja -C build$BIT mpv-release
+          ninja -C build$BIT update
+          $MPV_TARBALL && ninja -C build$BIT mpv-release || ninja -C build$BIT mpv
+          $MPV_TARBALL && echo "mpv_ver=$(cat $PWD/src_packages/mpv-release/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
 
       - name: Packaging mpv
         id: packaging_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' && (steps.build_mpv.outcome == 'success' || steps.build_mpv_tarball.outcome == 'success') }}
+        if: ${{ steps.build_toolchain.outcome == 'success' && (steps.build_mpv.outcome == 'success') }}
         continue-on-error: true
         run: |
           mkdir -p release$BIT
@@ -181,7 +180,6 @@ jobs:
           git config --global pull.rebase true
           git config --global fetch.prune true
           git config --global --add safe.directory $PWD
-          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_ENV
 
       - uses: actions/checkout@main
         with:
@@ -215,6 +213,8 @@ jobs:
         id: upload_packages_sf
         if: ${{ github.event.inputs.sourceforge == 'true' }}
         continue-on-error: true
+        env:
+          MPV_VER: ${{ needs.build_mpv.outputs.mpv_ver }}
         run: |
           mkdir -p /root/.ssh/
           echo "${{ secrets.SF_PRIVATE_KEY }}" > sf_key
@@ -226,7 +226,7 @@ jobs:
           put release/mpv-i686*          32bit
           put release/mpv-x86_64-[!v3]*  64bit
           put release/mpv-x86_64-v3*     64bit-v3
-          put release/mpv-${{ env.mpv_ver }}* release
+          put release/mpv-$MPV_VER*      release
           END
 
       - name: Uploading packages to Github release
@@ -234,7 +234,7 @@ jobs:
         if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
         continue-on-error: true
         env:
-          SHORT_DATE: ${{ env.short_date }}
+          SHORT_DATE: ${{ needs.build_mpv.outputs.short_date }}
         run: |
           body=$(cat <<END
           ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$SHORT_DATE/total?label=Downloads)
