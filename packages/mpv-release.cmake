@@ -38,6 +38,7 @@ ExternalProject_Add(mpv-release
         vapoursynth
         libsdl2
     URL ${LINK}
+    SOURCE_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
