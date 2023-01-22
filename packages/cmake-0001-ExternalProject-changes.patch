@@ -1,0 +1,59 @@
+From 4d8a9d0b8d863dba6567b90e1e26702145287d50 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 22 Jan 2023 13:37:13 +0800
+Subject: [PATCH] ExternalProject: changes
+
+support passing other flags in git clone operation
+---
+ Modules/ExternalProject.cmake | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/Modules/ExternalProject.cmake b/Modules/ExternalProject.cmake
+index 3752cebad..b8c49dcc1
+--- a/Modules/ExternalProject.cmake
++++ b/Modules/ExternalProject.cmake
+@@ -1288,6 +1288,7 @@ function(_ep_write_gitclone_script
+   git_submodules
+   git_shallow
+   git_progress
++  git_clone_flags
+   git_config
+   src_name
+   work_dir
+@@ -1325,6 +1326,9 @@ function(_ep_write_gitclone_script
+   if(git_progress)
+     list(APPEND git_clone_options --progress)
+   endif()
++  foreach(flag IN LISTS git_clone_flags)
++    list(APPEND git_clone_options "${flag}")
++  endforeach()
+   foreach(config IN LISTS git_config)
+     list(APPEND git_clone_options --config \"${config}\")
+   endforeach()
+@@ -2839,6 +2843,7 @@ function(_ep_add_download_command name)
+     get_property(git_shallow TARGET ${name} PROPERTY _EP_GIT_SHALLOW)
+     get_property(git_progress TARGET ${name} PROPERTY _EP_GIT_PROGRESS)
+     get_property(git_config TARGET ${name} PROPERTY _EP_GIT_CONFIG)
++    get_property(git_clone_flags TARGET ${name} PROPERTY _EP_GIT_CLONE_FLAGS)
+ 
+     # If git supports it, make checkouts quiet when checking out a git hash.
+     # This avoids the very noisy detached head message.
+@@ -2880,6 +2885,7 @@ CMP0097=${_EP_CMP0097}
+       "${git_submodules}"
+       "${git_shallow}"
+       "${git_progress}"
++      "${git_clone_flags}"
+       "${git_config}"
+       ${src_name}
+       ${work_dir}
+@@ -4056,6 +4062,7 @@ function(ExternalProject_Add name)
+     GIT_SHALLOW
+     GIT_PROGRESS
+     GIT_CONFIG
++    GIT_CLONE_FLAGS
+     GIT_REMOTE_UPDATE_STRATEGY
+     #
+     SVN_REPOSITORY
+-- 
+2.39.1
+
