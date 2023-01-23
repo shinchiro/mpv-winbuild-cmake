@@ -69,7 +69,6 @@ function(cleanup _name _last_step)
     ExternalProject_Add_Step(${_name} removeprefix
         COMMAND ${EXEC} rm -rf <INSTALL_DIR> ${source_dir}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rebuild_cache
-        ${COMMAND_FORCE_UPDATE}
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
