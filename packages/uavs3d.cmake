@@ -1,7 +1,7 @@
 ExternalProject_Add(uavs3d
     GIT_REPOSITORY https://github.com/uavs3/uavs3d.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja

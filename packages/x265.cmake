@@ -6,8 +6,9 @@ else()
 endif()
 
 ExternalProject_Add(x265
-    GIT_REPOSITORY https://bitbucket.org/multicoreware/x265_git.git
+    GIT_REPOSITORY https://gitlab.com/shinchiro/x265_git.git
     SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

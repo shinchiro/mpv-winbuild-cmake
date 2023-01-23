@@ -3,7 +3,7 @@ ExternalProject_Add(libsrt
         mbedtls
     GIT_REPOSITORY https://github.com/Haivision/srt.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/libsrt-*.patch
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>

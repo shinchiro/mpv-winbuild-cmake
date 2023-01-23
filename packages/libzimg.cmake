@@ -3,7 +3,7 @@ ExternalProject_Add(libzimg
         graphengine
     GIT_REPOSITORY https://github.com/sekrit-twc/zimg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

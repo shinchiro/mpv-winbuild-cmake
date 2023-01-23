@@ -4,7 +4,7 @@ ExternalProject_Add(libbluray
         freetype2
     GIT_REPOSITORY https://code.videolan.org/videolan/libbluray.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

@@ -5,7 +5,7 @@ endif()
 ExternalProject_Add(davs2
     GIT_REPOSITORY https://github.com/pkuvcl/davs2.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/linux && ./configure
         --host=${TARGET_ARCH}

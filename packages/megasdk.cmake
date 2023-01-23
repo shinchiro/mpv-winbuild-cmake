@@ -9,7 +9,7 @@ ExternalProject_Add(megasdk
         libsodium
     GIT_REPOSITORY https://github.com/meganz/sdk.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-*.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure

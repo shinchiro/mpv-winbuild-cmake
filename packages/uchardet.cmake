@@ -1,7 +1,7 @@
 ExternalProject_Add(uchardet
     GIT_REPOSITORY https://github.com/freedesktop/uchardet.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CMAKE_ARGS
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
