@@ -131,6 +131,11 @@ jobs:
           path: logs.7z
           retention-days: 1
 
+      - name: Cleaning build directory
+        if: always()
+        run: |
+          rm -rf build$BIT/mpv*
+
       - name: Saving build${{ matrix.bit }} cache
         uses: actions/cache/save@main
         if: always()
