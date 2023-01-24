@@ -45,7 +45,6 @@ jobs:
         id: init_var
         run: |
           echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_OUTPUT
-          echo "random_hash=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_ENV
           if [[ $BIT == 32 ]]; then
             echo "arch=i686" >> $GITHUB_ENV
           elif [[ $BIT == 64 ]]; then
@@ -69,32 +68,23 @@ jobs:
         with:
           ref: master
 
-      - name: Loading build cache
-        uses: actions/cache@main
-        id: build_cache
+      - name: Loading build${{ matrix.bit }} cache
+        uses: actions/cache/restore@main
+        id: build_cache_restore
         with:
           path: build${{ matrix.bit }}
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ env.short_date }}-${{ env.random_hash }}
+          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ env.short_date }}
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}
+            ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}
 
-      - name: Loading packages cache
-        uses: actions/cache@main
-        id: packages_cache
+      - name: Loading repository cache
+        uses: actions/cache/restore@main
+        id: repository_cache_restore
         with:
           path: src_packages
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_${{ matrix.bit }}-${{ env.short_date }}-${{ env.random_hash }}
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_32-${{ env.short_date }}
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_32
-
-      - name: Loading release cache
-        uses: actions/cache@main
-        id: release_cache
-        with:
-          path: release${{ matrix.bit }}
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release${{ matrix.bit }}-${{ github.run_id }}
+            ${{ secrets.CACHE_VERSION }}-repository
 
       - name: Running custom command
         if: ${{ github.event.inputs.command != '' }}
@@ -108,14 +98,11 @@ jobs:
 
       - name: Building toolchain
         id: build_toolchain
-        continue-on-error: true
         run: |
           if [[ ! "$(ls -A build$BIT/install/bin)" ]]; then ninja -C build$BIT gcc; fi
 
       - name: Building mpv
         id: build_mpv
-        if: ${{ github.event.inputs.mpv_tarball == 'false' && steps.build_toolchain.outcome == 'success' }}
-        continue-on-error: true
         env:
           MPV_TARBALL: ${{ github.event.inputs.mpv_tarball }}
         run: |
@@ -125,16 +112,12 @@ jobs:
 
       - name: Packaging mpv
         id: packaging_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' && (steps.build_mpv.outcome == 'success') }}
-        continue-on-error: true
         run: |
           mkdir -p release$BIT
           rm -rf build$BIT/mpv-debug*; ninja -C build$BIT mpv-packaging; mv build$BIT/mpv*.7z release$BIT
 
       - name: Copying ffmpeg
         id: copying_ffmpeg
-        if: ${{ steps.build_toolchain.outcome == 'success' && steps.packaging_mpv.outcome == 'success' }}
-        continue-on-error: true
         run: |
           hash=$(git -C src_packages/ffmpeg rev-parse --short HEAD)
           7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
@@ -155,12 +138,28 @@ jobs:
           path: logs.7z
           retention-days: 1
 
-      - name: Cleaning build directory
-        id: delete_build_dir
-        run: |
-          rm -rf build$BIT/mpv*
-          if [[ $BIT == 64 || $BIT == 64-v3 ]]; then rm -rf src_packages/*; fi
-          du -sh build$BIT src_packages /var/cache/pacman/pkg || true
+      - name: Saving build${{ matrix.bit }} cache
+        uses: actions/cache/save@main
+        id: build_cache_save
+        if: always()
+        with:
+          path: build${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
+
+      - name: Saving repository cache
+        uses: actions/cache/save@main
+        id: repository_cache_save
+        if: ${{ always() && matrix.bit == '32' }}
+        with:
+          path: src_packages
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
+
+      - name: Saving release${{ matrix.bit }} cache
+        uses: actions/cache/save@main
+        id: release_cache_save
+        with:
+          path: release${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-release${{ matrix.bit }}-${{ github.run_id }}
 
   release:
     name: Upload releases
@@ -169,6 +168,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
+      release32_key: ${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
+      release64_key: ${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
+      release64_v3_key: ${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
     container:
       image: docker://alpine:latest
 
@@ -186,22 +188,22 @@ jobs:
           ref: master
 
       - name: Loading release32 cache
-        uses: actions/cache@main
+        uses: actions/cache/restore@main
         with:
           path: release32
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
+          key: ${{ env.release32_key }}
 
       - name: Loading release64 cache
-        uses: actions/cache@main
+        uses: actions/cache/restore@main
         with:
           path: release64
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
+          key: ${{ env.release64_key }}
 
       - name: Loading release64-v3 cache
-        uses: actions/cache@main
+        uses: actions/cache/restore@main
         with:
           path: release64-v3
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
+          key: ${{ env.release64_v3_key }}
 
       - name: Moving archives
         run: |
@@ -264,6 +266,13 @@ jobs:
             git tag -d $tag
           done
           git push --tags --prune https://shinchiro:$GH_TOKEN@github.com/shinchiro/mpv-winbuild-cmake
+
+      - name: Delete releases cache
+        if: ${{ github.event.inputs.github_release == 'false' || steps.upload_packages_gh.outcome == 'success' }}
+        run: |
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release32_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_v3_key
 
   gist:
     name: Gist
