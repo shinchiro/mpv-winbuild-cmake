@@ -31,6 +31,7 @@ jobs:
     name: Building mpv
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         bit: [32, 64, 64-v3]
     env:
