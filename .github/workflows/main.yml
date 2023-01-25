@@ -39,13 +39,10 @@ jobs:
     container:
       image: docker://ghcr.io/shinchiro/archlinux:latest
     outputs:
-      short_date: ${{ steps.init_var.outputs.short_date }}
       mpv_ver: ${{ steps.build_mpv_step.outputs.mpv_ver }}
     steps:
       - name: Init variable
-        id: init_var
         run: |
-          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_OUTPUT
           if [[ $BIT == 32 ]]; then
             echo "arch=i686" >> $GITHUB_ENV
           elif [[ $BIT == 64 ]]; then
@@ -231,17 +228,16 @@ jobs:
         id: upload_packages_gh
         if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
         continue-on-error: true
-        env:
-          SHORT_DATE: ${{ needs.build_mpv.outputs.short_date }}
         run: |
+          short_date=$(date "+%Y%m%d")
           body=$(cat <<END
-          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$SHORT_DATE/total?label=Downloads)
+          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$short_date/total?label=Downloads)
           END
           )
           id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
           {
-            "tag_name": "$SHORT_DATE",
-            "name": "$SHORT_DATE",
+            "tag_name": "$short_date",
+            "name": "$short_date",
             "body": "$(echo ${body//$'\n'/'\n'})"
           }
           END
