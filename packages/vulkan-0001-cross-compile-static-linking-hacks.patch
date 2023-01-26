@@ -1,4 +1,4 @@
-From 03d0e61b9da7490ac73783ad368c508503d53d68 Mon Sep 17 00:00:00 2001
+From 5df0a81c829eff5475e37b45b1c5fc5131e4d454 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 5 Nov 2022 02:18:00 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -6,16 +6,16 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
 ---
  loader/CMakeLists.txt       | 13 ++++++++-----
  loader/loader.h             |  2 ++
- loader/loader.rc            |  4 ++++
+ loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index b24c037b4..aa0332c5d 100644
+index 1e4313053..d5531f6cd 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -24,7 +24,7 @@ add_library(loader_specific_options INTERFACE)
+@@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
  target_link_libraries(loader_specific_options INTERFACE loader_common_options Vulkan::Headers)
  target_include_directories(loader_specific_options INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/generated ${CMAKE_CURRENT_BINARY_DIR})
  
@@ -24,7 +24,7 @@ index b24c037b4..aa0332c5d 100644
      if(MSVC)
          # Use static MSVCRT libraries
          foreach(configuration
-@@ -130,7 +130,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -128,7 +128,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index b24c037b4..aa0332c5d 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -268,7 +268,7 @@ else() # i.e.: Linux
+@@ -262,7 +262,7 @@ else() # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index b24c037b4..aa0332c5d 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -310,7 +310,7 @@ if(WIN32)
+@@ -304,7 +304,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -51,7 +51,7 @@ index b24c037b4..aa0332c5d 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -355,6 +355,7 @@ else()
+@@ -348,6 +348,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index b24c037b4..aa0332c5d 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -368,6 +369,7 @@ else()
+@@ -361,6 +362,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,7 +67,7 @@ index b24c037b4..aa0332c5d 100644
  # cmake-format: on
      endif()
  endif()
-@@ -393,7 +395,7 @@ if(PKG_CONFIG_FOUND)
+@@ -386,7 +388,7 @@ if(PKG_CONFIG_FOUND)
          list(REMOVE_DUPLICATES PRIVATE_LIBS)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
@@ -76,7 +76,7 @@ index b24c037b4..aa0332c5d 100644
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -416,6 +418,7 @@ if(PKG_CONFIG_FOUND)
+@@ -409,6 +411,7 @@ if(PKG_CONFIG_FOUND)
          file(RELATIVE_PATH CMAKE_INSTALL_REL_LIBDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_LIBDIR_PC})
          file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
      endif()
@@ -98,10 +98,10 @@ index a7fe0481c..106225a3f 100644
  
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
-diff --git a/loader/loader.rc b/loader/loader.rc
-index 996d9c5e9..90863da4a 100644
---- a/loader/loader.rc
-+++ b/loader/loader.rc
+diff --git a/loader/loader.rc.in b/loader/loader.rc.in
+index e242f9bb0..b0c492b8d 100644
+--- a/loader/loader.rc.in
++++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
  // Author: Charles Giessen <charles@lunarg.com>
  //
@@ -113,7 +113,7 @@ index 996d9c5e9..90863da4a 100644
 +#endif
  
  // All set through CMake
- #define VER_FILE_VERSION 1, 0, 1111, 2222
+ #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
 index db8b69104..2293628be 100644
 --- a/loader/loader_windows.c
