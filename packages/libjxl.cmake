@@ -15,7 +15,6 @@ ExternalProject_Add(libjxl
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} curl -sL https://github.com/libjxl/libjxl/pull/1444.patch | git am --3way --whitespace=fix
-          COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/libjxl-*.patch
     CONFIGURE_COMMAND ""
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "ln -s ${src_brotli} <SOURCE_DIR>/third_party/brotli"
