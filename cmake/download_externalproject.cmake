@@ -16,7 +16,7 @@ endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules/ExternalProject.cmake")
     execute_process(
-        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/release/Modules/ExternalProject.cmake?inline=false
+        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/release/Modules/ExternalProject.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules
     )
     execute_process(
