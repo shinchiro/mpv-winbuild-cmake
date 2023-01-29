@@ -69,10 +69,10 @@ ExternalProject_Add(mpv-release
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(mpv-release bootstrap
+ExternalProject_Add_Step(mpv-release copy-versionfile
     DEPENDEES download
     DEPENDERS configure
-    COMMAND <SOURCE_DIR>/bootstrap.py
+    COMMAND bash -c "cp VERSION <INSTALL_DIR>/VERSION"
     WORKING_DIRECTORY <SOURCE_DIR>
     LOG 1
 )

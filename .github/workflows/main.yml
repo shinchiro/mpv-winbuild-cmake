@@ -103,7 +103,7 @@ jobs:
         run: |
           ninja -C build$BIT update
           $MPV_TARBALL && ninja -C build$BIT mpv-release || ninja -C build$BIT mpv
-          $MPV_TARBALL && echo "mpv_ver=$(cat $PWD/src_packages/mpv-release/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
+          $MPV_TARBALL && echo "mpv_ver=$(cat build$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
 
       - name: Packaging mpv
         run: |
