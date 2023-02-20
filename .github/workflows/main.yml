@@ -116,14 +116,15 @@ jobs:
           7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
 
       - name: Collecting logs
+        if: always()
         run: |
           mkdir -p build${BIT}_logs
           cp -fr $(find build$BIT -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build${BIT}_logs || true
           7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
 
       - name: Uploading logs
-        continue-on-error: true
         uses: actions/upload-artifact@master
+        if: always()
         with:
           name: logs_${{ matrix.bit }}
           path: logs.7z
