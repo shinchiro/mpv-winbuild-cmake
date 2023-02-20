@@ -8,6 +8,7 @@ list(APPEND ep
     winpthreads
     gendef
     widl
+    rustup
 )
 foreach(package IN LISTS ep)
     if(NOT ${SINGLE_SOURCE_LOCATION} STREQUAL "")
