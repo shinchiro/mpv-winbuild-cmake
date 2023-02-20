@@ -9,9 +9,9 @@ endif()
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
-    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/12-20230121/gcc-12-20230121.tar.xz
+    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/12-20230218/gcc-12-20230218.tar.xz
     # https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/12-20221217/sha512.sum
-    URL_HASH SHA512=b6c2486916418a64fab64c3655329bc18ca93ee4eca240e8779bd6d8280124fcd07b1aa8eff979fd317656646ecdba9353107887338354d8bd2c1f68c1609349
+    URL_HASH SHA512=bf2b109a12a981ae97ca4c6d9a27b11adcf1c7acaf167c532936a027dad4217e75b197fd12b2c5e37f6e89fe39a54f483984023accfb76f7517cc3d35ced416a
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=54412
     PATCH_COMMAND ${EXEC} curl -sL https://salsa.debian.org/mingw-w64-team/gcc-mingw-w64/-/raw/5e7d749d80e47d08e34a17971479d06cd423611e/debian/patches/vmov-alignment.patch | patch -p2
