@@ -43,6 +43,7 @@ ExternalProject_Add_Step(gcc final
         mingw-w64-crt
         winpthreads
         gendef
+        rustup
     COMMAND ${MAKE}
     COMMAND ${MAKE} install-strip
     WORKING_DIRECTORY <BINARY_DIR>
