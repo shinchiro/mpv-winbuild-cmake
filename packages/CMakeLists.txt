@@ -73,6 +73,7 @@ list(APPEND ep
     vulkan
     shaderc
     glad
+    libdovi
     libplacebo
     libsixel
     curl
