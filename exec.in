@@ -1,8 +1,8 @@
 #!/bin/sh
-export PATH="@CMAKE_INSTALL_PREFIX@/bin:@CMAKE_INSTALL_PREFIX@/.cargo/bin:$PATH"
+export PATH="@CMAKE_INSTALL_PREFIX@/bin:@RUSTUP_LOCATION@/.cargo/bin:$PATH"
 export PKG_CONFIG="pkgconf --static"
 export PKG_CONFIG_LIBDIR="@MINGW_INSTALL_PREFIX@/lib/pkgconfig"
-export RUSTUP_HOME="@CMAKE_INSTALL_PREFIX@/.rustup"
-export CARGO_HOME="@CMAKE_INSTALL_PREFIX@/.cargo"
+export RUSTUP_HOME="@RUSTUP_LOCATION@/.rustup"
+export CARGO_HOME="@RUSTUP_LOCATION@/.cargo"
 
 eval $*

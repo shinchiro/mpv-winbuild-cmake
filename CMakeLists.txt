@@ -46,12 +46,14 @@ set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
 
 option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful compilation." OFF)
 set(SINGLE_SOURCE_LOCATION "" CACHE STRING "Absolute path to download git & zip")
+set(RUSTUP_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/install_rustup" CACHE STRING "Absolute path to store rust toolchain")
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meson_cross.txt.in ${CMAKE_CURRENT_BINARY_DIR}/meson_cross.txt @ONLY)
 set(MESON_CROSS ${CMAKE_CURRENT_BINARY_DIR}/meson_cross.txt)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cargo_config.in ${RUSTUP_LOCATION}/.cargo/config @ONLY)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exec.in ${CMAKE_CURRENT_BINARY_DIR}/exec @ONLY)
 set(EXEC ${CMAKE_CURRENT_BINARY_DIR}/exec)
