@@ -1,3 +1,9 @@
+if(${TARGET_CPU} MATCHES "x86_64")
+    set(arch "${GCC_ARCH}")
+else()
+    set(arch "i686")
+endif()
+
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
