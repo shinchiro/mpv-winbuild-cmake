@@ -1,11 +1,3 @@
-if(${TARGET_CPU} MATCHES "x86_64")
-    set(arch "${GCC_ARCH}")
-    set(exception "--enable-seh-exceptions")
-else()
-    set(arch "i686")
-    set(exception "--enable-dw2-exceptions")
-endif()
-
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
@@ -31,7 +23,7 @@ ExternalProject_Add(gcc
         --without-included-gettext
         --enable-lto
         --enable-checking=release
-        ${exception}
+        --disable-sjlj-exceptions
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-strip-gcc
     STEP_TARGETS download install
