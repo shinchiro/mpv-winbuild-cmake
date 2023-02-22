@@ -1,9 +1,3 @@
-if(${TARGET_CPU} MATCHES "x86_64")
-    set(libdovi "libdovi")
-else()
-    set(libdovi "")
-endif()
-
 get_property(src_glad TARGET glad PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libplacebo
     DEPENDS
@@ -11,7 +5,7 @@ ExternalProject_Add(libplacebo
         shaderc
         lcms2
         glad
-        ${libdovi}
+        libdovi
     GIT_REPOSITORY https://github.com/haasn/libplacebo.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
