@@ -82,6 +82,14 @@ jobs:
           restore-keys: |
             ${{ secrets.CACHE_VERSION }}-repository
 
+      - name: Loading rust toolchain cache
+        uses: actions/cache/restore@main
+        with:
+          path: install_rustup
+          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
+          restore-keys: |
+            ${{ secrets.CACHE_VERSION }}-rust_toolchain
+
       - name: Running custom command
         if: ${{ github.event.inputs.command != '' }}
         continue-on-error: true
@@ -89,7 +97,7 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild$BIT -H.
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/install_rustup -G Ninja -Bbuild$BIT -H.
           ninja -C build$BIT download || true
 
       - name: Building toolchain
@@ -135,6 +143,13 @@ jobs:
         run: |
           rm -rf build$BIT/mpv*
 
+      - name: Cleaning rust toolchain directory
+        if: always()
+        run: |
+          rm -rf install_rustup/.cargo/registry/{cache,src}
+          rm -rf install_rustup/.cargo/git/checkouts
+          du -sh install_rustup
+
       - name: Saving build${{ matrix.bit }} cache
         uses: actions/cache/save@main
         if: always()
@@ -148,6 +163,13 @@ jobs:
         with:
           path: src_packages
           key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
+
+      - name: Saving rust toolchain cache
+        uses: actions/cache/save@main
+        if: ${{ always() && matrix.bit == '64' }}
+        with:
+          path: install_rustup
+          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
 
       - name: Saving release${{ matrix.bit }} cache
         uses: actions/cache/save@main
