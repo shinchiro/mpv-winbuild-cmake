@@ -29,6 +29,7 @@ ExternalProject_Add(ffmpeg
         libvpl
         libopenmpt
         libjxl
+        libplacebo
         aom
         dav1d
         vapoursynth
@@ -83,6 +84,7 @@ ExternalProject_Add(ffmpeg
         --enable-libsrt
         --enable-libvpl
         --enable-libjxl
+        --enable-libplacebo
         --enable-cuda
         --enable-cuvid
         --enable-nvdec
@@ -90,6 +92,7 @@ ExternalProject_Add(ffmpeg
         --enable-amf
         --disable-doc
         --disable-decoder=libaom_av1
+        "--extra-libs='-lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

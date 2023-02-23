@@ -62,7 +62,6 @@ list(APPEND ep
     libjxl
     uavs3d
     davs2
-    ffmpeg
     angle-headers
     mujs
     spirv-headers
@@ -76,10 +75,11 @@ list(APPEND ep
     libdovi
     libplacebo
     libsixel
-    curl
+    ffmpeg
     mpv
     mpv-release
     mpv-packaging
+    curl
     flac
     opusfile
     libopusenc
