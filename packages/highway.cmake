@@ -3,6 +3,7 @@ ExternalProject_Add(highway
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} curl -sL https://github.com/google/highway/pull/1208.patch | git am --3way --whitespace=fix
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
