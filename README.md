@@ -80,6 +80,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - davs2
     - libsixel
     - libdovi
+    - libva
 
 - Zip
     - expat (2.5.0)

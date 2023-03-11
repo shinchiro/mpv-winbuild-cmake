@@ -3,6 +3,7 @@ ExternalProject_Add(ffmpeg
         amf-headers
         avisynth-headers
         nvcodec-headers
+        libva
         bzip2
         gmp
         lame
