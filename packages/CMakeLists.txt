@@ -76,6 +76,7 @@ list(APPEND ep
     libdovi
     libplacebo
     libva
+    libzvbi
     libsixel
     ffmpeg
     mpv
