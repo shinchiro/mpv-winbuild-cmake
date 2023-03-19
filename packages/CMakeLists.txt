@@ -41,6 +41,7 @@ list(APPEND ep
     fontconfig
     libunibreak
     libass
+    aribb24
     mbedtls
     libxml2
     libvpl
