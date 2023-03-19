@@ -31,6 +31,7 @@ ExternalProject_Add(ffmpeg
         libopenmpt
         libjxl
         libplacebo
+        libzvbi
         aom
         dav1d
         vapoursynth
@@ -87,6 +88,7 @@ ExternalProject_Add(ffmpeg
         --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
+        --enable-libzvbi
         --enable-cuda
         --enable-cuvid
         --enable-nvdec
