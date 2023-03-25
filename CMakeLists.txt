@@ -28,6 +28,7 @@ if(TARGET_CPU MATCHES "x86_64")
 else()
     set(TARGET_CPU_FAMILY "x86")
     set(TARGET_BITS 32)
+    set(GCC_ARCH "i686")
 endif()
 
 processorcount(CPU_COUNT)
