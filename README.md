@@ -83,6 +83,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libva
     - aribb24
     - libzvbi
+    - rav1e
 
 - Zip
     - expat (2.5.0)

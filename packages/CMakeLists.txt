@@ -74,6 +74,7 @@ list(APPEND ep
     shaderc
     glad
     libdovi
+    rav1e
     libplacebo
     libva
     libzvbi
