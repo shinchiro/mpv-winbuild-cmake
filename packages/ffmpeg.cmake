@@ -30,6 +30,7 @@ ExternalProject_Add(ffmpeg
         libvpl
         libopenmpt
         libjxl
+        shaderc
         libplacebo
         libzvbi
         rav1e
@@ -88,6 +89,7 @@ ExternalProject_Add(ffmpeg
         --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
+        --enable-libshaderc
         --enable-libzvbi
         --enable-cuda
         --enable-cuvid
