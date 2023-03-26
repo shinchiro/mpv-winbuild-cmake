@@ -146,9 +146,7 @@ jobs:
       - name: Cleaning rust toolchain directory
         if: always()
         run: |
-          rm -rf install_rustup/.cargo/registry/{cache,src}
-          rm -rf install_rustup/.cargo/git/checkouts
-          du -sh install_rustup
+          ninja -C build$BIT cargo-clean
 
       - name: Saving build${{ matrix.bit }} cache
         uses: actions/cache/save@main
