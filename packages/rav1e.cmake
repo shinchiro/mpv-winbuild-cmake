@@ -13,6 +13,7 @@ ExternalProject_Add(rav1e
         --prefix ${MINGW_INSTALL_PREFIX}
         --target ${TARGET_CPU}-pc-windows-gnu
         --release
+        --crt-static
         --library-type staticlib
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
