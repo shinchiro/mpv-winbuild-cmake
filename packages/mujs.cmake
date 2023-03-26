@@ -19,5 +19,11 @@ ExternalProject_Add(mujs
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+ExternalProject_Add_Step(mujs delete-dir
+    DEPENDEES install
+    COMMAND ${CMAKE_COMMAND} -E rm -rf <SOURCE_DIR>/build
+    COMMENT "Delete build dir"
+)
+
 force_rebuild_git(mujs)
-cleanup(mujs install)
+cleanup(mujs delete-dir)
