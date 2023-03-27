@@ -95,15 +95,16 @@ ExternalProject_Add(x265-8+10bit
         x265-10bit-lib
     DOWNLOAD_COMMAND ""
     LIST_SEPARATOR ^^
-    UPDATE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
-    CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DEXTRA_LIB='x265_main10.a'
-        -DEXTRA_LINK_FLAGS=-L.
-        -DLINKED_10BIT=ON
-        -DENABLE_SHARED=OFF
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
+              COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+                        -G Ninja
+                        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+                        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+                        -DEXTRA_LIB='x265_main10.a'
+                        -DEXTRA_LINK_FLAGS=-L.
+                        -DLINKED_10BIT=ON
+                        -DENABLE_SHARED=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
           COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
           COMMAND chmod 755 ${COMBINE}
@@ -119,17 +120,18 @@ ExternalProject_Add(x265-8+10+12bit
         x265-10bit-lib
     DOWNLOAD_COMMAND ""
     LIST_SEPARATOR ^^
-    UPDATE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
-           COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main12.a <BINARY_DIR>
-    CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DEXTRA_LIB='x265_main10.a^^x265_main12.a'
-        -DEXTRA_LINK_FLAGS=-L.
-        -DLINKED_10BIT=ON
-        -DLINKED_12BIT=ON
-        -DENABLE_SHARED=OFF
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
+              COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main12.a <BINARY_DIR>
+              COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+                        -G Ninja
+                        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+                        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+                        -DEXTRA_LIB='x265_main10.a^^x265_main12.a'
+                        -DEXTRA_LINK_FLAGS=-L.
+                        -DLINKED_10BIT=ON
+                        -DLINKED_12BIT=ON
+                        -DENABLE_SHARED=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
           COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
           COMMAND chmod 755 ${COMBINE}
