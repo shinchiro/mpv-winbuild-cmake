@@ -24,7 +24,7 @@ ExternalProject_Add(ffmpeg
         speex
         vorbis
         x264
-        x265-10bit
+        ${ffmpeg_x265}
         xvidcore
         libxml2
         libvpl
