@@ -21,7 +21,7 @@ function(cleanup _name _last_step)
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
                                  COMMAND bash -c "git -C <SOURCE_DIR> restore .")
-    else()
+    elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
     endif()
