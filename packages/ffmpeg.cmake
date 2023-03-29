@@ -33,6 +33,7 @@ ExternalProject_Add(ffmpeg
         shaderc
         libplacebo
         libzvbi
+        libaribcaption
         rav1e
         dav1d
         vapoursynth
@@ -91,6 +92,7 @@ ExternalProject_Add(ffmpeg
         --enable-libplacebo
         --enable-libshaderc
         --enable-libzvbi
+        --enable-libaribcaption
         --enable-cuda
         --enable-cuvid
         --enable-nvdec

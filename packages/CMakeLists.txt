@@ -78,6 +78,7 @@ list(APPEND ep
     libplacebo
     libva
     libzvbi
+    libaribcaption
     libsixel
     ffmpeg
     mpv
