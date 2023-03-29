@@ -7,7 +7,6 @@ ExternalProject_Add(ffmpeg
         gmp
         lame
         mbedtls
-        aribb24
         libssh
         libsrt
         libass
@@ -60,7 +59,6 @@ ExternalProject_Add(ffmpeg
         --enable-vapoursynth
         --enable-gmp
         --enable-libass
-        --enable-libaribb24
         --enable-libbluray
         --enable-libfreetype
         --enable-libfribidi
