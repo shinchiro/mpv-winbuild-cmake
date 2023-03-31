@@ -1,5 +1,5 @@
 if(${TARGET_CPU} MATCHES "x86_64")
-    set(high_bit_depth "-DHIGH_BIT_DEPTH=ON")
+    set(high_bit_depth "-DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=ON")
     # 10bit/12bit only supported in x64.
     set(ffmpeg_x265 "x265-8+10bit")
 else()
@@ -48,6 +48,7 @@ ExternalProject_Add(x265-10bit-lib
         -DCMAKE_INSTALL_PREFIX=<BINARY_DIR>
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
         -DHIGH_BIT_DEPTH=ON
+        -DENABLE_HDR10_PLUS=ON
         -DEXPORT_C_API=OFF
         -DENABLE_SHARED=OFF
         -DENABLE_CLI=OFF
@@ -66,6 +67,7 @@ ExternalProject_Add(x265-12bit-lib
         -DCMAKE_INSTALL_PREFIX=<BINARY_DIR>
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
         -DHIGH_BIT_DEPTH=ON
+        -DENABLE_HDR10_PLUS=ON
         -DMAIN12=ON
         -DEXPORT_C_API=OFF
         -DENABLE_SHARED=OFF
