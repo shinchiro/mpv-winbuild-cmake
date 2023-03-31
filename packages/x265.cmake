@@ -140,6 +140,16 @@ ExternalProject_Add(x265-8+10+12bit
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+function(delete_dir)
+    foreach(arg IN LISTS ARGV)
+        ExternalProject_Add_Step(${arg} delete-dir
+            DEPENDEES install
+            COMMAND bash -c "rm -rf <BINARY_DIR>/*"
+            COMMENT "Delete build directory"
+        )
+    endforeach()
+endfunction()
+
 force_rebuild_git(x265)
 cleanup(x265 install)
 cleanup(x265-10bit-lib install)
@@ -147,3 +157,4 @@ cleanup(x265-12bit-lib install)
 cleanup(x265-10bit install)
 cleanup(x265-8+10bit install)
 cleanup(x265-8+10+12bit install)
+delete_dir(x265-10bit-lib x265-12bit-lib x265-10bit x265-8+10bit x265-8+10+12bit)
