@@ -1,6 +1,6 @@
-From 9f3cadbd68456b6713df01f6f4dff8cf4e94c159 Mon Sep 17 00:00:00 2001
+From 1b28af74a2462811e902d3c3c2a5303cafc1e09f Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Wed, 8 Mar 2023 09:48:35 +0800
+Date: Tue, 11 Apr 2023 22:21:34 +0800
 Subject: [PATCH] Add .exe to binary name
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] Add .exe to binary name
  1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 24049d3..f0582cd 100644
+index 95ccdc3..4026a86 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -2,7 +2,7 @@
@@ -31,16 +31,16 @@ index 24049d3..f0582cd 100644
  ifeq ($(shell uname),Darwin)
    SO = dylib
  else
-@@ -99,7 +103,7 @@ build/release/libmujs.o: one.c $(SRCS) $(HDRS)
+@@ -104,7 +108,7 @@ build/release/libmujs.o: one.c $(SRCS) $(HDRS)
  build/release/libmujs.a: build/release/libmujs.o
  	$(AR) cr $@ $^
  build/release/mujs: main.c build/release/libmujs.o
--	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm -DHAVE_READLINE -lreadline
+-	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm $(READLINE_CFLAGS) $(READLINE_LIBS)
 +	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
  build/release/mujs-pp: pp.c build/release/libmujs.o
  	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
  
-@@ -119,8 +123,8 @@ install-common: build/release/mujs build/release/mujs-pp build/release/mujs.pc
+@@ -124,8 +128,8 @@ install-common: build/release/mujs build/release/mujs-pp build/release/mujs.pc
  	install -d $(DESTDIR)$(bindir)
  	install -m 644 mujs.h $(DESTDIR)$(incdir)
  	install -m 644 build/release/mujs.pc $(DESTDIR)$(libdir)/pkgconfig
@@ -52,5 +52,5 @@ index 24049d3..f0582cd 100644
  install-static: install-common build/release/libmujs.a
  	install -m 644 build/release/libmujs.a $(DESTDIR)$(libdir)
 -- 
-2.39.2
+2.40.0
 
