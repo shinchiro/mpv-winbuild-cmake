@@ -1,4 +1,4 @@
-From 1abd3c94f85fed984c3eccd0042a2248ad1fa12e Mon Sep 17 00:00:00 2001
+From 5a251c6b96e763d1ad7fb415793d4319bfc8e2fd Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 14 Feb 2023 12:38:53 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index babe02138..0abee2b35 100644
+index b386c8392..285e0f853 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -51,7 +51,7 @@ index babe02138..0abee2b35 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -345,6 +345,7 @@ else()
+@@ -357,6 +357,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index babe02138..0abee2b35 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -358,6 +359,7 @@ else()
+@@ -370,6 +371,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,7 +67,7 @@ index babe02138..0abee2b35 100644
  # cmake-format: on
      endif()
  endif()
-@@ -382,7 +384,7 @@ if(PKG_CONFIG_FOUND)
+@@ -394,7 +396,7 @@ if(PKG_CONFIG_FOUND)
          list(REMOVE_DUPLICATES PRIVATE_LIBS)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
@@ -76,7 +76,7 @@ index babe02138..0abee2b35 100644
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -406,6 +408,7 @@ if(PKG_CONFIG_FOUND)
+@@ -418,6 +420,7 @@ if(PKG_CONFIG_FOUND)
          file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
      endif()
      set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
@@ -85,7 +85,7 @@ index babe02138..0abee2b35 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index a73633cc2..5d2bb7359 100644
+index c037c7766..db9a9cc59 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -32,7 +32,9 @@
@@ -115,12 +115,12 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 5b0e9dc6e..9cdcd5bf6 100644
+index 19ab58d01..2675658c9 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
  #include <strsafe.h>
- #ifdef __MINGW32__
+ #if defined(__MINGW32__)
  #undef strcpy  // fix error with redfined strcpy when building with MinGW-w64
 +#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
 +#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
@@ -144,10 +144,10 @@ index 5b0e9dc6e..9cdcd5bf6 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 44120f2c2..468c3a532 100644
+index 50daebf31..38bff3bfe 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -66,6 +66,7 @@
+@@ -72,6 +72,7 @@
  #include <io.h>
  #include <shlwapi.h>
  #include <direct.h>
@@ -155,7 +155,7 @@ index 44120f2c2..468c3a532 100644
  #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
-@@ -216,7 +217,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -221,7 +222,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
@@ -165,5 +165,5 @@ index 44120f2c2..468c3a532 100644
      assert(func != NULL);
      assert(ctl != NULL);
 -- 
-2.38.1
+2.40.0
 
