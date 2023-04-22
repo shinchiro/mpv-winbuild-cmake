@@ -4,7 +4,7 @@ ExternalProject_Add(fontconfig
         freetype2
         zlib
         libiconv
-    GIT_REPOSITORY https://github.com/freedesktop/fontconfig.git
+    GIT_REPOSITORY https://gitlab.freedesktop.org/fontconfig/fontconfig.git
     SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
