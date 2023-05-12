@@ -1,5 +1,5 @@
 ExternalProject_Add(mingw-w64
-    GIT_REPOSITORY https://github.com/mirror/mingw-w64.git
+    GIT_REPOSITORY https://github.com/mingw-w64/mingw-w64.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
