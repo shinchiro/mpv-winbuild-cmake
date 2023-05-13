@@ -13,7 +13,7 @@ endif()
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
     message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
 endif()
-
+# Supported arch: x86_64-w64-mingw32 , i686-w64-mingw32 , aarch64-w64-mingw32 , armv7-w64-mingw32
 set(TARGET_ARCH "x86_64-w64-mingw32" CACHE STRING "The target architecture for this toolchain.")
 string(REGEX MATCH "^[^-]+" TARGET_CPU ${TARGET_ARCH})
 
@@ -43,7 +43,7 @@ set(MAKEJOBS ${MAKEJOBS} CACHE STRING "Number of parallel processes to run for e
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/install" CACHE PATH "Default install path" FORCE )
 endif()
-set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/mingw)
+set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${TARGET_ARCH})
 
 option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful compilation." OFF)
 set(SINGLE_SOURCE_LOCATION "" CACHE STRING "Absolute path to download git & zip")
@@ -51,6 +51,13 @@ set(RUSTUP_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/install_rustup" CACHE STRING "A
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
+
+set(COMPILER_TOOLCHAIN "gcc" CACHE STRING "gcc or clang")
+if(COMPILER_TOOLCHAIN STREQUAL "gcc")
+    if(TARGET_ARCH STREQUAL "aarch64-w64-mingw32" OR TARGET_ARCH STREQUAL "armv7-w64-mingw32")
+        message(FATAL_ERROR "The target architecture is unavailable for this toolchain.")
+    endif()
+endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/meson_cross.txt.in ${CMAKE_CURRENT_BINARY_DIR}/meson_cross.txt @ONLY)
 set(MESON_CROSS ${CMAKE_CURRENT_BINARY_DIR}/meson_cross.txt)

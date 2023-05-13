@@ -191,6 +191,17 @@ After that, build mpv as usual:
 
 This will also build all packages that `mpv` depends on.
 
+## Targetting Arm64 with clang
+
+    cmake -G Ninja -Bbuild_aarch64 -Hmpv-winbuild-cmake -DCOMPILER_TOOLCHAIN=clang -DTARGET_ARCH=aarch64-w64-mingw32 -DCMAKE_INSTALL_PREFIX="clang_root" -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION="packages" -DRUSTUP_LOCATION="install_rustup"
+
+The cmake command will create `clang_root` as clang sysroot while `build_aarch64` as build directory to compiling packages.
+
+    cd build_aarch64
+    ninja llvm && ninja llvm-clang
+
+This will take around 2 hours to compile llvm toolchain.
+
 ## Available Commands
 
 | Commands                   | Description |

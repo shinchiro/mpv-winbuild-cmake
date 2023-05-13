@@ -1,0 +1,9 @@
+#!/bin/sh
+PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
+TARGET=@TARGET_ARCH@
+CPU=@GCC_ARCH@
+FLAGS="$FLAGS -target $TARGET -mcpu=$CPU"
+FLAGS="$FLAGS @driver_mode@"
+FLAGS="$FLAGS -fuse-ld=lld"
+
+"$PROG" $FLAGS "$@" @linker@
