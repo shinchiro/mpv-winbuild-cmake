@@ -1,21 +1,21 @@
-From b86604f400583fbef0c695f137490ee0324d9000 Mon Sep 17 00:00:00 2001
+From 5a251c6b96e763d1ad7fb415793d4319bfc8e2fd Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Wed, 7 Sep 2022 09:03:52 +0800
+Date: Tue, 14 Feb 2023 12:38:53 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
  loader/CMakeLists.txt       | 13 ++++++++-----
  loader/loader.h             |  2 ++
- loader/loader.rc            |  4 ++++
+ loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index bf43087..50cf245 100644
+index b386c8392..285e0f853 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -24,7 +24,7 @@ add_library(loader_specific_options INTERFACE)
+@@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
  target_link_libraries(loader_specific_options INTERFACE loader_common_options Vulkan::Headers)
  target_include_directories(loader_specific_options INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/generated ${CMAKE_CURRENT_BINARY_DIR})
  
@@ -24,7 +24,7 @@ index bf43087..50cf245 100644
      if(MSVC)
          # Use static MSVCRT libraries
          foreach(configuration
-@@ -130,7 +130,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -124,7 +124,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index bf43087..50cf245 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -219,7 +219,7 @@ else() # i.e.: Linux
+@@ -258,7 +258,7 @@ else() # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index bf43087..50cf245 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -261,7 +261,7 @@ if(WIN32)
+@@ -306,7 +306,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -51,7 +51,7 @@ index bf43087..50cf245 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -305,6 +305,7 @@ else()
+@@ -357,6 +357,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index bf43087..50cf245 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -318,6 +319,7 @@ else()
+@@ -370,6 +371,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,25 +67,25 @@ index bf43087..50cf245 100644
  # cmake-format: on
      endif()
  endif()
-@@ -337,7 +339,7 @@ if(PKG_CONFIG_FOUND)
-     foreach(LIB ${CMAKE_CXX_IMPLICIT_LINK_LIBRARIES} ${PLATFORM_LIBS})
-         set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
-     endforeach()
+@@ -394,7 +396,7 @@ if(PKG_CONFIG_FOUND)
+         list(REMOVE_DUPLICATES PRIVATE_LIBS)
+         set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
+     endif()
 -    if(WIN32)
 +    if(WIN32 AND NOT BUILD_STATIC_LOADER)
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -353,6 +355,7 @@ if(PKG_CONFIG_FOUND)
-     else()
-         set(CMAKE_INSTALL_FULL_LIBDIR_PC ${CMAKE_INSTALL_FULL_LIBDIR})
-     endif ()
-+    set(PRIVATE_LIBS "${PRIVATE_LIBS} -lshlwapi -lcfgmgr32")
+@@ -418,6 +420,7 @@ if(PKG_CONFIG_FOUND)
+         file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+     endif()
+     set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
++    set(PRIVATE_LIBS "Libs.private: -lshlwapi -lcfgmgr32")
      configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index 3beb8b6..c8a57d6 100644
+index c037c7766..db9a9cc59 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -32,7 +32,9 @@
@@ -98,10 +98,10 @@ index 3beb8b6..c8a57d6 100644
  
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
-diff --git a/loader/loader.rc b/loader/loader.rc
-index 996d9c5..90863da 100644
---- a/loader/loader.rc
-+++ b/loader/loader.rc
+diff --git a/loader/loader.rc.in b/loader/loader.rc.in
+index 0dc4227da..e7fcea06f 100644
+--- a/loader/loader.rc.in
++++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
  // Author: Charles Giessen <charles@lunarg.com>
  //
@@ -113,14 +113,14 @@ index 996d9c5..90863da 100644
 +#endif
  
  // All set through CMake
- #define VER_FILE_VERSION 1, 0, 1111, 2222
+ #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 4015acb..0262dc7 100644
+index 19ab58d01..2675658c9 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
  #include <strsafe.h>
- #ifdef __MINGW32__
+ #if defined(__MINGW32__)
  #undef strcpy  // fix error with redfined strcpy when building with MinGW-w64
 +#define CM_GETIDLIST_FILTER_PRESENT            (0x00000100)
 +#define CM_GETIDLIST_FILTER_CLASS              (0x00000200)
@@ -144,10 +144,10 @@ index 4015acb..0262dc7 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index ebfa2eb..06cf9cf 100644
+index 50daebf31..38bff3bfe 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -65,6 +65,7 @@
+@@ -72,6 +72,7 @@
  #include <io.h>
  #include <shlwapi.h>
  #include <direct.h>
@@ -155,7 +155,7 @@ index ebfa2eb..06cf9cf 100644
  #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
-@@ -203,7 +204,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -221,7 +222,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
@@ -165,5 +165,5 @@ index ebfa2eb..06cf9cf 100644
      assert(func != NULL);
      assert(ctl != NULL);
 -- 
-2.37.2
+2.40.0
 

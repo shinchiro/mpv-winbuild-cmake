@@ -1,36 +1,56 @@
-From 62a7dfb6df568ed1337c1288a13b2b2d7b4c0ec4 Mon Sep 17 00:00:00 2001
+From 1b28af74a2462811e902d3c3c2a5303cafc1e09f Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 10 Oct 2021 00:03:25 +0800
+Date: Tue, 11 Apr 2023 22:21:34 +0800
 Subject: [PATCH] Add .exe to binary name
 
 ---
- Makefile | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ Makefile | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index 896c510..da45721 100644
+index 95ccdc3..4026a86 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -42,6 +42,10 @@ ifeq "$(HAVE_READLINE)" "yes"
-   LIBREADLINE += -lreadline
+@@ -2,7 +2,7 @@
+ #
+ # Useful targets are: release, install, uninstall.
+ 
+-default: build/debug/mujs build/debug/mujs-pp
++default: build/release/mujs build/release/mujs-pp
+ 
+ CFLAGS = -std=c99 -pedantic -Wall -Wextra -Wno-unused-parameter
+ 
+@@ -19,6 +19,10 @@ else
+   VERSION = $(patsubst mujs-%,%,$(notdir $(CURDIR)))
  endif
  
 +ifeq "$(host)" "mingw"
 +  EXT := .exe
 +endif
 +
- CFLAGS += $(XCFLAGS)
- CPPFLAGS += $(XCPPFLAGS)
+ ifeq ($(shell uname),Darwin)
+   SO = dylib
+ else
+@@ -104,7 +108,7 @@ build/release/libmujs.o: one.c $(SRCS) $(HDRS)
+ build/release/libmujs.a: build/release/libmujs.o
+ 	$(AR) cr $@ $^
+ build/release/mujs: main.c build/release/libmujs.o
+-	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm $(READLINE_CFLAGS) $(READLINE_LIBS)
++	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
+ build/release/mujs-pp: pp.c build/release/libmujs.o
+ 	$(CC) $(CFLAGS) $(OPTIM) -o $@ $^ -lm
  
-@@ -112,7 +116,7 @@ install-common: $(OUT)/mujs $(OUT)/mujs.pc
+@@ -124,8 +128,8 @@ install-common: build/release/mujs build/release/mujs-pp build/release/mujs.pc
  	install -d $(DESTDIR)$(bindir)
  	install -m 644 mujs.h $(DESTDIR)$(incdir)
- 	install -m 644 $(OUT)/mujs.pc $(DESTDIR)$(libdir)/pkgconfig
--	install -m 755 $(OUT)/mujs $(DESTDIR)$(bindir)
-+	install -m 755 $(OUT)/mujs$(EXT) $(DESTDIR)$(bindir)
+ 	install -m 644 build/release/mujs.pc $(DESTDIR)$(libdir)/pkgconfig
+-	install -m 755 build/release/mujs $(DESTDIR)$(bindir)
+-	install -m 755 build/release/mujs-pp $(DESTDIR)$(bindir)
++	install -m 755 build/release/mujs$(EXT) $(DESTDIR)$(bindir)
++	install -m 755 build/release/mujs-pp$(EXT) $(DESTDIR)$(bindir)
  
- install-static: install-common $(OUT)/libmujs.a
- 	install -m 644 $(OUT)/libmujs.a $(DESTDIR)$(libdir)
+ install-static: install-common build/release/libmujs.a
+ 	install -m 644 build/release/libmujs.a $(DESTDIR)$(libdir)
 -- 
-2.33.0
+2.40.0
 

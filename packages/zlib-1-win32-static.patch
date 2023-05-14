@@ -1,23 +1,22 @@
-From 293818e5813d2957d4c11e0c682f21174008ed6b Mon Sep 17 00:00:00 2001
+From df6ee0e9b81e6ffca1e6f4bc9b75fb9b6856c3e9 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 15 Jan 2017 07:41:45 +0800
+Date: Fri, 21 Oct 2022 14:04:21 +0000
 Subject: [PATCH] win32 static
 
 ---
  Makefile.in | 4 ++--
- configure   | 3 ---
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile.in b/Makefile.in
-index 1852192..c88f5b5 100644
+index 7d2713f..f9aa465 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -310,12 +310,12 @@ install-libs: $(LIBS)
+@@ -306,12 +306,12 @@ install-libs: $(LIBS)
  	-@if [ ! -d $(DESTDIR)$(man3dir)      ]; then mkdir -p $(DESTDIR)$(man3dir); fi
  	-@if [ ! -d $(DESTDIR)$(pkgconfigdir) ]; then mkdir -p $(DESTDIR)$(pkgconfigdir); fi
  	rm -f $(DESTDIR)$(libdir)/$(STATICLIB)
 -	cp $(STATICLIB) $(DESTDIR)$(libdir)
-+	[ -z '$(STATICLIB)'  ] || cp $(STATICLIB)  $(DESTDIR)$(libdir)
++	[ -z '$(STATICLIB)'  ] || cp $(STATICLIB) $(DESTDIR)$(libdir)
  	chmod 644 $(DESTDIR)$(libdir)/$(STATICLIB)
  	-@($(RANLIB) $(DESTDIR)$(libdir)/libz.a || true) >/dev/null 2>&1
  	-@if test -n "$(SHAREDLIBV)"; then \
@@ -27,21 +26,6 @@ index 1852192..c88f5b5 100644
  	  echo "cp $(SHAREDLIBV) $(DESTDIR)$(sharedlibdir)"; \
  	  chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV); \
  	  echo "chmod 755 $(DESTDIR)$(sharedlibdir)/$(SHAREDLIBV)"; \
-diff --git a/configure b/configure
-index e974d1f..f023947 100644
---- a/configure
-+++ b/configure
-@@ -215,10 +215,7 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
-   CYGWIN* | Cygwin* | cygwin* | OS/2*)
-         EXE='.exe' ;;
-   MINGW* | mingw*)
--# temporary bypass
-         rm -f $test.[co] $test $test$shared_ext
--        echo "Please use win32/Makefile.gcc instead." | tee -a configure.log
--        leave 1
-         LDSHARED=${LDSHARED-"$cc -shared"}
-         LDSHAREDLIBC=""
-         EXE='.exe' ;;
 -- 
-2.10.2
+2.38.1
 

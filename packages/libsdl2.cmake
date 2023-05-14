@@ -1,8 +1,7 @@
 ExternalProject_Add(libsdl2
-    URL https://www.libsdl.org/release/SDL2-2.24.0.tar.gz
-    URL_HASH SHA256=91e4c34b1768f92d399b078e171448c6af18cafda743987ed2064a28954d6d97
+    URL https://www.libsdl.org/release/SDL2-2.26.4.tar.gz
+    URL_HASH SHA256=1A0F686498FB768AD9F3F80B39037A7D006EAC093AAD39CB4EBCC832A8887231
     DOWNLOAD_DIR ${SOURCE_LOCATION}
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/libsdl2-0001-mingw-header.patch
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}

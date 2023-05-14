@@ -9,12 +9,11 @@ ExternalProject_Add(libjxl
         highway
     GIT_REPOSITORY https://github.com/libjxl/libjxl.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG main
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} curl -sL https://github.com/libjxl/libjxl/pull/1444.patch | git am --3way --whitespace=fix
     CONFIGURE_COMMAND ""
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "ln -s ${src_brotli} <SOURCE_DIR>/third_party/brotli"

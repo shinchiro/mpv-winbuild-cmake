@@ -3,7 +3,7 @@ ExternalProject_Add(readline
         termcap
     GIT_REPOSITORY https://git.sailfishos.org/mirror/readline.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

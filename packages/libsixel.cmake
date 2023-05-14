@@ -3,7 +3,7 @@ ExternalProject_Add(libsixel
         libpng
         libjpeg
     GIT_REPOSITORY https://github.com/saitoha/libsixel.git
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

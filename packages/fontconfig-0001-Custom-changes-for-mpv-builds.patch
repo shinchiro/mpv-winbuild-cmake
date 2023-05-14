@@ -1,4 +1,4 @@
-From 3cd79b898ca01be1aab742ad6a85b95ff44a276a Mon Sep 17 00:00:00 2001
+From c5462552756876907991301f962a207969959855 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sun, 20 Sep 2020 10:44:07 +0800
 Subject: [PATCH] Custom changes for mpv builds
@@ -10,7 +10,7 @@ Based on original lachs0r's patch for fontconfig
  2 files changed, 59 insertions(+), 12 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index e332897..bcd3d2a 100644
+index 6f7b383..3547347 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
 @@ -72,18 +72,9 @@ FcFileScanFontConfig (FcFontSet		*set,
@@ -33,7 +33,7 @@ index e332897..bcd3d2a 100644
      {
  	FcPattern *font = set->fonts[i];
 @@ -233,8 +224,8 @@ FcDirScanConfig (FcFontSet	*set,
-     }
+     base = file_prefix + strlen ((char *) file_prefix);
  
      if (FcDebug () & FC_DBG_SCAN)
 -	printf ("\tScanning dir %s\n", s_dir);
@@ -134,5 +134,5 @@ index c05cdc5..347f8b4 100644
      FcConfigDestroy (config);
  bail0:
 -- 
-2.37.2
+2.40.0
 

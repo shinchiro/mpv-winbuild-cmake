@@ -20,7 +20,7 @@ function(cleanup _name _last_step)
             set(remove_cmd "rm -rf <BINARY_DIR>/* && git -C <SOURCE_DIR> clean -df")
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
-                                 COMMAND bash -c "git -C <SOURCE_DIR> reset --hard ${git_tag} > /dev/null || true")
+                                 COMMAND bash -c "git -C <SOURCE_DIR> restore .")
     elseif(_url)
         set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
@@ -69,7 +69,6 @@ function(cleanup _name _last_step)
     ExternalProject_Add_Step(${_name} removeprefix
         COMMAND ${EXEC} rm -rf <INSTALL_DIR> ${source_dir}
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rebuild_cache
-        ${COMMAND_FORCE_UPDATE}
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
@@ -87,15 +86,14 @@ function(force_rebuild_git _name)
 
     if("${git_remote_name}" STREQUAL "" AND NOT "${git_tag}" STREQUAL "")
         # GIT_REMOTE_NAME is not set when commit hash is specified
-        set(COMMAND_GIT_PULL "")
+        set(git_tag "")
     else()
         set(git_tag "@{u}")
-        set(COMMAND_GIT_PULL COMMAND bash -c "git pull -q")
     endif()
 
 file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
-git fetch --no-tags
+git fetch --filter=tree:0
 if [[ ! -f \"${stamp_dir}/${_name}-patch\" || \"${stamp_dir}/${_name}-download\" -nt \"${stamp_dir}/${_name}-patch\" || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]; then
     git reset --hard ${git_tag} -q
     find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
@@ -111,7 +109,6 @@ fi")
         WORKING_DIRECTORY <SOURCE_DIR>
         COMMAND bash -c "git am --abort 2> /dev/null || true"
         COMMAND chmod 755 ${stamp_dir}/reset_head.sh && ${stamp_dir}/reset_head.sh
-        ${COMMAND_GIT_PULL}
     )
     ExternalProject_Add_StepTargets(${_name} force-update)
 

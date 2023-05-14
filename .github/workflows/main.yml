@@ -20,24 +20,29 @@ on:
         required: false
         default: true
         type: boolean
+      mpv_tarball:
+        description: 'Build latest mpv tarball'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build_mpv:
     name: Building mpv
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         bit: [32, 64, 64-v3]
     env:
       BIT: ${{ matrix.bit }}
     container:
       image: docker://ghcr.io/shinchiro/archlinux:latest
-
+    outputs:
+      mpv_ver: ${{ steps.build_mpv_step.outputs.mpv_ver }}
     steps:
-      - name: Get current date and random hash
+      - name: Init variable
         run: |
-          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_ENV
-          echo "random_hash=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_ENV
           if [[ $BIT == 32 ]]; then
             echo "arch=i686" >> $GITHUB_ENV
           elif [[ $BIT == 64 ]]; then
@@ -61,32 +66,29 @@ jobs:
         with:
           ref: master
 
-      - name: Loading build cache
-        uses: actions/cache@main
-        id: build_cache
+      - name: Loading build${{ matrix.bit }} cache
+        uses: actions/cache/restore@main
         with:
           path: build${{ matrix.bit }}
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ env.short_date }}-${{ env.random_hash }}
+          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ env.short_date }}
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}
+            ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}
 
-      - name: Loading packages cache
-        uses: actions/cache@main
-        id: packages_cache
+      - name: Loading repository cache
+        uses: actions/cache/restore@main
         with:
           path: src_packages
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_${{ matrix.bit }}-${{ env.short_date }}-${{ env.random_hash }}
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_32-${{ env.short_date }}
-            ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-src_packages_32
+            ${{ secrets.CACHE_VERSION }}-repository
 
-      - name: Loading release cache
-        uses: actions/cache@main
-        id: release_cache
+      - name: Loading rust toolchain cache
+        uses: actions/cache/restore@main
         with:
-          path: release${{ matrix.bit }}
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release${{ matrix.bit }}-${{ github.run_id }}
+          path: install_rustup
+          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
+          restore-keys: |
+            ${{ secrets.CACHE_VERSION }}-rust_toolchain
 
       - name: Running custom command
         if: ${{ github.event.inputs.command != '' }}
@@ -95,60 +97,83 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -Bbuild$BIT -H.
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/install_rustup -G Ninja -Bbuild$BIT -H.
           ninja -C build$BIT download || true
 
       - name: Building toolchain
-        id: build_toolchain
-        continue-on-error: true
         run: |
           if [[ ! "$(ls -A build$BIT/install/bin)" ]]; then ninja -C build$BIT gcc; fi
 
       - name: Building mpv
-        id: build_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' }}
-        continue-on-error: true
+        id: build_mpv_step
+        env:
+          MPV_TARBALL: ${{ github.event.inputs.mpv_tarball }}
         run: |
-          ninja -C build$BIT update; ninja -C build$BIT mpv
+          ninja -C build$BIT update
+          $MPV_TARBALL && ninja -C build$BIT mpv-release || ninja -C build$BIT mpv
+          $MPV_TARBALL && echo "mpv_ver=$(cat build$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
 
       - name: Packaging mpv
-        id: packaging_mpv
-        if: ${{ steps.build_toolchain.outcome == 'success' && steps.build_mpv.outcome == 'success' }}
-        continue-on-error: true
         run: |
           mkdir -p release$BIT
           rm -rf build$BIT/mpv-debug*; ninja -C build$BIT mpv-packaging; mv build$BIT/mpv*.7z release$BIT
 
       - name: Copying ffmpeg
-        id: copying_ffmpeg
-        if: ${{ steps.build_toolchain.outcome == 'success' && steps.packaging_mpv.outcome == 'success' }}
-        continue-on-error: true
         run: |
           hash=$(git -C src_packages/ffmpeg rev-parse --short HEAD)
           7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
 
       - name: Collecting logs
-        id: collect_logs
+        if: always()
         run: |
           mkdir -p build${BIT}_logs
           cp -fr $(find build$BIT -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build${BIT}_logs || true
           7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
 
       - name: Uploading logs
-        id: upload_logs
-        continue-on-error: true
         uses: actions/upload-artifact@master
+        if: always()
         with:
           name: logs_${{ matrix.bit }}
           path: logs.7z
           retention-days: 1
 
       - name: Cleaning build directory
-        id: delete_build_dir
+        if: always()
         run: |
           rm -rf build$BIT/mpv*
-          if [[ $BIT == 64 || $BIT == 64-v3 ]]; then rm -rf src_packages/*; fi
-          du -sh build$BIT src_packages /var/cache/pacman/pkg || true
+
+      - name: Cleaning rust toolchain directory
+        if: always()
+        run: |
+          ninja -C build$BIT cargo-clean
+
+      - name: Saving build${{ matrix.bit }} cache
+        uses: actions/cache/save@main
+        if: always()
+        with:
+          path: build${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
+
+      - name: Saving repository cache
+        uses: actions/cache/save@main
+        if: ${{ always() && matrix.bit == '32' }}
+        with:
+          path: src_packages
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
+
+      - name: Saving rust toolchain cache
+        uses: actions/cache/save@main
+        if: ${{ always() && matrix.bit == '64' }}
+        with:
+          path: install_rustup
+          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
+
+      - name: Saving release${{ matrix.bit }} cache
+        uses: actions/cache/save@main
+        with:
+          path: release${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-release${{ matrix.bit }}-${{ github.run_id }}
 
   release:
     name: Upload releases
@@ -157,6 +182,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
+      release32_key: ${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
+      release64_key: ${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
+      release64_v3_key: ${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
     container:
       image: docker://alpine:latest
 
@@ -168,29 +196,28 @@ jobs:
           git config --global pull.rebase true
           git config --global fetch.prune true
           git config --global --add safe.directory $PWD
-          echo "short_date=$(date "+%Y%m%d")" >> $GITHUB_ENV
 
       - uses: actions/checkout@main
         with:
           ref: master
 
       - name: Loading release32 cache
-        uses: actions/cache@main
+        uses: actions/cache/restore@main
         with:
           path: release32
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
+          key: ${{ env.release32_key }}
 
       - name: Loading release64 cache
-        uses: actions/cache@main
+        uses: actions/cache/restore@main
         with:
           path: release64
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
+          key: ${{ env.release64_key }}
 
-      - name: Loading release64 cache
-        uses: actions/cache@main
+      - name: Loading release64-v3 cache
+        uses: actions/cache/restore@main
         with:
           path: release64-v3
-          key: ${{ runner.os }}-build-${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
+          key: ${{ env.release64_v3_key }}
 
       - name: Moving archives
         run: |
@@ -202,6 +229,8 @@ jobs:
         id: upload_packages_sf
         if: ${{ github.event.inputs.sourceforge == 'true' }}
         continue-on-error: true
+        env:
+          MPV_VER: ${{ needs.build_mpv.outputs.mpv_ver }}
         run: |
           mkdir -p /root/.ssh/
           echo "${{ secrets.SF_PRIVATE_KEY }}" > sf_key
@@ -213,23 +242,23 @@ jobs:
           put release/mpv-i686*          32bit
           put release/mpv-x86_64-[!v3]*  64bit
           put release/mpv-x86_64-v3*     64bit-v3
+          put release/mpv-$MPV_VER*      release
           END
 
       - name: Uploading packages to Github release
         id: upload_packages_gh
-        if: ${{ github.event.inputs.github_release == 'true' }}
+        if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
         continue-on-error: true
-        env:
-          SHORT_DATE: ${{ env.short_date }}
         run: |
+          short_date=$(date "+%Y%m%d")
           body=$(cat <<END
-          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$SHORT_DATE/total?label=Downloads)
+          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$short_date/total?label=Downloads)
           END
           )
           id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
           {
-            "tag_name": "$SHORT_DATE",
-            "name": "$SHORT_DATE",
+            "tag_name": "$short_date",
+            "name": "$short_date",
             "body": "$(echo ${body//$'\n'/'\n'})"
           }
           END
@@ -237,7 +266,6 @@ jobs:
           for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Pruning tags
-        id: prune_tags
         continue-on-error: true
         run: |
           # Keep latest 30 tags/releases
@@ -250,6 +278,13 @@ jobs:
             git tag -d $tag
           done
           git push --tags --prune https://shinchiro:$GH_TOKEN@github.com/shinchiro/mpv-winbuild-cmake
+
+      - name: Delete releases cache
+        if: ${{ github.event.inputs.github_release == 'false' || steps.upload_packages_gh.outcome == 'success' }}
+        run: |
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release32_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_v3_key
 
   gist:
     name: Gist
@@ -266,7 +301,6 @@ jobs:
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Upload job logs to gist
-        id: upload_job_log
         run: |
           url=$(curl -su shinchiro:$GH_TOKEN -X GET -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/runs/$RUN_ID/jobs | jq -r '.jobs[0] | .url')
           curl -sLu shinchiro:$GH_TOKEN -X GET -H "Accept: application/vnd.github.v3+json" $url/logs -o mpv_log

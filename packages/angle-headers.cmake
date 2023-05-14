@@ -1,5 +1,5 @@
 ExternalProject_Add(angle-headers
-    URL https://gitlab.com/shinchiro/angle/-/archive/master/angle-master.zip?path=include
+    URL https://gitlab.com/shinchiro/angle/-/archive/main/angle-main.zip?path=include
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""

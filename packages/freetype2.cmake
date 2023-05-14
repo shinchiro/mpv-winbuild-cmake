@@ -4,7 +4,7 @@ ExternalProject_Add(freetype2
         zlib
     GIT_REPOSITORY https://gitlab.com/shinchiro/freetype2.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_SHALLOW 1
+    GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
