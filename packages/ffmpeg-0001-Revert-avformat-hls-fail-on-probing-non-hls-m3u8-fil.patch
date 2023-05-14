@@ -1,0 +1,35 @@
+From ede0f4ad90fff005329d6bbd0611b47f210e14bf Mon Sep 17 00:00:00 2001
+From: Zhong Lufan <lufanzhong@gmail.com>
+Date: Sun, 14 May 2023 18:12:13 +0800
+Subject: [PATCH] Revert "avformat/hls: fail on probing non hls/m3u8 file
+ extensions"
+
+This reverts commit 6b1f68ccb04d791f0250e05687c346a99ff47ea1.
+---
+ libavformat/hls.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/libavformat/hls.c b/libavformat/hls.c
+index 11e345b..8a96a37 100644
+--- a/libavformat/hls.c
++++ b/libavformat/hls.c
+@@ -2532,15 +2532,8 @@ static int hls_probe(const AVProbeData *p)
+ 
+     if (strstr(p->buf, "#EXT-X-STREAM-INF:")     ||
+         strstr(p->buf, "#EXT-X-TARGETDURATION:") ||
+-        strstr(p->buf, "#EXT-X-MEDIA-SEQUENCE:")) {
+-
+-        if (!av_match_ext(p->filename, "m3u8,hls,m3u")) {
+-            av_log(NULL, AV_LOG_ERROR, "Not detecting m3u8/hls with non standard extension\n");
+-            return 0;
+-        }
+-
++        strstr(p->buf, "#EXT-X-MEDIA-SEQUENCE:"))
+         return AVPROBE_SCORE_MAX;
+-    }
+     return 0;
+ }
+ 
+-- 
+2.40.1.windows.1
+
