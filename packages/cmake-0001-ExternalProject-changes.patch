@@ -1,28 +1,31 @@
-From 940e275f4b13d27db906126e6aadbf6c3c8a3b32 Mon Sep 17 00:00:00 2001
+From 1210dd1d114ee9bbc780e8ce942e5557422286de Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 22 Jan 2023 23:58:28 +0800
-Subject: [PATCH] ExternalProject: changes
+Date: Sun, 21 May 2023 08:07:50 +0800
+Subject: [PATCH] ExternalProject: Changes
 
-support passing other flags in git clone operation
+GIT_CLONE_FLAGS:        Support passing other flags in git clone operation
+GIT_CLONE_POST_COMMAND: Run git command after clone operation
+GIT_RESET:              Perform git reset hard on repo
 ---
- Modules/ExternalProject.cmake             | 11 +++++++++++
- Modules/ExternalProject/gitclone.cmake.in | 13 +++++++++++++
- 2 files changed, 24 insertions(+)
+ Modules/ExternalProject.cmake             | 15 +++++++++++++
+ Modules/ExternalProject/gitclone.cmake.in | 26 +++++++++++++++++++++++
+ 2 files changed, 41 insertions(+)
 
 diff --git a/Modules/ExternalProject.cmake b/Modules/ExternalProject.cmake
-index 3752cebad..226f111f0 100644
+index 1fdd7545b..b3aea8af3 100644
 --- a/Modules/ExternalProject.cmake
 +++ b/Modules/ExternalProject.cmake
-@@ -1288,6 +1288,8 @@ function(_ep_write_gitclone_script
+@@ -1297,6 +1297,9 @@ function(_ep_write_gitclone_script
    git_submodules
    git_shallow
    git_progress
 +  git_clone_flags
 +  git_clone_post_cmd
++  git_reset
    git_config
    src_name
    work_dir
-@@ -1325,6 +1327,9 @@ function(_ep_write_gitclone_script
+@@ -1334,6 +1337,9 @@ function(_ep_write_gitclone_script
    if(git_progress)
      list(APPEND git_clone_options --progress)
    endif()
@@ -32,38 +35,41 @@ index 3752cebad..226f111f0 100644
    foreach(config IN LISTS git_config)
      list(APPEND git_clone_options --config \"${config}\")
    endforeach()
-@@ -2839,6 +2844,8 @@ function(_ep_add_download_command name)
+@@ -2841,6 +2847,9 @@ function(_ep_add_download_command name)
      get_property(git_shallow TARGET ${name} PROPERTY _EP_GIT_SHALLOW)
      get_property(git_progress TARGET ${name} PROPERTY _EP_GIT_PROGRESS)
      get_property(git_config TARGET ${name} PROPERTY _EP_GIT_CONFIG)
 +    get_property(git_clone_flags TARGET ${name} PROPERTY _EP_GIT_CLONE_FLAGS)
 +    get_property(git_clone_post_cmd TARGET ${name} PROPERTY _EP_GIT_CLONE_POST_COMMAND)
++    get_property(git_reset TARGET ${name} PROPERTY _EP_GIT_RESET)
  
      # If git supports it, make checkouts quiet when checking out a git hash.
      # This avoids the very noisy detached head message.
-@@ -2880,6 +2887,8 @@ CMP0097=${_EP_CMP0097}
+@@ -2882,6 +2891,9 @@ CMP0097=${_EP_CMP0097}
        "${git_submodules}"
        "${git_shallow}"
        "${git_progress}"
 +      "${git_clone_flags}"
 +      "${git_clone_post_cmd}"
++      "${git_reset}"
        "${git_config}"
        ${src_name}
        ${work_dir}
-@@ -4056,6 +4065,8 @@ function(ExternalProject_Add name)
+@@ -4058,6 +4070,9 @@ function(ExternalProject_Add name)
      GIT_SHALLOW
      GIT_PROGRESS
      GIT_CONFIG
 +    GIT_CLONE_FLAGS
 +    GIT_CLONE_POST_COMMAND
++    GIT_RESET
      GIT_REMOTE_UPDATE_STRATEGY
      #
      SVN_REPOSITORY
 diff --git a/Modules/ExternalProject/gitclone.cmake.in b/Modules/ExternalProject/gitclone.cmake.in
-index 3312171e0..e489bd658 100644
+index 3312171e0..f818380b7 100644
 --- a/Modules/ExternalProject/gitclone.cmake.in
 +++ b/Modules/ExternalProject/gitclone.cmake.in
-@@ -49,6 +49,19 @@ if(error_code)
+@@ -49,6 +49,32 @@ if(error_code)
    message(FATAL_ERROR "Failed to checkout tag: '@git_tag@'")
  endif()
  
@@ -80,9 +86,22 @@ index 3312171e0..e489bd658 100644
 +  message(FATAL_ERROR "Failed to run post-command after clone in: '@work_dir@/@src_name@'")
 +endif()
 +
++set(git_reset "@git_reset@")
++if(NOT ${git_reset} STREQUAL "")
++  execute_process(
++    COMMAND "@git_EXECUTABLE@" reset --hard
++            @git_reset@
++    WORKING_DIRECTORY "@work_dir@/@src_name@"
++    RESULT_VARIABLE error_code
++  )
++endif()
++if(error_code)
++  message(FATAL_ERROR "Failed to run git reset after clone in: '@work_dir@/@src_name@'")
++endif()
++
  set(init_submodules @init_submodules@)
  if(init_submodules)
    execute_process(
 -- 
-2.39.1
+2.40.1
 
