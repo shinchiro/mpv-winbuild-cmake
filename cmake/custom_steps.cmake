@@ -98,7 +98,7 @@ file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
 git fetch --filter=tree:0
 if [[ ! -f \"${stamp_dir}/${_name}-patch\" || \
-      ! -f \"${stamp_dir}/HEAD\" ]] && \
+      ! -f \"${stamp_dir}/HEAD\" ]] || \
       [[ -z \"${git_reset}\" && \
       \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]
 then
