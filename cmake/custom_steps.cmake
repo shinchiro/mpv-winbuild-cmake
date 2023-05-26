@@ -97,14 +97,13 @@ function(force_rebuild_git _name)
 file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
 git fetch --filter=tree:0
-if [[ ! -f \"${stamp_dir}/${_name}-patch\" || \
-      ! -f \"${stamp_dir}/HEAD\" ]] || \
-      [[ -z \"${git_reset}\" && \
-      \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse ${git_tag})\" ]]
-then
-    git reset --hard ${reset} -q
-    find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
-    echo \"Removing ${_name} stamp files.\"
+if [[ ! -f \"${stamp_dir}/${_name}-patch\"  || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse @{u})\" ]]; then
+    if [[ -z \"${git_reset}\" ]]; then
+        git reset --hard ${reset} -q
+        find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
+        echo \"Removing ${_name} stamp files.\"
+        git rev-parse HEAD > ${stamp_dir}/HEAD
+    fi
 else
     git reset --hard -q
 fi")
