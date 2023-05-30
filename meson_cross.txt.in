@@ -5,6 +5,7 @@ ar = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar'
 strip = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-strip'
 windres = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-windres'
 pkgconfig = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-pkgconf'
+dlltool = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-dlltool'
 # exe_wrapper = 'wine'
 
 [host_machine]
