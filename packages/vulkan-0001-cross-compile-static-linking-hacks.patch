@@ -1,4 +1,4 @@
-From 5a251c6b96e763d1ad7fb415793d4319bfc8e2fd Mon Sep 17 00:00:00 2001
+From 71f722e8b32c8e401bae91da6cf2dd7bdb7b67ce Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 14 Feb 2023 12:38:53 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index b386c8392..285e0f853 100644
+index d015b5488..85b3881d9 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -24,7 +24,7 @@ index b386c8392..285e0f853 100644
      if(MSVC)
          # Use static MSVCRT libraries
          foreach(configuration
-@@ -124,7 +124,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -136,7 +136,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index b386c8392..285e0f853 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -258,7 +258,7 @@ else() # i.e.: Linux
+@@ -270,7 +270,7 @@ else() # i.e.: Linux
      endif()
  endif()
  
@@ -42,7 +42,7 @@ index b386c8392..285e0f853 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -306,7 +306,7 @@ if(WIN32)
+@@ -314,7 +314,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -51,7 +51,7 @@ index b386c8392..285e0f853 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -357,6 +357,7 @@ else()
+@@ -362,6 +362,7 @@ else()
          # https://forums.developer.apple.com/thread/65963
  
  # cmake-format: off
@@ -59,7 +59,7 @@ index b386c8392..285e0f853 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -370,6 +371,7 @@ else()
+@@ -375,6 +376,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -67,7 +67,7 @@ index b386c8392..285e0f853 100644
  # cmake-format: on
      endif()
  endif()
-@@ -394,7 +396,7 @@ if(PKG_CONFIG_FOUND)
+@@ -409,7 +411,7 @@ if(PKG_CONFIG_FOUND)
          list(REMOVE_DUPLICATES PRIVATE_LIBS)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
@@ -76,7 +76,7 @@ index b386c8392..285e0f853 100644
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -418,6 +420,7 @@ if(PKG_CONFIG_FOUND)
+@@ -433,6 +435,7 @@ if(PKG_CONFIG_FOUND)
          file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
      endif()
      set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
@@ -85,11 +85,11 @@ index b386c8392..285e0f853 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index c037c7766..db9a9cc59 100644
+index 34262a17c..26e53a78f 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
-@@ -32,7 +32,9 @@
- #include "loader_common.h"
+@@ -33,7 +33,9 @@
+ #include "cJSON.h"
  
  // Declare the once_init variable
 +#if defined(_WIN32) && !defined(LOADER_DYNAMIC_LIB)
@@ -115,7 +115,7 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 19ab58d01..2675658c9 100644
+index 0f9861d80..e049c1085 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -127,7 +127,7 @@ index 19ab58d01..2675658c9 100644
  #endif
  #include <dxgi1_6.h>
  #include "adapters.h"
-@@ -91,6 +93,7 @@ void windows_initialization(void) {
+@@ -94,6 +96,7 @@ void windows_initialization(void) {
  #endif
  }
  
@@ -135,7 +135,7 @@ index 19ab58d01..2675658c9 100644
  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      switch (reason) {
          case DLL_PROCESS_ATTACH:
-@@ -107,6 +110,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+@@ -110,6 +113,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      }
      return TRUE;
  }
@@ -144,7 +144,7 @@ index 19ab58d01..2675658c9 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 50daebf31..38bff3bfe 100644
+index 50266bd71..17830fc91 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -72,6 +72,7 @@
@@ -155,7 +155,7 @@ index 50daebf31..38bff3bfe 100644
  #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
-@@ -221,7 +222,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -226,7 +227,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
@@ -165,5 +165,5 @@ index 50daebf31..38bff3bfe 100644
      assert(func != NULL);
      assert(ctl != NULL);
 -- 
-2.40.0
+2.40.1
 
