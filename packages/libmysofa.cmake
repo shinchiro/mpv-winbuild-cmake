@@ -7,7 +7,6 @@ ExternalProject_Add(libmysofa
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests"
     UPDATE_COMMAND ""
-    PATCH_COMMAND ${EXEC} curl -sL https://github.com/hoene/libmysofa/pull/199/commits/de6e88aa71d44e407b2331059158ed372931aa22.patch | git am --3way --whitespace=fix
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
