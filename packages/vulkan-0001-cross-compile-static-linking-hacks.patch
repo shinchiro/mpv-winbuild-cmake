@@ -1,4 +1,4 @@
-From 71f722e8b32c8e401bae91da6cf2dd7bdb7b67ce Mon Sep 17 00:00:00 2001
+From a7d89015936903f079343dae1d2ec9b7f79c17e1 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 14 Feb 2023 12:38:53 +0000
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 20 insertions(+), 6 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index d015b5488..85b3881d9 100644
+index ad2aecb..1b7cf5c 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -33,8 +33,8 @@ index d015b5488..85b3881d9 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -270,7 +270,7 @@ else() # i.e.: Linux
-     endif()
+@@ -270,7 +270,7 @@ else()
+     add_custom_target(loader_asm_gen_files) # This causes no assembly files to be generated.
  endif()
  
 -if(WIN32)
@@ -85,7 +85,7 @@ index d015b5488..85b3881d9 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index 34262a17c..26e53a78f 100644
+index 34262a1..26e53a7 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -99,7 +99,7 @@ index 34262a17c..26e53a78f 100644
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
 diff --git a/loader/loader.rc.in b/loader/loader.rc.in
-index 0dc4227da..e7fcea06f 100644
+index 0dc4227..e7fcea0 100644
 --- a/loader/loader.rc.in
 +++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
@@ -115,7 +115,7 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 0f9861d80..e049c1085 100644
+index 0f9861d..e049c10 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -144,7 +144,7 @@ index 0f9861d80..e049c1085 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 50266bd71..17830fc91 100644
+index 50266bd..17830fc 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -72,6 +72,7 @@
