@@ -97,7 +97,7 @@ function(force_rebuild_git _name)
 file(WRITE ${stamp_dir}/reset_head.sh
 "#!/bin/bash
 git fetch --filter=tree:0
-if [[ ! -f \"${stamp_dir}/${_name}-patch\"  || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse @{u})\" ]]; then
+if [[ ! -f \"${stamp_dir}/${_name}-patch\"  || \"${stamp_dir}/${_name}-download\" -nt \"${stamp_dir}/${_name}-patch\" || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git rev-parse @{u})\" ]]; then
     if [[ -z \"${git_reset}\" ]]; then
         git reset --hard ${reset} -q
         find \"${stamp_dir}\" -type f  ! -iname '*.cmake' -size 0c -delete
