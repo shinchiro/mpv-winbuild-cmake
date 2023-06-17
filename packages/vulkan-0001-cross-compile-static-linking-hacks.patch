@@ -1,6 +1,6 @@
-From 8761597c5e8d10aa46c87488cd867d10e4d4f696 Mon Sep 17 00:00:00 2001
+From a8d7483aa75db35ea78f84ca8fbd576a08df465f Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Fri, 16 Jun 2023 21:53:21 +0800
+Date: Sat, 17 Jun 2023 08:57:47 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -94,7 +94,7 @@ index 3b7cdda..3544db1 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index 34262a1..26e53a7 100644
+index 158e8ad..b7fcde8 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -124,7 +124,7 @@ index 0dc4227..e7fcea0 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 21494a0..81191c0 100644
+index f9f2dda..eb03441 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -142,9 +142,9 @@ index 21494a0..81191c0 100644
  
 +#if defined(LOADER_DYNAMIC_LIB)
  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+     (void)hinst;
      switch (reason) {
-         case DLL_PROCESS_ATTACH:
-@@ -111,6 +114,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+@@ -112,6 +115,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      }
      return TRUE;
  }
@@ -153,7 +153,7 @@ index 21494a0..81191c0 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 62b4942..97761a6 100644
+index e7a1ad9..f36ed84 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -67,6 +67,7 @@
