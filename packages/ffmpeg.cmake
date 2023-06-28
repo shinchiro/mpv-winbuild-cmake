@@ -19,6 +19,8 @@ ExternalProject_Add(ffmpeg
         libwebp
         libzimg
         libmysofa
+        fontconfig
+        harfbuzz
         opus
         speex
         vorbis
@@ -62,6 +64,8 @@ ExternalProject_Add(ffmpeg
         --enable-libbluray
         --enable-libfreetype
         --enable-libfribidi
+        --enable-libfontconfig
+        --enable-libharfbuzz
         --enable-libmodplug
         --enable-libopenmpt
         --enable-libmp3lame
