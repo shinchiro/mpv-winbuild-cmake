@@ -94,7 +94,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - speex (1.2.1)
     - ogg (1.3.5)
     - lzo (2.10)
-    - libopenmpt (0.6.9)
+    - libopenmpt (0.7.2)
     - libiconv (1.17)
     - gmp (6.2.1)
     - vapoursynth (R63)
