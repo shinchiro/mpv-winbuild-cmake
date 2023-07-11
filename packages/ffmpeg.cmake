@@ -35,6 +35,7 @@ ExternalProject_Add(ffmpeg
         libplacebo
         libzvbi
         libaribcaption
+        aom
         rav1e
         dav1d
         vapoursynth
@@ -78,6 +79,7 @@ ExternalProject_Add(ffmpeg
         --enable-libwebp
         --enable-libx264
         --enable-libx265
+        --enable-libaom
         --enable-librav1e
         --enable-libdav1d
         --enable-libdavs2
@@ -104,6 +106,7 @@ ExternalProject_Add(ffmpeg
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
+        --disable-decoder=libaom_av1
         "--extra-libs='-lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
