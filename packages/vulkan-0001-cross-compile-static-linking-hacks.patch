@@ -1,6 +1,6 @@
-From a8d7483aa75db35ea78f84ca8fbd576a08df465f Mon Sep 17 00:00:00 2001
+From 3cb56f22c01e29cf9170ed33a877c08d4c9cd61c Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 17 Jun 2023 08:57:47 +0800
+Date: Sat, 22 Jul 2023 10:14:36 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 21 insertions(+), 7 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 3b7cdda..3544db1 100644
+index e1b0d71..0847bc2 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -60,23 +60,23 @@ index 3b7cdda..3544db1 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -362,6 +362,7 @@ else()
+@@ -361,6 +361,7 @@ else()
+         # framework version does not have to be "A", this part of the Apple toolchain expects it.
          # https://forums.developer.apple.com/thread/65963
  
- # cmake-format: off
 +        if (NOT BUILD_STATIC_LOADER)
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -375,6 +376,7 @@ else()
+@@ -374,6 +375,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
 +        endif()
- # cmake-format: on
      endif()
  endif()
-@@ -409,7 +411,7 @@ if(PKG_CONFIG_FOUND)
+ 
+@@ -407,7 +409,7 @@ if(PKG_CONFIG_FOUND)
          list(REMOVE_DUPLICATES PRIVATE_LIBS)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
@@ -85,7 +85,7 @@ index 3b7cdda..3544db1 100644
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -433,6 +435,7 @@ if(PKG_CONFIG_FOUND)
+@@ -431,6 +433,7 @@ if(PKG_CONFIG_FOUND)
          file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
      endif()
      set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
@@ -153,7 +153,7 @@ index f9f2dda..eb03441 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index e7a1ad9..f36ed84 100644
+index 1fbdf97..18284aa 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -67,6 +67,7 @@
