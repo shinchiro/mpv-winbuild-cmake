@@ -5,6 +5,7 @@ ExternalProject_Add(vulkan-header
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
     GIT_TAG main
+    GIT_RESET 9c37439a7952c204150863fc35569dd864dbd599
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
