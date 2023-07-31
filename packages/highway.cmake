@@ -1,3 +1,7 @@
+if(${TARGET_CPU} MATCHES "i686")
+    set(HWY_CMAKE_SSE2 "-DHWY_CMAKE_SSE2=ON")
+endif()
+
 ExternalProject_Add(highway
     GIT_REPOSITORY https://github.com/google/highway.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -14,6 +18,7 @@ ExternalProject_Add(highway
         -DHWY_ENABLE_EXAMPLES=OFF
         -DHWY_ENABLE_INSTALL=ON
         -DHWY_WARNINGS_ARE_ERRORS=OFF
+        ${HWY_CMAKE_SSE2}
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
