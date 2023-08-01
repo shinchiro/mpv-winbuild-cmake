@@ -234,7 +234,11 @@ jobs:
         run: |
           mkdir -p /root/.ssh/
           echo "${{ secrets.SF_PRIVATE_KEY }}" > sf_key
-          ssh-keyscan frs.sourceforge.net > /root/.ssh/known_hosts
+          pubkey=$(cat <<END
+          frs.sourceforge.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOQD35Ujalhh+JJkPvMckDlhu4dS7WH6NsOJ15iGCJLC
+          END
+          )
+          echo $pubkey > /root/.ssh/known_hosts
           chmod 400 sf_key
           chmod -R 700 /root
           sftp -i sf_key shinchiro@frs.sourceforge.net:/home/frs/project/mpv-player-windows <<END
