@@ -96,7 +96,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - lzo (2.10)
     - libopenmpt (0.7.2)
     - libiconv (1.17)
-    - gmp (6.2.1)
+    - gmp (6.3.0)
     - vapoursynth (R63)
     - libsdl2 (2.28.2)
     - mbedtls (3.4.0)
