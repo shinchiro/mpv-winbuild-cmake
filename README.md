@@ -98,7 +98,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libiconv (1.17)
     - gmp (6.2.1)
     - vapoursynth (R63)
-    - libsdl2 (2.28.0)
+    - libsdl2 (2.28.2)
     - mbedtls (3.4.0)
     - ~~libressl (3.1.5)~~
 
