@@ -41,6 +41,7 @@ ExternalProject_Add(ffmpeg
         vapoursynth
         uavs3d
         davs2
+	directx-header
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -102,12 +103,15 @@ ExternalProject_Add(ffmpeg
         --enable-nvdec
         --enable-nvenc
         --enable-amf
+	--enable-d3d12va
         --disable-doc
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
         "--extra-libs='-lstdc++'" # needs by libjxl and shaderc
+	"--extra-cflags='-D__REQUIRED_RPCNDR_H_VERSION__=475 -I${MINGW_INSTALL_PREFIX}/include/directx'"
+        "--extra-ldflags='-Wl,--allow-multiple-definition'"
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
