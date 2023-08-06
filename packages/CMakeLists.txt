@@ -70,6 +70,7 @@ list(APPEND ep
     glslang
     vulkan-header
     vulkan
+    directx-header
     shaderc
     glad
     libdovi

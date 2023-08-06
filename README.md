@@ -84,6 +84,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - libzvbi
     - rav1e
     - libaribcaption
+    - directx-header
 
 - Zip
     - expat (2.5.0)
