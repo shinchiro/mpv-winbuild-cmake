@@ -38,7 +38,7 @@ ExternalProject_Add(ffmpeg
         aom
         rav1e
         dav1d
-        # vapoursynth
+        vapoursynth
         uavs3d
         davs2
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
@@ -58,7 +58,7 @@ ExternalProject_Add(ffmpeg
         --enable-nonfree
         --enable-postproc
         --enable-avisynth
-        # --enable-vapoursynth
+        --enable-vapoursynth
         --enable-gmp
         --enable-libass
         --enable-libbluray
@@ -107,7 +107,7 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
-        "--extra-libs='-fopenmp -lstdc++'" # needs by libjxl and shaderc
+        "--extra-libs='-fopenmp -lpthread -lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
