@@ -79,6 +79,7 @@ list(APPEND ep
     libzvbi
     libaribcaption
     libsixel
+    libfdk-aac
     ffmpeg
     mpv
     mpv-release
