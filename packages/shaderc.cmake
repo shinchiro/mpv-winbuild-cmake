@@ -9,6 +9,7 @@ ExternalProject_Add(shaderc
     GIT_TAG main
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} curl -sL https://github.com/google/shaderc/pull/1356.patch | git am --3way --whitespace=fix
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
@@ -18,7 +19,7 @@ ExternalProject_Add(shaderc
         -DSHADERC_SKIP_INSTALL=ON
         -DSHADERC_SKIP_EXAMPLES=ON
         -DMINGW_COMPILER_PREFIX=${TARGET_ARCH}
-        -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -std=c++11'
+        -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -std=c++17'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
