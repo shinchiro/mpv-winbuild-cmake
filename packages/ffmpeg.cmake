@@ -107,7 +107,7 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
-        "--extra-libs='-fopenmp -lpthread -lstdc++'" # needs by libjxl and shaderc
+        "--extra-libs='-fopenmp -lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

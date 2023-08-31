@@ -33,7 +33,7 @@ foreach(compiler clang++ g++ c++ clang gcc)
     set(linker "")
     
     if (compiler STREQUAL "g++" OR compiler STREQUAL "c++")
-        set(driver_mode "--driver-mode=g++")
+        set(driver_mode "--driver-mode=g++ -pthread")
         set(clang_compiler "clang++")
     elseif(compiler STREQUAL "clang++")
         set(driver_mode "-std=c++11 --driver-mode=g++")
