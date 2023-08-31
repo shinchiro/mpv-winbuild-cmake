@@ -1,5 +1,6 @@
 get_property(src_brotli TARGET brotli PROPERTY _EP_SOURCE_DIR)
 get_property(src_libjpeg TARGET libjpeg PROPERTY _EP_SOURCE_DIR)
+get_property(src_highway TARGET highway PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libjxl
     DEPENDS
         lcms2
@@ -18,8 +19,10 @@ ExternalProject_Add(libjxl
     CONFIGURE_COMMAND ""
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/libjpeg-turbo"
+    COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/highway"
     COMMAND bash -c "ln -s ${src_brotli} <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
+    COMMAND bash -c "ln -s ${src_highway} <SOURCE_DIR>/third_party/highway"
     COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
