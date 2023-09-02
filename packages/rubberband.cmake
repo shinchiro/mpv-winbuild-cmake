@@ -13,6 +13,7 @@ ExternalProject_Add(rubberband
         --default-library=static
         -Dfft=builtin
         -Dresampler=builtin
+        -Djni=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
