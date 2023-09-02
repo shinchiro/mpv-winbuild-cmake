@@ -107,6 +107,11 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
+	--enable-lto=auto
+	--ar=gcc-ar
+	--ranlib=gcc-ranlib
+	"--extra-cflags='-ffat-lto-objects'"
+	"--extra-ldflags='-fuse-linker-plugin'"
         "--extra-libs='-lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
