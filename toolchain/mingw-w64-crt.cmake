@@ -13,6 +13,7 @@ ExternalProject_Add(mingw-w64-crt
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
         --with-default-msvcrt=ucrt
         ${crt_lib}
+        ${cfguard}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

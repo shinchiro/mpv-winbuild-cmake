@@ -4,6 +4,7 @@ if(COMPILER_TOOLCHAIN STREQUAL "gcc")
 elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
     set(llvm_wrapper "llvm-wrapper")
     set(llvm_libcxx "llvm-libcxx")
+    set(cfguard "--enable-cfguard")
 endif()
 
 if(TARGET_CPU STREQUAL "x86_64")
