@@ -1,10 +1,12 @@
 get_property(src_glad TARGET glad PROPERTY _EP_SOURCE_DIR)
+get_property(src_fast_float TARGET fast_float PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libplacebo
     DEPENDS
         vulkan
         shaderc
         lcms2
         glad
+        fast_float
         libdovi
     GIT_REPOSITORY https://github.com/haasn/libplacebo.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -13,7 +15,9 @@ ExternalProject_Add(libplacebo
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     COMMAND bash -c "rm -rf <SOURCE_DIR>/3rdparty/glad"
+    COMMAND bash -c "rm -rf <SOURCE_DIR>/3rdparty/fast_float"
     COMMAND bash -c "ln -s ${src_glad} <SOURCE_DIR>/3rdparty/glad"
+    COMMAND bash -c "ln -s ${src_fast_float} <SOURCE_DIR>/3rdparty/fast_float"
     COMMAND ${EXEC} meson <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
