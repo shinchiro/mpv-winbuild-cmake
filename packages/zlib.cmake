@@ -1,15 +1,23 @@
 ExternalProject_Add(zlib
-    URL https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
-    URL_HASH SHA256=1525952a0a567581792613a9723333d7f8cc20b87a81f920fb8bc7e3f2251428
-    DOWNLOAD_DIR ${SOURCE_LOCATION}
-    PATCH_COMMAND patch -p1 < ${CMAKE_CURRENT_SOURCE_DIR}/zlib-1-win32-static.patch
-    CONFIGURE_COMMAND ${EXEC} CHOST=${TARGET_ARCH} <SOURCE_DIR>/configure
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --static
-    BUILD_COMMAND ${MAKE}
-    BUILD_IN_SOURCE 1
-    INSTALL_COMMAND ${MAKE} install
+    GIT_REPOSITORY https://github.com/madler/zlib.git
+    SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    GIT_TAG develop
+    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+        -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+        -DINSTALL_PKGCONFIG_DIR=${MINGW_INSTALL_PREFIX}/lib/pkgconfig
+        -DSKIP_INSTALL_LIBRARIES=ON
+        -DBUILD_SHARED_LIBS=OFF
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+            COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libzlibstatic.a ${MINGW_INSTALL_PREFIX}/lib/libz.a
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+force_rebuild_git(zlib)
 cleanup(zlib install)
