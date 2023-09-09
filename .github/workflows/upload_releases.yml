@@ -1,0 +1,126 @@
+name: Upload releases
+defaults:
+  run:
+    shell: bash
+
+on:
+  workflow_run:
+    workflows: ["LLVM Clang"]
+    types:
+      - completed
+
+jobs:
+  release:
+    name: Upload releases
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
+      release32_key: ${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
+      release64_key: ${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
+      release64_v3_key: ${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
+    container:
+      image: docker://alpine:latest
+
+    steps:
+      - name: Installing dependencies
+        shell: sh
+        run: |
+          apk add --update --no-cache bash git file openssh curl tar zstd jq
+          git config --global pull.rebase true
+          git config --global fetch.prune true
+          git config --global --add safe.directory $PWD
+
+      - uses: actions/checkout@main
+        with:
+          ref: master
+
+      - name: Loading release32 cache
+        uses: actions/cache/restore@main
+        with:
+          path: release32
+          key: ${{ env.release32_key }}
+
+      - name: Loading release64 cache
+        uses: actions/cache/restore@main
+        with:
+          path: release64
+          key: ${{ env.release64_key }}
+
+      - name: Loading release64-v3 cache
+        uses: actions/cache/restore@main
+        with:
+          path: release64-v3
+          key: ${{ env.release64_v3_key }}
+
+      - name: Moving archives
+        run: |
+          mkdir -p release
+          mv release32/* release64/* release64-v3/* release
+          du -ah release/*
+
+      - name: Uploading packages to Sourceforge
+        id: upload_packages_sf
+        if: ${{ github.event.inputs.sourceforge == 'true' }}
+        continue-on-error: true
+        env:
+          MPV_VER: ${{ needs.build_mpv.outputs.mpv_ver }}
+        run: |
+          mkdir -p /root/.ssh/
+          echo "${{ secrets.SF_PRIVATE_KEY }}" > sf_key
+          pubkey=$(cat <<END
+          frs.sourceforge.net ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOQD35Ujalhh+JJkPvMckDlhu4dS7WH6NsOJ15iGCJLC
+          END
+          )
+          echo $pubkey > /root/.ssh/known_hosts
+          chmod 400 sf_key
+          chmod -R 700 /root
+          sftp -i sf_key shinchiro@frs.sourceforge.net:/home/frs/project/mpv-player-windows <<END
+          put release/mpv-dev*           libmpv
+          put release/mpv-i686*          32bit
+          put release/mpv-x86_64-[!v3]*  64bit
+          put release/mpv-x86_64-v3*     64bit-v3
+          put release/mpv-$MPV_VER*      release
+          END
+
+      - name: Uploading packages to Github release
+        id: upload_packages_gh
+        if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
+        continue-on-error: true
+        run: |
+          short_date=$(date "+%Y%m%d")
+          body=$(cat <<END
+          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$short_date/total?label=Downloads)
+          END
+          )
+          id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
+          {
+            "tag_name": "$short_date",
+            "name": "$short_date",
+            "body": "$(echo ${body//$'\n'/'\n'})"
+          }
+          END
+          )
+          for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
+
+      - name: Pruning tags
+        continue-on-error: true
+        run: |
+          # Keep latest 30 tags/releases
+          git fetch --tags
+          tag_list=($(git tag | sort -r))
+          old=${tag_list[@]:30}
+          for tag in ${old[@]}; do
+            id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X GET -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/tags/$tag | jq -r '.id')
+            curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id
+            git tag -d $tag
+          done
+          git push --tags --prune https://shinchiro:$GH_TOKEN@github.com/shinchiro/mpv-winbuild-cmake
+
+      - name: Delete releases cache
+        if: ${{ github.event.inputs.github_release == 'false' || steps.upload_packages_gh.outcome == 'success' }}
+        run: |
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release32_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_key
+          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release64_v3_key

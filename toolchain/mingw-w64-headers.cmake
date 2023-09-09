@@ -1,7 +1,7 @@
 ExternalProject_Add(mingw-w64-headers
     DEPENDS
         mingw-w64
-        binutils
+        ${binutils}
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${MINGW_SRC}
