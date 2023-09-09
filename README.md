@@ -69,7 +69,7 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
     - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
     - aom
     - dav1d
-    - libplacebo (with glad, fast_float)
+    - libplacebo (with glad, fast_float, xxhash)
     - fontconfig
     - libbs2b
     - libssh

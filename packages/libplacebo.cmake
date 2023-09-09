@@ -8,6 +8,7 @@ ExternalProject_Add(libplacebo
         glad
         fast_float
         libdovi
+        xxhash
     GIT_REPOSITORY https://github.com/haasn/libplacebo.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
