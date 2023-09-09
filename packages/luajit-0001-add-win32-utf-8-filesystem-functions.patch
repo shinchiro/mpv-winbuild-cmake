@@ -11,13 +11,13 @@ Taken from https://github.com/wm4/libinsanity
  src/lib_os.c           |   1 +
  src/lib_package.c      |   1 +
  src/lj_clib.c          |   1 +
- src/lj_fs_io.c         | 581 +++++++++++++++++++++++++++++++++++++++++
+ src/lj_fs_io.c         | 582 +++++++++++++++++++++++++++++++++++++++++
  src/lj_fs_io.h         |  60 +++++
  src/lj_fs_io_replace.h |  50 ++++
  src/lj_load.c          |   1 +
  src/lj_trace.c         |   1 +
  src/ljamalg.c          |   1 +
- 12 files changed, 701 insertions(+), 2 deletions(-)
+ 12 files changed, 702 insertions(+), 2 deletions(-)
  create mode 100644 src/lj_fs_io.c
  create mode 100644 src/lj_fs_io.h
  create mode 100644 src/lj_fs_io_replace.h
@@ -106,10 +106,10 @@ index f0ef6ed..8b22824 100644
  
 diff --git a/src/lj_fs_io.c b/src/lj_fs_io.c
 new file mode 100644
-index 0000000..b69f391
+index 0000000..80668b7
 --- /dev/null
 +++ b/src/lj_fs_io.c
-@@ -0,0 +1,581 @@
+@@ -0,0 +1,582 @@
 +// This file is copyrighted.
 +
 +#define lj_fs_io_c
@@ -127,6 +127,7 @@ index 0000000..b69f391
 +#include <stdbool.h>
 +#include <stdio.h>
 +#include <errno.h>
++#include <stddef.h>
 +
 +#include "lj_fs_io.h"
 +

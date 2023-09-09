@@ -50,10 +50,10 @@ ExternalProject_Add(ffmpeg
         --prefix=${MINGW_INSTALL_PREFIX}
         --arch=${TARGET_CPU}
         --target-os=mingw32
-        --target-exec=wine
         --pkg-config-flags=--static
         --enable-cross-compile
         --enable-runtime-cpudetect
+        ${ffmpeg_hardcoded_tables}
         --enable-gpl
         --enable-version3
         --enable-nonfree
