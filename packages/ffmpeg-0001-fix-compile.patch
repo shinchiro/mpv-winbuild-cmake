@@ -1,0 +1,24 @@
+From 2b6aa6edf9d5504e7ad7eb5153ef0a8dd870b75b Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sun, 10 Sep 2023 07:33:00 +0800
+Subject: [PATCH] fix compile
+
+---
+ libavformat/vapoursynth.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libavformat/vapoursynth.c b/libavformat/vapoursynth.c
+index 1578a6ac7..965d36dc2 100644
+--- a/libavformat/vapoursynth.c
++++ b/libavformat/vapoursynth.c
+@@ -31,6 +31,7 @@
+ #include "libavutil/avassert.h"
+ #include "libavutil/avstring.h"
+ #include "libavutil/eval.h"
++#include "libavutil/frame.h"
+ #include "libavutil/imgutils.h"
+ #include "libavutil/opt.h"
+ #include "libavutil/pixdesc.h"
+-- 
+2.42.0
+
