@@ -1,0 +1,49 @@
+From 89b2d4ae8ddb457f3cd8cbcb450d8eaa0356b199 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Fri, 2 Jun 2023 15:10:54 +0800
+Subject: [PATCH] openmp: support static lib
+
+---
+ openmp/runtime/CMakeLists.txt     | 4 ----
+ openmp/runtime/src/CMakeLists.txt | 4 ++--
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/openmp/runtime/CMakeLists.txt b/openmp/runtime/CMakeLists.txt
+index 2b7a3eb5bf..0a36d38817 100644
+--- a/openmp/runtime/CMakeLists.txt
++++ b/openmp/runtime/CMakeLists.txt
+@@ -296,10 +296,6 @@ endif()
+ set(LIBOMP_ENABLE_SHARED TRUE CACHE BOOL
+   "Shared library instead of static library?")
+ 
+-if(WIN32 AND NOT LIBOMP_ENABLE_SHARED)
+-  libomp_error_say("Static libraries requested but not available on Windows")
+-endif()
+-
+ if(LIBOMP_USE_ITT_NOTIFY AND NOT LIBOMP_ENABLE_SHARED)
+   message(STATUS "ITT Notify not supported for static libraries - forcing ITT Notify off")
+   set(LIBOMP_USE_ITT_NOTIFY FALSE)
+diff --git a/openmp/runtime/src/CMakeLists.txt b/openmp/runtime/src/CMakeLists.txt
+index bb58222645..37b99f1148 100644
+--- a/openmp/runtime/src/CMakeLists.txt
++++ b/openmp/runtime/src/CMakeLists.txt
+@@ -257,14 +257,14 @@ if(WIN32)
+       set(LIBOMP_IMP_LIB_FILE ${LIBOMP_DEFAULT_LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX})
+       set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_DEFAULT_LIB_NAME}${LIBOMP_LIBRARY_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
+     endif()
+-  else()
++  elseif(LIBOMP_ENABLE_SHARED)
+     set(LIBOMP_IMP_LIB_FILE ${LIBOMP_LIB_NAME}${CMAKE_IMPORT_LIBRARY_SUFFIX})
+     set(LIBOMP_GENERATED_IMP_LIB_FILENAME ${LIBOMP_LIB_FILE}${CMAKE_STATIC_LIBRARY_SUFFIX})
++    set_target_properties(omp PROPERTIES ARCHIVE_OUTPUT_NAME ${LIBOMP_GENERATED_IMP_LIB_FILENAME})
+   endif()
+   set_target_properties(omp PROPERTIES
+     VERSION ${LIBOMP_VERSION_MAJOR}.${LIBOMP_VERSION_MINOR} # uses /version flag
+     IMPORT_PREFIX "" IMPORT_SUFFIX "" # control generated import library name when building omp
+-    ARCHIVE_OUTPUT_NAME ${LIBOMP_GENERATED_IMP_LIB_FILENAME}
+   )
+ 
+   set(LIBOMP_IMP_LIB_TARGET omp)
+-- 
+2.40.1
+

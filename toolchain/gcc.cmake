@@ -1,9 +1,3 @@
-if(${TARGET_CPU} MATCHES "x86_64")
-    set(arch "${GCC_ARCH}")
-else()
-    set(arch "i686")
-endif()
-
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
@@ -21,7 +15,7 @@ ExternalProject_Add(gcc
         --disable-nls
         --disable-shared
         --disable-win32-registry
-        --with-arch=${arch}
+        --with-arch=${GCC_ARCH}
         --with-tune=generic
         --enable-threads=posix
         --without-included-gettext

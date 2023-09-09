@@ -148,7 +148,7 @@ it's better to completely disable them in `/etc/pacman.conf` just to be safe.
 Additionally, some packages, `re2c`, `ninja`, `ragel`, `libjpeg`, `rst2pdf`, `jinja2` need to be [installed manually](https://gist.github.com/shinchiro/705b0afcc7b6c0accffba1bedb067abf).
 
 
-## Building Software (First Time)
+## Compiling with GCC (First Time)
 
 To set up the build environment, create a directory to store build files in:
 
@@ -190,6 +190,30 @@ After that, build mpv as usual:
     ninja mpv
 
 This will also build all packages that `mpv` depends on.
+
+## Compiling with Clang
+
+Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32` , `i686-w64-mingw32` , `aarch64-w64-mingw32` and `armv7-w64-mingw32`. The `aarch64` and `armv7` are untested.
+
+Example:
+
+    cmake -G Ninja -Bbuild_x86_64 -Hmpv-winbuild-cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=clang_root -DSINGLE_SOURCE_LOCATION=src_packages -DRUSTUP_LOCATION=install_rustup
+
+The cmake command will create `clang_root` as clang sysroot while `build_x86_64` as build directory to compiling packages.
+
+    cd build_x86_64
+    ninja llvm # build LLVM (take 2 hours+)
+    ninja llvm-clang # build Clang on specified target
+
+If you want add another target (ex. `i686-w64-mingw32`), change `TARGET_ARCH` and build folder and just run:
+
+    ninja llvm-clang
+
+If you've changed `GCC_ARCH` optimization, you need to run:
+
+    ninja rebuild_cache
+
+to update flags which will pass on gcc, g++ and etc. `build_x86_64` is build folder you've created.
 
 ## Available Commands
 
