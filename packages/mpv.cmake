@@ -12,7 +12,7 @@ ExternalProject_Add(mpv
         libjpeg
         libpng
         luajit
-        rubberband
+        ## rubberband
         uchardet
         openal-soft
         mujs
@@ -44,7 +44,7 @@ ExternalProject_Add(mpv
         -Dlibbluray=enabled
         -Ddvdnav=enabled
         -Duchardet=enabled
-        -Drubberband=enabled
+        ## -Drubberband=enabled
         -Dlcms2=enabled
         -Dopenal=enabled
         -Dspirv-cross=enabled

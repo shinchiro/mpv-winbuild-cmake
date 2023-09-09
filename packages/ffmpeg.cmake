@@ -13,7 +13,7 @@ ExternalProject_Add(ffmpeg
         libbluray
         libmodplug
         libpng
-        libsoxr
+        # libsoxr
         libbs2b
         libvpx
         libwebp
@@ -50,7 +50,6 @@ ExternalProject_Add(ffmpeg
         --prefix=${MINGW_INSTALL_PREFIX}
         --arch=${TARGET_CPU}
         --target-os=mingw32
-        --target-exec=wine
         --pkg-config-flags=--static
         --enable-cross-compile
         --enable-runtime-cpudetect
@@ -71,7 +70,7 @@ ExternalProject_Add(ffmpeg
         --enable-libopenmpt
         --enable-libmp3lame
         --enable-libopus
-        --enable-libsoxr
+        # --enable-libsoxr
         --enable-libspeex
         --enable-libvorbis
         --enable-libbs2b
@@ -103,11 +102,12 @@ ExternalProject_Add(ffmpeg
         --enable-nvenc
         --enable-amf
         --disable-doc
+        --disable-vulkan
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
-        "--extra-libs='-lstdc++'" # needs by libjxl and shaderc
+        "--extra-libs='-fopenmp -lstdc++'" # needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
