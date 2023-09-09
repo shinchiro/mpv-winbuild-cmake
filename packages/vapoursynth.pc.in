@@ -8,6 +8,6 @@ Description: A frameserver for the 21st century
 Version: @PC_VERSION@
 
 Requires.private: zimg
-Libs: -L${libdir} -lvapoursynth
+Libs: -L${libdir} @vapoursynth_pkgconfig_libs@
 Libs.private: -L${libdir} -lzimg
 Cflags: -I${includedir}

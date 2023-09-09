@@ -47,6 +47,7 @@ ExternalProject_Add(mpv-release
         --default-library=shared
         --prefer-static
         -Db_lto=true
+        ${mpv_lto_mode}
         -Db_ndebug=true
         -Dlibmpv=true
         -Dpdf-build=enabled
