@@ -1,4 +1,4 @@
-From 3cb56f22c01e29cf9170ed33a877c08d4c9cd61c Mon Sep 17 00:00:00 2001
+From 908c63cf454058528d9d652c1b5939de14930aa5 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 22 Jul 2023 10:14:36 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -12,7 +12,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  5 files changed, 21 insertions(+), 7 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index e1b0d71..0847bc2 100644
+index 47c9cd707..a28846356 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -24,7 +24,7 @@ index e1b0d71..0847bc2 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -115,7 +115,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
+@@ -114,7 +114,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
  set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
@@ -33,7 +33,7 @@ index e1b0d71..0847bc2 100644
      if(MINGW)
          find_program(JWASM_FOUND jwasm)
          if (JWASM_FOUND)
-@@ -172,7 +172,7 @@ if(WIN32)
+@@ -174,7 +174,7 @@ if(WIN32)
          set(USE_ASSEMBLY_FALLBACK ON)
          message(WARNING "Could not find working MASM assembler\n${ASM_FAILURE_MSG}")
      endif()
@@ -42,7 +42,7 @@ index e1b0d71..0847bc2 100644
      option(USE_GAS "Use GAS" ON)
      if(USE_GAS)
          enable_language(ASM)
-@@ -257,7 +257,7 @@ if(USE_ASSEMBLY_FALLBACK)
+@@ -267,7 +267,7 @@ if(USE_ASSEMBLY_FALLBACK)
      endif()
  endif()
  
@@ -51,7 +51,7 @@ index e1b0d71..0847bc2 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -307,7 +307,7 @@ if(WIN32)
+@@ -317,7 +317,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -60,7 +60,7 @@ index e1b0d71..0847bc2 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -361,6 +361,7 @@ else()
+@@ -368,6 +368,7 @@ else()
          # framework version does not have to be "A", this part of the Apple toolchain expects it.
          # https://forums.developer.apple.com/thread/65963
  
@@ -68,7 +68,7 @@ index e1b0d71..0847bc2 100644
          set_target_properties(vulkan-framework PROPERTIES
              OUTPUT_NAME vulkan
              FRAMEWORK TRUE
-@@ -374,6 +375,7 @@ else()
+@@ -381,6 +382,7 @@ else()
              PUBLIC_HEADER DESTINATION vulkan
              FRAMEWORK DESTINATION loader
          )
@@ -76,16 +76,16 @@ index e1b0d71..0847bc2 100644
      endif()
  endif()
  
-@@ -407,7 +409,7 @@ if(PKG_CONFIG_FOUND)
-         list(REMOVE_DUPLICATES PRIVATE_LIBS)
+@@ -410,7 +412,7 @@ if(PKG_CONFIG_FOUND)
          set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
      endif()
+ 
 -    if(WIN32)
 +    if(WIN32 AND NOT BUILD_STATIC_LOADER)
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -431,6 +433,7 @@ if(PKG_CONFIG_FOUND)
+@@ -430,6 +432,7 @@ if(PKG_CONFIG_FOUND)
          file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
      endif()
      set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
@@ -94,7 +94,7 @@ index e1b0d71..0847bc2 100644
      install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
  endif()
 diff --git a/loader/loader.h b/loader/loader.h
-index 158e8ad..b7fcde8 100644
+index 93346a9d7..6e3f86746 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -108,7 +108,7 @@ index 158e8ad..b7fcde8 100644
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
 diff --git a/loader/loader.rc.in b/loader/loader.rc.in
-index 0dc4227..e7fcea0 100644
+index 0dc4227da..e7fcea06f 100644
 --- a/loader/loader.rc.in
 +++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
@@ -124,7 +124,7 @@ index 0dc4227..e7fcea0 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index f9f2dda..eb03441 100644
+index 0f6c2c88c..55afa409d 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -153,10 +153,10 @@ index f9f2dda..eb03441 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 1fbdf97..18284aa 100644
+index f70350ba5..4fb7173f7 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -67,6 +67,7 @@
+@@ -69,6 +69,7 @@
  #include <io.h>
  #include <shlwapi.h>
  #include <direct.h>
@@ -164,7 +164,7 @@ index 1fbdf97..18284aa 100644
  #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
-@@ -221,7 +222,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -227,7 +228,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
@@ -174,5 +174,5 @@ index 1fbdf97..18284aa 100644
      assert(func != NULL);
      assert(ctl != NULL);
 -- 
-2.41.0
+2.42.0
 
