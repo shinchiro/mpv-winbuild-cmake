@@ -8,6 +8,7 @@ elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
     set(vapoursynth_script_pkgconfig_libs "-lVSScript -Wl,-delayload=VSScript.dll")
     set(vapoursynth_manual_install_copy_lib COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.lib ${MINGW_INSTALL_PREFIX}/lib/VSScript.lib
                                             COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.lib ${MINGW_INSTALL_PREFIX}/lib/VapourSynth.lib)
+    set(mpv_lto_mode "-Db_lto_mode=thin")
 endif()
 
 if(TARGET_CPU STREQUAL "x86_64")
