@@ -16,93 +16,6 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 -   Compiling on Cygwin / MSYS2 is supported, but it tends to be slower
     than compiling on Linux.
 
-
-## Information about packages
-
-- Git/Hg
-    - ANGLE
-    - FFmpeg
-    - xz
-    - x264
-    - x265 (multilib)
-    - uchardet
-    - rubberband
-    - opus
-    - openal-soft
-    - mpv
-    - luajit
-    - libvpx
-    - libwebp
-    - libpng
-    - libsoxr
-    - libzimg (with graphengine)
-    - libdvdread
-    - libdvdnav
-    - libdvdcss
-    - libudfread
-    - libbluray
-    - libunibreak
-    - libass
-    - libmysofa
-    - lcms2
-    - lame
-    - harfbuzz
-    - game-music-emu
-    - freetype2
-    - flac
-    - opus-tools
-    - mujs
-    - libarchive
-    - libjpeg
-    - shaderc (with spirv-headers, spirv-tools, glslang)
-    - vulkan-header
-    - vulkan
-    - spirv-cross
-    - fribidi
-    - nettle
-    - curl
-    - libxml2
-    - amf-headers
-    - avisynth-headers
-    - nvcodec-headers
-    - libvpl
-    - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
-    - aom
-    - dav1d
-    - libplacebo (with glad, fast_float, xxhash)
-    - fontconfig
-    - libbs2b
-    - libssh
-    - libsrt
-    - libjxl (with brotli, highway)
-    - libmodplug
-    - uavs3d
-    - davs2
-    - libsixel
-    - libdovi
-    - libva
-    - libzvbi
-    - rav1e
-    - libaribcaption
-    - zlib (zlib-ng)
-
-- Zip
-    - expat (2.5.0)
-    - bzip (1.0.8)
-    - xvidcore (1.3.7)
-    - vorbis (1.3.7)
-    - speex (1.2.1)
-    - ogg (1.3.5)
-    - lzo (2.10)
-    - libopenmpt (0.7.2)
-    - libiconv (1.17)
-    - gmp (6.3.0)
-    - vapoursynth (R63)
-    - libsdl2 (2.28.2)
-    - mbedtls (3.4.1)
-    - ~~libressl (3.1.5)~~
-
-
 ## Setup Build Environment
 ### Manjaro / Arch Linux
 
@@ -230,6 +143,91 @@ to update flags which will pass on gcc, g++ and etc. `build_x86_64` is build fol
 | ninja package-force-update | Update a package. Only git repo will be updated. |
 
 `package` is package's name found in `packages` folder.
+
+## Information about packages
+
+- Git/Hg
+    - ANGLE
+    - FFmpeg
+    - xz
+    - x264
+    - x265 (multilib)
+    - uchardet
+    - rubberband
+    - opus
+    - openal-soft
+    - mpv
+    - luajit
+    - libvpx
+    - libwebp
+    - libpng
+    - libsoxr
+    - libzimg (with graphengine)
+    - libdvdread
+    - libdvdnav
+    - libdvdcss
+    - libudfread
+    - libbluray
+    - libunibreak
+    - libass
+    - libmysofa
+    - lcms2
+    - lame
+    - harfbuzz
+    - game-music-emu
+    - freetype2
+    - flac
+    - opus-tools
+    - mujs
+    - libarchive
+    - libjpeg
+    - shaderc (with spirv-headers, spirv-tools, glslang)
+    - vulkan-header
+    - vulkan
+    - spirv-cross
+    - fribidi
+    - nettle
+    - curl
+    - libxml2
+    - amf-headers
+    - avisynth-headers
+    - nvcodec-headers
+    - libvpl
+    - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
+    - aom
+    - dav1d
+    - libplacebo (with glad, fast_float, xxhash)
+    - fontconfig
+    - libbs2b
+    - libssh
+    - libsrt
+    - libjxl (with brotli, highway)
+    - libmodplug
+    - uavs3d
+    - davs2
+    - libsixel
+    - libdovi
+    - libva
+    - libzvbi
+    - rav1e
+    - libaribcaption
+    - zlib (zlib-ng)
+
+- Zip
+    - expat (2.5.0)
+    - bzip (1.0.8)
+    - xvidcore (1.3.7)
+    - vorbis (1.3.7)
+    - speex (1.2.1)
+    - ogg (1.3.5)
+    - lzo (2.10)
+    - libopenmpt (0.7.2)
+    - libiconv (1.17)
+    - gmp (6.3.0)
+    - vapoursynth (R63)
+    - libsdl2 (2.28.2)
+    - mbedtls (3.4.1)
+    - ~~libressl (3.1.5)~~
 
 ## Acknowledgements
 
