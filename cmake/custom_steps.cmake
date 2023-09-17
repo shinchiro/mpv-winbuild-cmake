@@ -17,12 +17,12 @@ function(cleanup _name _last_step)
         if(_build_in_source)
             set(remove_cmd "git -C <SOURCE_DIR> clean -dfx")
         else()
-            set(remove_cmd "rm -rf <BINARY_DIR>/* && git -C <SOURCE_DIR> clean -df")
+            set(remove_cmd "shopt -s dotglob && rm -rf <BINARY_DIR>/* && git -C <SOURCE_DIR> clean -df")
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
                                  COMMAND bash -c "git -C <SOURCE_DIR> restore .")
     elseif(_url)
-        set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
+        set(remove_cmd "shopt -s dotglob && rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
         set(COMMAND_FORCE_UPDATE "")
     endif()
 
@@ -51,6 +51,7 @@ function(cleanup _name _last_step)
         ExternalProject_Add_Step(${_name} postremovebuild
             DEPENDEES ${_last_step}
             COMMAND ${EXEC} ${remove_cmd}
+            ${COMMAND_FORCE_UPDATE}
             LOG 1
             COMMENT "Deleting build directory of ${_name} package after install"
         )
