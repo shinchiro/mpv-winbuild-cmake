@@ -1,9 +1,9 @@
 ExternalProject_Add(gcc
     DEPENDS
         mingw-w64-headers
-    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/13-20230729/gcc-13-20230729.tar.xz
+    URL https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/13-20230916/gcc-13-20230916.tar.xz
     # https://mirrorservice.org/sites/sourceware.org/pub/gcc/snapshots/12-20221217/sha512.sum
-    URL_HASH SHA512=46a42d79de118a16dc195605fd461034e9b41856fb11fee3bcce962517e713094935704aa88e1ca05f896176bee9eecfef835ee8858ea584421b924390fe3812
+    URL_HASH SHA512=a6f8c2482895fb3e5682329c74d40d9c3f5c794e688fbc0a61fe97acacb14dfd03439baec47708eaa46b2ae2c6fcf8c97b5efe6cf89cffc5df74a8427b59fdd1
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
