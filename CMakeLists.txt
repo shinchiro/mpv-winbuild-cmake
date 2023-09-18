@@ -78,5 +78,11 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/publish.in ${CMAKE_CURRENT_BINARY_DIR}/publish)
 endif()
 
+message(STATUS "MINGW_INSTALL_PREFIX dir: ${MINGW_INSTALL_PREFIX}")
+message(STATUS "SINGLE_SOURCE_LOCATION dir: ${SINGLE_SOURCE_LOCATION}")
+message(STATUS "RUSTUP_LOCATION dir: ${RUSTUP_LOCATION}")
+message(STATUS "Compiler used: ${COMPILER_TOOLCHAIN}")
+message(STATUS "Target toolchain to build: ${TARGET_ARCH}")
+
 add_subdirectory(toolchain)
 add_subdirectory(packages)
