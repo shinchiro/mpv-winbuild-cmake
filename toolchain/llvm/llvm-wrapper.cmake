@@ -21,6 +21,7 @@ ExternalProject_Add(llvm-wrapper
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-readelf   ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-readelf
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-rc        ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-windres
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-addr2line ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-addr2line
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-ld ${CMAKE_INSTALL_PREFIX}/bin/ld.${TARGET_ARCH}-lld
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${PKGCONFIG} ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-pkg-config
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${PKGCONFIG} ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-pkgconf
     INSTALL_COMMAND ""

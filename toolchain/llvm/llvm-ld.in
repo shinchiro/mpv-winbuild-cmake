@@ -2,5 +2,6 @@
 PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
 TARGET=@TARGET_ARCH@
 FLAGS="-m @ld_m_flag@"
+FLAGS="$FLAGS @opt@"
 
 "$PROG" $FLAGS "$@"
