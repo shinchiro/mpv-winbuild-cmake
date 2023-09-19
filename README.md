@@ -74,6 +74,8 @@ Once you’ve changed into that directory, run CMake, e.g.
 
 add `-DGCC_ARCH=x86-64-v3` to command-line if you want to compile gcc with new `x86-64-v3` instructions. Other value like `native`, `znver3` should work too in theory.
 
+add `-DGCC_BRANCH=master` to command-line if you want to compile gcc with master. Other value like `releases/gcc-13`, `releases/gcc-12` should work too in theory.
+
 or for 32bit:
 
     cmake -DTARGET_ARCH=i686-w64-mingw32 -G Ninja ..
