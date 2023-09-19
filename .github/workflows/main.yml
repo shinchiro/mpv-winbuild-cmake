@@ -102,7 +102,7 @@ jobs:
 
       - name: Building toolchain
         run: |
-          if [[ ! "$(ls -A build$BIT/install/bin)" ]]; then ninja -C build$BIT gcc; fi
+          if [[ ! -x "./build$BIT/install/bin/${{ env.arch }}-w64-mingw32-gcc" ]]; then ninja -C build$BIT gcc; fi
 
       - name: Building mpv
         id: build_mpv_step
