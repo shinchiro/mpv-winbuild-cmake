@@ -53,7 +53,7 @@ set(MINGW_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${TARGET_ARCH} CACHE STRING "Ta
 set(SINGLE_SOURCE_LOCATION "" CACHE STRING "Repository or tarball stored path")
 set(RUSTUP_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/install_rustup" CACHE STRING "Rust toolchain path")
 option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful compilation." OFF)
-
+set(LLVM_ENABLE_LTO "OFF" CACHE STRING "OFF, ON, Thin and Full")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 
