@@ -55,6 +55,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BI
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
 set(CLANG_FLAGS "" CACHE STRING "These flags will be added to the end of the clang args")
 set(LLD_FLAGS "" CACHE STRING "These flags will be added to the end of the lld args")
+set(AV1_ALT_ENC "rav1e" CACHE STRING "rav1e, svtav1, both")
 set(COMPILER_TOOLCHAIN "gcc" CACHE STRING "gcc or clang")
 if(COMPILER_TOOLCHAIN STREQUAL "gcc")
     if(TARGET_ARCH STREQUAL "aarch64-w64-mingw32")
