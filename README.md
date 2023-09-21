@@ -219,6 +219,7 @@ to update flags which will pass on gcc, g++ and etc.
     - libsixel
     - libdovi
     - libva
+    - libva-utils
     - libzvbi
     - rav1e
     - libaribcaption
