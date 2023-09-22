@@ -21,6 +21,7 @@ ExternalProject_Add(llvm
         -DLLVM_ENABLE_LIBCXX=ON
         -DLLVM_ENABLE_LLD=ON
         -DLLVM_INCLUDE_TESTS=OFF
+        -DLLVM_ENABLE_LTO=${LLVM_ENABLE_LTO}
         -DLLVM_INCLUDE_BENCHMARKS=OFF
         -DCLANG_DEFAULT_RTLIB=compiler-rt
         -DCLANG_DEFAULT_UNWINDLIB=libunwind
