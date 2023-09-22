@@ -97,7 +97,7 @@ ExternalProject_Add(ffmpeg
         --enable-libshaderc
         --enable-libzvbi
         --enable-libaribcaption
-        --enable-cuda
+        --enable-cuda-llvm
         --enable-cuvid
         --enable-nvdec
         --enable-nvenc
