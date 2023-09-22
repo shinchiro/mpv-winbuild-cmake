@@ -106,7 +106,7 @@ This will also build all packages that `mpv` depends on.
 
 ## Compiling with Clang
 
-Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32` , `i686-w64-mingw32` , `aarch64-w64-mingw32` and `armv7-w64-mingw32`. The `aarch64` and `armv7` are untested.
+Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32` , `i686-w64-mingw32` , `aarch64-w64-mingw32`. The `aarch64` are untested.
 
 Example:
 
