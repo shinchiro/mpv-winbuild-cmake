@@ -65,6 +65,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang-i686_toolchain
 
       - name: Loading aarch64 toolchain
+        if: false
         uses: actions/cache@main
         with:
           path: |
@@ -73,13 +74,14 @@ jobs:
           restore-keys: |
             ${{ secrets.CACHE_VERSION }}-clang-aarch64_toolchain
 
-      # - name: Loading repository cache
-      #   uses: actions/cache@main
-      #   with:
-      #     path: src_packages
-      #     key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
-      #     restore-keys: |
-      #       ${{ secrets.CACHE_VERSION }}-repository
+      - name: Loading repository cache
+        if: false
+        uses: actions/cache@main
+        with:
+          path: src_packages
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
+          restore-keys: |
+            ${{ secrets.CACHE_VERSION }}-repository
 
       - name: Building LLVM
         run: |
@@ -107,6 +109,7 @@ jobs:
           ninja -C build_i686 llvm-clang
 
       - name: Building aarch64 toolchain
+        if: false
         run: |
           cmake -DTARGET_ARCH=aarch64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_aarch64/aarch64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_aarch64 -S $PWD
           ninja -C build_aarch64 rebuild_cache
@@ -114,7 +117,7 @@ jobs:
 
       - name: Cleanup
         run: |
-          rm -rf {build_i686,build_x86_64,build_x86_64_v3,build_aarch64}/{toolchain,packages}
+          rm -rf {build_i686,build_x86_64,build_x86_64_v3,build_aarch64}/{toolchain,packages} || true
 
       - name: Collecting logs
         if: always()
