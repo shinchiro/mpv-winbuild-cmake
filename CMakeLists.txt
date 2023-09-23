@@ -53,7 +53,8 @@ option(ALWAYS_REMOVE_BUILDFILES "Always delete build files after successful comp
 set(LLVM_ENABLE_LTO "OFF" CACHE STRING "OFF, ON, Thin and Full")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/toolchain.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake @ONLY)
 set(TOOLCHAIN_FILE ${CMAKE_CURRENT_BINARY_DIR}/toolchain.cmake)
-
+set(CLANG_FLAGS "" CACHE STRING "These flags will be added to the end of the clang args")
+set(LLD_FLAGS "" CACHE STRING "These flags will be added to the end of the lld args")
 set(COMPILER_TOOLCHAIN "gcc" CACHE STRING "gcc or clang")
 if(COMPILER_TOOLCHAIN STREQUAL "gcc")
     if(TARGET_ARCH STREQUAL "aarch64-w64-mingw32")
