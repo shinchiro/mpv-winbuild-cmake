@@ -1,4 +1,4 @@
-name: mpv
+name: mpv clang
 defaults:
   run:
     shell: bash
@@ -13,12 +13,12 @@ on:
       sourceforge:
         description: 'Upload to Sourceforge'
         required: false
-        default: true
+        default: false
         type: boolean
       github_release:
         description: 'Upload to Github release'
         required: false
-        default: true
+        default: false
         type: boolean
       mpv_tarball:
         description: 'Build latest mpv tarball'
@@ -30,10 +30,11 @@ jobs:
   build_mpv:
     name: Building mpv
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion != 'failure' }}
     strategy:
       fail-fast: false
       matrix:
-        bit: [32, 64, 64-v3]
+        bit: [i686, x86_64, x86_64_v3]
     env:
       BIT: ${{ matrix.bit }}
     container:
@@ -43,13 +44,12 @@ jobs:
     steps:
       - name: Init variable
         run: |
-          if [[ $BIT == 32 ]]; then
+          if [[ $BIT == "i686" ]]; then
             echo "arch=i686" >> $GITHUB_ENV
-          elif [[ $BIT == 64 ]]; then
+          elif [[ $BIT == "x86_64" ]]; then
             echo "arch=x86_64" >> $GITHUB_ENV
-          elif [[ $BIT == 64-v3 ]]; then
+          elif [[ $BIT == "x86_64_v3" ]]; then
             echo "arch=x86_64" >> $GITHUB_ENV
-            echo "gcc_arch=-DGCC_ARCH=x86-64-v3" >> $GITHUB_ENV
             echo "x86_64_level=-v3" >> $GITHUB_ENV
           fi
 
@@ -66,13 +66,14 @@ jobs:
         with:
           ref: master
 
-      - name: Loading build${{ matrix.bit }} cache
+      - name: Loading clang sysroot cache
         uses: actions/cache/restore@main
         with:
-          path: build${{ matrix.bit }}
-          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
+          path: |
+            clang_root
+          key: ${{ secrets.CACHE_VERSION }}-clang_root-${{ github.run_id }}
           restore-keys: |
-            ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}
+            ${{ secrets.CACHE_VERSION }}-clang_root
 
       - name: Loading repository cache
         uses: actions/cache/restore@main
@@ -82,13 +83,14 @@ jobs:
           restore-keys: |
             ${{ secrets.CACHE_VERSION }}-repository
 
-      - name: Loading rust toolchain cache
+      - name: Loading ${{ matrix.bit }} toolchain cache
         uses: actions/cache/restore@main
         with:
-          path: install_rustup
-          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
+          path: |
+            build_${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-clang-${{ matrix.bit }}_toolchain-${{ github.run_id }}
           restore-keys: |
-            ${{ secrets.CACHE_VERSION }}-rust_toolchain
+            ${{ secrets.CACHE_VERSION }}-clang-${{ matrix.bit }}_toolchain
 
       - name: Running custom command
         if: ${{ github.event.inputs.command != '' }}
@@ -97,37 +99,35 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/install_rustup -G Ninja -Bbuild$BIT -H.
-          ninja -C build$BIT download || true
-
-      - name: Building toolchain
-        run: |
-          if [[ ! "$(ls -A build$BIT/install/bin)" ]]; then ninja -C build$BIT gcc; fi
+          if [[ $BIT == x86_64_v3 ]]; then echo "x86_64_v3_ARCH=-DGCC_ARCH=x86-64-v3" >> $GITHUB_ENV; fi
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang ${{ env.x86_64_v3_ARCH }} -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_$BIT/$BIT-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_$BIT -S $PWD
+          ninja -C build_$BIT rebuild_cache
+          ninja -C build_$BIT download || true
 
       - name: Building mpv
         id: build_mpv_step
         env:
           MPV_TARBALL: ${{ github.event.inputs.mpv_tarball }}
         run: |
-          ninja -C build$BIT update
-          $MPV_TARBALL && ninja -C build$BIT mpv-release || ninja -C build$BIT mpv
-          $MPV_TARBALL && echo "mpv_ver=$(cat build$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
+          ninja -C build_$BIT update
+          $MPV_TARBALL && ninja -C build_$BIT mpv-release || ninja -C build_$BIT mpv
+          $MPV_TARBALL && echo "mpv_ver=$(cat build_$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
 
       - name: Packaging mpv
         run: |
-          mkdir -p release$BIT
-          rm -rf build$BIT/mpv-debug*; ninja -C build$BIT mpv-packaging; mv build$BIT/mpv*.7z release$BIT
+          mkdir -p release_$BIT
+          rm -rf build_$BIT/mpv-debug*; ninja -C build_$BIT mpv-packaging; mv build_$BIT/mpv*.7z release_$BIT
 
       - name: Copying ffmpeg
         run: |
           hash=$(git -C src_packages/ffmpeg rev-parse --short HEAD)
-          7z a -m0=lzma2 -mx=9 -ms=on release$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build$BIT/install/mingw/bin/ffmpeg.exe
+          7z a -m0=lzma2 -mx=9 -ms=on release_$BIT/ffmpeg-${{ env.arch }}${{ env.x86_64_level }}-git-$hash.7z ./build_$BIT/$BIT-w64-mingw32/bin/ffmpeg.exe
 
       - name: Collecting logs
         if: always()
         run: |
-          mkdir -p build${BIT}_logs
-          cp -fr $(find build$BIT -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build${BIT}_logs || true
+          mkdir -p build_${BIT}_logs
+          cp -fr $(find build_$BIT -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build_${BIT}_logs || true
           7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
 
       - name: Uploading logs
@@ -138,42 +138,50 @@ jobs:
           path: logs.7z
           retention-days: 1
 
+      - name: Uploading ${{ matrix.bit }} build
+        uses: actions/upload-artifact@master
+        with:
+          name: mpv-${{ matrix.bit }}
+          path: release_${{ matrix.bit }}/mpv-${{ env.arch }}*
+
       - name: Cleaning build directory
         if: always()
         run: |
-          rm -rf build$BIT/mpv*
+          rm -rf build_$BIT/mpv*
 
       - name: Cleaning rust toolchain directory
         if: always()
         run: |
-          ninja -C build$BIT cargo-clean
+          ninja -C build_$BIT cargo-clean
 
-      - name: Saving build${{ matrix.bit }} cache
+      - name: Saving clang sysroot cache
         uses: actions/cache/save@main
-        if: always()
+        if: ${{ always() && matrix.bit == 'x86_64' }}
         with:
-          path: build${{ matrix.bit }}
-          key: ${{ secrets.CACHE_VERSION }}-build${{ matrix.bit }}-${{ github.run_id }}
+          path: |
+            clang_root
+          key: ${{ secrets.CACHE_VERSION }}-clang_root-${{ github.run_id }}
 
       - name: Saving repository cache
         uses: actions/cache/save@main
-        if: ${{ always() && matrix.bit == '32' }}
+        if: ${{ always() && matrix.bit == 'x86_64' }}
         with:
           path: src_packages
           key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
 
-      - name: Saving rust toolchain cache
+      - name: Saving ${{ matrix.bit }} toolchain cache
         uses: actions/cache/save@main
-        if: ${{ always() && matrix.bit == '64' }}
+        if: always()
         with:
-          path: install_rustup
-          key: ${{ secrets.CACHE_VERSION }}-rust_toolchain-${{ github.run_id }}
+          path: |
+            build_${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-clang-${{ matrix.bit }}_toolchain-${{ github.run_id }}
 
-      - name: Saving release${{ matrix.bit }} cache
+      - name: Saving release_${{ matrix.bit }} cache
         uses: actions/cache/save@main
         with:
-          path: release${{ matrix.bit }}
-          key: ${{ secrets.CACHE_VERSION }}-release${{ matrix.bit }}-${{ github.run_id }}
+          path: release_${{ matrix.bit }}
+          key: ${{ secrets.CACHE_VERSION }}-release_${{ matrix.bit }}-${{ github.run_id }}
 
   release:
     name: Upload releases
@@ -182,9 +190,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
-      release32_key: ${{ secrets.CACHE_VERSION }}-release32-${{ github.run_id }}
-      release64_key: ${{ secrets.CACHE_VERSION }}-release64-${{ github.run_id }}
-      release64_v3_key: ${{ secrets.CACHE_VERSION }}-release64-v3-${{ github.run_id }}
+      release_i686_key: ${{ secrets.CACHE_VERSION }}-release_i686-${{ github.run_id }}
+      release_x86_64_key: ${{ secrets.CACHE_VERSION }}-release_x86_64-${{ github.run_id }}
+      release_x86_64_v3_key: ${{ secrets.CACHE_VERSION }}-release_x86_64_v3-${{ github.run_id }}
     container:
       image: docker://alpine:latest
 
@@ -201,28 +209,28 @@ jobs:
         with:
           ref: master
 
-      - name: Loading release32 cache
+      - name: Loading release_i686 cache
         uses: actions/cache/restore@main
         with:
-          path: release32
-          key: ${{ env.release32_key }}
+          path: release_i686
+          key: ${{ env.release_i686_key }}
 
-      - name: Loading release64 cache
+      - name: Loading release_x86_64 cache
         uses: actions/cache/restore@main
         with:
-          path: release64
-          key: ${{ env.release64_key }}
+          path: release_x86_64
+          key: ${{ env.release_x86_64_key }}
 
-      - name: Loading release64-v3 cache
+      - name: Loading release_x86_64_v3 cache
         uses: actions/cache/restore@main
         with:
-          path: release64-v3
-          key: ${{ env.release64_v3_key }}
+          path: release_x86_64_v3
+          key: ${{ env.release_x86_64_v3_key }}
 
       - name: Moving archives
         run: |
           mkdir -p release
-          mv release32/* release64/* release64-v3/* release
+          mv release_i686/* release_x86_64/* release_x86_64_v3/* release
           du -ah release/*
 
       - name: Uploading packages to Sourceforge
