@@ -76,6 +76,8 @@ This cmake command will create `build64` folder for `x86_64-w64-mingw32`. Set `-
 
 `-DGCC_ARCH=x86-64-v3` will set `-march` option when compiling gcc with `x86-64-v3` instructions. Other value like `native`, `znver3` should work too.
 
+`-DM_TUNE=native` will set `-mtune` option when compiling gcc with `native` instructions. Other value like `alderlake`, `znver4` should work too.
+
 Enter `build64` folder and build toolchain once. By default, it will be installed in `install` folder.
 
     ninja download # download all packages at once (optional)
@@ -133,7 +135,7 @@ If you want add another target (ex. `i686-w64-mingw32`), change `TARGET_ARCH` an
     cd build_i686
     ninja llvm-clang # same as above
 
-If you've changed `GCC_ARCH` option, you need to run:
+If you've changed `GCC_ARCH` or `M_TUNE` optimization, you need to run:
 
     ninja rebuild_cache
 

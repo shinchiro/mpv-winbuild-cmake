@@ -34,6 +34,12 @@ elseif(TARGET_CPU STREQUAL "aarch64")
     set(GCC_ARCH "armv8.2-a" CACHE STRING "Target architecture for aarch64")
 endif()
 
+if(GCC_ARCH MATCHES "86" OR GCC_ARCH MATCHES "arm")
+    set(M_TUNE "generic" CACHE STRING "-mtune")
+else()
+    set(M_TUNE ${GCC_ARCH} CACHE STRING "-mtune")
+endif()
+
 processorcount(CPU_COUNT)
 if(CPU_COUNT EQUAL 0)
     set(CPU_COUNT 1)
