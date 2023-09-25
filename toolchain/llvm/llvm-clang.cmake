@@ -4,6 +4,7 @@ ExternalProject_Add(llvm-clang
         winpthreads
         gendef
         llvm-openmp
+        rustup
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
