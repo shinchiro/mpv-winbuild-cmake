@@ -5,6 +5,11 @@ defaults:
 
 on:
   workflow_dispatch:
+    inputs:
+      command:
+        description: 'Run custom command before building'
+        required: false
+        type: string
 
 jobs:
   build_llvm:
@@ -29,6 +34,7 @@ jobs:
           ref: master
 
       - name: Loading clang root
+        id: clang_root_cache
         uses: actions/cache@main
         with:
           path: |
@@ -38,6 +44,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang_root
 
       - name: Loading x86_64 toolchain
+        id: x86_64_cache
         uses: actions/cache@main
         with:
           path: |
@@ -47,6 +54,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang-x86_64_toolchain
 
       - name: Loading x86_64_v3 toolchain
+        id: x86_64_v3_cache
         uses: actions/cache@main
         with:
           path: |
@@ -56,6 +64,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang-x86_64_v3_toolchain
 
       - name: Loading i686 toolchain
+        id: i686_cache
         uses: actions/cache@main
         with:
           path: |
@@ -65,6 +74,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang-i686_toolchain
 
       - name: Loading aarch64 toolchain
+        id: aarch64_cache
         if: false
         uses: actions/cache@main
         with:
@@ -75,6 +85,7 @@ jobs:
             ${{ secrets.CACHE_VERSION }}-clang-aarch64_toolchain
 
       - name: Loading repository cache
+        id: repository_cache
         if: false
         uses: actions/cache@main
         with:
@@ -83,7 +94,13 @@ jobs:
           restore-keys: |
             ${{ secrets.CACHE_VERSION }}-repository
 
+      - name: Running custom command
+        if: ${{ github.event.inputs.command != '' }}
+        continue-on-error: true
+        run: ${{ github.event.inputs.command }}
+
       - name: Building LLVM
+        if: ${{ steps.clang_root_cache.outputs.cache-matched-key != ''}}
         run: |
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_x86_64 -S $PWD
           ninja -C build_x86_64 llvm
@@ -91,18 +108,21 @@ jobs:
           ninja -C build_x86_64 cargo-clean
 
       - name: Building x86_64 toolchain
+        if: ${{ steps.x86_64_cache.outputs.cache-matched-key != ''}}
         run: |
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64/x86_64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_x86_64 -S $PWD
           ninja -C build_x86_64 rebuild_cache
           ninja -C build_x86_64 llvm-clang
 
       - name: Building x86_64-v3 toolchain
+        if: ${{ steps.x86_64_v3_cache.outputs.cache-matched-key != ''}}
         run: |
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DGCC_ARCH=x86-64-v3 -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64_v3/x86_64_v3-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_x86_64_v3 -S $PWD
           ninja -C build_x86_64_v3 rebuild_cache
           ninja -C build_x86_64_v3 llvm-clang
 
       - name: Building i686 toolchain
+        if: ${{ steps.i686_cache.outputs.cache-matched-key != ''}}
         run: |
           cmake -DTARGET_ARCH=i686-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_i686/i686-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_i686 -S $PWD
           ninja -C build_i686 rebuild_cache
