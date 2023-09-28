@@ -110,7 +110,7 @@ Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32
 
 Example:
 
-    cmake -DCOMPILER_TOOLCHAIN=clang -DTARGET_ARCH=x86_64-w64-mingw32 \
+    cmake -DTARGET_ARCH=x86_64-w64-mingw32 \
     -DCMAKE_INSTALL_PREFIX="/home/anon/clang_root" \
     -DCOMPILER_TOOLCHAIN=clang \
     -DGCC_ARCH=x86-64-v3 \
