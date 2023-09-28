@@ -41,6 +41,7 @@ ExternalProject_Add(ffmpeg
         vapoursynth
         uavs3d
         davs2
+        rubberband
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -75,6 +76,7 @@ ExternalProject_Add(ffmpeg
         --enable-libspeex
         --enable-libvorbis
         --enable-libbs2b
+        --enable-librubberband
         --enable-libvpx
         --enable-libwebp
         --enable-libx264
