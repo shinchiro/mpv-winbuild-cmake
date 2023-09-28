@@ -1,6 +1,6 @@
 ExternalProject_Add(llvm-openmp
     DEPENDS
-        llvm-compiler-rt
+        llvm-libcxx
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${LLVM_SRC}

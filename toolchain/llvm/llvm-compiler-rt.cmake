@@ -1,6 +1,4 @@
 ExternalProject_Add(llvm-compiler-rt
-    DEPENDS
-        llvm-libcxx
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${LLVM_SRC}
