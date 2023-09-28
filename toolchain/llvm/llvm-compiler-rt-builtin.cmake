@@ -27,6 +27,7 @@ ExternalProject_Add(llvm-compiler-rt-builtin
         -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY
         -DSANITIZER_CXX_ABI=libc++
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+          COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/lib/windows/libclang_rt.builtins-${TARGET_CPU}.a ${MINGW_INSTALL_PREFIX}/lib
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
