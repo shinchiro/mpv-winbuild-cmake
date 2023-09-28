@@ -110,12 +110,21 @@ Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32
 
 Example:
 
-    cmake -G Ninja -Bbuild_x86_64 -Hmpv-winbuild-cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DCOMPILER_TOOLCHAIN=clang -DALWAYS_REMOVE_BUILDFILES=ON -DCMAKE_INSTALL_PREFIX=clang_root -DSINGLE_SOURCE_LOCATION=src_packages -DRUSTUP_LOCATION=install_rustup
+    cmake -DCOMPILER_TOOLCHAIN=clang -DTARGET_ARCH=x86_64-w64-mingw32 \
+    -DCMAKE_INSTALL_PREFIX="/home/anon/clang_root" \
+    -DCOMPILER_TOOLCHAIN=clang \
+    -DGCC_ARCH=x86-64-v3 \
+    -DALWAYS_REMOVE_BUILDFILES=ON \
+    -DSINGLE_SOURCE_LOCATION="/home/anon/packages" \
+    -DRUSTUP_LOCATION="/home/anon/install_rustup" \
+    -DMINGW_INSTALL_PREFIX="/home/anon/build_x86_64_v3/x86_64_v3-w64-mingw32" \
+    -G Ninja -B build_x86_64_v3 -S mpv-winbuild-cmake
 
 The cmake command will create `clang_root` as clang sysroot while `build_x86_64` as build directory to compiling packages.
 
     cd build_x86_64
-    ninja llvm # build LLVM (take 2 hours+)
+    ninja llvm       # build LLVM (take around ~2 hours)
+    ninja rustup     # build rust toolchain
     ninja llvm-clang # build Clang on specified target
 
 If you want add another target (ex. `i686-w64-mingw32`), change `TARGET_ARCH` and build folder and just run:
