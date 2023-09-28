@@ -220,6 +220,7 @@ to update flags which will pass on gcc, g++ and etc.
     - libdovi
     - libva
     - libva-utils
+    - directx-header
     - libzvbi
     - rav1e
     - libaribcaption
