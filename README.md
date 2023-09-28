@@ -221,6 +221,7 @@ to update flags which will pass on gcc, g++ and etc.
     - libva
     - libva-utils
     - directx-header
+    - mesa
     - libzvbi
     - rav1e
     - libaribcaption
