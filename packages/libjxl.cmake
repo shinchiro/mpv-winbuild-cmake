@@ -14,7 +14,6 @@ ExternalProject_Add(libjxl
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG main
-    GIT_RESET d895ec88f42c1a0031d0e419fcc53d15e2fd92fb
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
