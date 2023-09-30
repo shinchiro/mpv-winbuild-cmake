@@ -9,7 +9,7 @@ ExternalProject_Add(opus-tools
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-stack-protector
@@ -18,9 +18,9 @@ ExternalProject_Add(opus-tools
         FLAC_CFLAGS='-DFLAC__NO_DLL'
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install-strip
+    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
 force_rebuild_git(opus-tools)
-autogen(opus-tools)
 cleanup(opus-tools install)

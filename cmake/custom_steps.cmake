@@ -21,9 +21,6 @@ function(cleanup _name _last_step)
         endif()
         set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
                                  COMMAND bash -c "git -C <SOURCE_DIR> restore .")
-    elseif(_url)
-        set(remove_cmd "rm -rf <SOURCE_DIR>/* <BINARY_DIR>/*")
-        set(COMMAND_FORCE_UPDATE "")
     endif()
 
     # <STAMP_DIR> doesn't resolve into full path, so <LOG_DIR> is used instead since its same folder.
@@ -162,26 +159,6 @@ function(force_rebuild_hg _name)
         DEPENDERS patch build install
         COMMAND hg --config "extensions.purge=" purge --all
         COMMAND hg update -C
-        WORKING_DIRECTORY <SOURCE_DIR>
-        LOG 1
-    )
-endfunction()
-
-function(autogen _name)
-    ExternalProject_Add_Step(${_name} autogen
-        DEPENDEES download update patch
-        DEPENDERS configure
-        COMMAND ${EXEC} ./autogen.sh -V
-        WORKING_DIRECTORY <SOURCE_DIR>
-        LOG 1
-    )
-endfunction()
-
-function(autoreconf _name)
-    ExternalProject_Add_Step(${_name} autoreconf
-        DEPENDEES download update patch
-        DEPENDERS configure
-        COMMAND ${EXEC} autoreconf -fi
         WORKING_DIRECTORY <SOURCE_DIR>
         LOG 1
     )

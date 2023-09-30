@@ -12,7 +12,7 @@ ExternalProject_Add(megasdk
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/megasdk-*.patch
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --enable-static
@@ -34,5 +34,4 @@ ExternalProject_Add(megasdk
 )
 
 force_rebuild_git(megasdk)
-autogen(megasdk)
 cleanup(megasdk install)
