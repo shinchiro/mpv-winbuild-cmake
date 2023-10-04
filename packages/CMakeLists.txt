@@ -50,6 +50,7 @@ list(APPEND ep
     nvcodec-headers
     libmysofa
     aom
+    xxhash
     dav1d
     libwebp
     vapoursynth
@@ -76,7 +77,6 @@ list(APPEND ep
     fast_float
     libdovi
     rav1e
-    xxhash
     libplacebo
     libva
     libzvbi
