@@ -38,7 +38,7 @@ ExternalProject_Add(ffmpeg
         aom
         rav1e
         dav1d
-        vapoursynth
+        ${vapoursynth}
         uavs3d
         davs2
         rubberband
@@ -60,7 +60,7 @@ ExternalProject_Add(ffmpeg
         --enable-nonfree
         --enable-postproc
         --enable-avisynth
-        --enable-vapoursynth
+        ${ffmpeg_vapoursynth}
         --enable-gmp
         --enable-libass
         --enable-libbluray
