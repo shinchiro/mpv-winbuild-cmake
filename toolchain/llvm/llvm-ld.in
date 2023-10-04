@@ -5,4 +5,4 @@ FLAGS="-m @ld_m_flag@"
 FLAGS="$FLAGS @opt@"
 FLAGS="$FLAGS --pdb="
 
-"$PROG" $FLAGS "$@" @LLD_FLAGS@
+"$PROG" "$@" $FLAGS @LLD_FLAGS@
