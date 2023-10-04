@@ -116,7 +116,7 @@ jobs:
       - name: Packaging mpv
         run: |
           mkdir -p release_$BIT
-          rm -rf build_$BIT/mpv-debug*; ninja -C build_$BIT mpv-packaging; mv build_$BIT/mpv*.7z release_$BIT
+          ninja -C build_$BIT mpv-packaging; mv build_$BIT/mpv*.7z release_$BIT
 
       - name: Copying ffmpeg
         run: |
@@ -144,10 +144,17 @@ jobs:
           name: mpv-${{ matrix.bit }}
           path: release_${{ matrix.bit }}/mpv-${{ env.arch }}*
 
+      - name: Uploading ${{ matrix.bit }} debug
+        uses: actions/upload-artifact@master
+        with:
+          name: mpv-${{ matrix.bit }}-debug
+          path: release_${{ matrix.bit }}/mpv-debug-${{ env.arch }}*
+
       - name: Cleaning build directory
         if: always()
         run: |
           rm -rf build_$BIT/mpv*
+          rm -rf release_$BIT/mpv-debug*.7z
 
       - name: Cleaning rust toolchain directory
         if: always()
@@ -265,6 +272,8 @@ jobs:
           short_date=$(date "+%Y%m%d")
           body=$(cat <<END
           ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$short_date/total?label=Downloads)
+
+          **Workflow run**: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
           END
           )
           id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
