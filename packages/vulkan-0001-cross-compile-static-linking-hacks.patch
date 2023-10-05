@@ -1,18 +1,19 @@
-From a911e91c9dded5053fe99931a43c946af4c96dda Mon Sep 17 00:00:00 2001
+From efdcdeeb32a8e55e25b72896f64d5a213114fa73 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 14 Sep 2023 18:18:13 +0800
+Date: Thu, 5 Oct 2023 17:44:22 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 17 ++++++++++-------
+ loader/CMakeLists.txt       | 11 ++++++-----
  loader/loader.h             |  2 ++
  loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
- 5 files changed, 22 insertions(+), 8 deletions(-)
+ loader/vulkan.pc.in         |  9 ++++++++-
+ 6 files changed, 26 insertions(+), 7 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 7ccfbed..df90294 100644
+index 2800012..9d98101 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -24,25 +25,7 @@ index 7ccfbed..df90294 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -114,7 +114,7 @@ set(ASM_FAILURE_MSG "The build will fall back on building with C code\n")
- set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG}Note that this may be unsafe, as the C code requires tail-call optimizations to remove")
- set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} the stack frame for certain calls. If the compiler does not do this, then unknown device")
- set(ASM_FAILURE_MSG "${ASM_FAILURE_MSG} extensions will suffer from a corrupted stack.")
--if(WIN32)
-+if(MSVC)
-     if(MINGW)
-         find_program(JWASM_FOUND jwasm)
-         if (JWASM_FOUND)
-@@ -174,7 +174,7 @@ if(WIN32)
-         set(USE_ASSEMBLY_FALLBACK ON)
-         message(WARNING "Could not find working MASM assembler\n${ASM_FAILURE_MSG}")
-     endif()
--elseif(UNIX) # i.e.: Linux & Apple
-+elseif(UNIX OR MINGW) # i.e.: Linux & Apple
-     option(USE_GAS "Use GAS" ON)
-     if(USE_GAS)
-         enable_language(ASM)
-@@ -267,7 +267,7 @@ if(USE_ASSEMBLY_FALLBACK)
+@@ -264,7 +264,7 @@ if(USE_ASSEMBLY_FALLBACK)
      endif()
  endif()
  
@@ -51,7 +34,7 @@ index 7ccfbed..df90294 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -317,7 +317,7 @@ if(WIN32)
+@@ -310,7 +310,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -60,48 +43,26 @@ index 7ccfbed..df90294 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -368,6 +368,7 @@ else()
-         # framework version does not have to be "A", this part of the Apple toolchain expects it.
-         # https://forums.developer.apple.com/thread/65963
+@@ -392,8 +392,9 @@ endif()
  
-+        if (NOT BUILD_STATIC_LOADER)
-         set_target_properties(vulkan-framework PROPERTIES
-             OUTPUT_NAME vulkan
-             FRAMEWORK TRUE
-@@ -381,6 +382,7 @@ else()
-             PUBLIC_HEADER DESTINATION vulkan
-             FRAMEWORK DESTINATION loader
-         )
-+        endif()
-     endif()
- endif()
+ target_link_libraries(vulkan PRIVATE Vulkan::Headers)
+ add_library(Vulkan::Loader ALIAS vulkan)
++configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
  
-@@ -410,7 +412,7 @@ if(PKG_CONFIG_FOUND)
-         set(PRIVATE_LIBS "Libs.private: ${PRIVATE_LIBS}")
-     endif()
- 
+-if (APPLE AND BUILD_STATIC_LOADER)
++if (APPLE OR BUILD_STATIC_LOADER)
+     # When exporting a static library all linked libraries - private or not - need to be exported.
+     message(NOTICE "vulkan.pc and VulkanLoaderConfig.cmake not generated for STATIC Apple builds!")
+     return()
+@@ -409,7 +410,7 @@ install(EXPORT VulkanLoaderConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Vulk
+ # https://gitlab.kitware.com/cmake/cmake/-/issues/22621
+ find_package(PkgConfig)
+ if (PKG_CONFIG_FOUND)
 -    if(WIN32)
 +    if(WIN32 AND NOT BUILD_STATIC_LOADER)
          if(MINGW)
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
-@@ -430,6 +432,7 @@ if(PKG_CONFIG_FOUND)
-         file(RELATIVE_PATH CMAKE_INSTALL_REL_INCLUDEDIR_PC ${CMAKE_INSTALL_PREFIX} ${CMAKE_INSTALL_FULL_INCLUDEDIR})
-     endif()
-     set(VULKAN_LOADER_PKG_CONFIG_NAME "Vulkan-Loader")
-+    set(PRIVATE_LIBS "Libs.private: -lshlwapi -lcfgmgr32")
-     configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
-     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/vulkan.pc" DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
- endif()
-@@ -437,7 +440,7 @@ endif()
- target_link_libraries(vulkan PRIVATE Vulkan::Headers)
- add_library(Vulkan::Loader ALIAS vulkan)
- 
--if (APPLE AND BUILD_STATIC_LOADER)
-+if (APPLE OR BUILD_STATIC_LOADER)
-     # When exporting a static library all linked libraries - private or not - need to be exported.
-     return()
- endif()
 diff --git a/loader/loader.h b/loader/loader.h
 index 93346a9..6e3f867 100644
 --- a/loader/loader.h
@@ -162,7 +123,7 @@ index 0f6c2c8..55afa40 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index f70350b..4fb7173 100644
+index 3a8cafb..5baff1c 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -69,6 +69,7 @@
@@ -182,6 +143,23 @@ index f70350b..4fb7173 100644
  static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*func)(void)) {
      assert(func != NULL);
      assert(ctl != NULL);
+diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
+index 16b0ded..ed2f30b 100644
+--- a/loader/vulkan.pc.in
++++ b/loader/vulkan.pc.in
+@@ -1,4 +1,11 @@
++prefix=@CMAKE_INSTALL_PREFIX@
++exec_prefix=${prefix}
++libdir=${exec_prefix}/lib
++includedir=${prefix}/include
++
+ Name: Vulkan-Loader
+ Description: Vulkan Loader
+ Version: @VULKAN_LOADER_VERSION@
+-Libs: -L@CMAKE_INSTALL_LIBDIR_PC@ -lvulkan@VULKAN_LIB_SUFFIX@
++Libs: -L${libdir} -lvulkan
++Libs.private: -lshlwapi -lcfgmgr32
++Cflags: -I${includedir}
 -- 
 2.42.0
 
