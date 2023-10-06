@@ -1,26 +1,27 @@
-From 66157d55d6f5932478f65d4c2a90639f4d2c5e91 Mon Sep 17 00:00:00 2001
+From 15d0a29093b621d110eb7191984cb076d1bd8001 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 26 Nov 2022 20:23:06 +0800
+Date: Sat, 7 Oct 2023 07:09:00 +0800
 Subject: [PATCH] avoid name collision
 
 also fix libs.private's lib name
 ---
- CMakeLists.txt | 1 -
+ CMakeLists.txt | 2 +-
  srtcore/md5.h  | 8 ++++++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 58a31d1..0af8cc6 100644
+index 4611f0c..d569354 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -331,7 +331,6 @@ if (ENABLE_ENCRYPTION)
- 			set(MBEDTLS_PREFIX "${CMAKE_PREFIX_PATH}" CACHE PATH "The path of mbedtls")
- 			find_package(MbedTLS REQUIRED)
- 			set (SSL_INCLUDE_DIRS ${MBEDTLS_INCLUDE_DIR})
--			set (SSL_LIBRARIES  ${MBEDTLS_LIBRARIES})
- 		endif()
- 		if ("${SSL_LIBRARIES}" STREQUAL "")
- 			set (SSL_LIBRARIES  mbedtls mbedcrypto)
+@@ -1110,7 +1110,7 @@ if (MICROSOFT)
+ 		set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} ws2_32.lib)
+ 	endif()
+ elseif (MINGW)
+-	set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} -lwsock32 -lws2_32)
++	set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} -lwsock32 -lbcrypt -lws2_32)
+ endif()
+ 
+ # Applying this to public includes is not transitive enough.
 diff --git a/srtcore/md5.h b/srtcore/md5.h
 index 643981c..5cef5e7 100644
 --- a/srtcore/md5.h
@@ -41,5 +42,5 @@ index 643981c..5cef5e7 100644
   * All symbols have been put under the srt namespace
   * to avoid potential linkage conflicts.
 -- 
-2.38.1
+2.42.0
 

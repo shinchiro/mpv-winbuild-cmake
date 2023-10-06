@@ -15,7 +15,7 @@ index f288b94..5728e43 100644
  Description: The SSH Library
  Version: @PROJECT_VERSION@
  Libs: -L${libdir} -lssh
-+Libs.private: -lmbedtls -lmbedx509 -lmbedcrypto -lz -lwsock32 -lws2_32 -lpthread
++Libs.private: -lmbedtls -lmbedx509 -lmbedcrypto -lz -lwsock32 -lbcrypt -lws2_32 -lpthread
  Cflags: -I${includedir}
 +Cflags.private: -DLIBSSH_STATIC
 -- 

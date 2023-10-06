@@ -19,3 +19,18 @@ ExternalProject_Add(mbedtls
 )
 
 cleanup(mbedtls install)
+
+set(mbedtls_pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/mbedtls.pc)
+file(WRITE ${mbedtls_pc}
+"prefix=${MINGW_INSTALL_PREFIX}
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: mbedtls
+Description: mbedtls
+Version: 3.5.0
+Libs: -L\${libdir} -lmbedtls -lmbedx509 -lmbedcrypto
+Libs.private: -lbcrypt -lws2_32
+Cflags: -I\${includedir}
+")
