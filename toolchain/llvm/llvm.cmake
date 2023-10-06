@@ -13,6 +13,8 @@ ExternalProject_Add(llvm
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_C_COMPILER=clang
         -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_C_FLAGS='-march=native'
+        -DCMAKE_CXX_FLAGS='-march=native'
         -DLLVM_ENABLE_ASSERTIONS=OFF
         -DLLVM_ENABLE_PROJECTS='clang,lld,polly'
         -DLLVM_TARGETS_TO_BUILD='X86,NVPTX'
