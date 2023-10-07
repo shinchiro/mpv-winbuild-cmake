@@ -30,12 +30,13 @@ ExternalProject_Add(mpv
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
         --cross-file=${MESON_CROSS}
-        --buildtype=release
         --default-library=shared
         --prefer-static
+        -Ddebug=true
+        -Db_ndebug=true
+        -Doptimization=3
         -Db_lto=true
         ${mpv_lto_mode}
-        -Db_ndebug=true
         -Dlibmpv=true
         -Dpdf-build=enabled
         -Dlua=enabled
