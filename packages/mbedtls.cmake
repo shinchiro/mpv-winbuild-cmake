@@ -1,6 +1,16 @@
+if(TARGET_CPU STREQUAL "x86_64")
+    set(mbedtls_version "3.5.0")
+    set(mbedtls_link "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${mbedtls_version}.tar.gz")
+    set(mbedtls_hash "BDEE0E3E45BBF360541306CAC0CC27E00402C7A46B9BDF2D24787D5107F008F2")
+elseif(TARGET_CPU STREQUAL "i686")
+    set(mbedtls_version "3.4.1")
+    set(mbedtls_link "https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v${mbedtls_version}.tar.gz")
+    set(mbedtls_hash "A420FCF7103E54E775C383E3751729B8FB2DCD087F6165BEFD13F28315F754F5")
+endif()
+
 ExternalProject_Add(mbedtls
-    URL https://github.com/Mbed-TLS/mbedtls/archive/refs/tags/v3.5.0.tar.gz
-    URL_HASH SHA256=BDEE0E3E45BBF360541306CAC0CC27E00402C7A46B9BDF2D24787D5107F008F2
+    URL ${mbedtls_link}
+    URL_HASH SHA256=${mbedtls_hash}
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
@@ -29,7 +39,7 @@ includedir=\${prefix}/include
 
 Name: mbedtls
 Description: mbedtls
-Version: 3.5.0
+Version: ${mbedtls_version}
 Libs: -L\${libdir} -lmbedtls -lmbedx509 -lmbedcrypto
 Libs.private: -lbcrypt -lws2_32
 Cflags: -I\${includedir}
