@@ -18,7 +18,7 @@ index 4611f0c..d569354 100644
  	endif()
  elseif (MINGW)
 -	set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} -lwsock32 -lws2_32)
-+	set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} -lwsock32 -lbcrypt -lws2_32)
++	set (SRT_LIBS_PRIVATE ${SRT_LIBS_PRIVATE} -lmbedtls -lmbedcrypto -lmbedx509 -lwsock32 -lbcrypt -lws2_32)
  endif()
  
  # Applying this to public includes is not transitive enough.
