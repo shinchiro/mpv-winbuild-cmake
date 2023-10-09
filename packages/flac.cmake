@@ -14,8 +14,7 @@ ExternalProject_Add(flac
         --disable-thorough-tests
         --disable-oggtest
         --disable-examples
-        --disable-stack-smash-protection
-        CFLAGS='-D_FORTIFY_SOURCE=0'
+        CFLAGS='-D_FORTIFY_SOURCE=2'
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
