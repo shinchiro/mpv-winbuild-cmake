@@ -69,7 +69,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cargo_config.in ${RUSTUP_LOCATION}/.c
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/exec.in ${CMAKE_CURRENT_BINARY_DIR}/exec @ONLY)
 set(EXEC ${CMAKE_CURRENT_BINARY_DIR}/exec)
 set(MAKE ${EXEC} make -j${MAKEJOBS})
-
+if(TARGET_CPU STREQUAL "x86_64")
+    execute_process(
+        COMMAND ${EXEC} echo | ${CMAKE_C_COMPILER} -dM -E - -march=${GCC_ARCH}
+        OUTPUT_VARIABLE CC_OUTPUT
+    )
+    if(CC_OUTPUT MATCHES "__AES")
+        option(GCC_ARCH_HAS_AES "Force Enable AES, default is auto." ON)
+    endif()
+endif()
 string(TIMESTAMP BUILDDATE "%Y%m%d" UTC)
 
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)

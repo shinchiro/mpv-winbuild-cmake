@@ -26,3 +26,7 @@ elseif(TARGET_CPU STREQUAL "i686")
 elseif(TARGET_CPU STREQUAL "aarch64")
     set(dlltool_image "arm64")
 endif()
+
+if(GCC_ARCH_HAS_AES OR GCC_ARCH STREQUAL "x86-64-v3" OR TARGET_CPU STREQUAL "aarch64")
+    set(MBEDTLS_AES "-DMBEDTLS_AES_USE_HARDWARE_ONLY=1")
+endif()
