@@ -1,4 +1,4 @@
-From efdcdeeb32a8e55e25b72896f64d5a213114fa73 Mon Sep 17 00:00:00 2001
+From a84c490ffa2df57b491c56891ff3a771cb2709fa Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Thu, 5 Oct 2023 17:44:22 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -9,11 +9,11 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
- loader/vulkan.pc.in         |  9 ++++++++-
- 6 files changed, 26 insertions(+), 7 deletions(-)
+ loader/vulkan.pc.in         |  7 ++++---
+ 6 files changed, 22 insertions(+), 9 deletions(-)
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 2800012..9d98101 100644
+index c6366eef5..d57d6d7e8 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
@@ -25,7 +25,7 @@ index 2800012..9d98101 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -264,7 +264,7 @@ if(USE_ASSEMBLY_FALLBACK)
+@@ -293,7 +293,7 @@ if(USE_ASSEMBLY_FALLBACK)
      endif()
  endif()
  
@@ -34,7 +34,7 @@ index 2800012..9d98101 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -310,7 +310,7 @@ if(WIN32)
+@@ -339,7 +339,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -43,7 +43,7 @@ index 2800012..9d98101 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -392,8 +392,9 @@ endif()
+@@ -421,8 +421,9 @@ endif()
  
  target_link_libraries(vulkan PRIVATE Vulkan::Headers)
  add_library(Vulkan::Loader ALIAS vulkan)
@@ -54,7 +54,7 @@ index 2800012..9d98101 100644
      # When exporting a static library all linked libraries - private or not - need to be exported.
      message(NOTICE "vulkan.pc and VulkanLoaderConfig.cmake not generated for STATIC Apple builds!")
      return()
-@@ -409,7 +410,7 @@ install(EXPORT VulkanLoaderConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Vulk
+@@ -438,7 +439,7 @@ install(EXPORT VulkanLoaderConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Vulk
  # https://gitlab.kitware.com/cmake/cmake/-/issues/22621
  find_package(PkgConfig)
  if (PKG_CONFIG_FOUND)
@@ -64,7 +64,7 @@ index 2800012..9d98101 100644
              set(VULKAN_LIB_SUFFIX "-1.dll")
          else()
 diff --git a/loader/loader.h b/loader/loader.h
-index 93346a9..6e3f867 100644
+index 93346a9d7..6e3f86746 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -78,7 +78,7 @@ index 93346a9..6e3f867 100644
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
 diff --git a/loader/loader.rc.in b/loader/loader.rc.in
-index 0dc4227..e7fcea0 100644
+index 0dc4227da..e7fcea06f 100644
 --- a/loader/loader.rc.in
 +++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
@@ -94,7 +94,7 @@ index 0dc4227..e7fcea0 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 0f6c2c8..55afa40 100644
+index 0f6c2c88c..55afa409d 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -123,7 +123,7 @@ index 0f6c2c8..55afa40 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 3a8cafb..5baff1c 100644
+index 3a8cafb7e..5baff1c01 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -69,6 +69,7 @@
@@ -144,22 +144,24 @@ index 3a8cafb..5baff1c 100644
      assert(func != NULL);
      assert(ctl != NULL);
 diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 16b0ded..ed2f30b 100644
+index 6a285f267..ed2f30bb2 100644
 --- a/loader/vulkan.pc.in
 +++ b/loader/vulkan.pc.in
-@@ -1,4 +1,11 @@
-+prefix=@CMAKE_INSTALL_PREFIX@
-+exec_prefix=${prefix}
+@@ -1,10 +1,11 @@
+ prefix=@CMAKE_INSTALL_PREFIX@
+ exec_prefix=${prefix}
+-libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR_PC@
+-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR_PC@
 +libdir=${exec_prefix}/lib
 +includedir=${prefix}/include
-+
+ 
  Name: Vulkan-Loader
  Description: Vulkan Loader
  Version: @VULKAN_LOADER_VERSION@
--Libs: -L@CMAKE_INSTALL_LIBDIR_PC@ -lvulkan@VULKAN_LIB_SUFFIX@
+-Libs: -L${libdir} -lvulkan@VULKAN_LIB_SUFFIX@
 +Libs: -L${libdir} -lvulkan
 +Libs.private: -lshlwapi -lcfgmgr32
-+Cflags: -I${includedir}
+ Cflags: -I${includedir}
 -- 
 2.42.0
 
