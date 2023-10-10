@@ -313,6 +313,7 @@ jobs:
     needs: build_mpv
     env:
       GH_TOKEN: ${{ github.token }}
+      GH_COMMAND: ${{ github.event.inputs.command }}
     steps:
       - name: Run mpv_gcc.yml
         run: |
@@ -322,7 +323,8 @@ jobs:
             "inputs": {
               "sourceforge": "false",
               "github_release": "false",
-              "mpv_tarball": "false"
+              "mpv_tarball": "false",
+              "command": "$GH_COMMAND"
             }
           }
           EOF
