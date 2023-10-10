@@ -1,31 +1,34 @@
-From efdcdeeb32a8e55e25b72896f64d5a213114fa73 Mon Sep 17 00:00:00 2001
+From 858635b5bc44e5076c3344cffb82a3a9a9dc04f3 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Thu, 5 Oct 2023 17:44:22 +0800
+Date: Tue, 10 Oct 2023 21:45:54 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       | 11 ++++++-----
+ loader/CMakeLists.txt       |  9 +++++----
  loader/loader.h             |  2 ++
  loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
  loader/vk_loader_platform.h |  3 ++-
- loader/vulkan.pc.in         |  9 ++++++++-
- 6 files changed, 26 insertions(+), 7 deletions(-)
+ loader/vulkan_own.pc.in     | 11 +++++++++++
+ 6 files changed, 28 insertions(+), 5 deletions(-)
+ create mode 100644 loader/vulkan_own.pc.in
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 2800012..9d98101 100644
+index c6366ee..df42608 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -21,7 +21,7 @@ add_library(loader_specific_options INTERFACE)
+@@ -20,8 +20,9 @@
+ add_library(loader_specific_options INTERFACE)
  target_link_libraries(loader_specific_options INTERFACE loader_common_options Vulkan::Headers)
  target_include_directories(loader_specific_options INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/generated ${CMAKE_CURRENT_BINARY_DIR})
++configure_file("vulkan_own.pc.in" "vulkan_own.pc" @ONLY)
  
 -if(WIN32)
 +if(WIN32 AND NOT MINGW)
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -264,7 +264,7 @@ if(USE_ASSEMBLY_FALLBACK)
+@@ -293,7 +294,7 @@ if(USE_ASSEMBLY_FALLBACK)
      endif()
  endif()
  
@@ -34,7 +37,7 @@ index 2800012..9d98101 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -310,7 +310,7 @@ if(WIN32)
+@@ -339,7 +340,7 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
@@ -43,26 +46,15 @@ index 2800012..9d98101 100644
          add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
          target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
      else()
-@@ -392,8 +392,9 @@ endif()
- 
+@@ -422,7 +423,7 @@ endif()
  target_link_libraries(vulkan PRIVATE Vulkan::Headers)
  add_library(Vulkan::Loader ALIAS vulkan)
-+configure_file("vulkan.pc.in" "vulkan.pc" @ONLY)
  
 -if (APPLE AND BUILD_STATIC_LOADER)
 +if (APPLE OR BUILD_STATIC_LOADER)
      # When exporting a static library all linked libraries - private or not - need to be exported.
      message(NOTICE "vulkan.pc and VulkanLoaderConfig.cmake not generated for STATIC Apple builds!")
      return()
-@@ -409,7 +410,7 @@ install(EXPORT VulkanLoaderConfig DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Vulk
- # https://gitlab.kitware.com/cmake/cmake/-/issues/22621
- find_package(PkgConfig)
- if (PKG_CONFIG_FOUND)
--    if(WIN32)
-+    if(WIN32 AND NOT BUILD_STATIC_LOADER)
-         if(MINGW)
-             set(VULKAN_LIB_SUFFIX "-1.dll")
-         else()
 diff --git a/loader/loader.h b/loader/loader.h
 index 93346a9..6e3f867 100644
 --- a/loader/loader.h
@@ -143,20 +135,20 @@ index 3a8cafb..5baff1c 100644
  static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*func)(void)) {
      assert(func != NULL);
      assert(ctl != NULL);
-diff --git a/loader/vulkan.pc.in b/loader/vulkan.pc.in
-index 16b0ded..ed2f30b 100644
---- a/loader/vulkan.pc.in
-+++ b/loader/vulkan.pc.in
-@@ -1,4 +1,11 @@
+diff --git a/loader/vulkan_own.pc.in b/loader/vulkan_own.pc.in
+new file mode 100644
+index 0000000..ed2f30b
+--- /dev/null
++++ b/loader/vulkan_own.pc.in
+@@ -0,0 +1,11 @@
 +prefix=@CMAKE_INSTALL_PREFIX@
 +exec_prefix=${prefix}
 +libdir=${exec_prefix}/lib
 +includedir=${prefix}/include
 +
- Name: Vulkan-Loader
- Description: Vulkan Loader
- Version: @VULKAN_LOADER_VERSION@
--Libs: -L@CMAKE_INSTALL_LIBDIR_PC@ -lvulkan@VULKAN_LIB_SUFFIX@
++Name: Vulkan-Loader
++Description: Vulkan Loader
++Version: @VULKAN_LOADER_VERSION@
 +Libs: -L${libdir} -lvulkan
 +Libs.private: -lshlwapi -lcfgmgr32
 +Cflags: -I${includedir}

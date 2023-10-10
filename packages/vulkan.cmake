@@ -21,7 +21,7 @@ ExternalProject_Add(vulkan
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS -fpermissive -D_WIN32_WINNT=0x0600'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/loader/libvulkan.a ${MINGW_INSTALL_PREFIX}/lib/libvulkan.a
-            COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/loader/vulkan.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/vulkan.pc
+            COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/loader/vulkan_own.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/vulkan.pc
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
