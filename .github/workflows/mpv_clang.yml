@@ -134,7 +134,7 @@ jobs:
         uses: actions/upload-artifact@master
         if: always()
         with:
-          name: logs_${{ matrix.bit }}
+          name: mpv-${{ matrix.bit }}-logs
           path: logs.7z
           retention-days: 1
 
