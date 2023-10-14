@@ -171,22 +171,20 @@ jobs:
 
       - name: Saving release_${{ matrix.bit }} cache
         uses: actions/cache/save@main
-        if: false
+        if: ${{ github.event.inputs.github_release == 'true' }}
         with:
           path: release_${{ matrix.bit }}
-          key: ${{ secrets.CACHE_VERSION }}-release_${{ matrix.bit }}-${{ github.run_id }}
+          key: ${{ secrets.CACHE_VERSION }}-gcc-release_${{ matrix.bit }}-${{ github.run_id }}
 
   release:
     name: Upload releases
     runs-on: ubuntu-latest
     needs: build_mpv
-    if: false
+    if: ${{ github.event.inputs.github_release == 'true' }}
     env:
       GH_TOKEN: ${{ github.token }}
       CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
-      release_i686_key: ${{ secrets.CACHE_VERSION }}-release_i686-${{ github.run_id }}
-      release_x86_64_key: ${{ secrets.CACHE_VERSION }}-release_x86_64-${{ github.run_id }}
-      release_x86_64_v3_key: ${{ secrets.CACHE_VERSION }}-release_x86_64_v3-${{ github.run_id }}
+      release_x86_64_key: ${{ secrets.CACHE_VERSION }}-gcc-release_x86_64-${{ github.run_id }}
     container:
       image: docker://alpine:latest
 
@@ -195,6 +193,7 @@ jobs:
         shell: sh
         run: |
           apk add --update --no-cache bash git file openssh curl tar zstd jq
+          apk add perl-file-rename --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing
           git config --global pull.rebase true
           git config --global fetch.prune true
           git config --global --add safe.directory $PWD
@@ -203,33 +202,22 @@ jobs:
         with:
           ref: master
 
-      - name: Loading release_i686 cache
-        uses: actions/cache/restore@main
-        with:
-          path: release_i686
-          key: ${{ env.release_i686_key }}
-
       - name: Loading release_x86_64 cache
         uses: actions/cache/restore@main
         with:
           path: release_x86_64
           key: ${{ env.release_x86_64_key }}
 
-      - name: Loading release_x86_64_v3 cache
-        uses: actions/cache/restore@main
-        with:
-          path: release_x86_64_v3
-          key: ${{ env.release_x86_64_v3_key }}
-
       - name: Moving archives
         run: |
           mkdir -p release
-          mv release_i686/* release_x86_64/* release_x86_64_v3/* release
+          mv release_x86_64/* release
+          file-rename 's/mpv-(.*)x86_64-(.+)/mpv-${1}x86_64-gcc-${2}/s' $PWD/release/mpv*.7z
           du -ah release/*
 
       - name: Uploading packages to Sourceforge
         id: upload_packages_sf
-        if: ${{ github.event.inputs.sourceforge == 'true' }}
+        if: false
         continue-on-error: true
         env:
           MPV_VER: ${{ needs.build_mpv.outputs.mpv_ver }}
@@ -256,23 +244,11 @@ jobs:
         if: ${{ github.event.inputs.github_release == 'true' && github.event.inputs.mpv_tarball == 'false' }}
         continue-on-error: true
         run: |
-          short_date=$(date "+%Y%m%d")
-          body=$(cat <<END
-          ![GitHub release (by tag)](https://img.shields.io/github/downloads/shinchiro/mpv-winbuild-cmake/$short_date/total?label=Downloads)
-          END
-          )
-          id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X POST -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases -d @- <<END | jq -r '.id'
-          {
-            "tag_name": "$short_date",
-            "name": "$short_date",
-            "body": "$(echo ${body//$'\n'/'\n'})"
-          }
-          END
-          )
+          id=$(curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -X GET -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/latest | jq -r '.id')
           for file in release/*.7z; do curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -X POST -H "Accept: application/vnd.github.v3+json" -H "Content-Type: $(file -b --mime-type $file)" https://uploads.github.com/repos/shinchiro/mpv-winbuild-cmake/releases/$id/assets?name=$(basename $file) --data-binary @$file; done
 
       - name: Pruning tags
-        continue-on-error: true
+        if: false
         run: |
           # Keep latest 30 tags/releases
           git fetch --tags
@@ -288,9 +264,7 @@ jobs:
       - name: Delete releases cache
         if: ${{ github.event.inputs.github_release == 'false' || steps.upload_packages_gh.outcome == 'success' }}
         run: |
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release_i686_key
           curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release_x86_64_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$release_x86_64_v3_key
 
   gist:
     name: Gist

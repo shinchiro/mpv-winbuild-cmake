@@ -322,7 +322,7 @@ jobs:
             "ref": "master",
             "inputs": {
               "sourceforge": "false",
-              "github_release": "false",
+              "github_release": "true",
               "mpv_tarball": "false",
               "command": "$GH_COMMAND"
             }
