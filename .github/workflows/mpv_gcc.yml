@@ -212,6 +212,7 @@ jobs:
         run: |
           mkdir -p release
           mv release_x86_64/* release
+          rm release/ffmpeg*.7z
           file-rename 's/mpv-(.*)x86_64-(.+)/mpv-${1}x86_64-gcc-${2}/s' $PWD/release/mpv*.7z
           du -ah release/*
 
