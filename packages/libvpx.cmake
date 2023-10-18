@@ -22,6 +22,7 @@ ExternalProject_Add(libvpx
         --disable-decode-perf-tests
         --disable-encode-perf-tests
         --as=yasm
+        --enable-vp9-highbitdepth
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
             COMMAND ${EXEC} ${TARGET_ARCH}-ranlib ${MINGW_INSTALL_PREFIX}/lib/libvpx.a
