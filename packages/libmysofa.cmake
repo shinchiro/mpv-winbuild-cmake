@@ -14,7 +14,6 @@ ExternalProject_Add(libmysofa
         -DBUILD_SHARED_LIBS=OFF
         -DBUILD_TESTS=OFF
         -DCMAKE_BUILD_TYPE=Release
-    COMMAND sed -i "44 s/defined defined(__NetBSD__)/defined(__NetBSD__)/" <SOURCE_DIR>/src/hrtf/portable_endian.h
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
