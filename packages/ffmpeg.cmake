@@ -110,8 +110,10 @@ ExternalProject_Add(ffmpeg
         --disable-vaapi
         --disable-vdpau
         --disable-videotoolbox
+        --disable-ptx-compression
         --disable-decoder=libaom_av1
         --extra-cflags='-Wno-error=int-conversion'
+        --nvccflags='-O3'
         "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
