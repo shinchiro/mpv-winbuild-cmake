@@ -164,6 +164,7 @@ to update flags which will pass on gcc, g++ and etc.
     - x264
     - x265 (multilib)
     - uchardet
+    - amd-fftw
     - rubberband
     - opus
     - openal-soft

@@ -5,6 +5,7 @@ list(APPEND ep
     xz
     lzo
     uchardet
+    amd-fftw
     rubberband
     zlib
     bzip2
