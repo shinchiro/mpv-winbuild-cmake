@@ -165,6 +165,7 @@ to update flags which will pass on gcc, g++ and etc.
     - x265 (multilib)
     - uchardet
     - amd-fftw
+    - libsamplerate
     - rubberband
     - opus
     - openal-soft

@@ -6,6 +6,7 @@ list(APPEND ep
     lzo
     uchardet
     amd-fftw
+    libsamplerate
     rubberband
     zlib
     bzip2
