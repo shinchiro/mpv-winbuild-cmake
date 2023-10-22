@@ -1,4 +1,7 @@
 ExternalProject_Add(rubberband
+    DEPENDS
+        amd-fftw
+        libsamplerate
     GIT_REPOSITORY https://github.com/breakfastquay/rubberband.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -11,9 +14,10 @@ ExternalProject_Add(rubberband
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
-        -Dfft=builtin
-        -Dresampler=builtin
+        -Dfft=fftw
+        -Dresampler=libsamplerate
         -Djni=disabled
+        -Dcpp_args='-DUSE_PTHREADS'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
