@@ -236,7 +236,7 @@ to update flags which will pass on gcc, g++ and etc.
     - libiconv (1.17)
     - gmp (6.3.0)
     - vapoursynth (R63)
-    - libsdl2 (2.28.2)
+    - libsdl2 (2.28.4)
     - mbedtls (3.5.0)
     - ~~libressl (3.1.5)~~
 
