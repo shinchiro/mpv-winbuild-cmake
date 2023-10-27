@@ -232,7 +232,7 @@ to update flags which will pass on gcc, g++ and etc.
     - speex (1.2.1)
     - ogg (1.3.5)
     - lzo (2.10)
-    - libopenmpt (0.7.2)
+    - libopenmpt (0.7.3)
     - libiconv (1.17)
     - gmp (6.3.0)
     - vapoursynth (R63)
