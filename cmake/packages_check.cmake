@@ -17,7 +17,8 @@ elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
     set(ffmpeg_extra_libs "-fopenmp -lc++")
     set(ffmpeg_hardcoded_tables "--enable-hardcoded-tables")
     set(mpv_lto_mode "-Db_lto_mode=thin")
-    set(mpv_copy_debug COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.pdb ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/mpv.pdb)
+    set(mpv_copy_debug COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.pdb ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/mpv.pdb
+                       COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libmpv-2.pdb ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/libmpv-2.pdb)
 endif()
 
 if(TARGET_CPU STREQUAL "x86_64")
