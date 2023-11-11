@@ -3,8 +3,9 @@ PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
 TARGET=@TARGET_ARCH@
 FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
-FLAGS="$FLAGS -fuse-ld=@TARGET_ARCH@-lld"
+FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
 FLAGS="$FLAGS @cfi@ @opt@"
 FLAGS="$FLAGS -gcodeview"
+FLAGS="$FLAGS -Wno-error=unused-command-line-argument -Wno-unused-command-line-argument"
 
-"$PROG" $FLAGS "$@" @CLANG_FLAGS@ @linker@
+"$PROG" "$@" $FLAGS @CLANG_FLAGS@ @linker@
