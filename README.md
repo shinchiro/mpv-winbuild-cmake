@@ -266,6 +266,16 @@ Place the file on specified location to limit ram & cpu usage to avoid getting s
     swap=0
     pageReporting=false
 
+### VA-API Driver
+
+To use VA-API Win32:
+
+    ninja mesa
+
+`vaon12_drv_video.dll` will be generated in `install/$TARGET_ARCH/bin`
+
+this is a layered driver running on top of Direct3D 12 API. Deployment instructions have been [documented by Microsoft](https://devblogs.microsoft.com/directx/video-acceleration-api-va-api-now-available-on-windows/#how-do-i-get-it).
+
 ## Acknowledgements
 
 This project was originally created and maintained [lachs0r](https://github.com/lachs0r/mingw-w64-cmake). Since then, it heavily modified to suit my own need.
