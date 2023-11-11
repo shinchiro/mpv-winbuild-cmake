@@ -31,6 +31,8 @@ list(APPEND ep
     fribidi
     expat
     nettle
+    mbedtls
+    libxml2
     libarchive
     freetype2
     libudfread
@@ -42,8 +44,6 @@ list(APPEND ep
     fontconfig
     libunibreak
     libass
-    mbedtls
-    libxml2
     libvpl
     amf-headers
     avisynth-headers
