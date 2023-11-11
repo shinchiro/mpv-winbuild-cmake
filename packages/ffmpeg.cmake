@@ -43,6 +43,7 @@ ExternalProject_Add(ffmpeg
         uavs3d
         davs2
         rubberband
+        libva
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -109,7 +110,7 @@ ExternalProject_Add(ffmpeg
         --disable-doc
         --disable-ffplay
         --disable-ffprobe
-        --disable-vaapi
+        --enable-vaapi
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
