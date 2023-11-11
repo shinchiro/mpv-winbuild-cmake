@@ -225,6 +225,7 @@ to update flags which will pass on gcc, g++ and etc.
     - zlib (zlib-ng)
     - expat
     - openssl
+    - mesa
 
 - Zip
     - bzip (1.0.8)
