@@ -25,6 +25,7 @@ ExternalProject_Add(libjxl
     COMMAND bash -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
     COMMAND bash -c "ln -s ${src_highway} <SOURCE_DIR>/third_party/highway"
     COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+        -G Ninja
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DSHARE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -50,8 +51,8 @@ ExternalProject_Add(libjxl
         -DJPEGXL_ENABLE_AVX512_ZEN4=ON
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -msse2 ${libjxl_unaligned_vector}'
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS}     -msse2 ${libjxl_unaligned_vector}'
-    BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
-    INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
