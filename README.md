@@ -223,9 +223,9 @@ to update flags which will pass on gcc, g++ and etc.
     - rav1e
     - libaribcaption
     - zlib (zlib-ng)
+    - expat
 
 - Zip
-    - expat (2.5.0)
     - bzip (1.0.8)
     - xvidcore (1.3.7)
     - vorbis (1.3.7)

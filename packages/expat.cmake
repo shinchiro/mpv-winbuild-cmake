@@ -1,14 +1,26 @@
 ExternalProject_Add(expat
-    URL https://github.com/libexpat/libexpat/releases/download/R_2_5_0/expat-2.5.0.tar.xz
-    URL_HASH SHA256=ef2420f0232c087801abf705e89ae65f6257df6b7931d37846a193ef2e8cdcbe
-    DOWNLOAD_DIR ${SOURCE_LOCATION}
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    GIT_REPOSITORY https://github.com/libexpat/libexpat.git
+    SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR>/expat -B<BINARY_DIR>
+        -G Ninja
+        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+        -DCMAKE_FIND_ROOT_PATH=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+        -DBUILD_SHARED_LIBS=OFF
+        -DEXPAT_BUILD_DOCS=OFF
+        -DEXPAT_BUILD_EXAMPLES=OFF
+        -DEXPAT_BUILD_FUZZERS=OFF
+        -DEXPAT_BUILD_TESTS=OFF
+        -DEXPAT_BUILD_TOOLS=OFF
+        -DEXPAT_BUILD_PKGCONFIG=ON
+        -DCMAKE_BUILD_TYPE=Release
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+force_rebuild_git(expat)
 cleanup(expat install)
