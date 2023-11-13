@@ -4,5 +4,6 @@ TARGET=@TARGET_ARCH@
 FLAGS="-m @ld_m_flag@"
 FLAGS="$FLAGS @opt@"
 FLAGS="$FLAGS --pdb="
+FLAGS="$FLAGS -O3 -Xlink=-opt:lldlto=3 -Xlink=-opt:lldltocgo=3"
 
-"$PROG" $FLAGS "$@" @LLD_FLAGS@
+"$PROG" "$@" $FLAGS @LLD_FLAGS@
