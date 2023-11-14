@@ -1,6 +1,5 @@
-get_property(src_brotli TARGET brotli PROPERTY _EP_SOURCE_DIR)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libjxl.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libjxl.pc @ONLY)
 get_property(src_libjpeg TARGET libjpeg PROPERTY _EP_SOURCE_DIR)
-get_property(src_highway TARGET highway PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libjxl
     DEPENDS
         lcms2
@@ -14,16 +13,11 @@ ExternalProject_Add(libjxl
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG main
-    GIT_RESET d3a69dbeef78f036969a2500f949f931df857e17
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/libjpeg-turbo"
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/highway"
-    COMMAND bash -c "ln -s ${src_brotli} <SOURCE_DIR>/third_party/brotli"
     COMMAND bash -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
-    COMMAND bash -c "ln -s ${src_highway} <SOURCE_DIR>/third_party/highway"
     COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
@@ -49,10 +43,15 @@ ExternalProject_Add(libjxl
         -DJPEGXL_ENABLE_SJPEG=OFF
         -DJPEGXL_ENABLE_AVX512=ON
         -DJPEGXL_ENABLE_AVX512_ZEN4=ON
+        -DJPEGXL_ENABLE_AVX512_SPR=ON
+        -DJPEGXL_FORCE_SYSTEM_LCMS2=ON
+        -DJPEGXL_FORCE_SYSTEM_BROTLI=ON
+        -DJPEGXL_FORCE_SYSTEM_HWY=ON
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -msse2 ${libjxl_unaligned_vector}'
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS}     -msse2 ${libjxl_unaligned_vector}'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+            COMMAND bash -c "cp ${CMAKE_CURRENT_BINARY_DIR}/libjxl.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libjxl.pc"
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
