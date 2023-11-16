@@ -1,0 +1,13 @@
+prefix=@MINGW_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libjxl
+Description: Loads and saves JPEG XL files
+Version: 0.9.0
+Requires.private: libhwy libbrotlienc libbrotlidec
+Libs: -L${libdir} -ljxl
+Libs.private: -lm -llcms2
+Cflags: -I${includedir}
+Cflags.private: -DJXL_STATIC_DEFINE
