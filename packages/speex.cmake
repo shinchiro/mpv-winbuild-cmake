@@ -4,7 +4,7 @@ ExternalProject_Add(speex
     URL_HASH SHA256=4b44d4f2b38a370a2d98a78329fefc56a0cf93d1c1be70029217baae6628feea
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC}
+    CONFIGURE_COMMAND ${EXEC} CONF=1
         LIBS=-lwinmm
         autoreconf -fi && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}

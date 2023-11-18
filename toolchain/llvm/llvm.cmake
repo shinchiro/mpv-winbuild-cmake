@@ -7,7 +7,7 @@ ExternalProject_Add(llvm
     GIT_REMOTE_NAME origin
     GIT_TAG release/17.x
     LIST_SEPARATOR ,
-    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR>/llvm -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR>/llvm -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}

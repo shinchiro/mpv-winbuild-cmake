@@ -9,7 +9,7 @@ ExternalProject_Add(libzvbi
     GIT_TAG main
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/libzvbi-*.patch
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/autogen.sh && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared

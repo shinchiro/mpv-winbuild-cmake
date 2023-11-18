@@ -11,7 +11,7 @@ ExternalProject_Add(libvpx
     GIT_REMOTE_NAME origin
     GIT_TAG main
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} CONF=1 CROSS=${TARGET_ARCH}- <SOURCE_DIR>/configure
         --extra-cflags='-fno-asynchronous-unwind-tables'
         --target=${libvpx_target}
         --prefix=${MINGW_INSTALL_PREFIX}

@@ -5,7 +5,7 @@ ExternalProject_Add(avisynth-headers
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !distrib"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}

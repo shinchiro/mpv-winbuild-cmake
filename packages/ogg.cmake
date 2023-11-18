@@ -3,7 +3,7 @@ ExternalProject_Add(ogg
     URL_HASH SHA256=c4d91be36fc8e54deae7575241e03f4211eb102afb3fc0775fbbc1b740016705
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} autoreconf -fi && <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} CONF=1 autoreconf -fi && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
