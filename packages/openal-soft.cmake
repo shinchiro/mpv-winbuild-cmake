@@ -2,6 +2,9 @@ ExternalProject_Add(openal-soft
     GIT_REPOSITORY https://github.com/kcat/openal-soft.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_REMOTE_NAME origin
+    GIT_TAG master
+    GIT_RESET d44112514d84614af6c16ec48d9450706da3b335
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
