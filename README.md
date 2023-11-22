@@ -225,6 +225,7 @@ to update flags which will pass on gcc, g++ and etc.
     - zlib (zlib-ng)
     - expat
     - openssl
+    - mesa
 
 - Zip
     - bzip (1.0.8)
@@ -264,6 +265,16 @@ Place the file on specified location to limit ram & cpu usage to avoid getting s
     memory=4GB
     swap=0
     pageReporting=false
+
+### VA-API Driver
+
+To use VA-API Win32:
+
+    ninja mesa
+
+`vaon12_drv_video.dll` will be generated in `install/$TARGET_ARCH/bin`
+
+this is a layered driver running on top of Direct3D 12 API. Deployment instructions have been [documented by Microsoft](https://devblogs.microsoft.com/directx/video-acceleration-api-va-api-now-available-on-windows/#how-do-i-get-it).
 
 ## Acknowledgements
 
