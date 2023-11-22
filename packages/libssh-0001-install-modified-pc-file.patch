@@ -1,23 +1,24 @@
-From a12f0be65454ff1864807f11e84e78eed51e64ee Mon Sep 17 00:00:00 2001
+From febc1d713c91a51d79483ebabf77df63ef0cc86e Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 24 Sep 2022 07:00:18 +0800
 Subject: [PATCH] Install modified .pc file
 
 ---
- libssh.pc.cmake | 2 ++
- 1 file changed, 2 insertions(+)
+ libssh.pc.cmake | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/libssh.pc.cmake b/libssh.pc.cmake
-index f288b94..5728e43 100644
+index f288b94d..1673fb7a 100644
 --- a/libssh.pc.cmake
 +++ b/libssh.pc.cmake
-@@ -7,4 +7,6 @@ Name: @PROJECT_NAME@
+@@ -7,4 +7,7 @@ Name: @PROJECT_NAME@
  Description: The SSH Library
  Version: @PROJECT_VERSION@
  Libs: -L${libdir} -lssh
-+Libs.private: -lmbedtls -lmbedx509 -lmbedcrypto -lz -lwsock32 -lbcrypt -lws2_32 -lpthread
++Libs.private: -lwsock32 -lpthread
++Requires.private: libssl
  Cflags: -I${includedir}
 +Cflags.private: -DLIBSSH_STATIC
 -- 
-2.37.2
+2.42.1
 

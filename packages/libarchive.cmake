@@ -6,7 +6,7 @@ ExternalProject_Add(libarchive
         xz
         zlib
         nettle
-        mbedtls
+        openssl
         libxml2
     GIT_REPOSITORY https://github.com/libarchive/libarchive.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -20,7 +20,7 @@ ExternalProject_Add(libarchive
         -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
         -DBUILD_SHARED_LIBS=OFF
         -DENABLE_ZLIB=ON
-        -DENABLE_MBEDTLS=ON
+        -DENABLE_OPENSSL=ON
         -DENABLE_BZip2=ON
         -DENABLE_ICONV=ON
         -DENABLE_LIBXML2=ON
@@ -32,7 +32,6 @@ ExternalProject_Add(libarchive
         -DENABLE_CNG=OFF
         -DENABLE_CAT=OFF
         -DENABLE_TAR=OFF
-        -DENABLE_OPENSSL=OFF
         -DENABLE_WERROR=OFF
         -DBUILD_TESTING=OFF
         -DENABLE_TEST=OFF
