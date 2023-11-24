@@ -5,6 +5,7 @@ ExternalProject_Add(libarchive
         lzo
         xz
         zlib
+        zstd
         nettle
         openssl
         libxml2
@@ -20,6 +21,7 @@ ExternalProject_Add(libarchive
         -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
         -DBUILD_SHARED_LIBS=OFF
         -DENABLE_ZLIB=ON
+        -DENABLE_ZSTD=ON
         -DENABLE_OPENSSL=ON
         -DENABLE_BZip2=ON
         -DENABLE_ICONV=ON

@@ -223,6 +223,7 @@ to update flags which will pass on gcc, g++ and etc.
     - rav1e
     - libaribcaption
     - zlib (zlib-ng)
+    - zstd
     - expat
     - openssl
     - mesa

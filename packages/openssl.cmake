@@ -7,6 +7,7 @@ endif()
 ExternalProject_Add(openssl
     DEPENDS
         zlib
+        zstd
         brotli
     GIT_REPOSITORY https://github.com/openssl/openssl.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -24,6 +25,7 @@ ExternalProject_Add(openssl
         no-whirlpool
         no-filenames
         no-camellia
+        enable-zstd
         no-capieng
         no-shared
         no-rmd160
