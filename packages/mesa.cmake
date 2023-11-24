@@ -30,7 +30,7 @@ ExternalProject_Add(mesa
         -Dgallium-drivers=d3d12
         -Dgallium-va=enabled
         -Dgallium-d3d12-video=true
-        -Dvideo-codecs=all
+        -Dvideo-codecs=h264dec,h264enc,h265dec,h265enc,vc1dec,av1dec,av1enc,vp9dec
         -Dmin-windows-version=10
         -Dvulkan-drivers=
         -Dtools=
