@@ -20,4 +20,5 @@ ExternalProject_Add(lcms2
 )
 
 force_rebuild_git(lcms2)
+force_meson_configure(lcms2)
 cleanup(lcms2 install)
