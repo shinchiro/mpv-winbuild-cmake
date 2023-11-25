@@ -2,7 +2,7 @@ ExternalProject_Add(freetype2
     DEPENDS
         libpng
         zlib
-    GIT_REPOSITORY https://gitlab.com/shinchiro/freetype2.git
+    GIT_REPOSITORY https://github.com/freetype/freetype.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_SUBMODULES ""
