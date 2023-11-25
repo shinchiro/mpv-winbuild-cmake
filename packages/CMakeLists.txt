@@ -7,6 +7,7 @@ list(APPEND ep
     uchardet
     rubberband
     zlib
+    zstd
     bzip2
     libjpeg
     lcms2
