@@ -230,11 +230,11 @@ to update flags which will pass on gcc, g++ and etc.
     - libsdl2
     - speex
     - vorbis
+    - ogg
 
 - Zip
     - bzip (1.0.8)
     - xvidcore (1.3.7)
-    - ogg (1.3.5)
     - lzo (2.10)
     - libopenmpt (0.7.3)
     - libiconv (1.17)
