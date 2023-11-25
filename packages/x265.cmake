@@ -26,7 +26,7 @@ ExternalProject_Add(x265-10bit
         x265
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -46,7 +46,7 @@ ExternalProject_Add(x265-10bit-lib
         x265
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -69,7 +69,7 @@ ExternalProject_Add(x265-12bit-lib
         x265
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -110,7 +110,7 @@ ExternalProject_Add(x265-8+10bit
     LIST_SEPARATOR ^^
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
-              COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+              COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
                         -G Ninja
                         -DCMAKE_BUILD_TYPE=Release
                         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
@@ -140,7 +140,7 @@ ExternalProject_Add(x265-8+10+12bit
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
               COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main12.a <BINARY_DIR>
-              COMMAND ${EXEC} cmake -H${source_dir}/source -B<BINARY_DIR>
+              COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
                         -G Ninja
                         -DCMAKE_BUILD_TYPE=Release
                         -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}

@@ -7,7 +7,7 @@ ExternalProject_Add(mingw-w64-crt
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${MINGW_SRC}
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/mingw-w64-crt/configure
+    CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/mingw-w64-crt/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}

@@ -3,7 +3,7 @@ ExternalProject_Add(llvm-compiler-rt
     UPDATE_COMMAND ""
     SOURCE_DIR ${LLVM_SRC}
     LIST_SEPARATOR ,
-    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR>/compiler-rt -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR>/compiler-rt -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}/lib/clang/${clang_version}

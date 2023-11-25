@@ -6,4 +6,8 @@ FLAGS="$FLAGS @opt@"
 FLAGS="$FLAGS --pdb="
 FLAGS="$FLAGS -O3 -Xlink=-opt:lldlto=3 -Xlink=-opt:lldltocgo=3"
 
-"$PROG" "$@" $FLAGS @LLD_FLAGS@
+if [ "$CONF" == "1" ]; then
+    SKIP_OPT="-O0 -Xlink=-opt:lldlto=0 -Xlink=-opt:lldltocgo=0 --no-gc-sections --no-guard-cf"
+fi
+
+"$PROG" "$@" $FLAGS @LLD_FLAGS@ $SKIP_OPT

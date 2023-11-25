@@ -11,7 +11,7 @@ ExternalProject_Add(lame
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     PATCH_COMMAND chmod 755 ${DEBPATCH} && ${DEBPATCH}
-    CONFIGURE_COMMAND ${EXEC} autoreconf -fi && <SOURCE_DIR>/configure
+    CONFIGURE_COMMAND ${EXEC} CONF=1 autoreconf -fi && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared

@@ -7,7 +7,7 @@ ExternalProject_Add(davs2
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/linux && ./configure
+    CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/linux && CONF=1 ./configure
         --host=${TARGET_ARCH}
         --cross-prefix=${TARGET_CPU}-w64-mingw32-
         --prefix=${MINGW_INSTALL_PREFIX}

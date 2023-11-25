@@ -6,7 +6,7 @@ ExternalProject_Add(llvm-openmp
     SOURCE_DIR ${LLVM_SRC}
     LIST_SEPARATOR ,
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/llvm/llvm-openmp-0001-support-static-lib.patch
-    CONFIGURE_COMMAND ${EXEC} cmake -H<SOURCE_DIR>/openmp -B<BINARY_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR>/openmp -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
