@@ -229,11 +229,11 @@ to update flags which will pass on gcc, g++ and etc.
     - mesa
     - libsdl2
     - speex
+    - vorbis
 
 - Zip
     - bzip (1.0.8)
     - xvidcore (1.3.7)
-    - vorbis (1.3.7)
     - ogg (1.3.5)
     - lzo (2.10)
     - libopenmpt (0.7.3)
