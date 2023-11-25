@@ -1,16 +1,27 @@
 ExternalProject_Add(libsdl2
-    URL https://www.libsdl.org/release/SDL2-2.28.4.tar.gz
-    URL_HASH SHA256=888B8C39F36AE2035D023D1B14AB0191EB1D26403C3CF4D4D5EDE30E66A4942C
-    DOWNLOAD_DIR ${SOURCE_LOCATION}
-    CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/autogen.sh && <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
-        --enable-static
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
-    BUILD_IN_SOURCE 1
+    DEPENDS
+        vulkan
+        libiconv
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    SOURCE_DIR ${SOURCE_LOCATION}
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    GIT_TAG main
+    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+        -G Ninja
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
+        -DBUILD_SHARED_LIBS=OFF
+        -DSDL_VULKAN=ON
+        -DSDL_TEST=OFF
+        -DSDL_TEST_LIBRARY=OFF
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
+force_rebuild_git(libsdl2)
 cleanup(libsdl2 install)

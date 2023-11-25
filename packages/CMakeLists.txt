@@ -58,10 +58,8 @@ list(APPEND ep
     brotli
     openssl
     libssh
-    libsdl2
     libsrt
     libarchive
-    libopenmpt
     highway
     libjxl
     uavs3d
@@ -74,6 +72,8 @@ list(APPEND ep
     glslang
     vulkan-header
     vulkan
+    libsdl2
+    libopenmpt
     shaderc
     glad
     fast_float
