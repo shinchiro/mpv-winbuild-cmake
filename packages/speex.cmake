@@ -1,6 +1,7 @@
 ExternalProject_Add(speex
     DEPENDS
-        ogg 
+        ogg
+        amd-fftw
     GIT_REPOSITORY https://github.com/xiph/speex.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -11,6 +12,7 @@ ExternalProject_Add(speex
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
+        -Dfft=gpl-fftw3
         -Dtest-binaries=disabled
         -Dtools=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>

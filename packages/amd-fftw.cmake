@@ -24,6 +24,7 @@ ExternalProject_Add(amd-fftw
         --with-our-malloc
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
+            COMMAND bash -c "cp ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/fftw3.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/fftw3f.pc"
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
