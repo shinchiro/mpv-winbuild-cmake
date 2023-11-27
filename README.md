@@ -157,92 +157,181 @@ to update flags which will pass on gcc, g++ and etc.
 
 ## Information about packages
 
-- Git/Hg
-    - ANGLE
-    - FFmpeg
-    - xz
-    - x264
-    - x265 (multilib)
-    - uchardet
-    - rubberband
-    - opus
-    - openal-soft
-    - mpv
-    - luajit
-    - libvpx
-    - libwebp
-    - libpng
-    - libsoxr
-    - libzimg (with graphengine)
-    - libdvdread
-    - libdvdnav
-    - libdvdcss
-    - libudfread
-    - libbluray
-    - libunibreak
-    - libass
-    - libmysofa
-    - lcms2
-    - lame
-    - harfbuzz
-    - game-music-emu
-    - freetype2
-    - flac
-    - opus-tools
-    - mujs
-    - libarchive
-    - libjpeg
-    - shaderc (with spirv-headers, spirv-tools, glslang)
-    - vulkan-header
-    - vulkan
-    - spirv-cross
-    - fribidi
-    - ~~nettle~~
-    - curl
-    - libxml2
-    - amf-headers
-    - avisynth-headers
-    - nvcodec-headers
-    - libvpl
-    - megasdk (with termcap, readline, cryptopp, sqlite, libuv, libsodium)
-    - aom
-    - dav1d
-    - libplacebo (with glad, fast_float, xxhash)
-    - fontconfig
-    - libbs2b
-    - libssh
-    - libsrt
-    - libjxl (with brotli, highway)
-    - libmodplug
-    - uavs3d
-    - davs2
-    - libsixel
-    - libdovi
-    - libva
-    - libzvbi
-    - rav1e
-    - libaribcaption
-    - zlib (zlib-ng)
-    - zstd
-    - expat
-    - openssl
-    - mesa
-    - libsdl2
-    - speex
-    - vorbis
-    - ogg
-    - bzip2
+|                 |               |                |                   |                    |
+|-----------------|---------------|----------------|-------------------|--------------------|
+| amf-headers     | ANGLE         | aom            | avisynth-headers  | brotli             | 
+| bzip2           | dav1d         | davs2          | expat             | fast_float         | 
+| FFmpeg          | fontconfig    | freetype2      | fribidi           | glad               |
+| glslang         | graphengine   | harfbuzz       | highway           | lame               |
+| lcms2           | libarchive    | libaribcaption | libass            | libbluray          |
+| libbs2b         | libdovi       | libdvdcss      | libdvdnav         | libdvdread         |
+| libiconv (1.17) | libjpeg       | libmodplug     | libmysofa         | libopenmpt (0.7.3) |
+| libplacebo      | libpng        | libsdl2        | libsoxr           | libsrt             |
+| libssh          | libudfread    | libunibreak    | libva             | libvpl             |
+| libvpx          | libwebp       | libxml2        | libzimg           | libzvbi            |
+| luajit          | lzo (2.10)    | mujs           | mpv               | nvcodec-headers    |
+| ogg             | openal-soft   | openssl        | opus              | rav1e              |
+| rubberband      | shaderc       | speex          | spirv-cross       | spirv-headers      |
+| spirv-tools     | uavs3d        | uchardet       | vapoursynth (R65) | vorbis             |
+| vulkan          | vulkan-header | x264           | x265              | xvidcore (1.3.7)   |
+| xxhash          | xz            | zlib-ng        | zstd              |                    |
 
-- Zip
-    - xvidcore (1.3.7)
-    - lzo (2.10)
-    - libopenmpt (0.7.3)
-    - libiconv (1.17)
-    - ~~gmp (6.3.0)~~
-    - vapoursynth (R65/R63)
-    - ~~mbedtls (3.5.0)~~
-    - ~~libressl (3.1.5)~~
+<details><summary>Dependency Graph</summary>
 
+```mermaid
+graph LR
+    amf-headers --> FFmpeg
+    ANGLE --> mpv
+    aom --> FFmpeg
+    avisynth-headers --> FFmpeg
+    brotli --> freetype2
+    brotli --> libjxl
+    brotli --> openssl
+    bzip2 --> FFmpeg
+    bzip2 --> libarchive
+    dav1d --> FFmpeg
+    davs2 --> FFmpeg
+    expat --> fontconfig
+    expat --> libarchive
+    fast_float --> libplacebo
+    FFmpeg --> mpv
+    fontconfig --> FFmpeg
+    fontconfig --> libass
+    freetype2 --> fontconfig
+    freetype2 --> harfbuzz
+    freetype2 --> libaribcaption
+    freetype2 --> libass
+    freetype2 --> libbluray
+    fribidi --> FFmpeg
+    fribidi --> libass
+    glad --> libplacebo
+    glslang --> shaderc
+    graphengine --> libzimg
+    harfbuzz --> FFmpeg
+    harfbuzz --> libass
+    highway --> libjxl
+    lame --> FFmpeg
+    lcms2 --> FFmpeg
+    lcms2 --> libjxl
+    lcms2 --> mpv
+    libarchive --> mpv
+    libaribcaption --> FFmpeg
+    libass --> FFmpeg
+    libass --> mpv
+    libbluray --> FFmpeg
+    libbluray --> mpv
+    libbs2b --> FFmpeg
+    libdovi --> libplacebo
+    libdvdcss --> libdvdread
+    libdvdnav --> mpv
+    libiconv["libiconv (1.17)"] --> fontconfig
+    libiconv["libiconv (1.17)"] --> libarchive
+    libiconv["libiconv (1.17)"] --> libass
+    libiconv["libiconv (1.17)"] --> libsdl2
+    libiconv["libiconv (1.17)"] --> libxml2
+    libiconv["libiconv (1.17)"] --> libzvbi
+    libiconv["libiconv (1.17)"] --> luajit
+    libiconv["libiconv (1.17)"] --> mpv
+    libjpeg --> lcms2
+    libjpeg --> libjxl
+    libjpeg --> libwebp
+    libjpeg --> mpv
+    libmodplug --> FFmpeg
+    libmysofa --> FFmpeg
+    libopenmpt["libopenmpt (0.7.3)"] --> FFmpeg
+    libplacebo --> FFmpeg
+    libplacebo --> mpv
+    libpng --> freetype2
+    libpng --> harfbuzz
+    libpng --> libjxl
+    libpng --> libsixel
+    libpng --> libwebp
+    libpng --> libzvbi
+    libsdl2 --> FFmpeg
+    libsdl2 --> mpv
+    libsdl2 --> openal-soft
+    libsoxr --> FFmpeg
+    libsrt --> FFmpeg
+    libssh --> FFmpeg
+    libudfread --> libbluray
+    libunibreak --> libass
+    libva --> FFmpeg
+    libva --> mpv
+    libvpl --> FFmpeg
+    libvpx --> FFmpeg
+    libwebp --> FFmpeg
+    libxml2 --> FFmpeg
+    libxml2 --> libarchive
+    libzimg --> FFmpeg
+    libzimg --> mpv
+    libzvbi --> FFmpeg
+    luajit --> mpv
+    lzo["lzo (2.10)"] --> libarchive
+    mujs --> mpv
+    nvcodec-headers --> FFmpeg
+    nvcodec-headers --> mpv
+    ogg --> libopenmpt["libopenmpt (0.7.3)"]
+    ogg --> speex
+    ogg --> vorbis
+    openal-soft --> mpv
+    openssl --> FFmpeg
+    openssl --> libarchive
+    openssl --> libaribcaption
+    openssl --> libsrt
+    openssl --> libssh
+    opus --> FFmpeg
+    rav1e --> FFmpeg
+    rubberband --> FFmpeg
+    rubberband --> mpv
+    shaderc --> FFmpeg
+    shaderc --> libplacebo
+    shaderc --> mpv
+    speex --> FFmpeg
+    spirv-cross --> libplacebo
+    spirv-cross --> mpv
+    spirv-headers --> shaderc
+    spirv-tools --> shaderc
+    uavs3d --> FFmpeg
+    uchardet --> mpv
+    vapoursynth["vapoursynth (R65)"] --> FFmpeg
+    vapoursynth["vapoursynth (R65)"] --> mpv
+    vorbis --> FFmpeg
+    vorbis --> libopenmpt["libopenmpt (0.7.3)"]
+    vulkan --> FFmpeg
+    vulkan --> libplacebo
+    vulkan --> libsdl2
+    vulkan --> mesa
+    vulkan --> mpv
+    vulkan-header --> FFmpeg
+    vulkan-header --> libplacebo
+    vulkan-header --> libsdl2
+    vulkan-header --> mesa
+    vulkan-header --> mpv
+    vulkan-header --> vulkan
+    x264 --> FFmpeg
+    x265 --> FFmpeg
+    xvidcore["xvidcore (1.3.7)"] --> FFmpeg
+    xxhash --> dav1d
+    xxhash --> libplacebo
+    xz --> libarchive
+    zlib-ng --> FFmpeg
+    zlib-ng --> fontconfig
+    zlib-ng --> freetype2
+    zlib-ng --> lcms2
+    zlib-ng --> libarchive
+    zlib-ng --> libjxl
+    zlib-ng --> libmysofa
+    zlib-ng --> libopenmpt["libopenmpt (0.7.3)"]
+    zlib-ng --> libpng
+    zlib-ng --> libssh
+    zlib-ng --> libwebp
+    zlib-ng --> libxml2
+    zlib-ng --> mpv
+    zlib-ng --> openssl
+    zstd --> libarchive
+    zstd --> openssl
+```
+</details>
 
 ### WSL workaround
 
