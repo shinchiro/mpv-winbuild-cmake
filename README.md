@@ -231,9 +231,9 @@ to update flags which will pass on gcc, g++ and etc.
     - speex
     - vorbis
     - ogg
+    - bzip2
 
 - Zip
-    - bzip (1.0.8)
     - xvidcore (1.3.7)
     - lzo (2.10)
     - libopenmpt (0.7.3)
