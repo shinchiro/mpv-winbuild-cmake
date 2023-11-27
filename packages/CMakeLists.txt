@@ -34,6 +34,7 @@ list(APPEND ep
     nettle
     mbedtls
     libxml2
+    brotli
     freetype2
     libudfread
     libbluray
@@ -55,7 +56,6 @@ list(APPEND ep
     libwebp
     vapoursynth
     libbs2b
-    brotli
     openssl
     libssh
     libsrt
