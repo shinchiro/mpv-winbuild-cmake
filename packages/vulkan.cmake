@@ -19,7 +19,7 @@ ExternalProject_Add(vulkan
         -DENABLE_WERROR=OFF
         -DUSE_MASM=OFF
         -DUSE_GAS=OFF
-        -DBUILD_STATIC_LOADER=ON
+        -DAPPLE_STATIC_LOADER=ON
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -D__STDC_FORMAT_MACROS -DSTRSAFE_NO_DEPRECATE -Dparse_number=cjson_parse_number'
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS -fpermissive'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
