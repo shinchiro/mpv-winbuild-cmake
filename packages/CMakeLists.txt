@@ -28,7 +28,6 @@ list(APPEND ep
     libdvdnav
     libiconv
     luajit
-    openal-soft
     fribidi
     expat
     nettle
@@ -73,6 +72,7 @@ list(APPEND ep
     vulkan-header
     vulkan
     libsdl2
+    openal-soft
     libopenmpt
     shaderc
     glad
