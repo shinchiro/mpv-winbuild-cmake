@@ -1,20 +1,20 @@
-From 7fa8a3b8af1d0281d74bc279eb1cd317751ddd3d Mon Sep 17 00:00:00 2001
+From e5b9b6b03ef91618aebcd2c452c6078813f7bcb0 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Tue, 10 Oct 2023 21:45:54 +0800
+Date: Wed, 29 Nov 2023 17:38:59 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
 
 ---
- loader/CMakeLists.txt       |  9 +++++----
+ loader/CMakeLists.txt       | 24 ++++++------------------
  loader/loader.h             |  2 ++
  loader/loader.rc.in         |  4 ++++
  loader/loader_windows.c     |  4 ++++
- loader/vk_loader_platform.h |  3 ++-
+ loader/vk_loader_platform.h |  9 +++------
  loader/vulkan_own.pc.in     | 11 +++++++++++
- 6 files changed, 28 insertions(+), 5 deletions(-)
+ 6 files changed, 30 insertions(+), 24 deletions(-)
  create mode 100644 loader/vulkan_own.pc.in
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 0e7d01efc..3012efa20 100644
+index 39f4f6c..fa18832 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -21,8 +21,9 @@ include(CheckIncludeFile)
@@ -28,7 +28,7 @@ index 0e7d01efc..3012efa20 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -310,7 +311,7 @@ if(USE_ASSEMBLY_FALLBACK)
+@@ -311,7 +312,7 @@ if(USE_ASSEMBLY_FALLBACK)
      endif()
  endif()
  
@@ -37,26 +37,41 @@ index 0e7d01efc..3012efa20 100644
      add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
      target_link_libraries(loader-opt PUBLIC loader_specific_options)
      add_dependencies(loader-opt loader_asm_gen_files)
-@@ -356,7 +357,7 @@ if(WIN32)
+@@ -357,21 +358,8 @@ if(WIN32)
      add_dependencies(vulkan loader_asm_gen_files)
  
  else()
--    if(APPLE AND BUILD_STATIC_LOADER)
-+    if(BUILD_STATIC_LOADER)
-         add_library(vulkan STATIC ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
-         target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
-     else()
-@@ -449,7 +450,7 @@ endif()
+-    if(APPLE)
+-        option(APPLE_STATIC_LOADER "Build a loader that can be statically linked. Intended for Chromium usage/testing.")
+-        mark_as_advanced(APPLE_STATIC_LOADER)
+-    endif()
+-
+-    if(APPLE_STATIC_LOADER)
+-        add_library(vulkan STATIC)
+-        target_compile_definitions(vulkan PRIVATE APPLE_STATIC_LOADER)
+-
+-        message(WARNING "The APPLE_STATIC_LOADER option has been set. Note that this will only work on MacOS and is not supported "
+-                "or tested as part of the loader. Use it at your own risk.")
+-    else()
+-        add_library(vulkan SHARED)
+-    endif()
+-
++    add_library(vulkan STATIC)
++    target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
+     target_sources(vulkan PRIVATE ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
+ 
+     add_dependencies(vulkan loader_asm_gen_files)
+@@ -464,7 +452,7 @@ endif()
  target_link_libraries(vulkan PRIVATE Vulkan::Headers)
  add_library(Vulkan::Loader ALIAS vulkan)
  
--if (APPLE AND BUILD_STATIC_LOADER)
-+if (APPLE OR BUILD_STATIC_LOADER)
+-if (APPLE_STATIC_LOADER)
++if (BUILD_STATIC_LOADER)
      # TLDR: This feature only exists at the request of Google for Chromium. No other project should use this!
      message(NOTICE "Apple STATIC lib: it will be built but not installed, and vulkan.pc and VulkanLoaderConfig.cmake won't be generated!")
      return()
 diff --git a/loader/loader.h b/loader/loader.h
-index 93346a9d7..6e3f86746 100644
+index 93346a9..6e3f867 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -70,7 +85,7 @@ index 93346a9d7..6e3f86746 100644
  static inline VkPhysicalDevice loader_unwrap_physical_device(VkPhysicalDevice physicalDevice) {
      struct loader_physical_device_tramp *phys_dev = (struct loader_physical_device_tramp *)physicalDevice;
 diff --git a/loader/loader.rc.in b/loader/loader.rc.in
-index 0dc4227da..e7fcea06f 100644
+index 0dc4227..e7fcea0 100644
 --- a/loader/loader.rc.in
 +++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
@@ -86,7 +101,7 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index ad65f9e60..2de7d5fef 100644
+index ad65f9e..2de7d5f 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -47,6 +47,8 @@
@@ -115,10 +130,10 @@ index ad65f9e60..2de7d5fef 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 08e2d301b..226abb496 100644
+index 1a84a7d..67848c6 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -69,6 +69,7 @@
+@@ -69,15 +69,12 @@
  #include <io.h>
  #include <shlwapi.h>
  #include <direct.h>
@@ -126,18 +141,28 @@ index 08e2d301b..226abb496 100644
  #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
-@@ -227,7 +228,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+ 
+-#if defined(APPLE_STATIC_LOADER) && !defined(__APPLE__)
+-#error "APPLE_STATIC_LOADER can only be defined on Apple platforms!"
+-#endif
+-
+-#if defined(APPLE_STATIC_LOADER)
++#if defined(BUILD_STATIC_LOADER)
+ #define LOADER_EXPORT
+ #elif defined(__GNUC__) && __GNUC__ >= 4
+ #define LOADER_EXPORT __attribute__((visibility("default")))
+@@ -226,7 +223,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
--#if defined(__APPLE__) && defined(BUILD_STATIC_LOADER)
+-#if defined(APPLE_STATIC_LOADER)
 +#if defined(BUILD_STATIC_LOADER)
  static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*func)(void)) {
      assert(func != NULL);
      assert(ctl != NULL);
 diff --git a/loader/vulkan_own.pc.in b/loader/vulkan_own.pc.in
 new file mode 100644
-index 000000000..ed2f30bb2
+index 0000000..ed2f30b
 --- /dev/null
 +++ b/loader/vulkan_own.pc.in
 @@ -0,0 +1,11 @@
@@ -153,5 +178,5 @@ index 000000000..ed2f30bb2
 +Libs.private: -lshlwapi -lcfgmgr32
 +Cflags: -I${includedir}
 -- 
-2.42.1
+2.42.0
 
