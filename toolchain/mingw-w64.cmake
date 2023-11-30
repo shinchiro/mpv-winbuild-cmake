@@ -3,6 +3,7 @@ ExternalProject_Add(mingw-w64
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
+    GIT_RESET 7ea930ba381ace6f19f7cfa59596f6fe49949aa6
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
