@@ -1,48 +1,51 @@
 ExternalProject_Add(ffmpeg
     DEPENDS
+        ${ffmpeg_x265}
         amf-headers
+        aom
         avisynth-headers
-        nvcodec-headers
         bzip2
-        lame
-        lcms2
-        openssl
-        libssh
-        libsrt
-        libass
-        libbluray
-        libmodplug
-        libpng
-        libsoxr
-        libbs2b
-        libvpx
-        libwebp
-        libzimg
-        libmysofa
+        dav1d
+        davs2
         fontconfig
         harfbuzz
-        opus
-        speex
-        vorbis
-        x264
-        ${ffmpeg_x265}
-        xvidcore
-        libxml2
-        libvpl
-        libopenmpt
-        libjxl
-        shaderc
-        libplacebo
-        libzvbi
+        lame
+        lcms2
         libaribcaption
-        aom
-        rav1e
-        dav1d
-        vapoursynth
-        uavs3d
-        davs2
-        rubberband
+        libass
+        libbluray
+        libbs2b
+        libjxl
+        libmodplug
+        libmysofa
+        libopenmpt
+        libplacebo
+        libsdl2
+        libsoxr
+        libsrt
+        libssh
         libva
+        libvpl
+        libvpx
+        libwebp
+        libxml2
+        libzimg
+        libzvbi
+        nvcodec-headers
+        openssl
+        opus
+        rav1e
+        rubberband
+        shaderc
+        speex
+        uavs3d
+        vapoursynth
+        vorbis
+        vulkan
+        x264
+        xvidcore
+        xz
+        zlib
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -53,67 +56,79 @@ ExternalProject_Add(ffmpeg
         --arch=${TARGET_CPU}
         --target-os=mingw32
         --pkg-config-flags=--static
-        --enable-cross-compile
-        --enable-runtime-cpudetect
-        ${ffmpeg_hardcoded_tables}
-        --enable-gpl
-        --enable-version3
-        --enable-nonfree
-        --enable-postproc
+        --disable-decoder=libaom_av1
+        --disable-doc
+        --disable-ffplay
+        --disable-ffprobe
+        --disable-shared
+        --disable-vdpau
+        --disable-videotoolbox
+        --enable-amf
         --enable-avisynth
-        --enable-vapoursynth
+        --enable-bzlib
+        --enable-cross-compile
+        --enable-cuda-llvm
+        --enable-cuvid
+        --enable-d3d11va
+        --enable-dxva2
+        --enable-gpl
+        --enable-iconv
+        --enable-lcms2
+        --enable-libaom
+        --enable-libaribcaption
         --enable-libass
         --enable-libbluray
+        --enable-libbs2b
+        --enable-libdav1d
+        --enable-libdavs2
+        --enable-libfontconfig
         --enable-libfreetype
         --enable-libfribidi
-        --enable-libfontconfig
         --enable-libharfbuzz
+        --enable-libjxl
         --enable-libmodplug
-        --enable-libopenmpt
         --enable-libmp3lame
-        --enable-lcms2
+        --enable-libmysofa
+        --enable-libopenmpt
         --enable-libopus
+        --enable-libplacebo
+        --enable-librav1e
+        --enable-librubberband
+        --enable-libshaderc
         --enable-libsoxr
         --enable-libspeex
+        --enable-libsrt
+        --enable-libssh
+        --enable-libuavs3d
         --enable-libvorbis
-        --enable-libbs2b
-        --enable-librubberband
+        --enable-libvpl
         --enable-libvpx
         --enable-libwebp
         --enable-libx264
         --enable-libx265
-        --enable-libaom
-        --enable-librav1e
-        --enable-libdav1d
-        --enable-libdavs2
-        --enable-libuavs3d
+        --enable-libxml2
         --enable-libxvid
         --enable-libzimg
-        --enable-openssl
-        --enable-libxml2
-        --enable-libmysofa
-        --enable-libssh
-        --enable-libsrt
-        --enable-libvpl
-        --enable-libjxl
-        --enable-libplacebo
-        --enable-libshaderc
         --enable-libzvbi
-        --enable-libaribcaption
-        --enable-cuda-llvm
-        --enable-cuvid
+        --enable-lzma
+        --enable-mediafoundation
+        --enable-nonfree
         --enable-nvdec
         --enable-nvenc
-        --enable-amf
-        --disable-doc
-        --disable-ffplay
-        --disable-ffprobe
+        --enable-openssl
+        --enable-postproc
+        --enable-pthreads
+        --enable-runtime-cpudetect
+        --enable-sdl2
+        --enable-static
         --enable-vaapi
-        --disable-vdpau
-        --disable-videotoolbox
-        --disable-decoder=libaom_av1
+        --enable-vapoursynth
+        --enable-version3
+        --enable-vulkan
+        --enable-zlib
         --extra-cflags='-Wno-error=int-conversion'
         "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
+        ${ffmpeg_hardcoded_tables}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
