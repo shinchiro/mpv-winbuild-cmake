@@ -2,57 +2,89 @@ ExternalProject_Add(mpv
     DEPENDS
         angle-headers
         ffmpeg
-        fribidi
         lcms2
         libarchive
         libass
         libdvdnav
-        libdvdread
         libiconv
         libjpeg
-        libpng
-        luajit
-        rubberband
-        uchardet
-        openal-soft
-        mujs
-        vulkan
-        shaderc
+        libbluray
         libplacebo
-        spirv-cross
-        vapoursynth
         libsdl2
+        libva
+        libzimg
+        luajit
+        mujs
+        nvcodec-headers
+        openal-soft
+        rubberband
+        shaderc
+        spirv-cross
+        uchardet
+        vapoursynth
+        vulkan
+        vulkan-header
+        zlib
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson <BINARY_DIR> <SOURCE_DIR>
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --libdir=${MINGW_INSTALL_PREFIX}/lib
         --cross-file=${MESON_CROSS}
         --default-library=shared
+        --libdir=${MINGW_INSTALL_PREFIX}/lib
         --prefer-static
-        -Ddebug=true
-        -Db_ndebug=true
-        -Doptimization=3
+        --prefix=${MINGW_INSTALL_PREFIX}
         -Db_lto=true
+        -Db_ndebug=true
+        -Ddebug=true
+        -Doptimization=3
         ${mpv_lto_mode}
-        -Dlibmpv=true
-        -Dpdf-build=enabled
-        -Dlua=enabled
-        -Djavascript=enabled
-        -Dsdl2=enabled
-        -Dlibarchive=enabled
-        -Dlibbluray=enabled
+        -Dcuda-hwaccel=enabled
+        -Dcuda-interop=enabled
+        -Dd3d-hwaccel=enabled
+        -Dd3d11=enabled
+        -Dd3d9-hwaccel=enabled
+        -Ddirect3d=enabled
         -Ddvdnav=enabled
-        -Duchardet=enabled
-        -Drubberband=enabled
-        -Dlcms2=enabled
-        -Dopenal=enabled
-        -Dspirv-cross=enabled
-        -Dvulkan=enabled
-        -Dvapoursynth=enabled
+        -Ddvdnav=enabled
+        -Ddvdnav=enabled
+        -Degl-angle-lib=enabled
         -Degl-angle=enabled
+        -Degl=enabled
+        -Dgl-dxinterop-d3d9=enabled
+        -Dgl-dxinterop=enabled
+        -Dgl-win32=enabled
+        -Dgl=enabled
+        -Diconv=enabled
+        -Djavascript=enabled
+        -Djpeg=enabled
+        -Dlcms2=enabled
+        -Dlibarchive=enabled
+        -Dlibavdevice=enabled
+        -Dlibbluray=enabled
+        -Dlibmpv=true
+        -Dlua=enabled
+        -Dopenal=enabled
+        -Dpdf-build=enabled
+        -Drubberband=enabled
+        -Dsdl2-audio=enabled
+        -Dsdl2-gamepad=enabled
+        -Dsdl2-video=enabled
+        -Dsdl2=enabled
+        -Dshaderc=enabled
+        -Dspirv-cross=enabled
+        -Duchardet=enabled
+        -Dvaapi-win32=enabled
+        -Dvaapi=enabled
+        -Dvapoursynth=enabled
+        -Dvector=enabled
+        -Dvulkan-interop=enabled
+        -Dvulkan=enabled
+        -Dwasapi=enabled
+        -Dwin32-threads=enabled
+        -Dzimg=enabled
+        -Dzlib=enabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
