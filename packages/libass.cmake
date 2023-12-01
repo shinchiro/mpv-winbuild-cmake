@@ -1,10 +1,10 @@
 ExternalProject_Add(libass
     DEPENDS
-        harfbuzz
+        fontconfig
         freetype2
         fribidi
+        harfbuzz
         libiconv
-        fontconfig
         libunibreak
     GIT_REPOSITORY https://github.com/libass/libass.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -14,6 +14,7 @@ ExternalProject_Add(libass
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
+        --enable-fontconfig
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
