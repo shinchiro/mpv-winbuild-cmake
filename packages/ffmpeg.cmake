@@ -99,6 +99,7 @@ ExternalProject_Add(ffmpeg
         --enable-libplacebo
         --enable-libshaderc
         --enable-libzvbi
+        --enable-bzlib
         --enable-libaribcaption
         --enable-cuda-llvm
         --enable-cuvid
