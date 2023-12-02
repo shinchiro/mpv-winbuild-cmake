@@ -16,6 +16,7 @@ ExternalProject_Add(bzip2
         -DENABLE_TESTS=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+            COMMAND bash -c "mv ${MINGW_INSTALL_PREFIX}/lib/libbz2_static.a ${MINGW_INSTALL_PREFIX}/lib/libbz2.a"
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
