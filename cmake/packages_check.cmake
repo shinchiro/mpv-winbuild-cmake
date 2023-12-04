@@ -14,7 +14,7 @@ elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
     set(vapoursynth_script_pkgconfig_libs "-lVSScript -Wl,-delayload=VSScript.dll")
     set(vapoursynth_manual_install_copy_lib COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.lib ${MINGW_INSTALL_PREFIX}/lib/VSScript.lib
                                             COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.lib ${MINGW_INSTALL_PREFIX}/lib/VapourSynth.lib)
-    set(ffmpeg_extra_libs "-fopenmp -lc++")
+    set(ffmpeg_extra_libs "-lc++")
     set(ffmpeg_hardcoded_tables "--enable-hardcoded-tables")
     set(mpv_lto_mode "-Db_lto_mode=thin")
     set(mpv_copy_debug COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/mpv.pdb ${CMAKE_CURRENT_BINARY_DIR}/mpv-debug/mpv.pdb)
