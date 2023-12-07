@@ -36,7 +36,6 @@ ExternalProject_Add(openssl
         threads
         no-docs
         no-apps
-        no-quic
         no-ocsp
         no-ssl3
         no-cmac
@@ -64,7 +63,6 @@ ExternalProject_Add(openssl
         ${ec}
     BUILD_COMMAND ${MAKE} build_sw
     INSTALL_COMMAND ${MAKE} install_sw
-    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
