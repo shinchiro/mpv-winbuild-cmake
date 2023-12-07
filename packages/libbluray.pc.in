@@ -1,0 +1,11 @@
+prefix=@MINGW_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libbluray
+Description: library supporting Blu-ray playback
+Version: 1.3.4
+Libs: -L${libdir} -lbluray
+Libs.private:  -ludfread -lfreetype -lbz2 -lpng -lbrotlidec -lbrotlicommon -lz -lgdi32
+Cflags: -I${includedir}

@@ -1,0 +1,12 @@
+prefix=@MINGW_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libjxl_cms
+Description: CMS support library for libjxl
+Version: 0.10.0
+Libs: -L${libdir} -ljxl_cms -llcms2
+Libs.private: -lm
+Cflags: -I${includedir}
+Cflags.private: -DJXL_CMS_STATIC_DEFINE

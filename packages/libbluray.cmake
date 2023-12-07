@@ -1,3 +1,4 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libbluray.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libbluray.pc @ONLY)
 ExternalProject_Add(libbluray
     DEPENDS
         libudfread
@@ -18,6 +19,7 @@ ExternalProject_Add(libbluray
         --without-fontconfig
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
+            COMMAND bash -c "cp ${CMAKE_CURRENT_BINARY_DIR}/libbluray.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libbluray.pc"
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
