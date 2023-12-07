@@ -4,9 +4,10 @@ TARGET=@TARGET_ARCH@
 FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
-FLAGS="$FLAGS @cfi@ @opt@"
+FLAGS="$FLAGS @clang_cfi@ @opt@"
 FLAGS="$FLAGS -gcodeview"
-FLAGS="$FLAGS -Wno-unused-command-line-argument"
+FLAGS="$FLAGS -Wno-unused-command-line-argument -Wno-macro-redefined"
+FLAGS="$FLAGS -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00"
 
 if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" = "ON" ]; then
     LTO_FLAGS="-flto=thin"
