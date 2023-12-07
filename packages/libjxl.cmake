@@ -1,4 +1,3 @@
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libjxl.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libjxl.pc @ONLY)
 get_property(src_libjpeg TARGET libjpeg PROPERTY _EP_SOURCE_DIR)
 ExternalProject_Add(libjxl
     DEPENDS
@@ -51,7 +50,6 @@ ExternalProject_Add(libjxl
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS}     -msse2 ${libjxl_unaligned_vector}'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
-            COMMAND bash -c "cp ${CMAKE_CURRENT_BINARY_DIR}/libjxl.pc ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libjxl.pc"
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
