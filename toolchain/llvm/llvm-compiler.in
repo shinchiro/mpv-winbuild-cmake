@@ -16,12 +16,15 @@ if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" = "ON" ]; then
 fi
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-O0 -fno-lto"
+    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
     if [ "@ENABLE_CCACHE@" = "ON" ]; then
         CCACHE="ccache"
     fi
 fi
 
-$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS @CLANG_FLAGS@ @linker@ $SKIP_OPT
+if [ "$GC" != "0" ]; then
+    CLANG_GC="-fdata-sections -ffunction-sections -fno-unwind-tables -fomit-frame-pointer"
+fi
 
+$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
