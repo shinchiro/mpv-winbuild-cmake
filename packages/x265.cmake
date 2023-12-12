@@ -35,6 +35,7 @@ ExternalProject_Add(x265-10bit
         -DBUILD_SHARED_LIBS=OFF
         ${high_bit_depth}
         -DENABLE_SHARED=OFF
+        -DENABLE_CLI=OFF
         -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
@@ -121,6 +122,7 @@ ExternalProject_Add(x265-8+10bit
                         -DEXTRA_LINK_FLAGS=-L.
                         -DLINKED_10BIT=ON
                         -DENABLE_SHARED=OFF
+                        -DENABLE_CLI=OFF
                         -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
           COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
@@ -152,6 +154,7 @@ ExternalProject_Add(x265-8+10+12bit
                         -DLINKED_10BIT=ON
                         -DLINKED_12BIT=ON
                         -DENABLE_SHARED=OFF
+                        -DENABLE_CLI=OFF
                         -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
           COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
