@@ -1,0 +1,13 @@
+prefix=@MINGW_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libssh
+Description: The SSH Library
+Version: 0.10.90
+Libs: -L${libdir} -lssh
+Libs.private: -lwsock32 -lpthread
+Requires.private: libssl
+Cflags: -I${includedir}
+Cflags.private: -DLIBSSH_STATIC
