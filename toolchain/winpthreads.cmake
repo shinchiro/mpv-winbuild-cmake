@@ -9,8 +9,8 @@ ExternalProject_Add(winpthreads
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
         --enable-static
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install-strip
+    BUILD_COMMAND ${MAKE} LTO=0
+    INSTALL_COMMAND ${MAKE} LTO=0 install-strip
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 

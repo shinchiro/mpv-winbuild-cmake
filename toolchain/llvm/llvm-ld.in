@@ -1,9 +1,9 @@
 #!/bin/sh
 PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
 TARGET=@TARGET_ARCH@
+POLICY="cache_size_bytes=1g:prune_interval=1m"
 FLAGS="-m @ld_m_flag@"
-FLAGS="$FLAGS @opt@"
-FLAGS="$FLAGS --pdb="
+FLAGS="$FLAGS --pdb= --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto -Xlink=-lldltocachepolicy:$POLICY"
 FLAGS="$FLAGS -O3 -Xlink=-opt:lldlto=3 -Xlink=-opt:lldltocgo=3"
 
 if [ "$CONF" == "1" ]; then

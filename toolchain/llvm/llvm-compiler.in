@@ -8,8 +8,16 @@ FLAGS="$FLAGS @cfi@ @opt@"
 FLAGS="$FLAGS -gcodeview"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
 
+if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" = "ON" ]; then
+    LTO_FLAGS="-flto=thin"
+    if [ "@LLD_LTO_ALL_THREADS@" = "ON" ] && [ "$LTO_JOB" != "1" ]; then
+        LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
+    fi
+fi
+
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-O0 -fno-lto"
 fi
 
-"$PROG" "$@" $FLAGS @CLANG_FLAGS@ @linker@ $SKIP_OPT
+"$PROG" $LTO_FLAGS "$@" $FLAGS @CLANG_FLAGS@ @linker@ $SKIP_OPT
+
