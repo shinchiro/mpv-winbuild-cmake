@@ -234,7 +234,6 @@ to update flags which will pass on gcc, g++ and etc.
     - bzip2
 
 - Zip
-    - xvidcore (1.3.7)
     - lzo (2.10)
     - libopenmpt (0.7.3)
     - libiconv (1.17)
