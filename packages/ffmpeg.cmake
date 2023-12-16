@@ -43,6 +43,7 @@ ExternalProject_Add(ffmpeg
         davs2
         rubberband
         libva
+        game-music-emu
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -71,6 +72,7 @@ ExternalProject_Add(ffmpeg
         --enable-libmodplug
         --enable-libopenmpt
         --enable-libmp3lame
+        --enable-libgme
         --enable-lcms2
         --enable-libopus
         --enable-libsoxr
