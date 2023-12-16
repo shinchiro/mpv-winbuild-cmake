@@ -13,7 +13,6 @@ ExternalProject_Add(speex
         --default-library=static
         -Dtest-binaries=disabled
         -Dtools=disabled
-        -Dc_args='-msse'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
