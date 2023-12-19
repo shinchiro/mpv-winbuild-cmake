@@ -15,7 +15,7 @@ index f288b94d..1673fb7a 100644
  Description: The SSH Library
  Version: @PROJECT_VERSION@
  Libs: -L${libdir} -lssh
-+Libs.private: -lwsock32 -lpthread
++Libs.private: -lwsock32 -liphlpapi -lpthread
 +Requires.private: libssl
  Cflags: -I${includedir}
 +Cflags.private: -DLIBSSH_STATIC

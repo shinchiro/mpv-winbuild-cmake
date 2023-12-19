@@ -2,7 +2,7 @@ ExternalProject_Add(libssh
     DEPENDS
         zlib
         openssl
-    GIT_REPOSITORY https://git.libssh.org/projects/libssh.git
+    GIT_REPOSITORY https://gitlab.com/libssh/libssh-mirror.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
@@ -14,11 +14,8 @@ ExternalProject_Add(libssh
         -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
         -DBUILD_SHARED_LIBS=OFF
         -DWITH_ZLIB=ON
-        -DWITH_OPENSSL=ON
-        -DMBEDTLS_INCLUDE_DIR=${MINGW_INSTALL_PREFIX}/include
         -DBUILD_STATIC_LIB=ON
         -DWITH_EXAMPLES=OFF
-        -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -DHAVE_COMPILER__FUNC__=1'
     BUILD_COMMAND ${MAKE} -C <BINARY_DIR>
     INSTALL_COMMAND ${MAKE} -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
