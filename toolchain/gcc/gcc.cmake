@@ -24,6 +24,7 @@ ExternalProject_Add(gcc
         --disable-sjlj-exceptions
     BUILD_COMMAND make -j${MAKEJOBS} all-gcc
     INSTALL_COMMAND make install-strip-gcc
+            COMMAND bash -c "ninja -C ${mpv-cross_BINARY_DIR} gcc-wrapper"
     STEP_TARGETS download install
     LOG_DOWNLOAD 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
@@ -36,6 +37,7 @@ ExternalProject_Add_Step(gcc final
         rustup
     COMMAND ${MAKE}
     COMMAND ${MAKE} install-strip
+    COMMAND bash -c "ninja -C ${mpv-cross_BINARY_DIR} gcc-wrapper"
     WORKING_DIRECTORY <BINARY_DIR>
     LOG 1
 )
