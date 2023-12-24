@@ -6,6 +6,7 @@ ExternalProject_Add(gcc-wrapper
     BUILD_COMMAND ""
     INSTALL_COMMAND bash -c "rm -r <TMP_DIR>"
     ALWAYS ON
+    COMMENT "Setting up target directories and symlinks"
 )
 
 foreach(compiler g++ c++ cpp gcc)
