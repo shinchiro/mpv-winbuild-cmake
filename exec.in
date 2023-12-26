@@ -6,7 +6,5 @@ export RUSTUP_HOME="@RUSTUP_LOCATION@/.rustup"
 export CARGO_HOME="@RUSTUP_LOCATION@/.cargo"
 export LD_PRELOAD="@MALLOC@"
 export CCACHE_DIR="@MINGW_INSTALL_PREFIX@/ccache"
-export CCACHE_MAXSIZE="500M"
-export CCACHE_DIRECT="true"
 
 eval $*

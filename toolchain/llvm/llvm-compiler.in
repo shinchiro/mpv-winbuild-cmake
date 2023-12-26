@@ -19,7 +19,7 @@ if [ "$CONF" == "1" ]; then
     SKIP_OPT="-O0 -fno-lto"
 else
     if [ "@ENABLE_CCACHE@" = "ON" ]; then
-        CCACHE="ccache @CCACHE_OPTIONS@"
+        CCACHE="ccache"
     fi
 fi
 
