@@ -21,13 +21,13 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 
 These packages need to be installed first before compiling mpv:
 
-    pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang lld libc++ libc++abi python-pip curl lib32-glib2
+    pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang lld libc++ libc++abi python-pip curl lib32-glib2 mimalloc ccache
 
     pip3 install rst2pdf mako jsonschema
 
 ### Ubuntu Linux / WSL (Windows 10)
 
-    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm nasm automake pkgconf libtool libtool-bin gcc-multilib g++-multilib clang lld libc++1 libc++abi1 libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python3-pip docbook2x unzip p7zip-full curl
+    apt-get install build-essential checkinstall bison flex gettext git mercurial subversion ninja-build gyp cmake yasm nasm automake pkgconf libtool libtool-bin gcc-multilib g++-multilib clang lld libc++1 libc++abi1 libgmp-dev libmpfr-dev libmpc-dev libgcrypt-dev gperf ragel texinfo autopoint re2c asciidoc python3-pip docbook2x unzip p7zip-full curl mimalloc ccache
 
     pip3 install rst2pdf meson mako jsonschema
 
@@ -68,8 +68,8 @@ Example:
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 \
     -DGCC_ARCH=x86-64-v3 \
     -DALWAYS_REMOVE_BUILDFILES=ON \
-    -DSINGLE_SOURCE_LOCATION="/home/shinchiro/packages" \
-    -DRUSTUP_LOCATION="/home/shinchiro/install_rustup" \
+    -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
+    -DRUSTUP_LOCATION="/home/user/install_rustup" \
     -G Ninja -B build64 -S mpv-winbuild-cmake
 
 This cmake command will create `build64` folder for `x86_64-w64-mingw32`. Set `-DTARGET_ARCH=i686-w64-mingw32` for compiling 32-bit.
@@ -103,13 +103,13 @@ Supported target architecture (`TARGET_ARCH`) with clang is: `x86_64-w64-mingw32
 Example:
 
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 \
-    -DCMAKE_INSTALL_PREFIX="/home/anon/clang_root" \
+    -DCMAKE_INSTALL_PREFIX="/home/user/clang_root" \
     -DCOMPILER_TOOLCHAIN=clang \
     -DGCC_ARCH=x86-64-v3 \
     -DALWAYS_REMOVE_BUILDFILES=ON \
-    -DSINGLE_SOURCE_LOCATION="/home/anon/packages" \
-    -DRUSTUP_LOCATION="/home/anon/install_rustup" \
-    -DMINGW_INSTALL_PREFIX="/home/anon/build_x86_64_v3/x86_64_v3-w64-mingw32" \
+    -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
+    -DRUSTUP_LOCATION="/home/user/install_rustup" \
+    -DMINGW_INSTALL_PREFIX="/home/user/build_x86_64_v3/x86_64_v3-w64-mingw32" \
     -G Ninja -B build_x86_64_v3 -S mpv-winbuild-cmake
 
 The cmake command will create `clang_root` as clang sysroot where llvm tools installed. `build_x86_64` is build directory to compiling packages.
@@ -123,12 +123,12 @@ The cmake command will create `clang_root` as clang sysroot where llvm tools ins
 If you want add another target (ex. `i686-w64-mingw32`), change `TARGET_ARCH` and build folder.
 
     cmake -DTARGET_ARCH=i686-w64-mingw32 \
-    -DCMAKE_INSTALL_PREFIX="/home/anon/clang_root" \
+    -DCMAKE_INSTALL_PREFIX="/home/user/clang_root" \
     -DCOMPILER_TOOLCHAIN=clang \
     -DALWAYS_REMOVE_BUILDFILES=ON \
-    -DSINGLE_SOURCE_LOCATION="/home/anon/packages" \
-    -DRUSTUP_LOCATION="/home/anon/install_rustup" \
-    -DMINGW_INSTALL_PREFIX="/home/anon/build_i686/i686-w64-mingw32" \
+    -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
+    -DRUSTUP_LOCATION="/home/user/install_rustup" \
+    -DMINGW_INSTALL_PREFIX="/home/user/build_i686/i686-w64-mingw32" \
     -G Ninja -B build_i686 -S mpv-winbuild-cmake
     cd build_i686
     ninja llvm-clang # same as above
