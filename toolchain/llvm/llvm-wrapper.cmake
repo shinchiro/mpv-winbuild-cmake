@@ -7,7 +7,6 @@ ExternalProject_Add(llvm-wrapper
     BUILD_COMMAND ""
     COMMAND ${CMAKE_COMMAND} -E make_directory ${MINGW_INSTALL_PREFIX}
     COMMAND ${CMAKE_COMMAND} -E make_directory ${MINGW_INSTALL_PREFIX}/lib
-    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-as        ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-as
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-ar        ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-ar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-ar        ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-llvm-ar
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_INSTALL_PREFIX}/bin/llvm-ar        ${CMAKE_INSTALL_PREFIX}/bin/${TARGET_ARCH}-ranlib
@@ -27,7 +26,7 @@ ExternalProject_Add(llvm-wrapper
     COMMENT "Setting up target directories and symlinks"
 )
 
-foreach(compiler clang++ g++ c++ clang gcc)
+foreach(compiler clang++ g++ c++ clang gcc as)
     set(driver_mode "")
     set(clang_compiler "")
     set(linker "")
