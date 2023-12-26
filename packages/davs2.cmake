@@ -1,7 +1,3 @@
-if(${TARGET_CPU} MATCHES "i686")
-    set(disable_asm "--disable-asm")
-endif()
-
 ExternalProject_Add(davs2
     GIT_REPOSITORY https://github.com/pkuvcl/davs2.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -12,7 +8,7 @@ ExternalProject_Add(davs2
         --cross-prefix=${TARGET_CPU}-w64-mingw32-
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-cli
-        ${disable_asm}
+        ${davs2_asm}
     BUILD_COMMAND ${MAKE} -C <SOURCE_DIR>/build/linux
     INSTALL_COMMAND ${MAKE} -C <SOURCE_DIR>/build/linux install
     BUILD_IN_SOURCE 1

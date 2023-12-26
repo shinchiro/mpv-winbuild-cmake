@@ -13,6 +13,7 @@ ExternalProject_Add(mingw-w64-headers
         --with-default-msvcrt=ucrt
     BUILD_COMMAND ""
     INSTALL_COMMAND make install-strip
+            COMMAND bash -c "cp ${MINGW_INSTALL_PREFIX}/include/windows.h ${MINGW_INSTALL_PREFIX}/include/Windows.h"
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 

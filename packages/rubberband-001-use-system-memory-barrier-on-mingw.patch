@@ -1,0 +1,30 @@
+From c23ca9133fde3979bb6e4c201fdc088a279596ba Mon Sep 17 00:00:00 2001
+From: _ <>
+Date: Tue, 9 Jan 2024 00:00:00 +0000
+Subject: [PATCH] use-system-memory-barrier-on-mingw
+
+---
+ src/common/sysutils.cpp | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/src/common/sysutils.cpp b/src/common/sysutils.cpp
+index c5779b6..96294b5 100644
+--- a/src/common/sysutils.cpp
++++ b/src/common/sysutils.cpp
+@@ -169,13 +169,7 @@ void gettimeofday(struct timeval *tv, void * /* tz */)
+ #ifdef _WIN32
+ void system_memorybarrier()
+ {
+-#ifdef _MSC_VER
+     MemoryBarrier();
+-#else /* (mingw) */
+-    LONG Barrier = 0;
+-    __asm__ __volatile__("xchgl %%eax,%0 "
+-                         : "=r" (Barrier));
+-#endif
+ }
+ #else /* !_WIN32 */
+ #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)
+-- 
+2.43.0
+

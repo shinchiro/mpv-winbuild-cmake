@@ -1,9 +1,3 @@
-if(${TARGET_CPU} MATCHES "i686")
-    set(mingw "mingw")
-else()
-    set(mingw "mingw64")
-    set(ec "enable-ec_nistp_64_gcc_128")
-endif()
 ExternalProject_Add(openssl
     DEPENDS
         zlib
@@ -14,12 +8,15 @@ ExternalProject_Add(openssl
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
+    PATCH_COMMAND bash -c "cp ${CMAKE_CURRENT_SOURCE_DIR}/11-mingw-arm64.conf <SOURCE_DIR>/Configurations/"
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/Configure
         --cross-compile-prefix=${TARGET_ARCH}-
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=lib
         --release
         no-autoload-config
+        ${openssl_target}
+        ${openssl_ec_opt}
         no-ssl3-method
         enable-brotli
         no-whirlpool
@@ -32,7 +29,6 @@ ExternalProject_Add(openssl
         no-module
         no-legacy
         no-tests
-        ${mingw}
         threads
         no-docs
         no-apps
@@ -60,7 +56,6 @@ ExternalProject_Add(openssl
         no-dh
         no-bf
         zlib
-        ${ec}
     BUILD_COMMAND ${MAKE} build_sw
     INSTALL_COMMAND ${MAKE} install_sw
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

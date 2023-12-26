@@ -5,6 +5,7 @@ ExternalProject_Add(rubberband
     GIT_REMOTE_NAME origin
     GIT_TAG default
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/rubberband-*.patch
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib

@@ -1,6 +1,7 @@
 ExternalProject_Add(mpv
     DEPENDS
         angle-headers
+        ${nvcodec-headers}
         ffmpeg
         fribidi
         lcms2
@@ -20,7 +21,7 @@ ExternalProject_Add(mpv
         shaderc
         libplacebo
         spirv-cross
-        vapoursynth
+        ${vapoursynth}
         libsdl2
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -51,8 +52,8 @@ ExternalProject_Add(mpv
         -Dopenal=enabled
         -Dspirv-cross=enabled
         -Dvulkan=enabled
-        -Dvapoursynth=enabled
-        -Degl-angle=enabled
+        ${mpv_vapoursynth}
+        ${mpv_gl}
     BUILD_COMMAND ${EXEC} LTO_JOB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

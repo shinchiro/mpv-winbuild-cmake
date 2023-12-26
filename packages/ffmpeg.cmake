@@ -2,7 +2,7 @@ ExternalProject_Add(ffmpeg
     DEPENDS
         amf-headers
         avisynth-headers
-        nvcodec-headers
+        ${nvcodec-headers}
         bzip2
         lame
         lcms2
@@ -39,8 +39,8 @@ ExternalProject_Add(ffmpeg
         rav1e
         svtav1
         dav1d
-        vapoursynth
-        uavs3d
+        ${vapoursynth}
+        ${uavs3d}
         davs2
         rubberband
         libva
@@ -62,7 +62,7 @@ ExternalProject_Add(ffmpeg
         --enable-version3
         --enable-postproc
         --enable-avisynth
-        --enable-vapoursynth
+        ${ffmpeg_vapoursynth}
         --enable-libass
         --enable-libbluray
         --enable-libfreetype
@@ -88,7 +88,7 @@ ExternalProject_Add(ffmpeg
         --enable-libsvtav1
         --enable-libdav1d
         --enable-libdavs2
-        --enable-libuavs3d
+        ${ffmpeg_uavs3d}
         --enable-libxvid
         --enable-libzimg
         --enable-openssl
@@ -102,13 +102,10 @@ ExternalProject_Add(ffmpeg
         --enable-libshaderc
         --enable-libzvbi
         --enable-libaribcaption
-        --enable-cuda-llvm
-        --enable-cuvid
-        --enable-nvdec
-        --enable-nvenc
         --enable-amf
         --enable-openal
         --enable-opengl
+        ${ffmpeg_cuda}
         --disable-doc
         --disable-ffplay
         --disable-ffprobe
