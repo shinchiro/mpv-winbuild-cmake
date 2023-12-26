@@ -1,0 +1,28 @@
+From 5b81264242d784dd947d74d772ba874e0ebfd9f5 Mon Sep 17 00:00:00 2001
+From: _ <>
+Date: Mon, 15 Jan 2024 00:00:00 +0000
+Subject: [PATCH] cmake: fix
+
+---
+ src/CMakeLists.txt | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 63948769..881a5066 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -152,11 +152,6 @@ endif()
+ set(LJ_DEFINITIONS "")
+ 
+ set(LJ_ENABLE_LARGEFILE 1)
+-if (ANDROID AND (${CMAKE_SYSTEM_VERSION} LESS 21))
+-  set(LJ_ENABLE_LARGEFILE 0)
+-elseif (WIN32 OR MINGW)
+-  set(LJ_ENABLE_LARGEFILE 0)
+-endif()
+ 
+ if (LJ_ENABLE_LARGEFILE)
+   set(LJ_DEFINITIONS ${LJ_DEFINITIONS}
+-- 
+2.43.0
+

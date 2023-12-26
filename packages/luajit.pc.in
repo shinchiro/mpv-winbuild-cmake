@@ -9,11 +9,11 @@ prefix=@MINGW_INSTALL_PREFIX@
 multilib=lib
 exec_prefix=${prefix}
 libdir=${exec_prefix}/${multilib}
-libname=luajit-${abiver}
-includedir=${prefix}/include/luajit-${majver}.${minver}
+libname=luajit
+includedir=${prefix}/include/luajit
 
-INSTALL_LMOD=${prefix}/share/lua/${abiver}
-INSTALL_CMOD=${prefix}/${multilib}/lua/${abiver}
+INSTALL_LMOD=${prefix}/share/lua
+INSTALL_CMOD=${prefix}/${multilib}/lua
 
 Name: LuaJIT
 Description: Just-in-time compiler for Lua
