@@ -17,7 +17,11 @@ fi
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-O0 -fno-lto"
+else
+    if [ "@ENABLE_CCACHE@" = "ON" ]; then
+        CCACHE="ccache"
+    fi
 fi
 
-"$PROG" $LTO_FLAGS "$@" $FLAGS @CLANG_FLAGS@ @linker@ $SKIP_OPT
+$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS @CLANG_FLAGS@ @linker@ $SKIP_OPT
 
