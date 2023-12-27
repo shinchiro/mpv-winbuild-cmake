@@ -10,6 +10,7 @@ ExternalProject_Add(gcc
         --prefix=${CMAKE_INSTALL_PREFIX}
         --libdir=${CMAKE_INSTALL_PREFIX}/lib
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
+        --program-prefix=cross-
         --disable-multilib
         --enable-languages=c,c++
         --disable-nls
@@ -36,7 +37,6 @@ ExternalProject_Add_Step(gcc final
         rustup
     COMMAND ${MAKE}
     COMMAND ${MAKE} install-strip
-    COMMAND bash -c "ninja -C ${mpv-cross_BINARY_DIR} gcc-wrapper"
     WORKING_DIRECTORY <BINARY_DIR>
     LOG 1
 )

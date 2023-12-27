@@ -6,6 +6,7 @@ ExternalProject_Add(gcc-binutils
         --target=${TARGET_ARCH}
         --prefix=${CMAKE_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
+        --program-prefix=cross-
         --disable-multilib
         --disable-nls
         --disable-shared
