@@ -24,7 +24,7 @@ else
 fi
 
 if [ "$GC" != "0" ]; then
-    CLANG_GC="-fdata-sections -ffunction-sections -fno-unwind-tables -fomit-frame-pointer"
+    CLANG_GC="-fdata-sections -ffunction-sections"
 fi
 
 $CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
