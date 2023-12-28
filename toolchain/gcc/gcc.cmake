@@ -10,6 +10,7 @@ ExternalProject_Add(gcc
         --prefix=${CMAKE_INSTALL_PREFIX}
         --libdir=${CMAKE_INSTALL_PREFIX}/lib
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
+        --program-prefix=cross-
         --disable-multilib
         --enable-languages=c,c++
         --disable-nls

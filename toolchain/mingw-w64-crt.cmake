@@ -3,6 +3,7 @@ ExternalProject_Add(mingw-w64-crt
         mingw-w64
         mingw-w64-headers
         ${gcc_install}
+        ${gcc_wrapper}
         ${llvm_wrapper}
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""

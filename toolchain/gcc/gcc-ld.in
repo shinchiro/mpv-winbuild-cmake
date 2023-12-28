@@ -1,0 +1,13 @@
+#!/bin/sh
+PROG=@CMAKE_INSTALL_PREFIX@/bin/cross-ld.bfd
+FLAGS="-O3"
+
+if [ "$CONF" == "1" ]; then
+    SKIP_OPT="-O0 --no-gc-sections"
+fi
+
+if [ "$GC" != "0" ]; then
+    BFD_GC="--gc-sections"
+fi
+
+"$PROG" "$@" $FLAGS $BFD_GC @BFD_FLAGS@ $SKIP_OPT

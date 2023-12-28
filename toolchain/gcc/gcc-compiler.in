@@ -1,0 +1,17 @@
+#!/bin/sh
+PROG=@CMAKE_INSTALL_PREFIX@/bin/cross-@compiler@
+FLAGS="$FLAGS @opt@"
+
+if [ "$CONF" == "1" ]; then
+    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
+else
+    if [ "@ENABLE_CCACHE@" = "ON" ]; then
+        CCACHE="ccache"
+    fi
+fi
+
+if [ "$GC" != "0" ]; then
+    GCC_GC="-fdata-sections -ffunction-sections"
+fi
+
+$CCACHE "$PROG" "$@" $FLAGS $GCC_GC @GCC_FLAGS@ $SKIP_OPT
