@@ -1,7 +1,6 @@
 #!/bin/sh
 PROG=@CMAKE_INSTALL_PREFIX@/bin/cross-@compiler@
 FLAGS="$FLAGS @opt@"
-#FLAGS="$FLAGS -gcodeview"
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
