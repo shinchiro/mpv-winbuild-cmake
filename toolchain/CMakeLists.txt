@@ -2,6 +2,7 @@ set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download)
 include(${PROJECT_SOURCE_DIR}/cmake/toolchain_check.cmake)
 list(APPEND ep
     gcc-binutils
+    ${llvm_mingw}
     ${llvm_wrapper}
     ${gcc_wrapper}
     mingw-w64
