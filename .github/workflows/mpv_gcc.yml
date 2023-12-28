@@ -98,12 +98,12 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_$BIT -S $PWD
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DALWAYS_REMOVE_BUILDFILES=ON -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
       - name: Building toolchain
         run: |
-          if [[ ! "$(ls -A build_$BIT/install/bin)" ]]; then ninja -C build_$BIT gcc; fi
+          if [[ ! -f "build_$BIT/install/bin/cross-gcc" ]]; then ninja -C build_$BIT gcc && rm -rf build_$BIT/toolchain; fi
 
       - name: Building mpv
         id: build_mpv_step
