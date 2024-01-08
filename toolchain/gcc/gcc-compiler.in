@@ -10,8 +10,4 @@ else
     fi
 fi
 
-if [ "$GC" != "0" ]; then
-    GCC_GC="-fdata-sections -ffunction-sections"
-fi
-
-$CCACHE "$PROG" "$@" $FLAGS $GCC_GC @GCC_FLAGS@ $SKIP_OPT
+$CCACHE "$PROG" "$@" $FLAGS @GCC_FLAGS@ $SKIP_OPT
