@@ -10,12 +10,12 @@ ExternalProject_Add(libdovi
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${EXEC}
         CARGO_BUILD_TARGET_DIR=<BINARY_DIR>
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
         ${cargo_lto_rustflags}
         cargo cinstall
         --manifest-path <SOURCE_DIR>/dolby_vision/Cargo.toml
         --prefix ${MINGW_INSTALL_PREFIX}
-        --target ${TARGET_CPU}-pc-windows-gnu
+        --target ${TARGET_CPU}-pc-windows-${rust_target}
+        -Z build-std=std,panic_abort,core,alloc
         --release
         --library-type staticlib
     INSTALL_COMMAND ""
