@@ -21,7 +21,7 @@ elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
     if(CLANG_PACKAGES_LTO)
         set(cargo_lto_rustflags "CARGO_PROFILE_RELEASE_LTO=thin
                                  RUSTFLAGS='-C linker-plugin-lto -C embed-bitcode -C lto=thin'")
-        set(ffmpeg_mlp "--disable-decoder=mlp --disable-encoder=mlp --disable-demuxer=mlp --disable-muxer=mlp --disable-parser=mlp")
+        set(ffmpeg_lto "--enable-lto=thin")
         set(x264_lto "--enable-lto")
         if(GCC_ARCH_HAS_AVX)
             set(zlib_lto "-DFNO_LTO_AVAILABLE=OFF")
