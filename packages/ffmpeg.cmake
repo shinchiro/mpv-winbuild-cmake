@@ -58,7 +58,6 @@ ExternalProject_Add(ffmpeg
         ${ffmpeg_hardcoded_tables}
         --enable-gpl
         --enable-version3
-        --enable-nonfree
         --enable-postproc
         --enable-avisynth
         --enable-vapoursynth
