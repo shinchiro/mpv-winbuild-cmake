@@ -43,6 +43,7 @@ ExternalProject_Add(ffmpeg
         davs2
         rubberband
         libva
+        openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -104,6 +105,8 @@ ExternalProject_Add(ffmpeg
         --enable-nvdec
         --enable-nvenc
         --enable-amf
+        --enable-openal
+        --enable-opengl
         --disable-doc
         --disable-ffplay
         --disable-ffprobe

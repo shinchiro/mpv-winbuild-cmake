@@ -18,6 +18,7 @@ ExternalProject_Add(openal-soft
         -DALSOFT_TESTS=OFF
         -DALSOFT_BACKEND_PIPEWIRE=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+          COMMAND bash -c "echo 'Libs.private: -lole32' >> <BINARY_DIR>/openal.pc"
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
