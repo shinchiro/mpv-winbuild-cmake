@@ -3,21 +3,21 @@ ExternalProject_Add(opus
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
-        -DOPUS_STACK_PROTECTOR=OFF
-        -DOPUS_BUILD_PROGRAMS=OFF
-        -DBUILD_TESTING=OFF
-        -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=0'
+    CONFIGURE_COMMAND ${EXEC} CONF=1 meson <BINARY_DIR> <SOURCE_DIR>
+        --prefix=${MINGW_INSTALL_PREFIX}
+        --libdir=${MINGW_INSTALL_PREFIX}/lib
+        --cross-file=${MESON_CROSS}
+        --buildtype=release
+        --default-library=static
+        -Dhardening=false
+        -Dextra-programs=disabled
+        -Dtests=disabled
+        -Ddocs=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
 force_rebuild_git(opus)
+force_meson_configure(opus)
 cleanup(opus install)
