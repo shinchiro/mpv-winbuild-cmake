@@ -10,4 +10,8 @@ else
     fi
 fi
 
+if [ "@GCC_ARCH_HAS_AVX512@" = "ON" ]; then
+    FLAGS="$FLAGS -Wa,-muse-unaligned-vector-move"
+fi
+
 $CCACHE "$PROG" "$@" $FLAGS @GCC_FLAGS@ $SKIP_OPT
