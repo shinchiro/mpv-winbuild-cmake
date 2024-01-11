@@ -49,7 +49,6 @@ ExternalProject_Add(libjxl
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} ${libjxl_unaligned_vector}'
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS}     ${libjxl_unaligned_vector}'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-          COMMAND sed -i "s/Requires.private:/Requires.private: lcms2/g" <BINARY_DIR>/lib/libjxl_cms.pc
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
