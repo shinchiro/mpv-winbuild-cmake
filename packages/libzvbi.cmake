@@ -20,6 +20,8 @@ ExternalProject_Add(libzvbi
         --disable-bktr
         --disable-nls
         --disable-proxy
+        --disable-examples
+        --disable-tests
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
