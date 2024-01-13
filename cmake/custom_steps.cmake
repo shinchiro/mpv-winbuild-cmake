@@ -46,15 +46,13 @@ function(cleanup _name _last_step)
         COMMENT "Deleting build, install stamp files of ${_name} package"
     )
 
-    if(ALWAYS_REMOVE_BUILDFILES)
-        ExternalProject_Add_Step(${_name} postremovebuild
-            DEPENDEES ${_last_step}
-            COMMAND ${EXEC} ${remove_cmd}
-            ${COMMAND_FORCE_UPDATE}
-            LOG 1
-            COMMENT "Deleting build directory of ${_name} package after install"
-        )
-    endif()
+    ExternalProject_Add_Step(${_name} postremovebuild
+        DEPENDEES ${_last_step}
+        COMMAND ${EXEC} ${remove_cmd}
+        ${COMMAND_FORCE_UPDATE}
+        LOG 1
+        COMMENT "Deleting build directory of ${_name} package after install"
+    )
 
     ExternalProject_Add_Step(${_name} removebuild
         DEPENDEES fullclean
