@@ -4,7 +4,7 @@ ExternalProject_Add(libva
     GIT_CLONE_FLAGS "--filter=tree:0"
     PATCH_COMMAND ${EXEC} sed -i "s/shared_library/library/g" va/meson.build
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 meson <BINARY_DIR> <SOURCE_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
         --cross-file=${MESON_CROSS}
