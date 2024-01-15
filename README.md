@@ -230,6 +230,7 @@ to update flags which will pass on gcc, g++ and etc.
     - vorbis
     - ogg
     - bzip2
+    - libmediainfo (with zenlib)
 
 - Zip
     - xvidcore (1.3.7)
