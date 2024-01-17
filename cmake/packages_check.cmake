@@ -22,10 +22,8 @@ elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
         set(cargo_lto_rustflags "CARGO_PROFILE_RELEASE_LTO=thin
                                  RUSTFLAGS='-C linker-plugin-lto -C embed-bitcode -C lto=thin'")
         set(ffmpeg_lto "--enable-lto=thin")
-        set(x264_lto "--enable-lto")
-        if(GCC_ARCH_HAS_AVX)
-            set(zlib_lto "-DFNO_LTO_AVAILABLE=OFF")
-            # prevent zlib-ng from adding -fno-lto
+        if(NOT (GCC_ARCH_HAS_AVX OR (TARGET_CPU STREQUAL "aarch64")))
+            set(zlib_nlto "LTO=0")
         endif()
     endif()
 endif()

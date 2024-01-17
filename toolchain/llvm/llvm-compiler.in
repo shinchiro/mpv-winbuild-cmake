@@ -9,14 +9,17 @@ FLAGS="$FLAGS -gcodeview"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
 
 if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" = "ON" ]; then
-    LTO_FLAGS="-flto=thin"
+    LTO_FLAGS="-flto=thin -fno-split-lto-unit"
     if [ "@LLD_LTO_ALL_THREADS@" = "ON" ] && [ "$LTO_JOB" != "1" ]; then
         LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
+    fi
+    if [ "$WPD" != "0" ]; then
+        LTO_FLAGS="$LTO_FLAGS -fwhole-program-vtables"
     fi
 fi
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
+    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections -fno-whole-program-vtables"
 else
     if [ "@ENABLE_CCACHE@" = "ON" ]; then
         CCACHE="ccache"

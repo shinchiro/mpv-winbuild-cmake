@@ -14,9 +14,8 @@ ExternalProject_Add(x264
         --disable-ffms
         --disable-gpac
         --disable-lsmash
-        ${x264_lto}
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    BUILD_COMMAND ${MAKE} LTO=0
+    INSTALL_COMMAND ${MAKE} LTO=0 install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
