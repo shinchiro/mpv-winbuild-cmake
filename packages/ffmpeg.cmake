@@ -107,6 +107,8 @@ ExternalProject_Add(ffmpeg
         --enable-amf
         --enable-openal
         --enable-opengl
+        --enable-pthreads
+        --disable-w32threads
         --disable-doc
         --disable-ffplay
         --disable-ffprobe
