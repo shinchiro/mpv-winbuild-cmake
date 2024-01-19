@@ -4,7 +4,7 @@ TARGET=@TARGET_CPU@
 FLAGS="$FLAGS -target $TARGET-pc-windows-gnu -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
-FLAGS="$FLAGS @cfi@ @opt@"
+FLAGS="$FLAGS @opt@"
 FLAGS="$FLAGS -gcodeview -pthread"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
 
@@ -24,6 +24,10 @@ else
     if [ "@ENABLE_CCACHE@" = "ON" ]; then
         CCACHE="ccache"
     fi
+fi
+
+if [ "$CFI" != "0" ]; then
+    FLAGS="$FLAGS @cfi@"
 fi
 
 if [ "$GC" != "0" ]; then
