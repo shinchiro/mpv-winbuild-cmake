@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
 TARGET=@TARGET_ARCH@
 POLICY="cache_size_bytes=1g:prune_interval=1m"

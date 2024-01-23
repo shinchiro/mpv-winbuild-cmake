@@ -1,16 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/cross-@compiler@
 FLAGS="$FLAGS @opt@"
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
-    if [ "@ENABLE_CCACHE@" = "ON" ]; then
+    if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
     fi
 fi
 
-if [ "@GCC_ARCH_HAS_AVX512@" = "ON" ]; then
+if [ "@GCC_ARCH_HAS_AVX512@" == "ON" ]; then
     FLAGS="$FLAGS -Wa,-muse-unaligned-vector-move"
 fi
 
