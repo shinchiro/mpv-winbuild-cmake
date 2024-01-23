@@ -1,4 +1,6 @@
 ExternalProject_Add(rubberband
+    DEPENDS
+        libsamplerate
     GIT_REPOSITORY https://github.com/breakfastquay/rubberband.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -12,7 +14,7 @@ ExternalProject_Add(rubberband
         --buildtype=release
         --default-library=static
         -Dfft=builtin
-        -Dresampler=builtin
+        -Dresampler=libsamplerate
         -Djni=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
