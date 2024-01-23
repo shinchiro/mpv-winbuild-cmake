@@ -6,17 +6,20 @@ FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
 FLAGS="$FLAGS @cfi@ @opt@"
 FLAGS="$FLAGS -gcodeview"
-FLAGS="$FLAGS -Wno-unused-command-line-argument"
+FLAGS="$FLAGS -Wno-unused-command-line-argument -Wno-unused-function -Wno-backend-plugin"
 
 if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" == "ON" ]; then
-    LTO_FLAGS="-flto=thin"
+    LTO_FLAGS="-flto=thin -fno-split-lto-unit"
     if [ "@LLD_LTO_ALL_THREADS@" == "ON" ] && [ "$LTO_JOB" != "1" ]; then
         LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
+    fi
+    if [ "$WPD" != "0" ]; then
+        LTO_FLAGS="$LTO_FLAGS -fwhole-program-vtables"
     fi
 fi
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
+    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections -fno-whole-program-vtables"
 else
     if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
@@ -27,4 +30,12 @@ if [ "$GC" != "0" ]; then
     CLANG_GC="-fdata-sections -ffunction-sections"
 fi
 
-$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
+if [ "@CLANG_PACKAGES_PGO_GEN@" == "ON" ] && [ "$PGO" != "0" ]; then
+    PGO_FLAGS="-fprofile-generate="IRPGO_GEN/%p/" -fprofile-update=atomic"
+else
+    if [ "@CLANG_PACKAGES_PGO_USE@" == "ON" ] && [ "$PGO" != "0" ]; then
+        PGO_FLAGS="-fprofile-use=@CLANG_PACKAGES_PGO_USE_PATH@"
+    fi
+fi
+
+$CCACHE "$PROG" $LTO_FLAGS $PGO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
