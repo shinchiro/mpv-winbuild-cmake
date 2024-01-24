@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
 TARGET=@TARGET_ARCH@
 FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
@@ -8,9 +8,9 @@ FLAGS="$FLAGS @cfi@ @opt@"
 FLAGS="$FLAGS -gcodeview"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
 
-if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" = "ON" ]; then
+if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" == "ON" ]; then
     LTO_FLAGS="-flto=thin"
-    if [ "@LLD_LTO_ALL_THREADS@" = "ON" ] && [ "$LTO_JOB" != "1" ]; then
+    if [ "@LLD_LTO_ALL_THREADS@" == "ON" ] && [ "$LTO_JOB" != "1" ]; then
         LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
     fi
 fi
@@ -18,7 +18,7 @@ fi
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
-    if [ "@ENABLE_CCACHE@" = "ON" ]; then
+    if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
     fi
 fi

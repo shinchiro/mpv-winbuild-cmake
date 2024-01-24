@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/cross-ld.bfd
 FLAGS="-O3"
 
