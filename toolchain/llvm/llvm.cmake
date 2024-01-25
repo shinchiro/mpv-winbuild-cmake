@@ -38,4 +38,7 @@ ExternalProject_Add(llvm
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+force_rebuild_git(llvm)
+cleanup(llvm install)
 get_property(LLVM_SRC TARGET llvm PROPERTY _EP_SOURCE_DIR)
