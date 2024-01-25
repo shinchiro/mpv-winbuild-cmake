@@ -20,6 +20,11 @@ string(REGEX MATCH "^[^-]+" TARGET_CPU ${TARGET_ARCH})
 execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpmachine OUTPUT_VARIABLE HOST_ARCH)
 string(REGEX MATCH "^[^-]+" HOST_CPU ${HOST_ARCH})
 
+execute_process(COMMAND meson --version OUTPUT_VARIABLE MESON_VERSION)
+if(NOT MESON_VERSION GREATER_EQUAL 1.3)
+    message(FATAL_ERROR "Meson 1.3.0 or greater is required. Install it with pip instead.")
+endif()
+
 if(TARGET_CPU STREQUAL "x86_64")
     set(TARGET_CPU_FAMILY "x86_64")
     set(TARGET_BITS 64)
