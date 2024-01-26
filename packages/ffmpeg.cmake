@@ -114,6 +114,7 @@ ExternalProject_Add(ffmpeg
         --disable-vdpau
         --disable-videotoolbox
         --disable-decoder=libaom_av1
+        --disable-stripping
         ${ffmpeg_lto}
         --extra-cflags='-Wno-error=int-conversion'
         "--extra-libs='${ffmpeg_extra_libs}'" # -lstdc++ / -lc++ needs by libjxl and shaderc
