@@ -16,7 +16,7 @@ if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" == "ON" ]; then
 fi
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
+    SKIP_OPT="-g0 -O1 -fno-lto -fno-data-sections -fno-function-sections"
 else
     if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
