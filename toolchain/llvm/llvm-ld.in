@@ -11,7 +11,7 @@ if [ "$CONF" == "1" ]; then
 fi
 
 if [ "$GC" != "0" ]; then
-    LLD_GC="--gc-sections -Xlink=-opt:safeicf"
+    LLD_GC="--gc-sections --icf=all"
 fi
 
 "$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
