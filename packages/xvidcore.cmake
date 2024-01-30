@@ -5,6 +5,7 @@ ExternalProject_Add(xvidcore
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/generic && CONF=1 ./configure # running configure outside that directory will make it happily ignore --host while building
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
+        --disable-assembly
     BUILD_COMMAND ${MAKE} -C build/generic BUILD_DIR=build SHARED_LIB=
     INSTALL_COMMAND install -d ${MINGW_INSTALL_PREFIX}/include
         COMMAND install -m644 src/xvid.h ${MINGW_INSTALL_PREFIX}/include/
@@ -15,20 +16,11 @@ ExternalProject_Add(xvidcore
 )
 
 ExternalProject_Add_Step(xvidcore autoconf
-    DEPENDEES download update patch
+    DEPENDEES download update
     DEPENDERS configure
     COMMAND ${EXEC} autoconf
     WORKING_DIRECTORY <SOURCE_DIR>/build/generic
     LOG 1
 )
-
-if(${TARGET_CPU} MATCHES "x86_64")
-    ExternalProject_Add_Step(xvidcore win64-fix
-        DEPENDEES download update patch
-        DEPENDERS autoconf
-        COMMAND patch -p0 < ${CMAKE_CURRENT_SOURCE_DIR}/xvidcore-2-win64.patch
-        WORKING_DIRECTORY <SOURCE_DIR>
-    )
-endif()
 
 cleanup(xvidcore install)
