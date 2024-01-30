@@ -21,7 +21,12 @@ ExternalProject_Add(libvpx
         --disable-unit-tests
         --disable-decode-perf-tests
         --disable-encode-perf-tests
-        --as=yasm
+        --as=nasm
+        --disable-ssse3
+        --disable-sse3
+        --disable-sse2
+        --disable-sse
+        --disable-mmx
         --enable-debug
         --enable-vp9-highbitdepth
     BUILD_COMMAND ${MAKE}
