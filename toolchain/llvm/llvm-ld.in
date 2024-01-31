@@ -15,6 +15,9 @@ else
     if [ "$PDB" == "1" ]; then
         FLAGS="$FLAGS --pdb="
     fi
+    if [ "$MIMALLOC" == "1" ]; then
+        MALLOC_FLAGS="--whole-archive @MINGW_INSTALL_PREFIX@/lib/libmimalloc-static.a @MINGW_INSTALL_PREFIX@/lib/mimalloc_override.o --no-whole-archive -lc++"
+    fi
 fi
 
-"$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
+"$PROG" $MALLOC_FLAGS "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT

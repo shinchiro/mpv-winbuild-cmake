@@ -22,6 +22,7 @@ ExternalProject_Add(mpv
         spirv-cross
         vapoursynth
         libsdl2
+        ${mimalloc}
     GIT_REPOSITORY https://github.com/mpv-player/mpv.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -53,7 +54,7 @@ ExternalProject_Add(mpv
         -Dvulkan=enabled
         -Dvapoursynth=enabled
         -Degl-angle=enabled
-    BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 ninja -C <BINARY_DIR>
+    BUILD_COMMAND ${EXEC} LTO_JOB=1 PDB=1 MIMALLOC=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

@@ -1,4 +1,9 @@
 ExternalProject_Add(mesa
+    DEPENDS
+        libva
+        zlib
+        zstd
+        ${mimalloc}
     GIT_REPOSITORY https://gitlab.freedesktop.org/mesa/mesa.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
@@ -34,7 +39,7 @@ ExternalProject_Add(mesa
         -Dmin-windows-version=10
         -Dvulkan-drivers=
         -Dtools=
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    BUILD_COMMAND ${EXEC} MIMALLOC=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

@@ -229,6 +229,7 @@ to update flags which will pass on gcc, g++ and etc.
     - vorbis
     - ogg
     - bzip2
+    - mimalloc
 
 - Zip
     - xvidcore (1.3.7)
