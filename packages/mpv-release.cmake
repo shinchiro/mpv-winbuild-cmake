@@ -37,6 +37,7 @@ ExternalProject_Add(mpv-release
         spirv-cross
         vapoursynth
         libsdl2
+        ${mimalloc}
     URL ${LINK}
     SOURCE_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
@@ -66,7 +67,7 @@ ExternalProject_Add(mpv-release
         -Dvulkan=enabled
         -Dvapoursynth=enabled
         -Degl-angle=enabled
-    BUILD_COMMAND ${EXEC} LTO_JOB=1 ninja -C <BINARY_DIR>
+    BUILD_COMMAND ${EXEC} LTO_JOB=1 MIMALLOC=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

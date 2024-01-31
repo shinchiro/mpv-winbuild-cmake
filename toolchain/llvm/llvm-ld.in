@@ -14,4 +14,8 @@ if [ "$GC" != "0" ]; then
     LLD_GC="--gc-sections -Xlink=-opt:safeicf"
 fi
 
-"$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
+if [ "$MIMALLOC" == "1" ]; then
+    MALLOC_FLAGS="--whole-archive @MINGW_INSTALL_PREFIX@/lib/libmimalloc-static.a @MINGW_INSTALL_PREFIX@/lib/mimalloc_override.o --no-whole-archive -lc++"
+fi
+
+"$PROG" $MALLOC_FLAGS "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
