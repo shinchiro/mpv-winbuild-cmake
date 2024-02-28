@@ -14,6 +14,7 @@ list(APPEND ep
     lame
     ogg
     vorbis
+    opus-dnn
     opus
     speex
     libmodplug
