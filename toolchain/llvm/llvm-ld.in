@@ -3,15 +3,18 @@ PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
 TARGET=@TARGET_ARCH@
 POLICY="cache_size_bytes=1g:prune_interval=1m"
 FLAGS="-m @ld_m_flag@"
-FLAGS="$FLAGS --pdb= --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto -Xlink=-lldltocachepolicy:$POLICY"
-FLAGS="$FLAGS -O3 -Xlink=-opt:lldlto=3 -Xlink=-opt:lldltocgo=3"
+FLAGS="$FLAGS --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto --thinlto-cache-policy=$POLICY"
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-O0 -Xlink=-opt:lldlto=0 -Xlink=-opt:lldltocgo=0 --no-gc-sections --no-guard-cf"
-fi
-
-if [ "$GC" != "0" ]; then
-    LLD_GC="--gc-sections -Xlink=-opt:safeicf"
+    SKIP_OPT="-O0 --lto-O0 --lto-CGO0 --no-gc-sections --no-guard-cf --build-id=none"
+else
+    FLAGS="$FLAGS -O3 --lto-O3 --lto-CGO3 -s -Xlink=-release"
+    if [ "$GC" != "0" ]; then
+        LLD_GC="--gc-sections --icf=safe"
+    fi
+    if [ "$PDB" == "1" ]; then
+        FLAGS="$FLAGS --pdb="
+    fi
 fi
 
 "$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
