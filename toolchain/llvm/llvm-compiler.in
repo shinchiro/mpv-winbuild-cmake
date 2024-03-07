@@ -4,27 +4,24 @@ TARGET=@TARGET_ARCH@
 FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
-FLAGS="$FLAGS @cfi@ @opt@"
-FLAGS="$FLAGS -gcodeview"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
-
-if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" == "ON" ]; then
-    LTO_FLAGS="-flto=thin"
-    if [ "@LLD_LTO_ALL_THREADS@" == "ON" ] && [ "$LTO_JOB" != "1" ]; then
-        LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
-    fi
-fi
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
+    FLAGS="$FLAGS -gcodeview @cfi@ @opt@"
     if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
     fi
-fi
-
-if [ "$GC" != "0" ]; then
-    CLANG_GC="-fdata-sections -ffunction-sections"
+    if [ "$GC" != "0" ]; then
+        CLANG_GC="-fdata-sections -ffunction-sections"
+    fi
+    if [ "$LTO" != "0" ] && [ "@CLANG_PACKAGES_LTO@" == "ON" ]; then
+        LTO_FLAGS="-flto=thin"
+        if [ "@LLD_LTO_ALL_THREADS@" == "ON" ] && [ "$LTO_JOB" != "1" ]; then
+            LTO_FLAGS="$LTO_FLAGS -flto-jobs=@CPU_COUNT@"
+        fi
+    fi
 fi
 
 $CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
