@@ -4,7 +4,6 @@ ExternalProject_Add(spirv-headers
     GIT_CLONE_FLAGS "--filter=tree:0"
     GIT_REMOTE_NAME origin
     GIT_TAG main
-    GIT_RESET b73e168
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
