@@ -1,4 +1,4 @@
-cache_dir = "@MINGW_INSTALL_PREFIX@/ccache"
-max_size = 500M
+cache_dir = "@CCACHE_DIR@"
+max_size = @CCACHE_MAXSIZE@
 sloppiness = locale,time_macros
 compiler_check = none
