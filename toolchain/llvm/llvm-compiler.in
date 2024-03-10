@@ -1,7 +1,7 @@
 #!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
-TARGET=@TARGET_ARCH@
-FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
+TARGET=@TARGET_CPU@
+FLAGS="$FLAGS -target $TARGET-pc-windows-gnu -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
