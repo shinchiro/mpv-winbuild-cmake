@@ -4,8 +4,11 @@ git-fetch-with-cli = true
 [target.@TARGET_CPU@-pc-windows-gnu]
 linker = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-gcc"
 ar = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar"
-rustflags = ["-C", "target-cpu=@GCC_ARCH@"]
+rustflags = ["-Ctarget-cpu=@GCC_ARCH@", "-Zthreads=@CPU_COUNT@"]
 
 [profile.release]
 panic = "abort"
 strip = true
+
+[build]
+rustflags = ["-Zthreads=@CPU_COUNT@"]
