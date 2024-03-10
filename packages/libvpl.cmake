@@ -1,5 +1,5 @@
 ExternalProject_Add(libvpl
-    GIT_REPOSITORY https://github.com/oneapi-src/oneVPL.git
+    GIT_REPOSITORY https://github.com/intel/libvpl.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
