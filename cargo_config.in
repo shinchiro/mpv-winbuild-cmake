@@ -6,6 +6,11 @@ linker = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-gcc"
 ar = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar"
 rustflags = ["-Ctarget-cpu=@GCC_ARCH@", "-Zthreads=@CPU_COUNT@"]
 
+[target.@TARGET_CPU@-pc-windows-gnullvm]
+linker = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-clang++"
+ar = "@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar"
+rustflags = ["-Ctarget-cpu=@GCC_ARCH@", "-Zthreads=@CPU_COUNT@"]
+
 [profile.release]
 panic = "abort"
 strip = true
