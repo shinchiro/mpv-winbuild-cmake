@@ -7,7 +7,6 @@ ExternalProject_Add(rav1e
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${EXEC}
         CARGO_BUILD_TARGET_DIR=<BINARY_DIR>
-        CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
         CARGO_PROFILE_RELEASE_DEBUG=false
         CARGO_PROFILE_RELEASE_INCREMENTAL=false
         CARGO_PROFILE_RELEASE_LTO=off
@@ -15,7 +14,8 @@ ExternalProject_Add(rav1e
         cargo cinstall
         --manifest-path <SOURCE_DIR>/Cargo.toml
         --prefix ${MINGW_INSTALL_PREFIX}
-        --target ${TARGET_CPU}-pc-windows-gnu
+        --target ${TARGET_CPU}-pc-windows-${rust_target}
+        -Z build-std=std,panic_abort,core,alloc
         --release
         --crt-static
         --library-type staticlib
