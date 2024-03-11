@@ -14,6 +14,7 @@ ExternalProject_Add(llvm
         -DCMAKE_C_COMPILER=clang
         -DCMAKE_CXX_COMPILER=clang++
         ${llvm_ccache}
+        "-DLLVM_THINLTO_CACHE_PATH='${CMAKE_INSTALL_PREFIX}/llvm-thinlto'"
         -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
         -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
         -DLLVM_TARGETS_TO_BUILD='X86,NVPTX'
