@@ -145,7 +145,7 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD=OFF
         "-DCMAKE_C_FLAGS='-g0'"
         "-DCMAKE_CXX_FLAGS='-g0'"
-        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker --build-id=none -Xlinker -s -Xlinker --icf=all'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker --build-id=none -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
         -DLLVM_TOOLCHAIN_TOOLS='llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
