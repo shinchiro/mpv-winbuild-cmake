@@ -9,6 +9,7 @@ FLAGS="$FLAGS -Wno-unused-command-line-argument"
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
+    export LLVM_PROFILE_FILE="@LLVM_PROFILE_DATA_DIR@/clang-%m.profraw"
     FLAGS="$FLAGS -gcodeview @cfi@ @opt@"
     if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
