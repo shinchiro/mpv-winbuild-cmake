@@ -42,7 +42,6 @@ ExternalProject_Add(llvm
         -DLLVM_LINK_LLVM_DYLIB=OFF
         -DLLVM_BUILD_LLVM_DYLIB=OFF
         -DBUILD_SHARED_LIBS=OFF
-        -DLIBCLANG_BUILD_STATIC=ON
         -DLLVM_BUILD_UTILS=OFF
         -DCLANG_TOOL_AMDGPU_ARCH_BUILD=OFF
         -DCLANG_TOOL_APINOTES_TEST_BUILD=OFF
@@ -143,9 +142,9 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_VERIFY_USELISTORDER_BUILD=OFF
         -DLLVM_TOOL_VFABI_DEMANGLE_FUZZER_BUILD=OFF
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD=OFF
-        "-DCMAKE_C_FLAGS='-g0'"
-        "-DCMAKE_CXX_FLAGS='-g0'"
-        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker --build-id=none -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
+        "-DCMAKE_C_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_CXX_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
         -DLLVM_TOOLCHAIN_TOOLS='llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install

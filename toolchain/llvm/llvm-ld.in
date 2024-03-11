@@ -15,6 +15,10 @@ else
     if [ "$PDB" == "1" ]; then
         FLAGS="$FLAGS --pdb="
     fi
+    if [ "@LLVM_ENABLE_PGO@" == "GEN" ] || [ "@LLVM_ENABLE_PGO@" == "CSGEN" ]; then
+        export LLVM_PROFILE_FILE="@LLVM_PROFILE_DATA_DIR@/lld-%m.profraw" #enable profraw output only when CONF!=1
+        export LLD_IN_TEST=1 #https://github.com/llvm/llvm-project/issues/52861
+    fi
 fi
 
 "$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
