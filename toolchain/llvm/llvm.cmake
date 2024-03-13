@@ -43,6 +43,7 @@ ExternalProject_Add(llvm
         -DLLVM_BUILD_LLVM_DYLIB=OFF
         -DBUILD_SHARED_LIBS=OFF
         -DLLVM_BUILD_UTILS=OFF
+        -DCLANG_BUILD_TOOLS=OFF
         -DCLANG_TOOL_AMDGPU_ARCH_BUILD=OFF
         -DCLANG_TOOL_APINOTES_TEST_BUILD=OFF
         -DCLANG_TOOL_ARCMT_TEST_BUILD=OFF
@@ -54,6 +55,7 @@ ExternalProject_Add(llvm
         -DCLANG_TOOL_CLANG_FORMAT_BUILD=OFF
         -DCLANG_TOOL_CLANG_FORMAT_VS_BUILD=OFF
         -DCLANG_TOOL_CLANG_FUZZER_BUILD=OFF
+        -DCLANG_TOOL_CLANG_INSTALLAPI_BUILD=OFF
         -DCLANG_TOOL_CLANG_IMPORT_TEST_BUILD=OFF
         -DCLANG_TOOL_CLANG_LINKER_WRAPPER_BUILD=OFF
         -DCLANG_TOOL_CLANG_OFFLOAD_BUNDLER_BUILD=OFF
@@ -76,6 +78,7 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_GOLD_BUILD=OFF
         -DLLVM_TOOL_LLC_BUILD=OFF
         -DLLVM_TOOL_LLI_BUILD=OFF
+        -DLLVM_TOOL_LLVM_DRIVER_BUILD=ON
         -DLLVM_TOOL_LLVM_AS_BUILD=OFF
         -DLLVM_TOOL_LLVM_AS_FUZZER_BUILD=OFF
         -DLLVM_TOOL_LLVM_BCANALYZER_BUILD=OFF
@@ -145,7 +148,7 @@ ExternalProject_Add(llvm
         "-DCMAKE_C_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
         "-DCMAKE_CXX_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
         "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
-        -DLLVM_TOOLCHAIN_TOOLS='llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
+        -DLLVM_TOOLCHAIN_TOOLS='llvm-driver,llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
