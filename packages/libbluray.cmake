@@ -16,6 +16,7 @@ ExternalProject_Add(libbluray
         --disable-bdjava-jar
         --without-libxml2
         --without-fontconfig
+        CFLAGS='-Ddec_init=libbluray_dec_init'
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     BUILD_IN_SOURCE 1
