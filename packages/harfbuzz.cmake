@@ -7,7 +7,7 @@ ExternalProject_Add(harfbuzz
     GIT_REMOTE_NAME origin
     GIT_TAG main
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
-    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !test"
+    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone '/*' '!test'"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
