@@ -2,7 +2,7 @@ ExternalProject_Add(libdovi
     GIT_REPOSITORY https://github.com/quietvoid/dovi_tool.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
-    GIT_CLONE_POST_COMMAND "sparse-checkout set dolby_vision"
+    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone dolby_vision"
     GIT_REMOTE_NAME origin
     GIT_TAG main
     UPDATE_COMMAND ""
