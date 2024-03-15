@@ -76,8 +76,8 @@ index 3312171e0..f818380b7 100644
 +set(git_clone_post_cmd "@git_clone_post_cmd@")
 +if(NOT ${git_clone_post_cmd} STREQUAL "")
 +  execute_process(
-+    COMMAND "@git_EXECUTABLE@" @git_options@
-+            @git_clone_post_cmd@
++    COMMAND bash -c "mkdir -p @work_dir@/@src_name@ && git_EXECUTABLE@" @git_options@ @git_clone_post_cmd@"
++
 +    WORKING_DIRECTORY "@work_dir@/@src_name@"
 +    RESULT_VARIABLE error_code
 +  )
