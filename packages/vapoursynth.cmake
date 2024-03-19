@@ -1,11 +1,7 @@
 if(${TARGET_CPU} MATCHES "x86_64")
     set(rev "R65")
-    set(link "https://github.com/vapoursynth/vapoursynth/releases/download/${rev}/VapourSynth64-Portable-${rev}.7z")
-    set(hash "E3FCA973DC56283289A2F4F73FE0A6908FF270B9C46B65AF3F8674BE867CA303")
 else()
     set(rev "R63")
-    set(link "https://github.com/vapoursynth/vapoursynth/releases/download/${rev}/VapourSynth32-Portable-${rev}.7z")
-    set(hash "88057C6BD25D42CCCCDE94305AF340B95BFCA7EA2D9BB57A544B2621A60F563F")
     set(dlltool_opts "-U")
 endif()
 
@@ -15,12 +11,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vapoursynth-script.pc.in ${CMAKE_CURR
 set(GENERATE_DEF ${CMAKE_CURRENT_BINARY_DIR}/vapoursynth-prefix/src/generate_def.sh)
 file(WRITE ${GENERATE_DEF}
 "#!/bin/bash
-gendef - $1.dll | sed -r -e 's|^_||' -e 's|@[1-9]+$||' > $1.def")
+if [[ \"$1\" != \"i686\" ]]; then
+    sed -r -e 's|@[0-9]+$||' -i $2
+fi")
 
 ExternalProject_Add(vapoursynth
-    URL ${link}
-    URL_HASH SHA256=${hash}
-    DOWNLOAD_DIR ${SOURCE_LOCATION}
+    DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ""
@@ -32,9 +28,11 @@ ExternalProject_Add(vapoursynth
 ExternalProject_Add_Step(vapoursynth generate-def
     DEPENDEES install
     WORKING_DIRECTORY <SOURCE_DIR>
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/VapourSynth.def <SOURCE_DIR>/VapourSynth.def
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/VSScript.def    <SOURCE_DIR>/VSScript.def
     COMMAND chmod 755 ${GENERATE_DEF}
-    COMMAND ${EXEC} ${GENERATE_DEF} VSScript
-    COMMAND ${EXEC} ${GENERATE_DEF} VapourSynth
+    COMMAND ${EXEC} ${GENERATE_DEF} ${TARGET_CPU} VapourSynth.def
+    COMMAND ${EXEC} ${GENERATE_DEF} ${TARGET_CPU} VSScript.def
     LOG 1
 )
 
