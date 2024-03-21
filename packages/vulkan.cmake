@@ -17,8 +17,7 @@ ExternalProject_Add(vulkan
         -DVULKAN_HEADERS_INSTALL_DIR=${MINGW_INSTALL_PREFIX}
         -DBUILD_TESTS=OFF
         -DENABLE_WERROR=OFF
-        -DUSE_MASM=OFF
-        -DUSE_GAS=OFF
+        ${vulkan_asm}
         -DBUILD_STATIC_LOADER=ON
         -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -D__STDC_FORMAT_MACROS -DSTRSAFE_NO_DEPRECATE -Dparse_number=cjson_parse_number'
         -DCMAKE_CXX_FLAGS='${CMAKE_CXX_FLAGS} -D__STDC_FORMAT_MACROS -fpermissive'
