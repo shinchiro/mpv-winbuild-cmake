@@ -14,8 +14,8 @@ ExternalProject_Add(libass
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
+    BUILD_COMMAND bash -c "${MAKE}"
+    INSTALL_COMMAND bash -c "${MAKE} install"
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

@@ -20,9 +20,9 @@ function(cleanup _name _last_step)
         else()
             set(remove_cmd "rm -rf <BINARY_DIR>/* && git -C <SOURCE_DIR> clean -df")
         endif()
-        set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
+        set(COMMAND_FORCE_UPDATE COMMAND ${EXEC_SHELL} -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
                                  COMMAND ${stamp_dir}/reset_head.sh
-                                 COMMAND bash -c "git -C <SOURCE_DIR> restore .")
+                                 COMMAND ${EXEC_SHELL} -c "git -C <SOURCE_DIR> restore .")
     endif()
 
     # <STAMP_DIR> doesn't resolve into full path, so <LOG_DIR> is used instead since its same folder.
@@ -93,7 +93,7 @@ function(force_rebuild_git _name)
     endif()
 
 file(WRITE ${stamp_dir}/reset_head.sh
-"#!/bin/bash
+"#!/bin/${EXEC_SHELL}
 set -e
 if [[ ! -f \"${stamp_dir}/${_name}-patch\"  || \"${stamp_dir}/${_name}-download\" -nt \"${stamp_dir}/${_name}-patch\" || ! -f \"${stamp_dir}/HEAD\" || \"$(cat ${stamp_dir}/HEAD)\" != \"$(git -C ${source_dir} rev-parse @{u})\" ]]; then
     git -C ${source_dir} reset --hard ${reset} -q
@@ -113,8 +113,8 @@ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
         WORKING_DIRECTORY <SOURCE_DIR>
-        COMMAND bash -c "git am --abort 2> /dev/null || true"
-        COMMAND bash -c "git fetch --filter=tree:0 --no-recurse-submodules"
+        COMMAND ${EXEC_SHELL} -c "git am --abort 2> /dev/null || true"
+        COMMAND ${EXEC_SHELL} -c "git fetch --filter=tree:0 --no-recurse-submodules"
         COMMAND ${stamp_dir}/reset_head.sh
     )
     ExternalProject_Add_StepTargets(${_name} force-update)
@@ -123,7 +123,7 @@ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_
         DEPENDERS patch
         INDEPENDENT TRUE
         WORKING_DIRECTORY <SOURCE_DIR>
-        COMMAND bash -c "git rev-parse HEAD > ${stamp_dir}/HEAD"
+        COMMAND ${EXEC_SHELL} -c "git rev-parse HEAD > ${stamp_dir}/HEAD"
         LOG 1
     )
 

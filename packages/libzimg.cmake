@@ -8,15 +8,15 @@ ExternalProject_Add(libzimg
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/graphengine"
-    COMMAND bash -c "ln -s ${src_graphengine} <SOURCE_DIR>/graphengine"
+    COMMAND ${EXEC_SHELL} -c "rm -rf <SOURCE_DIR>/graphengine"
+    COMMAND ${EXEC_SHELL} -c "ln -s ${src_graphengine} <SOURCE_DIR>/graphengine"
     COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
         --disable-shared
-    BUILD_COMMAND ${MAKE}
-    INSTALL_COMMAND ${MAKE} install
-            COMMAND bash -c "git -C ${src_graphengine} clean -dfx"
+    BUILD_COMMAND bash -c "${MAKE}"
+    INSTALL_COMMAND bash -c "${MAKE} install"
+            COMMAND ${EXEC_SHELL} -c "git -C ${src_graphengine} clean -dfx"
     BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

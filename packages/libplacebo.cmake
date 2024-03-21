@@ -15,10 +15,10 @@ ExternalProject_Add(libplacebo
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/3rdparty/glad"
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/3rdparty/fast_float"
-    COMMAND bash -c "ln -s ${src_glad} <SOURCE_DIR>/3rdparty/glad"
-    COMMAND bash -c "ln -s ${src_fast_float} <SOURCE_DIR>/3rdparty/fast_float"
+    COMMAND ${EXEC_SHELL} -c "rm -rf <SOURCE_DIR>/3rdparty/glad"
+    COMMAND ${EXEC_SHELL} -c "rm -rf <SOURCE_DIR>/3rdparty/fast_float"
+    COMMAND ${EXEC_SHELL} -c "ln -s ${src_glad} <SOURCE_DIR>/3rdparty/glad"
+    COMMAND ${EXEC_SHELL} -c "ln -s ${src_fast_float} <SOURCE_DIR>/3rdparty/fast_float"
     COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
