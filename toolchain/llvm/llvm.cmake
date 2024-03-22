@@ -2,7 +2,8 @@ set(clang_version "18")
 ExternalProject_Add(llvm
     GIT_REPOSITORY https://github.com/llvm/llvm-project.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--sparse --filter=tree:0"
+    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !*/test"
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
     GIT_TAG release/18.x
