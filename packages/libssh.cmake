@@ -16,7 +16,7 @@ ExternalProject_Add(libssh
         -DWITH_ZLIB=ON
         -DWITH_EXAMPLES=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-          COMMAND bash -c "echo {'Libs.private: -lwsock32 -liphlpapi -lpthread','\nRequires.private: libssl','\nCflags.private: -DLIBSSH_STATIC'} >> <BINARY_DIR>/libssh.pc"
+          COMMAND ${EXEC_SHELL} -c "echo {'Libs.private: -lwsock32 -liphlpapi -lpthread','\nRequires.private: libssl','\nCflags.private: -DLIBSSH_STATIC'} >> <BINARY_DIR>/libssh.pc"
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )

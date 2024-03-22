@@ -1,4 +1,4 @@
-#!/bin/sh
+#!@EXEC_SHELL@
 export PATH="@CMAKE_INSTALL_PREFIX@/bin:@RUSTUP_LOCATION@/.cargo/bin:$PATH"
 export PKG_CONFIG="pkgconf --static"
 export PKG_CONFIG_LIBDIR="@MINGW_INSTALL_PREFIX@/lib/pkgconfig"

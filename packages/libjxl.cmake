@@ -15,8 +15,8 @@ ExternalProject_Add(libjxl
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/libjpeg-turbo"
-    COMMAND bash -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
+    COMMAND ${EXEC_SHELL} -c "rm -rf <SOURCE_DIR>/third_party/libjpeg-turbo"
+    COMMAND ${EXEC_SHELL} -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
     COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
