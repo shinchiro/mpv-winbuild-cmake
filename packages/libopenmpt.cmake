@@ -4,8 +4,8 @@ ExternalProject_Add(libopenmpt
         ogg
         vorbis
         libsdl2
-    URL https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.7.4+release.autotools.tar.gz
-    URL_HASH SHA256=1600F9335EAE3904089A6286F525812961C54CE36A05DFE6EEAA576DD9328F3F
+    URL https://lib.openmpt.org/files/libopenmpt/src/libopenmpt-0.7.6+release.autotools.tar.gz
+    URL_HASH SHA256=162D72A306BB2E114C24FA25267D0D0A0AC16F39FD95A5C0DFC75A666EE5E4F5
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} autoreconf -fi && CONF=1 <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
