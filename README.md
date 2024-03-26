@@ -22,8 +22,10 @@ Alternatively, you can download the builds from [here](https://sourceforge.net/p
 These packages need to be installed first before compiling mpv:
 
     pacman -S git gyp mercurial subversion ninja cmake meson ragel yasm nasm asciidoc enca gperf unzip p7zip gcc-multilib clang lld libc++ libc++abi python-pip curl lib32-glib2 mimalloc ccache
-
+    
     pip3 install rst2pdf mako jsonschema
+
+    pacman -S llvm # needed for building LLVM PGO
 
 ### Ubuntu Linux / WSL (Windows 10)
 
