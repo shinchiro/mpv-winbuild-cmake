@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.19.0)
+cmake_minimum_required(VERSION 3.23.0)
 project(mpv-cross C)
 include(ProcessorCount)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/download_externalproject.cmake)
