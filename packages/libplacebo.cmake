@@ -4,6 +4,7 @@ ExternalProject_Add(libplacebo
     DEPENDS
         vulkan
         shaderc
+        spirv-cross
         lcms2
         glad
         fast_float
@@ -24,6 +25,7 @@ ExternalProject_Add(libplacebo
         --libdir=${MINGW_INSTALL_PREFIX}/lib
         --cross-file=${MESON_CROSS}
         --default-library=static
+        -Dd3d11=enabled
         -Ddebug=true
         -Db_ndebug=true
         -Doptimization=3
