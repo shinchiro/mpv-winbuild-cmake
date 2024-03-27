@@ -39,6 +39,7 @@ ExternalProject_Add(ffmpeg
         libaribcaption
         aom
         rav1e
+        svtav1
         dav1d
         vapoursynth
         uavs3d
@@ -89,6 +90,7 @@ ExternalProject_Add(ffmpeg
         --enable-libx265
         --enable-libaom
         --enable-librav1e
+        --enable-libsvtav1
         --enable-libdav1d
         --enable-libdavs2
         --enable-libuavs3d
