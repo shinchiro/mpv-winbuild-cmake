@@ -1,8 +1,9 @@
 ExternalProject_Add(xz
-    GIT_REPOSITORY https://github.com/tukaani-project/xz.git
+    GIT_REPOSITORY https://gitlab.com/shinchiro/xz.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
+    GIT_RESET 18b845e69752c975dfeda418ec00eda22605c2ee # v5.4.1
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
