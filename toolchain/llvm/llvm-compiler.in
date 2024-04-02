@@ -1,10 +1,17 @@
 #!/bin/bash
-PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
 TARGET=@TARGET_ARCH@
 FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
+
+if [ "@LLVM_ENABLE_BOLT@" == "GEN" ] && [ -x "@CMAKE_INSTALL_PREFIX@/bin/llvm.instr" ] && [ "$CONF" != "1" ]; then
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm.instr
+elif [ "@LLVM_ENABLE_BOLT@" == "USE" ] && [ -x "@CMAKE_INSTALL_PREFIX@/bin/llvm.bolt" ]; then
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm.bolt
+else
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm
+fi
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
@@ -27,4 +34,4 @@ else
     fi
 fi
 
-$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
+$CCACHE "$PROG" @clang_compiler@ $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT

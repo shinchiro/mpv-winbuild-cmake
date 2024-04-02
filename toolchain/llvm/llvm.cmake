@@ -3,7 +3,7 @@ ExternalProject_Add(llvm
     GIT_REPOSITORY https://github.com/llvm/llvm-project.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
-    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !*/test"
+    GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !*/test !/lldb !/mlir !/clang-tools-extra !/mlir !/polly !/libc !/flang"
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
     GIT_TAG release/18.x
@@ -18,7 +18,7 @@ ExternalProject_Add(llvm
         -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
         -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON
         -DLLVM_TARGETS_TO_BUILD='X86,NVPTX'
-        -DLLVM_ENABLE_PROJECTS='clang,lld'
+        -DLLVM_ENABLE_PROJECTS='clang,lld,bolt'
         -DLLVM_ENABLE_ASSERTIONS=OFF
         -DLLVM_ENABLE_LIBCXX=ON
         -DLLVM_ENABLE_LLD=ON
@@ -146,14 +146,38 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_VFABI_DEMANGLE_FUZZER_BUILD=OFF
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD=OFF
         "-DLLVM_THINLTO_CACHE_PATH='${CMAKE_INSTALL_PREFIX}/llvm-thinlto'"
-        "-DCMAKE_C_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
-        "-DCMAKE_CXX_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
-        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
+        "-DCMAKE_C_FLAGS='-ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_CXX_FLAGS='-ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m ${llvm_linker_flags}'"
         -DLLVM_TOOLCHAIN_TOOLS='llvm-driver,llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
+
+if(LLVM_ENABLE_BOLT)
+ExternalProject_Add(llvm-bolt-instrumentation
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ${EXEC} ${CMAKE_INSTALL_PREFIX}/bin/llvm-bolt --instrument --instrumentation-file-append-pid --instrumentation-file=${BOLT_FDATA_DIR}/llvm-fdatas ${CMAKE_INSTALL_PREFIX}/bin/llvm -o ${CMAKE_INSTALL_PREFIX}/bin/llvm.instr
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    LOG_CONFIGURE 1
+)
+ExternalProject_Add(llvm-apply-bolt
+    DOWNLOAD_COMMAND ""
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ${EXEC} ${CMAKE_INSTALL_PREFIX}/bin/merge-fdata ${BOLT_FDATA_DIR}/*llvm-fdatas* -o ${BOLT_FDATA_DIR}/llvm.fdata
+              COMMAND ${EXEC} ${CMAKE_INSTALL_PREFIX}/bin/llvm-bolt --data ${BOLT_FDATA_DIR}/llvm.fdata ${CMAKE_INSTALL_PREFIX}/bin/llvm -o ${CMAKE_INSTALL_PREFIX}/bin/llvm.bolt --dyno-stats --eliminate-unreachable --frame-opt=hot --icf=1 --plt=hot --reorder-blocks=ext-tsp --reorder-functions=cdsort --split-all-cold --split-eh --split-functions --use-gnu-stack
+              COMMAND ${EXEC} rm ${BOLT_FDATA_DIR}/* ${CMAKE_INSTALL_PREFIX}/bin/llvm.instr
+              COMMAND ${EXEC} llvm-strip ${CMAKE_INSTALL_PREFIX}/bin/llvm.bolt
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    LOG_CONFIGURE 1
+)
+cleanup(llvm-bolt-instrumentation install)
+cleanup(llvm-apply-bolt install)
+endif()
 
 force_rebuild_git(llvm)
 cleanup(llvm install)

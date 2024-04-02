@@ -1,9 +1,17 @@
 #!/bin/bash
-PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
 TARGET=@TARGET_ARCH@
 POLICY="cache_size_bytes=1g:prune_interval=1m"
 FLAGS="-m @ld_m_flag@"
 FLAGS="$FLAGS --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto --thinlto-cache-policy=$POLICY"
+
+if [ "@LLVM_ENABLE_BOLT@" == "GEN" ] && [ -x "@CMAKE_INSTALL_PREFIX@/bin/llvm.instr" ] && [ "$CONF" != "1" ]; then
+    export LLD_IN_TEST=1
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm.instr
+elif [ "@LLVM_ENABLE_BOLT@" == "USE" ] && [ -x "@CMAKE_INSTALL_PREFIX@/bin/llvm.bolt" ]; then
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm.bolt
+else
+    PROG=@CMAKE_INSTALL_PREFIX@/bin/llvm
+fi
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-O0 --lto-O0 --lto-CGO0 --no-gc-sections --no-guard-cf --build-id=none"
@@ -21,4 +29,4 @@ else
     fi
 fi
 
-"$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
+"$PROG" ld.lld "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
