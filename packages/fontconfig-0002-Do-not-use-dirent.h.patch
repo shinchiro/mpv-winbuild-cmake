@@ -1,25 +1,26 @@
-From 783da283864a7423cb30563176eac6f20445dcc7 Mon Sep 17 00:00:00 2001
-From: Zhong Lufan <lufanzhong@gmail.com>
-Date: Fri, 7 Oct 2022 21:17:09 +0800
+From 3f8083be014eb1f01a4e143b2f68b6b1d66c9459 Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Sat, 6 Apr 2024 11:38:08 +0800
 Subject: [PATCH] Do not use dirent.h
 
 Because this causes some quirks on some partitions on Windows.
+Relevant issue: https://github.com/mpv-player/mpv/issues/10679
 ---
  meson.build | 1 -
  1 file changed, 1 deletion(-)
 
 diff --git a/meson.build b/meson.build
-index a9ec544..1bd807e 100644
+index e04b13a..f20491a 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -47,7 +47,6 @@ pkgmod = import('pkgconfig')
+@@ -46,7 +46,6 @@ pkgmod = import('pkgconfig')
  python3 = import('python').find_installation()
  
  check_headers = [
 -  ['dirent.h'],
+   ['dlfcn.h'],
    ['fcntl.h'],
-   ['stdlib.h'],
-   ['string.h'],
+   ['inttypes.h'],
 -- 
-2.38.0
+2.43.0
 
