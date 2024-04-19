@@ -46,6 +46,10 @@ ExternalProject_Add(ffmpeg
         rubberband
         libva
         openal-soft
+        liblc3
+        svtav1
+        libvidstab
+        frei0r
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
@@ -71,6 +75,7 @@ ExternalProject_Add(ffmpeg
         --enable-libdvdread
         --enable-libfreetype
         --enable-libfribidi
+        --enable-frei0r
         --enable-libfontconfig
         --enable-libharfbuzz
         --enable-libmodplug
@@ -81,6 +86,7 @@ ExternalProject_Add(ffmpeg
         --enable-libsoxr
         --enable-libspeex
         --enable-libvorbis
+        --enable-liblc3
         --enable-libbs2b
         --enable-librubberband
         --enable-libvpx
@@ -89,6 +95,7 @@ ExternalProject_Add(ffmpeg
         --enable-libx265
         --enable-libaom
         --enable-librav1e
+        --enable-libsvtav1
         --enable-libdav1d
         --enable-libdavs2
         --enable-libuavs3d
@@ -97,6 +104,7 @@ ExternalProject_Add(ffmpeg
         --enable-openssl
         --enable-libxml2
         --enable-libmysofa
+        --enable-libvidstab
         --enable-libssh
         --enable-libsrt
         --enable-libvpl

@@ -230,6 +230,10 @@ to update flags which will pass on gcc, g++ and etc.
     - vorbis
     - ogg
     - bzip2
+    - liblc3
+    - svtav1
+    - frei0r
+    - libvidstab
 
 - Zip
     - xvidcore (1.3.7)
