@@ -1,5 +1,102 @@
+ExternalProject_Add(zlib-host
+    SOURCE_DIR ${SOURCE_LOCATION}/../zlib-host
+    GIT_REPOSITORY https://github.com/zlib-ng/zlib-ng.git
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    GIT_TAG develop
+    CONFIGURE_COMMAND ${EXEC} CONF=1 PATH=$O_PATH cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+        -GNinja
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DSKIP_INSTALL_LIBRARIES=OFF
+        -DZLIB_COMPAT=ON
+        -DZLIB_ENABLE_TESTS=OFF
+        -DZLIBNG_ENABLE_TESTS=OFF
+        -DFNO_LTO_AVAILABLE=OFF
+        "-DCMAKE_C_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections ${llvm_lto}'"
+        "-DCMAKE_CXX_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections ${llvm_lto}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --gc-sections'"
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+force_rebuild_git(zlib-host)
+cleanup(zlib-host install)
+
+ExternalProject_Add(zstd-host
+    SOURCE_DIR ${SOURCE_LOCATION}/../zstd-host
+    GIT_REPOSITORY https://github.com/facebook/zstd.git
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    GIT_TAG dev
+    CONFIGURE_COMMAND ${EXEC} CONF=1 PATH=$O_PATH cmake -H<SOURCE_DIR>/build/cmake -B<BINARY_DIR>
+        -GNinja
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DZSTD_BUILD_CONTRIB=OFF
+        -DZSTD_BUILD_TESTS=OFF
+        -DZSTD_LEGACY_SUPPORT=OFF
+        -DZSTD_BUILD_PROGRAMS=OFF
+        -DZSTD_BUILD_SHARED=OFF
+        -DZSTD_BUILD_STATIC=ON
+        -DZSTD_MULTITHREAD_SUPPORT=ON
+        "-DCMAKE_C_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections ${llvm_lto}'"
+        "-DCMAKE_CXX_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections ${llvm_lto}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --gc-sections'"
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+force_rebuild_git(zstd-host)
+cleanup(zstd-host install)
+
+ExternalProject_Add(mimalloc
+    SOURCE_DIR ${SOURCE_LOCATION}/../mimalloc
+    GIT_REPOSITORY https://github.com/microsoft/mimalloc.git
+    GIT_CLONE_FLAGS "--filter=tree:0"
+    UPDATE_COMMAND ""
+    GIT_REMOTE_NAME origin
+    GIT_TAG dev-slice
+    CONFIGURE_COMMAND ${EXEC} CONF=1 PATH=$O_PATH cmake -H<SOURCE_DIR> -B<BINARY_DIR>
+        -GNinja
+        -DCMAKE_BUILD_TYPE=Release
+        -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DMI_USE_CXX=OFF
+        -DMI_OVERRIDE=ON
+        -DMI_INSTALL_TOPLEVEL=ON
+        -DMI_BUILD_TESTS=OFF
+        -DMI_BUILD_SHARED=OFF
+        -DMI_BUILD_STATIC=OFF
+        "-DCMAKE_C_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections -DMI_DEBUG=0 ${llvm_lto}'"
+        "-DCMAKE_CXX_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec -fdata-sections -ffunction-sections -DMI_DEBUG=0 ${llvm_lto}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --gc-sections'"
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
+    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+)
+
+force_rebuild_git(mimalloc)
+cleanup(mimalloc install)
+
 set(clang_version "18")
 ExternalProject_Add(llvm
+    DEPENDS
+        mimalloc
+        zlib-host
+        zstd-host
     GIT_REPOSITORY https://github.com/llvm/llvm-project.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
@@ -87,6 +184,7 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_LLVM_CAT_BUILD=OFF
         -DLLVM_TOOL_LLVM_CFI_VERIFY_BUILD=OFF
         -DLLVM_TOOL_LLVM_COV_BUILD=OFF
+        -DLLVM_TOOL_LLVM_CONFIG_BUILD=OFF
         -DLLVM_TOOL_LLVM_CXXDUMP_BUILD=OFF
         -DLLVM_TOOL_LLVM_CXXFILT_BUILD=OFF
         -DLLVM_TOOL_LLVM_CXXMAP_BUILD=OFF
@@ -121,7 +219,11 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_LLVM_MODEXTRACT_BUILD=OFF
         -DLLVM_TOOL_LLVM_MT_BUILD=OFF
         -DLLVM_TOOL_LLVM_OPT_FUZZER_BUILD=OFF
+        -DLLVM_TOOL_LLVM_OPT_REPORT_BUILD=OFF
+        -DLLVM_TOOL_LTO_BUILD=OFF
+        -DLLVM_TOOL_OPT_BUILD=OFF
         -DLLVM_TOOL_LLVM_PROFGEN_BUILD=OFF
+        -DLLVM_TOOL_LLVM_PDBUTIL_BUILD=OFF
         -DLLVM_TOOL_LLVM_READTAPI_BUILD=OFF
         -DLLVM_TOOL_LLVM_REDUCE_BUILD=OFF
         -DLLVM_TOOL_LLVM_REMARKUTIL_BUILD=OFF
@@ -146,11 +248,19 @@ ExternalProject_Add(llvm
         -DLLVM_TOOL_VERIFY_USELISTORDER_BUILD=OFF
         -DLLVM_TOOL_VFABI_DEMANGLE_FUZZER_BUILD=OFF
         -DLLVM_TOOL_XCODE_TOOLCHAIN_BUILD=OFF
+        -DLLVM_TOOL_YAML2OBJ_BUILD=OFF
+        -DLLVM_ENABLE_ZLIB=ON 
+        -DZLIB_LIBRARY=${CMAKE_INSTALL_PREFIX}/lib/libz.a
+        -DZLIB_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include
+        -DLLVM_ENABLE_ZSTD=ON
+        -DLLVM_USE_STATIC_ZSTD=ON
+        -Dzstd_LIBRARY=${CMAKE_INSTALL_PREFIX}/lib/libzstd.a
+        -Dzstd_INCLUDE_DIR=${CMAKE_INSTALL_PREFIX}/include
         "-DLLVM_THINLTO_CACHE_PATH='${CMAKE_INSTALL_PREFIX}/llvm-thinlto'"
-        "-DCMAKE_C_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
-        "-DCMAKE_CXX_FLAGS='-g0 -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
-        "-DCMAKE_EXE_LINKER_FLAGS='-fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
-        -DLLVM_TOOLCHAIN_TOOLS='llvm-driver,llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-pdbutil,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size,llvm-config'
+        "-DCMAKE_C_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_CXX_FLAGS='-O3 -ffp-contract=fast -ftls-model=local-exec ${llvm_lto} ${llvm_pgo}'"
+        "-DCMAKE_EXE_LINKER_FLAGS='${CMAKE_INSTALL_PREFIX}/lib/mimalloc.o -fuse-ld=lld -Xlinker -s -Xlinker --icf=all -Xlinker --thinlto-cache-policy=cache_size_bytes=1g:prune_interval=1m'"
+        -DLLVM_TOOLCHAIN_TOOLS='llvm-driver,llvm-ar,llvm-ranlib,llvm-objdump,llvm-rc,llvm-cvtres,llvm-nm,llvm-strings,llvm-readobj,llvm-dlltool,llvm-objcopy,llvm-strip,llvm-cov,llvm-profdata,llvm-addr2line,llvm-symbolizer,llvm-windres,llvm-ml,llvm-readelf,llvm-size'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
