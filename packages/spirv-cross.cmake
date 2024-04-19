@@ -7,12 +7,7 @@ ExternalProject_Add(spirv-cross
     UPDATE_COMMAND ""
     PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/spirv-cross-*.patch
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
+        ${cmake_conf_args}
         -DSPIRV_CROSS_SHARED=ON
         -DSPIRV_CROSS_CLI=OFF
         -DSPIRV_CROSS_ENABLE_TESTS=OFF

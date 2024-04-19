@@ -7,11 +7,7 @@ ExternalProject_Add(lcms2
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --libdir=${MINGW_INSTALL_PREFIX}/lib
-        --cross-file=${MESON_CROSS}
-        --buildtype=release
-        --default-library=static
+        ${meson_conf_args}
         -Dfastfloat=true
         -Dthreaded=true
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>

@@ -4,12 +4,7 @@ ExternalProject_Add(libsamplerate
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
+        ${cmake_conf_args}
         -DBUILD_TESTING=OFF
         -DLIBSAMPLERATE_EXAMPLES=OFF
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>

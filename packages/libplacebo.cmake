@@ -21,10 +21,8 @@ ExternalProject_Add(libplacebo
     COMMAND bash -c "ln -s ${src_glad} <SOURCE_DIR>/3rdparty/glad"
     COMMAND bash -c "ln -s ${src_fast_float} <SOURCE_DIR>/3rdparty/fast_float"
     COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --libdir=${MINGW_INSTALL_PREFIX}/lib
-        --cross-file=${MESON_CROSS}
-        --default-library=static
+        ${meson_conf_args}
+        --buildtype=custom
         -Dd3d11=enabled
         -Ddebug=true
         -Db_ndebug=true

@@ -18,12 +18,7 @@ ExternalProject_Add(libjxl
     COMMAND bash -c "rm -rf <SOURCE_DIR>/third_party/libjpeg-turbo"
     COMMAND bash -c "ln -s ${src_libjpeg} <SOURCE_DIR>/third_party/libjpeg-turbo"
     COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
+        ${cmake_conf_args}
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON
         -DJPEGXL_STATIC=ON
         -DBUILD_TESTING=OFF

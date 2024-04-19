@@ -4,9 +4,7 @@ ExternalProject_Add(lzo
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
+        ${autotools_conf_args}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

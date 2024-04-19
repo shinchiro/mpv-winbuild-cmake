@@ -42,3 +42,24 @@ elseif(TARGET_CPU STREQUAL "aarch64")
     set(dlltool_image "arm64")
     set(vulkan_asm "-DUSE_GAS=ON")
 endif()
+
+set(cmake_conf_args
+    -GNinja
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+    -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+    -DBUILD_SHARED_LIBS=OFF
+)
+set(meson_conf_args
+    --prefix=${MINGW_INSTALL_PREFIX}
+    --libdir=${MINGW_INSTALL_PREFIX}/lib
+    --cross-file=${MESON_CROSS}
+    --buildtype=release
+    --default-library=static
+)
+set(autotools_conf_args
+    --host=${TARGET_ARCH}
+    --prefix=${MINGW_INSTALL_PREFIX}
+    --disable-shared
+    --enable-static
+)
