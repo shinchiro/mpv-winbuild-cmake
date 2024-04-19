@@ -16,6 +16,9 @@ ExternalProject_Add(opus
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
+        -Ddeep-plc=enabled
+        -Ddred=enabled
+        -Dosce=enabled
         -Dhardening=false
         -Dextra-programs=disabled
         -Dtests=disabled
