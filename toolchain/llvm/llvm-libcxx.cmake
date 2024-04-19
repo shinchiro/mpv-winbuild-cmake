@@ -16,7 +16,7 @@ ExternalProject_Add(llvm-libcxx
         -DCMAKE_RANLIB=${CMAKE_INSTALL_PREFIX}/bin/llvm-ranlib
         -DCMAKE_C_COMPILER_WORKS=1
         -DCMAKE_CXX_COMPILER_WORKS=1
-        -DCMAKE_C_COMPILER_TARGET=${TARGET_CPU}-w64-windows-gnu
+        -DCMAKE_C_COMPILER_TARGET=${TARGET_CPU}-pc-windows-gnu
         -DLLVM_ENABLE_RUNTIMES='libunwind,libcxxabi,libcxx'
         -DLLVM_PATH=${LLVM_SRC}/llvm
         -DLIBUNWIND_USE_COMPILER_RT=TRUE
