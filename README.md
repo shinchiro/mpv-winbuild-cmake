@@ -81,6 +81,7 @@ Enter `build64` folder and build toolchain once. By default, it will be installe
 
     ninja download # download all packages at once (optional)
     ninja gcc      # build gcc only once (take around ~20 minutes)
+    ninja rustup   # build rust toolchain
     ninja mpv      # build mpv and all its dependencies
 
 On **WSL2**, you might see it stuck with 100% disk usage and never finished. See [below](#wsl-workaround).
