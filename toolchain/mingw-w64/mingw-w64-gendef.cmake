@@ -12,3 +12,4 @@ ExternalProject_Add(mingw-w64-gendef
 )
 
 cleanup(mingw-w64-gendef install)
+tc_delete_dir(mingw-w64-gendef)

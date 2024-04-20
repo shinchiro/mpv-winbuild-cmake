@@ -30,3 +30,4 @@ ExternalProject_Add_Step(mingw-w64-crt autoreconf
 )
 
 cleanup(mingw-w64-crt install)
+tc_delete_dir(mingw-w64-crt)

@@ -15,3 +15,4 @@ ExternalProject_Add(mingw-w64-winpthreads
 )
 
 cleanup(mingw-w64-winpthreads install)
+tc_delete_dir(mingw-w64-winpthreads)

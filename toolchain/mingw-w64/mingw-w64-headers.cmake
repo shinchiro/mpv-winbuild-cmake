@@ -17,3 +17,4 @@ ExternalProject_Add(mingw-w64-headers
 )
 
 cleanup(mingw-w64-headers install)
+tc_delete_dir(mingw-w64-headers)
