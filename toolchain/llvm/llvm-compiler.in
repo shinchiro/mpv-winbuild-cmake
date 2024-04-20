@@ -9,7 +9,7 @@ FLAGS="$FLAGS -Wno-unused-command-line-argument"
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
 else
-    FLAGS="$FLAGS -gcodeview @cfi@ @opt@"
+    FLAGS="$FLAGS -gcodeview @clang_cfi@ @opt@"
     if [ "@ENABLE_CCACHE@" == "ON" ]; then
         CCACHE="ccache"
     fi

@@ -8,7 +8,7 @@ FLAGS="$FLAGS --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto --thinlto-cache
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-O0 --lto-O0 --lto-CGO0 --no-gc-sections --no-guard-cf --build-id=none"
 else
-    FLAGS="$FLAGS -O3 --lto-O3 --lto-CGO3 -s -Xlink=-release"
+    FLAGS="$FLAGS -O3 --lto-O3 --lto-CGO3 -s -Xlink=-release @lld_cfi@"
     if [ "$GC" != "0" ]; then
         LLD_GC="--gc-sections --icf=safe"
     fi
