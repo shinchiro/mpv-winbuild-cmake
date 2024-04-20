@@ -8,15 +8,14 @@ list(APPEND ep
     mingw-w64-headers
     gcc
     mingw-w64-crt
-    gendef
-    widl
+    mingw-w64-gendef
     rustup
     llvm
     llvm-compiler-rt-builtin
     llvm-libcxx
     llvm-compiler-rt
     llvm-openmp
-    winpthreads
+    mingw-w64-winpthreads
     llvm-clang
 )
 function(tc_delete_dir)
@@ -36,6 +35,8 @@ foreach(package IN LISTS ep)
         include(${CMAKE_CURRENT_SOURCE_DIR}/llvm/${package}.cmake)
     elseif(package MATCHES "gcc")
         include(${CMAKE_CURRENT_SOURCE_DIR}/gcc/${package}.cmake)
+    elseif(package MATCHES "mingw-w64")
+        include(${CMAKE_CURRENT_SOURCE_DIR}/mingw-w64/${package}.cmake)
     else()
         include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
     endif()

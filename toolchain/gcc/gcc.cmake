@@ -32,8 +32,8 @@ ExternalProject_Add(gcc
 ExternalProject_Add_Step(gcc final
     DEPENDS
         mingw-w64-crt
-        winpthreads
-        gendef
+        mingw-w64-winpthreads
+        mingw-w64-gendef
         rustup
     COMMAND ${MAKE}
     COMMAND ${MAKE} install-strip

@@ -1,4 +1,4 @@
-ExternalProject_Add(winpthreads
+ExternalProject_Add(mingw-w64-winpthreads
     DEPENDS
         mingw-w64-crt
     DOWNLOAD_COMMAND ""
@@ -14,4 +14,4 @@ ExternalProject_Add(winpthreads
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-cleanup(winpthreads install)
+cleanup(mingw-w64-winpthreads install)
