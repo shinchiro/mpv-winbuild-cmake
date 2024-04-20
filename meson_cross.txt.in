@@ -1,11 +1,13 @@
 [binaries]
 c = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-gcc'
 cpp = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-g++'
+as = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-gcc'
 ar = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-ar'
 strip = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-strip'
 windres = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-windres'
 pkgconfig = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-pkgconf'
 dlltool = '@CMAKE_INSTALL_PREFIX@/bin/@TARGET_ARCH@-dlltool'
+nasm = 'nasm'
 # exe_wrapper = 'wine'
 
 [host_machine]
