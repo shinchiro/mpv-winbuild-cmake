@@ -27,13 +27,5 @@ ExternalProject_Add(vulkan
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-ExternalProject_Add_Step(vulkan copy-wdk-headers
-    DEPENDEES download
-    DEPENDERS configure
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/toolchain/mingw-headers/d3dkmthk.h <SOURCE_DIR>/loader/d3dkmthk.h
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/toolchain/mingw-headers/d3dukmdt.h <SOURCE_DIR>/loader/d3dukmdt.h
-    COMMENT "Copying extra mingw headers"
-)
-
 force_rebuild_git(vulkan)
 cleanup(vulkan install)
