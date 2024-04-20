@@ -45,3 +45,4 @@ ExternalProject_Add(llvm-libcxx
 )
 
 cleanup(llvm-libcxx install)
+tc_delete_dir(llvm-libcxx)

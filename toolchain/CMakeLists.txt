@@ -19,6 +19,15 @@ list(APPEND ep
     winpthreads
     llvm-clang
 )
+function(tc_delete_dir)
+    foreach(arg IN LISTS ARGV)
+        ExternalProject_Add_Step(${arg} tc_delete-dir
+            DEPENDEES install
+            COMMAND bash -c "find <BINARY_DIR> -mindepth 1 -delete && git -C <SOURCE_DIR> clean -df"
+            COMMENT "Delete build directory"
+        )
+    endforeach()
+endfunction()
 foreach(package IN LISTS ep)
     if(NOT ${SINGLE_SOURCE_LOCATION} STREQUAL "")
         set(SOURCE_LOCATION "${SINGLE_SOURCE_LOCATION}/${package}")

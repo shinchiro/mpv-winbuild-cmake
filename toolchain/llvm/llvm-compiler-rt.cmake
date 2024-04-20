@@ -33,3 +33,4 @@ ExternalProject_Add(llvm-compiler-rt
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 cleanup(llvm-compiler-rt install)
+tc_delete_dir(llvm-compiler-rt)

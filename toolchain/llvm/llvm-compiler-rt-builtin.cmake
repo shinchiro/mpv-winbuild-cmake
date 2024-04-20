@@ -36,3 +36,4 @@ ExternalProject_Add(llvm-compiler-rt-builtin
 )
 
 cleanup(llvm-compiler-rt-builtin install)
+tc_delete_dir(llvm-compiler-rt-builtin)
