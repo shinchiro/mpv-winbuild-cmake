@@ -6,6 +6,8 @@ export PKG_CONFIG_LIBDIR="@MINGW_INSTALL_PREFIX@/lib/pkgconfig"
 export RUSTUP_HOME="@RUSTUP_LOCATION@/.rustup"
 export CARGO_HOME="@RUSTUP_LOCATION@/.cargo"
 export LD_PRELOAD="@MALLOC@"
+export MIMALLOC_LARGE_OS_PAGES=1
+export MIMALLOC_ALLOW_LARGE_OS_PAGES=1
 export CCACHE_DIR="@MINGW_INSTALL_PREFIX@/ccache"
 export LLVM_PROFILE_FILE="/dev/null"
 # disable profraw output by default, ensure that only clang and lld can explicitly enable profraw output by wrapper
