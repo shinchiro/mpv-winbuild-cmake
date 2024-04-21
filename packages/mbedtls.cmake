@@ -6,7 +6,7 @@ ExternalProject_Add(mbedtls
     UPDATE_COMMAND ""
     GIT_REMOTE_NAME origin
     GIT_TAG master
-    GIT_RESET 1ec69067fa1351427f904362c1221b31538c8b57 # v3.5.0
+    GIT_RESET 2ca6c285a0dd3f33982dd57299012dacab1ff206 # v3.6.0
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
