@@ -46,7 +46,7 @@ ExternalProject_Add(luajit
         ${EXPORT}
         install
     BUILD_IN_SOURCE 1
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
+    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_PATCH 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
 ExternalProject_Add_Step(luajit install-pc
