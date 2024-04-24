@@ -13,6 +13,7 @@ ExternalProject_Add(mingw-w64-crt
         --prefix=${MINGW_INSTALL_PREFIX}
         --with-sysroot=${CMAKE_INSTALL_PREFIX}
         --with-default-msvcrt=ucrt
+        --enable-wildcard
         ${crt_lib}
         ${cfguard}
     BUILD_COMMAND ${MAKE} LTO=0 GC=0
