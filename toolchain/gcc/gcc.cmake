@@ -35,6 +35,7 @@ ExternalProject_Add_Step(gcc final
         winpthreads
         gendef
         rustup
+        cppwinrt
     COMMAND ${MAKE}
     COMMAND ${MAKE} install-strip
     WORKING_DIRECTORY <BINARY_DIR>
