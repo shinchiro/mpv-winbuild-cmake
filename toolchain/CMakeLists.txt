@@ -6,6 +6,7 @@ list(APPEND ep
     ${gcc_wrapper}
     mingw-w64
     mingw-w64-headers
+    cppwinrt
     gcc
     mingw-w64-crt
     gendef

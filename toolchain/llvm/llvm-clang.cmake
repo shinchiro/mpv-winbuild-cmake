@@ -5,6 +5,7 @@ ExternalProject_Add(llvm-clang
         llvm-libcxx
         winpthreads
         gendef
+        cppwinrt
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${SOURCE_LOCATION}
     UPDATE_COMMAND ""
