@@ -1,4 +1,4 @@
-From fb6cb98928fd783e11d011bae8ab563a6d8e9803 Mon Sep 17 00:00:00 2001
+From dd2fb568b5750261692ed0c47504dac046d5b291 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Wed, 29 Nov 2023 17:38:59 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -14,10 +14,10 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  create mode 100644 loader/vulkan_own.pc.in
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 39f4f6cf5..fa188322b 100644
+index 5a4caec28..da141adbf 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
-@@ -21,8 +21,9 @@ include(CheckIncludeFile)
+@@ -22,8 +22,9 @@ include(CheckIncludeFile)
  add_library(loader_specific_options INTERFACE)
  target_link_libraries(loader_specific_options INTERFACE loader_common_options Vulkan::Headers)
  target_include_directories(loader_specific_options INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/generated ${CMAKE_CURRENT_BINARY_DIR})
@@ -28,17 +28,17 @@ index 39f4f6cf5..fa188322b 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -311,7 +312,7 @@ if(USE_ASSEMBLY_FALLBACK)
-     endif()
+@@ -311,7 +312,7 @@ if(UNKNOWN_FUNCTIONS_SUPPORTED)
+     list(APPEND NORMAL_LOADER_SRCS ${OPT_LOADER_SRCS})
  endif()
  
 -if(WIN32)
 +if(MSVC)
-     add_library(loader-opt STATIC ${OPT_LOADER_SRCS})
-     target_link_libraries(loader-opt PUBLIC loader_specific_options)
-     add_dependencies(loader-opt loader_asm_gen_files)
-@@ -357,21 +358,8 @@ if(WIN32)
-     add_dependencies(vulkan loader_asm_gen_files)
+     # If BUILD_DLL_VERSIONINFO was set, use the loader.rc in the build dir, otherwise use the checked in file
+     set(RC_FILE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/loader.rc)
+     if (NOT "$CACHE{BUILD_DLL_VERSIONINFO}" STREQUAL "")
+@@ -348,21 +349,8 @@ if(WIN32)
+     endif()
  
  else()
 -    if(APPLE)
@@ -58,12 +58,12 @@ index 39f4f6cf5..fa188322b 100644
 -
 +    add_library(vulkan STATIC)
 +    target_compile_definitions(vulkan PRIVATE BUILD_STATIC_LOADER)
-     target_sources(vulkan PRIVATE ${NORMAL_LOADER_SRCS} ${OPT_LOADER_SRCS})
+     target_sources(vulkan PRIVATE ${NORMAL_LOADER_SRCS})
  
+     set_target_properties(vulkan PROPERTIES
+@@ -462,7 +450,7 @@ if (UNKNOWN_FUNCTIONS_SUPPORTED)
      add_dependencies(vulkan loader_asm_gen_files)
-@@ -464,7 +452,7 @@ endif()
- target_link_libraries(vulkan PRIVATE Vulkan::Headers)
- add_library(Vulkan::Loader ALIAS vulkan)
+ endif()
  
 -if (APPLE_STATIC_LOADER)
 +if (BUILD_STATIC_LOADER)
@@ -71,7 +71,7 @@ index 39f4f6cf5..fa188322b 100644
      message(NOTICE "Apple STATIC lib: it will be built but not installed, and vulkan.pc and VulkanLoaderConfig.cmake won't be generated!")
      return()
 diff --git a/loader/loader.h b/loader/loader.h
-index 6bd7115f4..90a441306 100644
+index 2bce18189..77def28bc 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -101,10 +101,10 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 5b0dfb0da..de6942a32 100644
+index 43ecf6672..37bc684cf 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
-@@ -95,6 +95,7 @@ void windows_initialization(void) {
+@@ -97,6 +97,7 @@ void windows_initialization(void) {
  #endif
  }
  
@@ -112,7 +112,7 @@ index 5b0dfb0da..de6942a32 100644
  BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      (void)hinst;
      switch (reason) {
-@@ -112,6 +113,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
+@@ -114,6 +115,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
      }
      return TRUE;
  }
@@ -121,10 +121,10 @@ index 5b0dfb0da..de6942a32 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index afb0f5634..72a908a0f 100644
+index a70ba71a8..4e42ba05b 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
-@@ -69,15 +69,12 @@
+@@ -71,15 +71,12 @@
  #include <io.h>
  #include <shlwapi.h>
  #include <direct.h>
@@ -142,7 +142,7 @@ index afb0f5634..72a908a0f 100644
  #define LOADER_EXPORT
  #elif defined(__GNUC__) && __GNUC__ >= 4
  #define LOADER_EXPORT __attribute__((visibility("default")))
-@@ -226,7 +223,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -233,7 +230,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // resources allocated by anything allocated by once init. This isn't a problem for static libraries, but it is for dynamic
  // ones. When building a DLL, we use DllMain() instead to allow properly cleaning up resources.
  
@@ -169,5 +169,5 @@ index 000000000..ed2f30bb2
 +Libs.private: -lshlwapi -lcfgmgr32
 +Cflags: -I${includedir}
 -- 
-2.43.0
+2.44.0
 
