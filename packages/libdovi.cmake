@@ -9,6 +9,7 @@ ExternalProject_Add(libdovi
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${EXEC}
+        LD_PRELOAD=
         CARGO_BUILD_TARGET_DIR=<BINARY_DIR>
         CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
         ${cargo_lto_rustflags}
