@@ -141,7 +141,7 @@ add_custom_target(package-fullclean
 )
 
 add_custom_target(cargo-clean
-    COMMAND ${EXEC} cargo install --git https://github.com/matthiaskrgr/cargo-cache.git --no-default-features --features ci-autoclean cargo-cache
+    COMMAND ${EXEC} LD_PRELOAD= cargo install --git https://github.com/matthiaskrgr/cargo-cache.git --no-default-features --features ci-autoclean cargo-cache
     COMMAND ${EXEC} cargo-cache
     COMMAND du -sh ${RUSTUP_LOCATION}
     USES_TERMINAL
