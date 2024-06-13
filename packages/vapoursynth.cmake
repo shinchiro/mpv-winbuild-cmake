@@ -58,8 +58,9 @@ ExternalProject_Add_Step(vapoursynth download-header
     DEPENDEES generate-lib
     WORKING_DIRECTORY <SOURCE_DIR>
     COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VapourSynth.h
+    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VapourSynth4.h
     COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VSScript.h
-    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VSHelper.h
+    COMMAND curl -sOL https://raw.githubusercontent.com/vapoursynth/vapoursynth/${rev}/include/VSScript4.h
     LOG 1
 )
 
@@ -68,8 +69,9 @@ ExternalProject_Add_Step(vapoursynth manual-install
     WORKING_DIRECTORY <SOURCE_DIR>
     # Copying header
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VapourSynth.h
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth4.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VapourSynth4.h
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSScript.h
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSHelper.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSHelper.h
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript4.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSScript4.h
     # Copying libs
     ${vapoursynth_manual_install_copy_lib}
     # Copying .pc files
