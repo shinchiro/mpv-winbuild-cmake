@@ -69,9 +69,9 @@ ExternalProject_Add_Step(vapoursynth manual-install
     WORKING_DIRECTORY <SOURCE_DIR>
     # Copying header
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VapourSynth.h
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VapourSynth4.h
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VapourSynth4.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VapourSynth4.h
     COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSScript.h
-    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSScript4.h
+    COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript4.h ${MINGW_INSTALL_PREFIX}/include/vapoursynth/VSScript4.h
     # Copying libs
     ${vapoursynth_manual_install_copy_lib}
     # Copying .pc files
