@@ -80,7 +80,7 @@ list(APPEND ep
     glad
     fast_float
     libdovi
-    rav1e
+    svtav1
     libplacebo
     libva
     libzvbi

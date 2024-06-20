@@ -219,7 +219,7 @@ to update flags which will pass on gcc, g++ and etc.
     - libdovi
     - libva
     - libzvbi
-    - rav1e
+    - svtav1
     - libaribcaption
     - zlib (zlib-ng)
     - zstd
