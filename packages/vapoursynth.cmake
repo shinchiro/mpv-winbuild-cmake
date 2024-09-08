@@ -1,4 +1,4 @@
-if(${TARGET_CPU} MATCHES "x86_64")
+if(${TARGET_CPU} MATCHES "x86_64" OR ${TARGET_CPU} MATCHES "aarch64")
     set(rev "R65")
 else()
     set(rev "R63")
