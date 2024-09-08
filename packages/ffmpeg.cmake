@@ -41,8 +41,8 @@ ExternalProject_Add(ffmpeg
         svtav1
         dav1d
         vapoursynth
-        uavs3d
-        davs2
+        ${ffmpeg_uavs3d}
+        ${ffmpeg_davs2}
         rubberband
         libva
         openal-soft
@@ -89,8 +89,8 @@ ExternalProject_Add(ffmpeg
         --enable-libaom
         --enable-libsvtav1
         --enable-libdav1d
-        --enable-libdavs2
-        --enable-libuavs3d
+        ${ffmpeg_davs2_cmd}
+        ${ffmpeg_uavs3d_cmd}
         --enable-libxvid
         --enable-libzimg
         --enable-openssl
