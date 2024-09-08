@@ -2,7 +2,7 @@ ExternalProject_Add(ffmpeg
     DEPENDS
         amf-headers
         avisynth-headers
-        nvcodec-headers
+        ${nvcodec_headers}
         bzip2
         lame
         lcms2
@@ -104,10 +104,7 @@ ExternalProject_Add(ffmpeg
         --enable-libshaderc
         --enable-libzvbi
         --enable-libaribcaption
-        --enable-cuda-llvm
-        --enable-cuvid
-        --enable-nvdec
-        --enable-nvenc
+        ${ffmpeg_cuda}
         --enable-amf
         --enable-openal
         --enable-opengl
