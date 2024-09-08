@@ -36,7 +36,7 @@ elseif(TARGET_CPU STREQUAL "i686")
     set(GCC_ARCH "prescott" CACHE STRING "Target architecture for x86")
 elseif(TARGET_CPU STREQUAL "aarch64")
     set(TARGET_CPU_FAMILY "aarch64")
-    set(GCC_ARCH "armv8.2-a" CACHE STRING "Target architecture for aarch64")
+    set(GCC_ARCH "cortex-a76" CACHE STRING "Target cpu for aarch64")
 endif()
 
 processorcount(CPU_COUNT)

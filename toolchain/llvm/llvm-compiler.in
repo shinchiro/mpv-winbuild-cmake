@@ -1,10 +1,15 @@
 #!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/@clang_compiler@
-TARGET=@TARGET_ARCH@
-FLAGS="$FLAGS -target $TARGET -march=@GCC_ARCH@ -mtune=@M_TUNE@"
+FLAGS="$FLAGS -target @TARGET_CPU@-pc-windows-gnu"
 FLAGS="$FLAGS @driver_mode@ --sysroot @MINGW_INSTALL_PREFIX@"
 FLAGS="$FLAGS -fuse-ld=lld --ld-path=@TARGET_ARCH@-ld"
 FLAGS="$FLAGS -Wno-unused-command-line-argument"
+
+if [ "@TARGET_CPU@" == "aarch64" ]; then
+    ARCH_FLAGS="-mcpu=@GCC_ARCH@ -mtune=@M_TUNE@"
+else
+    ARCH_FLAGS="-march=@GCC_ARCH@ -mtune=@M_TUNE@"
+fi
 
 if [ "$CONF" == "1" ]; then
     SKIP_OPT="-g0 -O0 -fno-lto -fno-data-sections -fno-function-sections"
@@ -27,4 +32,4 @@ else
     fi
 fi
 
-$CCACHE "$PROG" $LTO_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
+$CCACHE "$PROG" $LTO_FLAGS $ARCH_FLAGS "$@" $FLAGS $CLANG_GC @CLANG_FLAGS@ @linker@ $SKIP_OPT
