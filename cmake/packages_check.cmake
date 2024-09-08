@@ -1,4 +1,5 @@
 if(COMPILER_TOOLCHAIN STREQUAL "gcc")
+    set(rust_target "gnu")
     set(vapoursynth_pkgconfig_libs "-lvapoursynth")
     set(vapoursynth_script_pkgconfig_libs "-lvsscript")
     set(vapoursynth_manual_install_copy_lib COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/libvsscript.a ${MINGW_INSTALL_PREFIX}/lib/libvsscript.a
@@ -12,6 +13,7 @@ if(COMPILER_TOOLCHAIN STREQUAL "gcc")
                           COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/mpv.com
                           COMMAND ${EXEC} ${TARGET_ARCH}-strip -s <BINARY_DIR>/libmpv-2.dll)
 elseif(COMPILER_TOOLCHAIN STREQUAL "clang")
+    set(rust_target "gnullvm")
     set(vapoursynth_pkgconfig_libs "-lVapourSynth -Wl,-delayload=VapourSynth.dll")
     set(vapoursynth_script_pkgconfig_libs "-lVSScript -Wl,-delayload=VSScript.dll")
     set(vapoursynth_manual_install_copy_lib COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/VSScript.lib ${MINGW_INSTALL_PREFIX}/lib/VSScript.lib
