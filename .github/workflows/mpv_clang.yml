@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        bit: [i686, x86_64, x86_64_v3]
+        bit: [i686, x86_64, x86_64_v3, aarch64]
     env:
       BIT: ${{ matrix.bit }}
     container:
@@ -51,6 +51,8 @@ jobs:
           elif [[ $BIT == "x86_64_v3" ]]; then
             echo "arch=x86_64" >> $GITHUB_ENV
             echo "x86_64_level=-v3" >> $GITHUB_ENV
+          elif [[ $BIT == "aarch64" ]]; then
+            echo "arch=aarch64" >> $GITHUB_ENV
           fi
 
       - name: Setup git config

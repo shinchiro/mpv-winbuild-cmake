@@ -67,7 +67,6 @@ jobs:
 
       - name: Loading aarch64 toolchain
         id: aarch64_cache
-        if: false
         uses: actions/cache/restore@main
         with:
           path: build_aarch64
@@ -115,7 +114,7 @@ jobs:
           ninja -C build_i686 llvm-clang
 
       - name: Building aarch64 toolchain
-        if: false
+        if: ${{ steps.aarch64_cache.outputs.cache-matched-key == '' }}
         run: |
           cmake -DTARGET_ARCH=aarch64-w64-mingw32 -DLLVM_ENABLE_PGO=GEN -DCOMPILER_TOOLCHAIN=clang -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_aarch64/aarch64-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -G Ninja -B build_aarch64 -S $PWD
           ninja -C build_aarch64 llvm-clang
@@ -191,7 +190,6 @@ jobs:
           key: ${{ secrets.CACHE_VERSION }}-clang-i686_toolchain-${{ github.run_id }}
 
       - name: Saving aarch64 toolchain
-        if: false
         uses: actions/cache/save@main
         with:
           path: build_aarch64
