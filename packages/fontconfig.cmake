@@ -1,6 +1,6 @@
 ExternalProject_Add(fontconfig
     DEPENDS
-        expat
+        libxml2
         freetype2
         zlib
         libiconv
@@ -17,6 +17,7 @@ ExternalProject_Add(fontconfig
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
+        -Dxml-backend=libxml2
         -Ddoc=disabled
         -Dtests=disabled
         -Dtools=disabled

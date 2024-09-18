@@ -1,7 +1,6 @@
 ExternalProject_Add(libarchive
     DEPENDS
         bzip2
-        expat
         lzo
         xz
         zlib
@@ -25,7 +24,6 @@ ExternalProject_Add(libarchive
         -DENABLE_BZip2=ON
         -DENABLE_ICONV=ON
         -DENABLE_LIBXML2=ON
-        -DENABLE_EXPAT=ON
         -DENABLE_LZO=ON
         -DENABLE_LZMA=ON
         -DENABLE_CPIO=OFF

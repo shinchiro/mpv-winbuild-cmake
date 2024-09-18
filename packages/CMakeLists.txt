@@ -31,7 +31,6 @@ list(APPEND ep
     libiconv
     luajit
     fribidi
-    expat
     nettle
     mbedtls
     libxml2
