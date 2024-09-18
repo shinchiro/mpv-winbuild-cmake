@@ -17,6 +17,7 @@ ExternalProject_Add(fontconfig
         --cross-file=${MESON_CROSS}
         --buildtype=release
         --default-library=static
+        -Diconv=enabled
         -Dxml-backend=libxml2
         -Ddoc=disabled
         -Dtests=disabled
