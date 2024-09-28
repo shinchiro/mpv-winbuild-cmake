@@ -66,6 +66,7 @@ ExternalProject_Add(mpv-release
         -Dvulkan=enabled
         -Dvapoursynth=enabled
         ${mpv_gl}
+        -Dc_args='-Wno-error=int-conversion'
     BUILD_COMMAND ${EXEC} LTO_JOB=1 ninja -C <BINARY_DIR>
     INSTALL_COMMAND ""
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
@@ -74,7 +75,7 @@ ExternalProject_Add(mpv-release
 ExternalProject_Add_Step(mpv-release copy-versionfile
     DEPENDEES download
     DEPENDERS configure
-    COMMAND bash -c "cp VERSION <INSTALL_DIR>/VERSION"
+    COMMAND bash -c "cp MPV_VERSION <INSTALL_DIR>/MPV_VERSION"
     WORKING_DIRECTORY <SOURCE_DIR>
     LOG 1
 )
@@ -98,7 +99,7 @@ set(RENAME ${CMAKE_CURRENT_BINARY_DIR}/mpv-prefix/src/rename-stable.sh)
 file(WRITE ${RENAME}
 "#!/bin/bash
 cd $1
-TAG=$(cat VERSION)
+TAG=$(cat MPV_VERSION)
 mv $2 $3/mpv-\${TAG}-$4")
 
 ExternalProject_Add_Step(mpv-release copy-package-dir
