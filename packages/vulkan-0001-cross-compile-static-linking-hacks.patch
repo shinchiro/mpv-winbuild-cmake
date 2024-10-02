@@ -1,4 +1,4 @@
-From 81424d874010371ebd656e47fe962fbe3394d686 Mon Sep 17 00:00:00 2001
+From 0881cebf665535babb73c5cf173eb0b5aea227a9 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 24 Sep 2024 22:27:16 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -15,7 +15,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  create mode 100644 loader/vulkan_own.pc.in
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6296ebf..7408a63 100644
+index 6296ebff1..7408a63b8 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -22,8 +22,9 @@ include(CheckIncludeFile)
@@ -72,10 +72,10 @@ index 6296ebf..7408a63 100644
      message(NOTICE "Apple STATIC lib: it will be built but not installed, and vulkan.pc and VulkanLoaderConfig.cmake won't be generated!")
      return()
 diff --git a/loader/loader.c b/loader/loader.c
-index 434674b..a5248ca 100644
+index 82e5bca10..b3e98a7ff 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -1932,7 +1932,7 @@ out:
+@@ -1933,7 +1933,7 @@ out:
      return res;
  }
  
@@ -84,7 +84,7 @@ index 434674b..a5248ca 100644
  BOOL __stdcall loader_initialize(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context) {
      (void)InitOnce;
      (void)Parameter;
-@@ -1970,7 +1970,7 @@ void loader_initialize(void) {
+@@ -1971,7 +1971,7 @@ void loader_initialize(void) {
  #if defined(LOADER_USE_UNSAFE_FILE_SEARCH)
      loader_log(NULL, VULKAN_LOADER_WARN_BIT, 0, "Vulkan Loader: unsafe searching is enabled");
  #endif
@@ -94,7 +94,7 @@ index 434674b..a5248ca 100644
  #endif
  }
 diff --git a/loader/loader.h b/loader/loader.h
-index fcd95dd..61c9515 100644
+index fcd95dd10..61c9515a1 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -117,7 +117,7 @@ index fcd95dd..61c9515 100644
  #else
  void loader_initialize(void);
 diff --git a/loader/loader.rc.in b/loader/loader.rc.in
-index 0dc4227..e7fcea0 100644
+index 0dc4227da..e7fcea06f 100644
 --- a/loader/loader.rc.in
 +++ b/loader/loader.rc.in
 @@ -19,7 +19,11 @@
@@ -133,7 +133,7 @@ index 0dc4227..e7fcea0 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 76c49d5..4ea239d 100644
+index 7b6081333..f8f4551cd 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -95,6 +95,7 @@ void windows_initialization(void) {
@@ -153,7 +153,7 @@ index 76c49d5..4ea239d 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 58f7349..9a5715c 100644
+index 23908ae58..3f7137023 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -71,15 +71,12 @@
@@ -161,9 +161,9 @@ index 58f7349..9a5715c 100644
  #include <shlwapi.h>
  #include <direct.h>
 +#include <pthread.h> // for mingw
- #endif  // defined(_WIN32)
  
  #include "stack_allocation.h"
+ #endif  // defined(_WIN32)
  
 -#if defined(APPLE_STATIC_LOADER) && !defined(__APPLE__)
 -#error "APPLE_STATIC_LOADER can only be defined on Apple platforms!"
@@ -194,7 +194,7 @@ index 58f7349..9a5715c 100644
  }
 diff --git a/loader/vulkan_own.pc.in b/loader/vulkan_own.pc.in
 new file mode 100644
-index 0000000..ed2f30b
+index 000000000..ed2f30bb2
 --- /dev/null
 +++ b/loader/vulkan_own.pc.in
 @@ -0,0 +1,11 @@
