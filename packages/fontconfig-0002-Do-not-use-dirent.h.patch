@@ -1,4 +1,4 @@
-From 3f8083be014eb1f01a4e143b2f68b6b1d66c9459 Mon Sep 17 00:00:00 2001
+From fb7701e1f00fb9145f0f5b88f7d67fd3931f1e1b Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 6 Apr 2024 11:38:08 +0800
 Subject: [PATCH] Do not use dirent.h
@@ -10,11 +10,11 @@ Relevant issue: https://github.com/mpv-player/mpv/issues/10679
  1 file changed, 1 deletion(-)
 
 diff --git a/meson.build b/meson.build
-index e04b13a..f20491a 100644
+index dd3cfe3..be3ea1e 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -46,7 +46,6 @@ pkgmod = import('pkgconfig')
- python3 = import('python').find_installation()
+@@ -84,7 +84,6 @@ python3 = import('python').find_installation()
+ pytest = find_program('pytest', required: false)
  
  check_headers = [
 -  ['dirent.h'],
@@ -22,5 +22,5 @@ index e04b13a..f20491a 100644
    ['fcntl.h'],
    ['inttypes.h'],
 -- 
-2.43.0
+2.47.0
 
