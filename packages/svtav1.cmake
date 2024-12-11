@@ -15,6 +15,7 @@ ExternalProject_Add(svtav1
         -DBUILD_ENC=ON
         -DSVT_AV1_LTO=OFF
         -DBUILD_APPS=OFF
+        -DCMAKE_C_FLAGS='${CMAKE_C_FLAGS} -Dav1_cospi_arr_s32_data=svtav1_av1_cospi_arr_s32_data'
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
