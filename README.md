@@ -235,7 +235,7 @@ to update flags which will pass on gcc, g++ and etc.
     - xvidcore (1.3.7)
     - lzo (2.10)
     - libopenmpt (0.7.8)
-    - libiconv (1.17)
+    - libiconv (1.18)
     - ~~gmp (6.3.0)~~
     - vapoursynth (R65/R63)
     - ~~mbedtls (3.5.0)~~
