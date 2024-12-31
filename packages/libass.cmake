@@ -20,6 +20,11 @@ ExternalProject_Add(libass
         -Ddirectwrite=enabled
         -Dasm=enabled
         -Dlibunibreak=enabled
+        -Dtest=disabled
+        -Dcompare=disabled
+        -Dprofile=disabled
+        -Dfuzz=disabled
+        -Dcheckasm=disabled
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
