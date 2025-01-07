@@ -1,4 +1,4 @@
-From 0881cebf665535babb73c5cf173eb0b5aea227a9 Mon Sep 17 00:00:00 2001
+From 7903ac5e36f2ec7a0e1d649b8dd2ef2c78d09e65 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 24 Sep 2024 22:27:16 +0800
 Subject: [PATCH] loader: cross-compile & static linking hacks
@@ -15,7 +15,7 @@ Subject: [PATCH] loader: cross-compile & static linking hacks
  create mode 100644 loader/vulkan_own.pc.in
 
 diff --git a/loader/CMakeLists.txt b/loader/CMakeLists.txt
-index 6296ebff1..7408a63b8 100644
+index 624192dc3..c37f31b39 100644
 --- a/loader/CMakeLists.txt
 +++ b/loader/CMakeLists.txt
 @@ -22,8 +22,9 @@ include(CheckIncludeFile)
@@ -29,7 +29,7 @@ index 6296ebff1..7408a63b8 100644
  
      if(ENABLE_WIN10_ONECORE)
          # Note: When linking your app or driver to OneCore.lib, be sure to remove any links to non-umbrella libs (such as
-@@ -372,7 +373,7 @@ if(UNKNOWN_FUNCTIONS_SUPPORTED)
+@@ -367,7 +368,7 @@ if(UNKNOWN_FUNCTIONS_SUPPORTED)
      list(APPEND NORMAL_LOADER_SRCS ${OPT_LOADER_SRCS})
  endif()
  
@@ -38,7 +38,7 @@ index 6296ebff1..7408a63b8 100644
      # If BUILD_DLL_VERSIONINFO was set, use the loader.rc in the build dir, otherwise use the checked in file
      set(RC_FILE_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/loader.rc)
      if (NOT "$CACHE{BUILD_DLL_VERSIONINFO}" STREQUAL "")
-@@ -412,21 +413,8 @@ if(WIN32)
+@@ -403,21 +404,8 @@ if(WIN32)
      endif()
  
  else()
@@ -62,8 +62,8 @@ index 6296ebff1..7408a63b8 100644
      target_sources(vulkan PRIVATE ${NORMAL_LOADER_SRCS})
  
      set_target_properties(vulkan PROPERTIES
-@@ -526,7 +514,7 @@ if (UNKNOWN_FUNCTIONS_SUPPORTED)
-     add_dependencies(vulkan loader_asm_gen_files)
+@@ -521,7 +509,7 @@ if (BUILD_TESTS)
+     target_compile_definitions(vulkan PRIVATE SHOULD_EXPORT_TEST_FUNCTIONS)
  endif()
  
 -if (APPLE_STATIC_LOADER)
@@ -72,10 +72,10 @@ index 6296ebff1..7408a63b8 100644
      message(NOTICE "Apple STATIC lib: it will be built but not installed, and vulkan.pc and VulkanLoaderConfig.cmake won't be generated!")
      return()
 diff --git a/loader/loader.c b/loader/loader.c
-index 82e5bca10..b3e98a7ff 100644
+index 9deff6881..41d347eb1 100644
 --- a/loader/loader.c
 +++ b/loader/loader.c
-@@ -1933,7 +1933,7 @@ out:
+@@ -1960,7 +1960,7 @@ out:
      return res;
  }
  
@@ -84,7 +84,7 @@ index 82e5bca10..b3e98a7ff 100644
  BOOL __stdcall loader_initialize(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *Context) {
      (void)InitOnce;
      (void)Parameter;
-@@ -1971,7 +1971,7 @@ void loader_initialize(void) {
+@@ -1998,7 +1998,7 @@ void loader_initialize(void) {
  #if defined(LOADER_USE_UNSAFE_FILE_SEARCH)
      loader_log(NULL, VULKAN_LOADER_WARN_BIT, 0, "Vulkan Loader: unsafe searching is enabled");
  #endif
@@ -94,7 +94,7 @@ index 82e5bca10..b3e98a7ff 100644
  #endif
  }
 diff --git a/loader/loader.h b/loader/loader.h
-index fcd95dd10..61c9515a1 100644
+index a5527b964..2760de929 100644
 --- a/loader/loader.h
 +++ b/loader/loader.h
 @@ -33,7 +33,9 @@
@@ -133,7 +133,7 @@ index 0dc4227da..e7fcea06f 100644
  // All set through CMake
  #define VER_FILE_VERSION ${LOADER_VER_FILE_VERSION}
 diff --git a/loader/loader_windows.c b/loader/loader_windows.c
-index 7b6081333..f8f4551cd 100644
+index f73659c09..bf0ae0d57 100644
 --- a/loader/loader_windows.c
 +++ b/loader/loader_windows.c
 @@ -95,6 +95,7 @@ void windows_initialization(void) {
@@ -153,7 +153,7 @@ index 7b6081333..f8f4551cd 100644
  bool windows_add_json_entry(const struct loader_instance *inst,
                              char **reg_data,    // list of JSON files
 diff --git a/loader/vk_loader_platform.h b/loader/vk_loader_platform.h
-index 23908ae58..3f7137023 100644
+index 9a3b9c1c9..93807ee30 100644
 --- a/loader/vk_loader_platform.h
 +++ b/loader/vk_loader_platform.h
 @@ -71,15 +71,12 @@
@@ -174,7 +174,7 @@ index 23908ae58..3f7137023 100644
  #define LOADER_EXPORT
  #elif defined(__GNUC__) && __GNUC__ >= 4
  #define LOADER_EXPORT __attribute__((visibility("default")))
-@@ -241,7 +238,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
+@@ -252,7 +249,7 @@ static inline bool loader_platform_is_path(const char *path) { return strchr(pat
  // API call made, using InitOnceExecuteOnce, except for initialization primitives which must be done in DllMain. This is because
  // there is no way to clean up the resources allocated by anything allocated by once init.
  
@@ -183,7 +183,7 @@ index 23908ae58..3f7137023 100644
  static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*func)(void)) {
      assert(func != NULL);
      assert(ctl != NULL);
-@@ -250,7 +247,7 @@ static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*fu
+@@ -261,7 +258,7 @@ static inline void loader_platform_thread_once_fn(pthread_once_t *ctl, void (*fu
  #define LOADER_PLATFORM_THREAD_ONCE_DECLARATION(var) pthread_once_t var = PTHREAD_ONCE_INIT;
  #define LOADER_PLATFORM_THREAD_ONCE_EXTERN_DEFINITION(var) extern pthread_once_t var;
  #define LOADER_PLATFORM_THREAD_ONCE(ctl, func) loader_platform_thread_once_fn(ctl, func);
@@ -210,5 +210,5 @@ index 000000000..ed2f30bb2
 +Libs.private: -lshlwapi -lcfgmgr32
 +Cflags: -I${includedir}
 -- 
-2.46.0
+2.47.1
 
