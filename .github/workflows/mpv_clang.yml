@@ -119,7 +119,6 @@ jobs:
         run: |
           mkdir -p release_$BIT
           ninja -C build_$BIT mpv-packaging; mv build_$BIT/mpv*.7z release_$BIT
-          if [[ $BIT == x86_64_v3 ]]; then for dir in release_$BIT/mpv-*; do name=$(basename $dir); mv $dir $(dirname $dir)/${name/x86_64/x86_64-v3}; done; fi
 
       - name: Copying ffmpeg
         run: |
