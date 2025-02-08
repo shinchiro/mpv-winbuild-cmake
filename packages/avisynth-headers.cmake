@@ -5,6 +5,7 @@ ExternalProject_Add(avisynth-headers
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !distrib"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
+    GIT_RESET 21fdc997f9724b994896ba5520ddf64d677976b3
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
