@@ -1,24 +1,23 @@
-From 78670422540b05da11084cf885c19d0286a236c4 Mon Sep 17 00:00:00 2001
+From 808ee5a0d3a957eca2d3798f132831be4d570085 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sun, 20 Sep 2020 10:44:07 +0800
 Subject: [PATCH] Custom changes for mpv builds
 
 Based on original lachs0r's patch for fontconfig
 ---
- src/fcdir.c  | 34 +++++++++++++++++++++++-----------
+ src/fcdir.c  | 33 +++++++++++++++++++++++----------
  src/fcinit.c | 35 +++++++++++++++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 11 deletions(-)
+ 2 files changed, 58 insertions(+), 10 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index 2e4fdc6..68aad94 100644
+index 9b932866..965a13eb 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
-@@ -72,18 +72,9 @@ FcFileScanFontConfig (FcFontSet		*set,
-     int		old_nfont = set->nfont;
+@@ -72,17 +72,9 @@ FcFileScanFontConfig (FcFontSet     *set,
+     int            old_nfont = set->nfont;
      const FcChar8 *sysroot = FcConfigGetSysRoot (config);
  
--    if (FcDebug () & FC_DBG_SCAN)
--    {
+-    if (FcDebug() & FC_DBG_SCAN) {
 -	printf ("\tScanning file %s...", file);
 -	fflush (stdout);
 -    }
@@ -26,22 +25,22 @@ index 2e4fdc6..68aad94 100644
      if (!FcFreeTypeQueryAll (file, -1, NULL, NULL, set))
  	return FcFalse;
  
--    if (FcDebug () & FC_DBG_SCAN)
+-    if (FcDebug() & FC_DBG_SCAN)
 -	printf ("done\n");
 -
-     for (i = old_nfont; i < set->nfont; i++)
-     {
+     for (i = old_nfont; i < set->nfont; i++) {
  	FcPattern *font = set->fonts[i];
-@@ -233,7 +224,7 @@ FcDirScanConfig (FcFontSet	*set,
-     base = file_prefix + strlen ((char *) file_prefix);
  
-     if (FcDebug () & FC_DBG_SCAN)
+@@ -223,7 +215,7 @@ FcDirScanConfig (FcFontSet     *set,
+     base = file_prefix + strlen ((char *)file_prefix);
+ 
+     if (FcDebug() & FC_DBG_SCAN)
 -	printf ("\tScanning dir %s\n", s_dir);
 +	fprintf (stderr, "[fontconfig] Scanning dir %s\n", dir);
  
-     d = opendir ((char *) s_dir);
-     if (!d)
-@@ -270,8 +261,29 @@ FcDirScanConfig (FcFontSet	*set,
+     d = opendir ((char *)s_dir);
+     if (!d) {
+@@ -257,8 +249,29 @@ FcDirScanConfig (FcFontSet     *set,
      /*
       * Scan file files to build font patterns
       */
@@ -73,11 +72,11 @@ index 2e4fdc6..68aad94 100644
  bail2:
      FcStrSetDestroy (files);
 diff --git a/src/fcinit.c b/src/fcinit.c
-index c05cdc5..347f8b4 100644
+index 11afa28b..b9616007 100644
 --- a/src/fcinit.c
 +++ b/src/fcinit.c
-@@ -35,6 +35,12 @@
- #pragma message("To suppress these warnings, define FC_NO_MT.")
+@@ -36,6 +36,12 @@
+ #  pragma message("To suppress these warnings, define FC_NO_MT.")
  #endif
  
 +#ifdef _WIN32
@@ -89,8 +88,8 @@ index c05cdc5..347f8b4 100644
  static FcConfig *
  FcInitFallbackConfig (const FcChar8 *sysroot)
  {
-@@ -53,12 +59,41 @@ FcInitFallbackConfig (const FcChar8 *sysroot)
-     config = FcConfigCreate ();
+@@ -56,12 +62,41 @@ FcInitFallbackConfig (const FcChar8 *sysroot)
+     config = FcConfigCreate();
      if (!config)
  	goto bail0;
 +
@@ -132,5 +131,5 @@ index c05cdc5..347f8b4 100644
      FcConfigDestroy (config);
  bail0:
 -- 
-2.43.0
+2.47.1
 
