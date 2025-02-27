@@ -16,7 +16,7 @@ ExternalProject_Add(mingw-w64-crt
         ${crt_lib}
         ${cfguard}
     BUILD_COMMAND ${MAKE} LTO=0 GC=0
-    INSTALL_COMMAND ${MAKE} LTO=0 GC=0 install-strip
+    INSTALL_COMMAND ${MAKE} LTO=0 GC=0 install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
