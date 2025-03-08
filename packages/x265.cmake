@@ -1,189 +1,51 @@
-if(${TARGET_CPU} MATCHES "x86_64")
-    set(high_bit_depth "-DHIGH_BIT_DEPTH=ON -DENABLE_HDR10_PLUS=ON")
-    # 10bit/12bit only supported in x64.
-    set(ffmpeg_x265 "x265-8+10bit")
-else()
-    set(high_bit_depth "-DHIGH_BIT_DEPTH=OFF")
-    set(ffmpeg_x265 "x265-10bit")
-endif()
-
 ExternalProject_Add(x265
-    GIT_REPOSITORY https://bitbucket.org/multicoreware/x265_git.git
+    GIT_REPOSITORY https://github.com/zhongflyTeam/x265_git.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_PROGRESS TRUE
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    LOG_DOWNLOAD 1 LOG_UPDATE 1
-)
-
-get_property(source_dir TARGET x265 PROPERTY _EP_SOURCE_DIR)
-get_property(binary_dir TARGET x265 PROPERTY _EP_BINARY_DIR)
-
-ExternalProject_Add(x265-10bit
-    DEPENDS
-        x265
-    DOWNLOAD_COMMAND ""
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
-        ${high_bit_depth}
-        -DENABLE_SHARED=OFF
+    CONFIGURE_COMMAND ${EXEC} CONF=1 ${CMAKE_COMMAND} -H<SOURCE_DIR>/source -B<BINARY_DIR>/12b
+        ${cmake_conf_args}
         -DENABLE_CLI=OFF
-        -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
-        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-ExternalProject_Add(x265-10bit-lib
-    DEPENDS
-        x265
-    DOWNLOAD_COMMAND ""
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
-        -DHIGH_BIT_DEPTH=ON
         -DENABLE_HDR10_PLUS=ON
+        -DENABLE_SHARED=OFF
         -DEXPORT_C_API=OFF
-        -DENABLE_SHARED=OFF
-        -DENABLE_CLI=OFF
-        -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
-        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a ${binary_dir}/libx265_main10.a
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-ExternalProject_Add(x265-12bit-lib
-    DEPENDS
-        x265
-    DOWNLOAD_COMMAND ""
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
         -DHIGH_BIT_DEPTH=ON
-        -DENABLE_HDR10_PLUS=ON
+        -DENABLE_ALPHA=ON
+        -DENABLE_MULTIVIEW=ON
+        -DENABLE_SCC_EXT=ON
         -DMAIN12=ON
-        -DEXPORT_C_API=OFF
-        -DENABLE_SHARED=OFF
+        -DLINKED_10BIT=ON
+        -DEXTRA_LIB=ON
+    COMMAND ${EXEC} CONF=1 ${CMAKE_COMMAND} -H<SOURCE_DIR>/source -B<BINARY_DIR>/10b
+        ${cmake_conf_args}
         -DENABLE_CLI=OFF
-        -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
-        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a ${binary_dir}/libx265_main12.a
+        -DENABLE_HDR10_PLUS=ON
+        -DENABLE_SHARED=OFF
+        -DEXPORT_C_API=OFF
+        -DHIGH_BIT_DEPTH=ON
+        -DENABLE_ALPHA=ON
+        -DENABLE_MULTIVIEW=ON
+        -DENABLE_SCC_EXT=ON
+        -DLINKED_12BIT=ON
+        -DEXTRA_LIB=ON
+    COMMAND ${EXEC} CONF=1 ${CMAKE_COMMAND} -H<SOURCE_DIR>/source -B<BINARY_DIR>
+        ${cmake_conf_args}
+        -DENABLE_CLI=OFF
+        -DENABLE_HDR10_PLUS=ON
+        -DENABLE_SHARED=OFF
+        -DLINKED_10BIT=ON
+        -DLINKED_12BIT=ON
+        -DENABLE_ALPHA=ON
+        -DENABLE_MULTIVIEW=ON
+        -DENABLE_SCC_EXT=ON
+        -DEXTRA_LIB=ON
+    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>/12b & ${EXEC} ninja -C <BINARY_DIR>/10b & ${EXEC} ninja -C <BINARY_DIR>
+    COMMAND ${EXEC} mv <BINARY_DIR>/12b/libx265.a <BINARY_DIR>/libx26512.a & mv <BINARY_DIR>/10b/libx265.a <BINARY_DIR>/libx26510.a
+    COMMAND bash -c "cd <BINARY_DIR> && echo -e 'create libx265.a\naddlib libx265.a\naddlib libx26510.a\naddlib libx26512.a\nsave\nend' | ${EXEC} ${TARGET_ARCH}-ar -M"
+    INSTALL_COMMAND ${EXEC} ${CMAKE_COMMAND} --install <BINARY_DIR>
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
-
-set(COMBINE ${CMAKE_CURRENT_BINARY_DIR}/x265-prefix/src/combine-libs.sh)
-file(WRITE ${COMBINE}
-"#!/bin/bash
-dir=$1
-echo create libx265.a > $dir/combine-libs.mri
-for lib in $2 $3 $4
-do
-    echo addlib $lib >> $dir/combine-libs.mri
-done
-echo save >> $dir/combine-libs.mri
-echo end >> $dir/combine-libs.mri
-${EXEC} ${TARGET_ARCH}-ar -M < $dir/combine-libs.mri
-")
-
-ExternalProject_Add(x265-8+10bit
-    DEPENDS
-        x265
-        x265-10bit-lib
-    DOWNLOAD_COMMAND ""
-    LIST_SEPARATOR ^^
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
-              COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
-                        -G Ninja
-                        -DCMAKE_BUILD_TYPE=Release
-                        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-                        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-                        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-                        -DBUILD_SHARED_LIBS=OFF
-                        -DEXTRA_LIB='x265_main10.a'
-                        -DEXTRA_LINK_FLAGS=-L.
-                        -DLINKED_10BIT=ON
-                        -DENABLE_SHARED=OFF
-                        -DENABLE_CLI=OFF
-                        -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
-                        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-          COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
-          COMMAND chmod 755 ${COMBINE}
-          COMMAND ${COMBINE} <BINARY_DIR> libx265_main.a libx265_main10.a
-    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install/strip
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-ExternalProject_Add(x265-8+10+12bit
-    DEPENDS
-        x265
-        x265-12bit-lib
-        x265-10bit-lib
-    DOWNLOAD_COMMAND ""
-    LIST_SEPARATOR ^^
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main10.a <BINARY_DIR>
-              COMMAND ${CMAKE_COMMAND} -E copy ${binary_dir}/libx265_main12.a <BINARY_DIR>
-              COMMAND ${EXEC} CONF=1 cmake -H${source_dir}/source -B<BINARY_DIR>
-                        -G Ninja
-                        -DCMAKE_BUILD_TYPE=Release
-                        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-                        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-                        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-                        -DBUILD_SHARED_LIBS=OFF
-                        -DEXTRA_LIB='x265_main10.a^^x265_main12.a'
-                        -DEXTRA_LINK_FLAGS=-L.
-                        -DLINKED_10BIT=ON
-                        -DLINKED_12BIT=ON
-                        -DENABLE_SHARED=OFF
-                        -DENABLE_CLI=OFF
-                        -DCMAKE_ASM_NASM_FLAGS=-w-macro-params-legacy
-                        -DCMAKE_POLICY_VERSION_MINIMUM=3.5
-    BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
-          COMMAND ${CMAKE_COMMAND} -E copy <BINARY_DIR>/libx265.a <BINARY_DIR>/libx265_main.a
-          COMMAND chmod 755 ${COMBINE}
-          COMMAND ${COMBINE} <BINARY_DIR> libx265_main.a libx265_main10.a libx265_main12.a
-    INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install/strip
-    LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
-)
-
-function(delete_dir)
-    foreach(arg IN LISTS ARGV)
-        ExternalProject_Add_Step(${arg} delete-dir
-            DEPENDEES install
-            COMMAND bash -c "rm -rf <BINARY_DIR>/*"
-            COMMENT "Delete build directory"
-        )
-    endforeach()
-endfunction()
 
 force_rebuild_git(x265)
 cleanup(x265 install)
-cleanup(x265-10bit-lib install)
-cleanup(x265-12bit-lib install)
-cleanup(x265-10bit install)
-cleanup(x265-8+10bit install)
-cleanup(x265-8+10+12bit install)
-delete_dir(x265-10bit-lib x265-12bit-lib x265-10bit x265-8+10bit x265-8+10+12bit)

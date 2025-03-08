@@ -1,7 +1,8 @@
 ExternalProject_Add(libvpx
-    GIT_REPOSITORY https://chromium.googlesource.com/webm/libvpx.git
+    GIT_REPOSITORY https://github.com/webmproject/libvpx.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1 --filter=tree:0"
+    GIT_PROGRESS TRUE
     GIT_REMOTE_NAME origin
     GIT_TAG main
     UPDATE_COMMAND ""
@@ -18,6 +19,11 @@ ExternalProject_Add(libvpx
         --as=yasm
         --enable-debug
         --enable-vp9-highbitdepth
+    COMMAND ${EXEC} sed -i [['/HAVE_PTHREAD_H/d']] <BINARY_DIR>/vpx_config.h
+    COMMAND ${EXEC} sed -i [['/HAVE_PTHREAD_H/d']] <BINARY_DIR>/libs-${libvpx_target}.mk
+    COMMAND ${EXEC} sed -i [['/extralibs/d']] <BINARY_DIR>/libs-${libvpx_target}.mk
+    ${aom_vpx_sse2avx}
+    ${novzeroupper} <SOURCE_DIR>/third_party/x86inc/x86inc.asm
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

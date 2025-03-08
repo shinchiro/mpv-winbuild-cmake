@@ -1,0 +1,3 @@
+#!/bin/bash
+
+@NASM@ $@ -DFORCE_VEX_ENCODING=1

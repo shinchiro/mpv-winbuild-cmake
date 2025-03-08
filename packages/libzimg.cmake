@@ -4,21 +4,18 @@ ExternalProject_Add(libzimg
         graphengine
     GIT_REPOSITORY https://bitbucket.org/the-sekrit-twc/zimg.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1 --filter=tree:0"
+    GIT_PROGRESS TRUE
     GIT_SUBMODULES ""
-    PATCH_COMMAND ${EXEC} sed -i "s/Windows.h/windows.h/g" src/zimg/common/arm/cpuinfo_arm.cpp
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ""
-    COMMAND bash -c "rm -rf <SOURCE_DIR>/graphengine"
-    COMMAND bash -c "ln -s ${src_graphengine} <SOURCE_DIR>/graphengine"
-    COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
+    CONFIGURE_COMMAND ${EXEC} sed -i [['s/Windows.h/windows.h/g']] <SOURCE_DIR>/src/zimg/common/arm/cpuinfo_arm.cpp
+    COMMAND ${autoreshit}
+    COMMAND ${CMAKE_COMMAND} -E rm -rf graphengine
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${src_graphengine} graphengine
+    COMMAND ${EXEC} CONF=1 ./configure
+        ${autoshit_conf_args}
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
-            COMMAND bash -c "git -C ${src_graphengine} clean -dfx"
-    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
