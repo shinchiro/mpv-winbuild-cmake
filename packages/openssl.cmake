@@ -5,20 +5,22 @@ ExternalProject_Add(openssl
         brotli
     GIT_REPOSITORY https://github.com/openssl/openssl.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--sparse --filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1 --sparse --filter=tree:0"
+    GIT_PROGRESS TRUE
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !test"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
-    COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/openssl-arm64.conf <SOURCE_DIR>/Configurations/11-mingw-arm64.conf
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/openssl-arm64.conf <SOURCE_DIR>/Configurations/11-mingw-arm64.conf
     COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/Configure
         --cross-compile-prefix=${TARGET_ARCH}-
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=lib
         --release
+        enable-ec_nistp_64_gcc_128
+        no-tls-deprecated-ec
         no-autoload-config
         ${openssl_target}
-        ${openssl_ec_opt}
         no-ssl3-method
         enable-brotli
         no-whirlpool
@@ -30,6 +32,7 @@ ExternalProject_Add(openssl
         no-rmd160
         no-module
         no-legacy
+        no-engine
         no-tests
         threads
         no-docs
