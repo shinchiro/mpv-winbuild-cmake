@@ -1,7 +1,6 @@
-set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download)
+set_property(DIRECTORY PROPERTY EP_STEP_TARGETS download patch configure build install)
 include(${PROJECT_SOURCE_DIR}/cmake/packages_check.cmake)
 list(APPEND ep
-    gmp
     xz
     lzo
     uchardet
@@ -12,7 +11,6 @@ list(APPEND ep
     bzip2
     libjpeg
     lcms2
-    lame
     ogg
     vorbis
     opus-dnn
@@ -20,20 +18,16 @@ list(APPEND ep
     speex
     libmodplug
     libvpx
-    xvidcore
     game-music-emu
     libpng
-    x264
     x265
     libdvdcss
     libdvdread
     libdvdnav
     libiconv
+    luajit-wrap
     luajit
     fribidi
-    expat
-    nettle
-    mbedtls
     libxml2
     brotli
     freetype2
@@ -56,15 +50,12 @@ list(APPEND ep
     dav1d
     libwebp
     vapoursynth
-    libbs2b
     openssl
     libssh
     libsrt
     libarchive
     highway
     libjxl
-    uavs3d
-    davs2
     angle-headers
     mujs
     spirv-headers
@@ -86,22 +77,18 @@ list(APPEND ep
     libzvbi
     libaribcaption
     libsixel
+    opencl-header
+    opencl
+    fdk-aac
+    liblc3
+    libvidstab
+    frei0r
+    vvenc
+    codec2
     ffmpeg
     mpv
     mpv-release
     mpv-packaging
-    curl
-    flac
-    opusfile
-    libopusenc
-    opus-tools
-    termcap
-    readline
-    cryptopp
-    sqlite
-    libuv
-    libsodium
-    megasdk
 )
 foreach(package IN LISTS ep)
     if(NOT ${SINGLE_SOURCE_LOCATION} STREQUAL "")
@@ -119,7 +106,7 @@ list(LENGTH ep ep_length)
 message(STATUS "Parsing ${ep_length} packages")
 
 # Exclude packages which dont depend on mpv when update
-list(APPEND removed "flac" "opusfile" "libopusenc" "opus-tools" "termcap" "readline" "cryptopp" "sqlite" "libuv" "libsodium" "megasdk" "libsixel" "curl" "libressl" "mbedtls" "nettle" "gmp")
+list(APPEND removed "")
 list(REMOVE_ITEM repo ${removed})
 list(REMOVE_ITEM ep ${removed})
 list(TRANSFORM repo APPEND "-force-update" OUTPUT_VARIABLE update)

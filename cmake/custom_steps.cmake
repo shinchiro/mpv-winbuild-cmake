@@ -15,14 +15,24 @@ function(cleanup _name _last_step)
     endif()
 
     if(_git_repository)
-        if(_build_in_source)
-            set(remove_cmd "git -C <SOURCE_DIR> clean -dfx")
+        if(EXISTS ${source_dir}/.git)
+            if(_build_in_source)
+                set(remove_cmd ${EXEC} git -C <SOURCE_DIR> clean -ffxd)
+            else()
+                set(remove_cmd ${EXEC} find <BINARY_DIR> -mindepth 1 -delete & ${EXEC} git -C <SOURCE_DIR> clean -ffxd)
+            endif()
+            set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
+                                     COMMAND ${stamp_dir}/reset_head.sh
+                                     COMMAND bash -c "git -C <SOURCE_DIR> restore .")
         else()
-            set(remove_cmd "find <BINARY_DIR> -mindepth 1 -delete && git -C <SOURCE_DIR> clean -df")
+            if(_build_in_source)
+                set(remove_cmd ${EXEC} true)
+            else()
+                set(remove_cmd ${EXEC} find <BINARY_DIR> -mindepth 1 -delete)
+            endif()
         endif()
-        set(COMMAND_FORCE_UPDATE COMMAND bash -c "git -C <SOURCE_DIR> am --abort 2> /dev/null || true"
-                                 COMMAND ${stamp_dir}/reset_head.sh
-                                 COMMAND bash -c "git -C <SOURCE_DIR> restore .")
+    else()
+        set(remove_cmd ${EXEC} find <BINARY_DIR> -mindepth 1 -delete)
     endif()
 
     # <STAMP_DIR> doesn't resolve into full path, so <LOG_DIR> is used instead since its same folder.
@@ -48,7 +58,7 @@ function(cleanup _name _last_step)
 
     ExternalProject_Add_Step(${_name} postremovebuild
         DEPENDEES ${_last_step}
-        COMMAND ${EXEC} ${remove_cmd}
+        COMMAND ${remove_cmd}
         ${COMMAND_FORCE_UPDATE}
         LOG 1
         COMMENT "Deleting build directory of ${_name} package after install"
@@ -56,7 +66,7 @@ function(cleanup _name _last_step)
 
     ExternalProject_Add_Step(${_name} removebuild
         DEPENDEES fullclean
-        COMMAND ${EXEC} ${remove_cmd}
+        COMMAND ${remove_cmd}
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
@@ -65,8 +75,7 @@ function(cleanup _name _last_step)
     )
 
     ExternalProject_Add_Step(${_name} removeprefix
-        COMMAND ${EXEC} rm -rf <INSTALL_DIR> ${source_dir}
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target rebuild_cache
+        COMMAND ${EXEC} find <INSTALL_DIR> ${source_dir} -mindepth 1 -delete
         ALWAYS TRUE
         EXCLUDE_FROM_MAIN TRUE
         INDEPENDENT TRUE
@@ -82,6 +91,7 @@ function(force_rebuild_git _name)
     get_property(git_remote_name TARGET ${_name} PROPERTY _EP_GIT_REMOTE_NAME)
     get_property(stamp_dir TARGET ${_name} PROPERTY _EP_STAMP_DIR)
     get_property(source_dir TARGET ${_name} PROPERTY _EP_SOURCE_DIR)
+    get_property(git_clone_flags TARGET ${_name} PROPERTY _EP_GIT_CLONE_FLAGS)
 
     if("${git_remote_name}" STREQUAL "" AND NOT "${git_tag}" STREQUAL "")
         # GIT_REMOTE_NAME is not set when commit hash is specified
@@ -90,6 +100,15 @@ function(force_rebuild_git _name)
         set(reset "${git_reset}")
     else()
         set(reset "@{u}") # eg: origin/master
+    endif()
+    if("${git_remote_name}" STREQUAL "")
+        set(git_remote_name "origin")
+    endif()
+    if("${git_tag}" STREQUAL "")
+        set(git_tag "master")
+    endif()
+    if(${git_clone_flags} MATCHES "--depth=1")
+        set(shallow_fetch "--depth 1")
     endif()
 
 file(WRITE ${stamp_dir}/reset_head.sh
@@ -114,7 +133,7 @@ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_
         INDEPENDENT TRUE
         WORKING_DIRECTORY <SOURCE_DIR>
         COMMAND bash -c "git am --abort 2> /dev/null || true"
-        COMMAND bash -c "git fetch --filter=tree:0 --no-recurse-submodules || true"
+        COMMAND bash -c "git fetch ${shallow_fetch} --prune --prune-tags --atomic --filter=tree:0 --no-recurse-submodules ${git_remote_name} ${git_tag}"
         COMMAND ${stamp_dir}/reset_head.sh
     )
     ExternalProject_Add_StepTargets(${_name} force-update)
@@ -139,38 +158,8 @@ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_
     else()
         execute_process(
             WORKING_DIRECTORY ${stamp_dir}
-            COMMAND ${EXEC} rm ${_name}-gitclone-lastrun.txt
+            COMMAND ${CMAKE_COMMAND} -E rm ${_name}-gitclone-lastrun.txt
             ERROR_QUIET
         )
     endif()
-endfunction()
-
-function(force_rebuild_svn _name)
-    ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download update
-        DEPENDERS patch build install
-        COMMAND svn revert -R .
-        COMMAND svn up
-        WORKING_DIRECTORY <SOURCE_DIR>
-        LOG 1
-    )
-endfunction()
-
-function(force_rebuild_hg _name)
-    ExternalProject_Add_Step(${_name} force-update
-        DEPENDEES download update
-        DEPENDERS patch build install
-        COMMAND hg --config "extensions.purge=" purge --all
-        COMMAND hg update -C
-        WORKING_DIRECTORY <SOURCE_DIR>
-        LOG 1
-    )
-endfunction()
-
-function(force_meson_configure _name)
-    ExternalProject_Add_Step(${_name} force-meson-configure
-        DEPENDERS configure
-        COMMAND ${EXEC} rm -rf <BINARY_DIR>/meson-*
-        LOG 1
-    )
 endfunction()
