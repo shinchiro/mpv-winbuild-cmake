@@ -1,5 +1,5 @@
 execute_process(
-    COMMAND mkdir -p cmake
+    COMMAND ${CMAKE_COMMAND} -E make_directory cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
@@ -16,7 +16,7 @@ endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules/ExternalProject.cmake")
     execute_process(
-        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/v3.26.4/Modules/ExternalProject.cmake
+        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/v3.31.6/Modules/ExternalProject.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules
     )
     execute_process(
