@@ -1,0 +1,25 @@
+From 7a204adb54df7e68c31d9129c339a599cb3fdde6 Mon Sep 17 00:00:00 2001
+From: _ <>
+Date: Thu, 13 Mar 2025 00:00:00 +0000
+Subject: [PATCH] static only
+
+---
+ src/meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/meson.build b/src/meson.build
+index e3c518e..3c2950f 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -51,7 +51,7 @@ if host_machine.system() == 'windows' and get_option('default_library') in ['bot
+   fc_c_shared_args += '-DDLL_EXPORT'
+ endif
+ 
+-libfontconfig = both_libraries('fontconfig',
++libfontconfig = library('fontconfig',
+   fc_sources, alias_headers, ft_alias_headers, fclang_h, fccase_h, fcobjshash_h, fcstdint_h,
+   c_shared_args: fc_c_shared_args,
+   include_directories: incbase,
+-- 
+2.48.1
+
