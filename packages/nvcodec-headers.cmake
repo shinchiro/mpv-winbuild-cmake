@@ -1,7 +1,8 @@
 ExternalProject_Add(nvcodec-headers
-    GIT_REPOSITORY https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+    GIT_REPOSITORY https://github.com/FFmpeg/nv-codec-headers.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1 --filter=tree:0"
+    GIT_PROGRESS TRUE
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
