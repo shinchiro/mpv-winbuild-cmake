@@ -12,7 +12,6 @@ ExternalProject_Add(libarchive
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    GIT_RESET de77e6d67166bf667f057bd9515c77bb8dc0f30a
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
@@ -37,6 +36,7 @@ ExternalProject_Add(libarchive
         -DBUILD_TESTING=OFF
         -DENABLE_TEST=OFF
         -DWINDOWS_VERSION=WIN10
+        "-DCMAKE_C_FLAGS='-lxml2 -lbz2 -llzo2 -lz -lbrotlienc -lbrotlidec -lbrotlicommon -lzstd -lws2_32 -lgdi32 -lcrypt32 -liconv -lbcrypt'"
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
