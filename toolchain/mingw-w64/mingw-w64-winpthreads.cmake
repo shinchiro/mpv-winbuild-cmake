@@ -1,6 +1,6 @@
-ExternalProject_Add(winpthreads
+ExternalProject_Add(mingw-w64-winpthreads
     DEPENDS
-        mingw-w64-crt
+        mingw-w64-headers
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${MINGW_SRC}
@@ -10,8 +10,8 @@ ExternalProject_Add(winpthreads
         --disable-shared
         --enable-static
     BUILD_COMMAND ${MAKE} LTO=0 GC=0
-    INSTALL_COMMAND ${MAKE} LTO=0 GC=0 install
+    INSTALL_COMMAND ${MAKE} install
     LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
-cleanup(winpthreads install)
+cleanup(mingw-w64-winpthreads install)
