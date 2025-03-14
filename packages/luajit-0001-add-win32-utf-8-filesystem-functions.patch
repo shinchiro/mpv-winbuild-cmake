@@ -1,4 +1,4 @@
-From c92ec4586cb91e430aa2c9d7894cf0128a729633 Mon Sep 17 00:00:00 2001
+From cf7f58d2446353750f54bd1380509d0842fe9440 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Tue, 25 Jul 2023 22:53:21 +0800
 Subject: [PATCH] Add win32 UTF-8 filesystem functions
@@ -23,10 +23,10 @@ Taken from https://github.com/wm4/libinsanity
  create mode 100644 src/lj_fs_io_replace.h
 
 diff --git a/src/Makefile b/src/Makefile
-index 68a9a7c..26137e4 100644
+index 8e544f70..487d3e2f 100644
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -513,7 +513,7 @@ LJCORE_O= lj_assert.o lj_gc.o lj_err.o lj_char.o lj_bc.o lj_obj.o lj_buf.o \
+@@ -528,7 +528,7 @@ LJCORE_O= lj_assert.o lj_gc.o lj_err.o lj_char.o lj_bc.o lj_obj.o lj_buf.o \
  	  lj_asm.o lj_trace.o lj_gdbjit.o \
  	  lj_ctype.o lj_cdata.o lj_cconv.o lj_ccall.o lj_ccallback.o \
  	  lj_carith.o lj_clib.o lj_cparse.o \
@@ -36,10 +36,10 @@ index 68a9a7c..26137e4 100644
  
  ifeq (x64,$(TARGET_LJARCH))
 diff --git a/src/Makefile.dep b/src/Makefile.dep
-index 400ef8b..5f26250 100644
+index e10a6b29..04e314d8 100644
 --- a/src/Makefile.dep
 +++ b/src/Makefile.dep
-@@ -47,6 +47,7 @@ lib_table.o: lib_table.c lua.h luaconf.h lauxlib.h lualib.h lj_obj.h \
+@@ -48,6 +48,7 @@ lib_table.o: lib_table.c lua.h luaconf.h lauxlib.h lualib.h lj_obj.h \
   lj_tab.h lj_ff.h lj_ffdef.h lj_lib.h lj_libdef.h
  lj_alloc.o: lj_alloc.c lj_def.h lua.h luaconf.h lj_arch.h lj_alloc.h \
   lj_prng.h
@@ -47,7 +47,7 @@ index 400ef8b..5f26250 100644
  lj_api.o: lj_api.c lj_obj.h lua.h luaconf.h lj_def.h lj_arch.h lj_gc.h \
   lj_err.h lj_errmsg.h lj_debug.h lj_str.h lj_tab.h lj_func.h lj_udata.h \
   lj_meta.h lj_state.h lj_bc.h lj_frame.h lj_trace.h lj_jit.h lj_ir.h \
-@@ -237,7 +238,7 @@ ljamalg.o: ljamalg.c lua.h luaconf.h lauxlib.h lj_assert.c lj_obj.h \
+@@ -238,7 +239,7 @@ ljamalg.o: ljamalg.c lua.h luaconf.h lauxlib.h lj_assert.c lj_obj.h \
   lj_opt_narrow.c lj_opt_dce.c lj_opt_loop.c lj_snap.h lj_opt_split.c \
   lj_opt_sink.c lj_mcode.c lj_snap.c lj_record.c lj_record.h lj_ffrecord.h \
   lj_crecord.c lj_crecord.h lj_ffrecord.c lj_recdef.h lj_asm.c lj_asm.h \
@@ -57,19 +57,19 @@ index 400ef8b..5f26250 100644
   lib_io.c lib_os.c lib_package.c lib_debug.c lib_bit.c lib_jit.c \
   lib_ffi.c lib_buffer.c lib_init.c
 diff --git a/src/lib_io.c b/src/lib_io.c
-index c22faa2..3014b06 100644
+index 5659ff51..c4086487 100644
 --- a/src/lib_io.c
 +++ b/src/lib_io.c
-@@ -25,6 +25,7 @@
- #include "lj_strfmt.h"
+@@ -26,6 +26,7 @@
  #include "lj_ff.h"
  #include "lj_lib.h"
+ #include "lj_strscan.h"
 +#include "lj_fs_io_replace.h"
  
  /* Userdata payload for I/O file. */
  typedef struct IOFileUD {
 diff --git a/src/lib_os.c b/src/lib_os.c
-index 4b4e150..0515579 100644
+index 3fcdfb42..1e88d81a 100644
 --- a/src/lib_os.c
 +++ b/src/lib_os.c
 @@ -22,6 +22,7 @@
@@ -81,7 +81,7 @@ index 4b4e150..0515579 100644
  #if LJ_TARGET_POSIX
  #include <unistd.h>
 diff --git a/src/lib_package.c b/src/lib_package.c
-index 63a9121..70fdc53 100644
+index 88218c2e..86153502 100644
 --- a/src/lib_package.c
 +++ b/src/lib_package.c
 @@ -16,6 +16,7 @@
@@ -93,7 +93,7 @@ index 63a9121..70fdc53 100644
  /* ------------------------------------------------------------------------ */
  
 diff --git a/src/lj_clib.c b/src/lj_clib.c
-index f0ef6ed..8b22824 100644
+index 218e9c08..8b735c07 100644
 --- a/src/lj_clib.c
 +++ b/src/lj_clib.c
 @@ -17,6 +17,7 @@
@@ -106,7 +106,7 @@ index f0ef6ed..8b22824 100644
  
 diff --git a/src/lj_fs_io.c b/src/lj_fs_io.c
 new file mode 100644
-index 0000000..80668b7
+index 00000000..80668b78
 --- /dev/null
 +++ b/src/lj_fs_io.c
 @@ -0,0 +1,582 @@
@@ -694,7 +694,7 @@ index 0000000..80668b7
 +#endif
 diff --git a/src/lj_fs_io.h b/src/lj_fs_io.h
 new file mode 100644
-index 0000000..0bdcd20
+index 00000000..0bdcd207
 --- /dev/null
 +++ b/src/lj_fs_io.h
 @@ -0,0 +1,60 @@
@@ -760,7 +760,7 @@ index 0000000..0bdcd20
 +#endif
 diff --git a/src/lj_fs_io_replace.h b/src/lj_fs_io_replace.h
 new file mode 100644
-index 0000000..604e279
+index 00000000..604e279f
 --- /dev/null
 +++ b/src/lj_fs_io_replace.h
 @@ -0,0 +1,50 @@
@@ -815,7 +815,7 @@ index 0000000..604e279
 +
 +#endif
 diff --git a/src/lj_load.c b/src/lj_load.c
-index 0aab488..150be4e 100644
+index 828bf8ae..655fdd6c 100644
 --- a/src/lj_load.c
 +++ b/src/lj_load.c
 @@ -22,6 +22,7 @@
@@ -827,7 +827,7 @@ index 0aab488..150be4e 100644
  /* -- Load Lua source code and bytecode ----------------------------------- */
  
 diff --git a/src/lj_trace.c b/src/lj_trace.c
-index f816337..f15c4c7 100644
+index 90fc6a64..b2d1b634 100644
 --- a/src/lj_trace.c
 +++ b/src/lj_trace.c
 @@ -31,6 +31,7 @@
@@ -839,7 +839,7 @@ index f816337..f15c4c7 100644
  /* -- Error handling ------------------------------------------------------ */
  
 diff --git a/src/ljamalg.c b/src/ljamalg.c
-index 4d85950..68fb34b 100644
+index e6fbdcb6..2ff8633b 100644
 --- a/src/ljamalg.c
 +++ b/src/ljamalg.c
 @@ -18,6 +18,7 @@
@@ -851,5 +851,5 @@ index 4d85950..68fb34b 100644
  #include "lj_gc.c"
  #include "lj_err.c"
 -- 
-2.41.0
+2.47.1
 
