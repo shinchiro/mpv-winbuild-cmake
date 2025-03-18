@@ -1,3 +1,5 @@
+set(version "v3.31.6")
+
 execute_process(
     COMMAND mkdir -p cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -5,7 +7,7 @@ execute_process(
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/modules.tar.gz")
     execute_process(
-        COMMAND curl -sL https://gitlab.kitware.com/cmake/cmake/-/archive/release/cmake-release.tar.gz?path=Modules/ExternalProject -o modules.tar.gz
+        COMMAND curl -sL https://gitlab.kitware.com/cmake/cmake/-/archive/${version}/cmake-${version}.tar.gz?path=Modules/ExternalProject -o modules.tar.gz
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     execute_process(
@@ -16,7 +18,7 @@ endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules/ExternalProject.cmake")
     execute_process(
-        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/v3.26.4/Modules/ExternalProject.cmake
+        COMMAND curl -sLO https://gitlab.kitware.com/cmake/cmake/-/raw/${version}/Modules/ExternalProject.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/cmake/Modules
     )
     execute_process(

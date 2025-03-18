@@ -1,75 +1,21 @@
-From 1210dd1d114ee9bbc780e8ce942e5557422286de Mon Sep 17 00:00:00 2001
+From 6af3abf4d7d3bc3de726df2909c459cde4c206a7 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 21 May 2023 08:07:50 +0800
-Subject: [PATCH] ExternalProject: Changes
+Date: Tue, 18 Mar 2025 19:21:31 +0800
+Subject: [PATCH] ExternalProject: Changes for v3.31.6
 
 GIT_CLONE_FLAGS:        Support passing other flags in git clone operation
 GIT_CLONE_POST_COMMAND: Run git command after clone operation
 GIT_RESET:              Perform git reset hard on repo
 ---
- Modules/ExternalProject.cmake             | 15 +++++++++++++
- Modules/ExternalProject/gitclone.cmake.in | 26 +++++++++++++++++++++++
+ Modules/ExternalProject/gitclone.cmake.in     | 26 +++++++++++++++++++
+ .../shared_internal_commands.cmake            | 15 +++++++++++
  2 files changed, 41 insertions(+)
 
-diff --git a/Modules/ExternalProject.cmake b/Modules/ExternalProject.cmake
-index 1fdd7545b..b3aea8af3 100644
---- a/Modules/ExternalProject.cmake
-+++ b/Modules/ExternalProject.cmake
-@@ -1297,6 +1297,9 @@ function(_ep_write_gitclone_script
-   git_submodules
-   git_shallow
-   git_progress
-+  git_clone_flags
-+  git_clone_post_cmd
-+  git_reset
-   git_config
-   src_name
-   work_dir
-@@ -1334,6 +1337,9 @@ function(_ep_write_gitclone_script
-   if(git_progress)
-     list(APPEND git_clone_options --progress)
-   endif()
-+  foreach(flag IN LISTS git_clone_flags)
-+    list(APPEND git_clone_options "${flag}")
-+  endforeach()
-   foreach(config IN LISTS git_config)
-     list(APPEND git_clone_options --config \"${config}\")
-   endforeach()
-@@ -2841,6 +2847,9 @@ function(_ep_add_download_command name)
-     get_property(git_shallow TARGET ${name} PROPERTY _EP_GIT_SHALLOW)
-     get_property(git_progress TARGET ${name} PROPERTY _EP_GIT_PROGRESS)
-     get_property(git_config TARGET ${name} PROPERTY _EP_GIT_CONFIG)
-+    get_property(git_clone_flags TARGET ${name} PROPERTY _EP_GIT_CLONE_FLAGS)
-+    get_property(git_clone_post_cmd TARGET ${name} PROPERTY _EP_GIT_CLONE_POST_COMMAND)
-+    get_property(git_reset TARGET ${name} PROPERTY _EP_GIT_RESET)
- 
-     # If git supports it, make checkouts quiet when checking out a git hash.
-     # This avoids the very noisy detached head message.
-@@ -2882,6 +2891,9 @@ CMP0097=${_EP_CMP0097}
-       "${git_submodules}"
-       "${git_shallow}"
-       "${git_progress}"
-+      "${git_clone_flags}"
-+      "${git_clone_post_cmd}"
-+      "${git_reset}"
-       "${git_config}"
-       ${src_name}
-       ${work_dir}
-@@ -4058,6 +4070,9 @@ function(ExternalProject_Add name)
-     GIT_SHALLOW
-     GIT_PROGRESS
-     GIT_CONFIG
-+    GIT_CLONE_FLAGS
-+    GIT_CLONE_POST_COMMAND
-+    GIT_RESET
-     GIT_REMOTE_UPDATE_STRATEGY
-     #
-     SVN_REPOSITORY
 diff --git a/Modules/ExternalProject/gitclone.cmake.in b/Modules/ExternalProject/gitclone.cmake.in
-index 3312171e0..f818380b7 100644
+index 77d6be2c..f548bb29 100644
 --- a/Modules/ExternalProject/gitclone.cmake.in
 +++ b/Modules/ExternalProject/gitclone.cmake.in
-@@ -49,6 +49,32 @@ if(error_code)
+@@ -61,6 +61,32 @@ if(error_code)
    message(FATAL_ERROR "Failed to checkout tag: '@git_tag@'")
  endif()
  
@@ -102,6 +48,60 @@ index 3312171e0..f818380b7 100644
  set(init_submodules @init_submodules@)
  if(init_submodules)
    execute_process(
+diff --git a/Modules/ExternalProject/shared_internal_commands.cmake b/Modules/ExternalProject/shared_internal_commands.cmake
+index 149a8a73..496c6b2a 100644
+--- a/Modules/ExternalProject/shared_internal_commands.cmake
++++ b/Modules/ExternalProject/shared_internal_commands.cmake
+@@ -390,6 +390,9 @@ function(_ep_write_gitclone_script
+   git_submodules
+   git_shallow
+   git_progress
++  git_clone_flags
++  git_clone_post_cmd
++  git_reset
+   git_config
+   src_name
+   work_dir
+@@ -428,6 +431,9 @@ function(_ep_write_gitclone_script
+   if(git_progress)
+     list(APPEND git_clone_options --progress)
+   endif()
++  foreach(flag IN LISTS git_clone_flags)
++    list(APPEND git_clone_options "${flag}")
++  endforeach()
+   foreach(config IN LISTS git_config)
+     list(APPEND git_clone_options --config \"${config}\")
+   endforeach()
+@@ -969,6 +975,9 @@ function(_ep_add_download_command name)
+     set(git_shallow  "${_EP_GIT_SHALLOW}")
+     set(git_progress "${_EP_GIT_PROGRESS}")
+     set(git_config   "${_EP_GIT_CONFIG}")
++    set(git_clone_flags     "${_EP_GIT_CLONE_FLAGS}")
++    set(git_clone_post_cmd  "${_EP_GIT_CLONE_POST_COMMAND}")
++    set(git_reset           "${_EP_GIT_RESET}")
+ 
+     # If git supports it, make checkouts quiet when checking out a git hash.
+     # This avoids the very noisy detached head message.
+@@ -1011,6 +1020,9 @@ CMP0097=${_EP_CMP0097}
+       "${git_submodules}"
+       "${git_shallow}"
+       "${git_progress}"
++      "${git_clone_flags}"
++      "${git_clone_post_cmd}"
++      "${git_reset}"
+       "${git_config}"
+       ${src_name}
+       ${work_dir}
+@@ -1884,6 +1896,9 @@ macro(_ep_get_add_keywords out_var)
+     GIT_SHALLOW
+     GIT_PROGRESS
+     GIT_CONFIG
++    GIT_CLONE_FLAGS
++    GIT_CLONE_POST_COMMAND
++    GIT_RESET
+     GIT_REMOTE_UPDATE_STRATEGY
+     #
+     SVN_REPOSITORY
 -- 
-2.40.1
+2.47.0
 
