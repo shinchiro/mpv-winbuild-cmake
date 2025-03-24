@@ -1,7 +1,6 @@
 ExternalProject_Add(mingw-w64-headers
     DEPENDS
         mingw-w64
-        ${binutils}
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     SOURCE_DIR ${MINGW_SRC}
@@ -12,7 +11,7 @@ ExternalProject_Add(mingw-w64-headers
         --enable-idl
         --with-default-msvcrt=ucrt
     BUILD_COMMAND ""
-    INSTALL_COMMAND make install-strip
+    INSTALL_COMMAND make install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 

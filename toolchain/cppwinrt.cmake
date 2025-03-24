@@ -7,6 +7,12 @@ ExternalProject_Add(cppwinrt
         -GNinja
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=OFF
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_CXX_COMPILER=clang++
+        -DCMAKE_ASM_COMPILER=clang
+        -DCMAKE_C_COMPILER_WORKS=ON
+        -DCMAKE_CXX_COMPILER_WORKS=ON
+        -DCMAKE_ASM_COMPILER_WORKS=ON
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
