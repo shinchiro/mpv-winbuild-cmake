@@ -18,7 +18,6 @@ ExternalProject_Add(llvm-libcxx
         -DCMAKE_CXX_COMPILER_WORKS=1
         -DCMAKE_C_COMPILER_TARGET=${TARGET_CPU}-pc-windows-gnu
         -DLLVM_ENABLE_RUNTIMES='libunwind,libcxxabi,libcxx'
-        -DLLVM_PATH=${LLVM_SRC}/llvm
         -DLIBUNWIND_USE_COMPILER_RT=TRUE
         -DLIBUNWIND_ENABLE_SHARED=OFF
         -DLIBUNWIND_ENABLE_STATIC=ON
