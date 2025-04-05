@@ -3,8 +3,10 @@
 ExternalProject_Add(llvm-clang
     DEPENDS
         llvm-libcxx
-        winpthreads
-        gendef
+        llvm-compiler-rt-builtin
+        mingw-w64-crt
+        mingw-w64-winpthreads
+        mingw-w64-gendef
         cppwinrt
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${SOURCE_LOCATION}
@@ -14,3 +16,4 @@ ExternalProject_Add(llvm-clang
     INSTALL_COMMAND ""
     COMMENT "Dummy target to setup target toolchain"
 )
+cleanup(llvm-clang install)

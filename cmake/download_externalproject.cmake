@@ -1,7 +1,7 @@
 set(version "v3.31.6")
 
 execute_process(
-    COMMAND mkdir -p cmake
+    COMMAND ${CMAKE_COMMAND} -E make_directory cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 

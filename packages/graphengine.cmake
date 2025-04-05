@@ -1,7 +1,8 @@
 ExternalProject_Add(graphengine
     GIT_REPOSITORY https://bitbucket.org/the-sekrit-twc/graphengine.git
     SOURCE_DIR ${SOURCE_LOCATION}
-    GIT_CLONE_FLAGS "--filter=tree:0"
+    GIT_CLONE_FLAGS "--depth=1 --filter=tree:0"
+    GIT_PROGRESS TRUE
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
