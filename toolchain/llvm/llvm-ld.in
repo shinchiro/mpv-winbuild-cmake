@@ -1,24 +1,28 @@
 #!/bin/bash
 PROG=@CMAKE_INSTALL_PREFIX@/bin/ld.lld
-TARGET=@TARGET_ARCH@
 POLICY="cache_size_bytes=1g:prune_interval=1m"
 FLAGS="-m @ld_m_flag@"
-FLAGS="$FLAGS --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto --thinlto-cache-policy=$POLICY"
+FLAGS="$FLAGS --no-insert-timestamp --major-os-version=10 --minor-os-version=0 --major-subsystem-version=6 --minor-subsystem-version=2 --file-alignment=4096 --disable-auto-import --disable-runtime-pseudo-reloc -mllvm -disable-auto-upgrade-debug-info"
 
 if [ "$CONF" == "1" ]; then
-    SKIP_OPT="-O0 --lto-O0 --lto-CGO0 --no-gc-sections --no-guard-cf --build-id=none"
+    SKIP_OPT="-O0 --lto-O0 --lto-CGO0 --no-gc-sections -mllvm -import-instr-limit=0 --no-guard-cf --build-id=none"
 else
-    FLAGS="$FLAGS -O3 --lto-O3 --lto-CGO3 -s -Xlink=-release"
+    FLAGS="$FLAGS --thinlto-cache-dir=@MINGW_INSTALL_PREFIX@/thinlto --thinlto-cache-policy=$POLICY"
+    FLAGS="$FLAGS -O3 --lto-O3 --lto-CGO3 -mllvm -import-instr-limit=30 -s -Xlink=-release -Xlink=-cetcompat"
     if [ "$GC" != "0" ]; then
-        LLD_GC="--gc-sections --icf=safe"
+        FLAGS="$FLAGS --gc-sections --icf=all"
     fi
     if [ "$PDB" == "1" ]; then
         FLAGS="$FLAGS --pdb="
+    fi
+    if [ "@GCC_ARCH_HAS_AVX@" == "ON" ]; then
+        FLAGS="$FLAGS -mllvm -x86-use-vzeroupper=false"
     fi
     if [ "@LLVM_ENABLE_PGO@" == "GEN" ] || [ "@LLVM_ENABLE_PGO@" == "CSGEN" ]; then
         export LLVM_PROFILE_FILE="@LLVM_PROFILE_DATA_DIR@/lld-%m.profraw" #enable profraw output only when CONF!=1
         export LLD_IN_TEST=1 #https://github.com/llvm/llvm-project/issues/52861
     fi
+    FLAGS_INIT="@MINGW_INSTALL_PREFIX@/lib/ucrtmath.a"
 fi
 
-"$PROG" "$@" $FLAGS $LLD_GC @LLD_FLAGS@ $SKIP_OPT
+"$PROG" $FLAGS_INIT "$@" $FLAGS @LLD_FLAGS@ $SKIP_OPT

@@ -8,11 +8,9 @@ ExternalProject_Add(libzvbi
     GIT_REMOTE_NAME origin
     GIT_TAG main
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
-        --enable-static
+    CONFIGURE_COMMAND ${autoreshit}
+    COMMAND ${EXEC} CONF=1 ./configure
+        ${autoshit_conf_args}
         --with-pic
         --without-doxygen
         --without-x
@@ -24,7 +22,6 @@ ExternalProject_Add(libzvbi
         --disable-tests
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
-    BUILD_IN_SOURCE 1
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1
 )
 
