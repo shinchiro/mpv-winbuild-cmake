@@ -79,3 +79,10 @@ set(cmake_conf_args
 	-DBUILD_TESTING=OFF
 	-DCMAKE_POLICY_VERSION_MINIMUM=3.5
 )
+
+set(autoreconf_conf_args
+    --host=${TARGET_ARCH}
+    --prefix=${MINGW_INSTALL_PREFIX}
+    --disable-shared
+    --enable-static
+)

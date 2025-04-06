@@ -9,10 +9,7 @@ ExternalProject_Add(libzvbi
     GIT_TAG main
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
-        --enable-static
+        ${autoreconf_conf_args}
         --with-pic
         --without-doxygen
         --without-x

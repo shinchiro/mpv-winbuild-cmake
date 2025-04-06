@@ -6,10 +6,7 @@ ExternalProject_Add(readline
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --enable-static
-        --disable-shared
+        ${autoreconf_conf_args}
         --without-curses
         CFLAGS='-DNEED_EXTERN_PC -DS_IFLNK=0120000'
     BUILD_COMMAND ${MAKE}
