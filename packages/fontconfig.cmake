@@ -14,11 +14,7 @@ ExternalProject_Add(fontconfig
     CONFIGURE_COMMAND ""
     COMMAND ${EXEC} sed -i "s/both_libraries/library/g" <SOURCE_DIR>/src/meson.build
     COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --libdir=${MINGW_INSTALL_PREFIX}/lib
-        --cross-file=${MESON_CROSS}
-        --buildtype=release
-        --default-library=static
+        ${meson_conf_args}
         -Ddoc=disabled
         -Dtests=disabled
         -Dtools=disabled

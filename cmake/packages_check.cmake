@@ -79,7 +79,9 @@ set(cmake_conf_args
 	-DBUILD_TESTING=OFF
 	-DCMAKE_POLICY_VERSION_MINIMUM=3.5
 )
-
+set(meson_conf_args
+    --cross-file=${MESON_CROSS}
+)
 set(autoreconf_conf_args
     --host=${TARGET_ARCH}
     --prefix=${MINGW_INSTALL_PREFIX}
