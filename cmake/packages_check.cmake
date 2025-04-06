@@ -68,3 +68,14 @@ elseif(TARGET_CPU STREQUAL "aarch64")
     set(libvpx_target "arm64-win64-gcc")
     set(mpv_gl "-Dgl=disabled -Degl-angle=disabled")
 endif()
+
+set(cmake_conf_args
+	-G Ninja
+	-DCMAKE_BUILD_TYPE=Release
+	-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
+	-DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
+	-DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
+	-DBUILD_SHARED_LIBS=OFF
+	-DBUILD_TESTING=OFF
+	-DCMAKE_POLICY_VERSION_MINIMUM=3.5
+)
