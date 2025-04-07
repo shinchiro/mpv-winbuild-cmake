@@ -8,11 +8,7 @@ ExternalProject_Add(rubberband
     GIT_TAG default
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --libdir=${MINGW_INSTALL_PREFIX}/lib
-        --cross-file=${MESON_CROSS}
-        --buildtype=release
-        --default-library=static
+        ${meson_conf_args}
         -Dfft=builtin
         -Dresampler=libsamplerate
         -Djni=disabled

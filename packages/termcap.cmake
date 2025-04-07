@@ -3,9 +3,7 @@ ExternalProject_Add(termcap
     URL_HASH SHA256=91a0e22e5387ca4467b5bcb18edf1c51b930262fd466d5fda396dd9d26719100
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --enable-static
-        --disable-shared
+        ${autoreconf_conf_args}
     BUILD_COMMAND ${MAKE}
         CXX=${TARGET_ARCH}-g++
         CC=${TARGET_ARCH}-gcc
