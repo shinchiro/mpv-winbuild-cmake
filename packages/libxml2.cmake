@@ -7,7 +7,6 @@ ExternalProject_Add(libxml2
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !result !test"
     UPDATE_COMMAND ""
-    GIT_RESET 66fdf94c5518547c12311db1e4dc0485acf2a2f8
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
         -G Ninja
         -DCMAKE_BUILD_TYPE=Release
