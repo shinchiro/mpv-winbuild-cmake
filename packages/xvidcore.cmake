@@ -3,8 +3,7 @@ ExternalProject_Add(xvidcore
     URL_HASH SHA256=aeeaae952d4db395249839a3bd03841d6844843f5a4f84c271ff88f7aa1acff7
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} cd <SOURCE_DIR>/build/generic && CONF=1 ./configure # running configure outside that directory will make it happily ignore --host while building
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
+        ${autoreconf_conf_args}
     BUILD_COMMAND ${MAKE} -C build/generic BUILD_DIR=build SHARED_LIB=
     INSTALL_COMMAND install -d ${MINGW_INSTALL_PREFIX}/include
         COMMAND install -m644 src/xvid.h ${MINGW_INSTALL_PREFIX}/include/

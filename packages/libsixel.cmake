@@ -6,15 +6,12 @@ ExternalProject_Add(libsixel
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
+        ${autoreconf_conf_args}
         --with-jpeg
         --with-png
         --disable-img2sixel
         --disable-sixel2png
         --disable-python
-        --enable-static
-        --disable-shared
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
     LOG_DOWNLOAD 1 LOG_UPDATE 1 LOG_CONFIGURE 1 LOG_BUILD 1 LOG_INSTALL 1

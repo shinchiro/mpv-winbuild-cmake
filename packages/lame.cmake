@@ -12,9 +12,7 @@ ExternalProject_Add(lame
     UPDATE_COMMAND ""
     PATCH_COMMAND chmod 755 ${DEBPATCH} && ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} autoreconf -fi && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
+        ${autoreconf_conf_args}
         --disable-frontend
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install
