@@ -1,6 +1,6 @@
-From 808ee5a0d3a957eca2d3798f132831be4d570085 Mon Sep 17 00:00:00 2001
+From 6380205b240d21eec5b0552dbb3dc46bb18396df Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sun, 20 Sep 2020 10:44:07 +0800
+Date: Thu, 1 May 2025 21:49:30 +0800
 Subject: [PATCH] Custom changes for mpv builds
 
 Based on original lachs0r's patch for fontconfig
@@ -10,10 +10,10 @@ Based on original lachs0r's patch for fontconfig
  2 files changed, 58 insertions(+), 10 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index 9b932866..965a13eb 100644
+index 54be3b8..6fdc40f 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
-@@ -72,17 +72,9 @@ FcFileScanFontConfig (FcFontSet     *set,
+@@ -72,11 +72,6 @@ FcFileScanFontConfig (FcFontSet     *set,
      int            old_nfont = set->nfont;
      const FcChar8 *sysroot = FcConfigGetSysRoot (config);
  
@@ -22,7 +22,11 @@ index 9b932866..965a13eb 100644
 -	fflush (stdout);
 -    }
 -
-     if (!FcFreeTypeQueryAll (file, -1, NULL, NULL, set))
+     unsigned int (*query_function) (const FcChar8 *, unsigned int, FcBlanks *, int *, FcFontSet *) = FcFreeTypeQueryAll;
+ #if ENABLE_FONTATIONS
+     if (getenv ("FC_FONTATIONS") != NULL) {
+@@ -86,9 +81,6 @@ FcFileScanFontConfig (FcFontSet     *set,
+     if (!query_function (file, -1, NULL, NULL, set))
  	return FcFalse;
  
 -    if (FcDebug() & FC_DBG_SCAN)
@@ -31,7 +35,7 @@ index 9b932866..965a13eb 100644
      for (i = old_nfont; i < set->nfont; i++) {
  	FcPattern *font = set->fonts[i];
  
-@@ -223,7 +215,7 @@ FcDirScanConfig (FcFontSet     *set,
+@@ -229,7 +221,7 @@ FcDirScanConfig (FcFontSet     *set,
      base = file_prefix + strlen ((char *)file_prefix);
  
      if (FcDebug() & FC_DBG_SCAN)
@@ -40,7 +44,7 @@ index 9b932866..965a13eb 100644
  
      d = opendir ((char *)s_dir);
      if (!d) {
-@@ -257,8 +249,29 @@ FcDirScanConfig (FcFontSet     *set,
+@@ -263,8 +255,29 @@ FcDirScanConfig (FcFontSet     *set,
      /*
       * Scan file files to build font patterns
       */
@@ -72,7 +76,7 @@ index 9b932866..965a13eb 100644
  bail2:
      FcStrSetDestroy (files);
 diff --git a/src/fcinit.c b/src/fcinit.c
-index 11afa28b..b9616007 100644
+index 11afa28..b961600 100644
 --- a/src/fcinit.c
 +++ b/src/fcinit.c
 @@ -36,6 +36,12 @@
@@ -131,5 +135,5 @@ index 11afa28b..b9616007 100644
      FcConfigDestroy (config);
  bail0:
 -- 
-2.47.1
+2.49.0
 
