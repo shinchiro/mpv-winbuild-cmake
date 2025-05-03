@@ -6,12 +6,7 @@ ExternalProject_Add(vulkan-header
     GIT_REMOTE_NAME origin
     GIT_TAG main
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
+        ${cmake_conf_args}
         -DVULKAN_HEADERS_ENABLE_MODULE=OFF
     BUILD_COMMAND ""
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install

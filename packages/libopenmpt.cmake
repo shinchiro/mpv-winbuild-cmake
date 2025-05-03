@@ -8,9 +8,7 @@ ExternalProject_Add(libopenmpt
     URL_HASH SHA256=79AB3CE3672601E525B5CC944F026C80C03032F37D39CAA84C8CA3FDD75E0C98
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} autoreconf -fi && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
+        ${autoreconf_conf_args}
         --disable-openmpt123
         --disable-examples
         --disable-tests

@@ -10,12 +10,7 @@ ExternalProject_Add(libsdl2
     GIT_REMOTE_NAME origin
     GIT_TAG SDL2
     CONFIGURE_COMMAND ${EXEC} CONF=1 cmake -H<SOURCE_DIR> -B<BINARY_DIR>
-        -G Ninja
-        -DCMAKE_BUILD_TYPE=Release
-        -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}
-        -DCMAKE_INSTALL_PREFIX=${MINGW_INSTALL_PREFIX}
-        -DCMAKE_FIND_ROOT_PATH=${MINGW_INSTALL_PREFIX}
-        -DBUILD_SHARED_LIBS=OFF
+        ${cmake_conf_args}
         -DSDL_VULKAN=ON
         -DSDL_TEST=OFF
         -DSDL_TEST_LIBRARY=OFF

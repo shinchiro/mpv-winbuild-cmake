@@ -10,8 +10,7 @@ ExternalProject_Add(opus-tools
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ${EXEC} <SOURCE_DIR>/autogen.sh && CONF=1 <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
+        ${autoreconf_conf_args}
         --disable-stack-protector
         CFLAGS='-D_FORTIFY_SOURCE=0'
         LDFLAGS='-static'

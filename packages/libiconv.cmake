@@ -11,11 +11,9 @@ ExternalProject_Add(libiconv
     URL_HASH SHA256=3B08F5F4F9B4EB82F151A7040BFD6FE6C6FB922EFE4B1659C66EA933276965E8
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
+        ${autoreconf_conf_args}        
         ${build}
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
         --disable-nls
-        --disable-shared
         --enable-extra-encodings
     BUILD_COMMAND ${MAKE}
     INSTALL_COMMAND ${MAKE} install

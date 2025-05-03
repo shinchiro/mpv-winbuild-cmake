@@ -15,3 +15,9 @@ system = 'windows'
 cpu_family = '@TARGET_CPU_FAMILY@'
 cpu = '@TARGET_ARCH@'
 endian = 'little'
+
+[built-in options]
+prefix = '@MINGW_INSTALL_PREFIX@'
+libdir = '@MINGW_INSTALL_PREFIX@/lib'
+buildtype = 'release'
+default_library = 'static'

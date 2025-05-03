@@ -5,9 +5,7 @@ ExternalProject_Add(xz
     UPDATE_COMMAND ""
     GIT_RESET 18b845e69752c975dfeda418ec00eda22605c2ee # v5.4.1
     CONFIGURE_COMMAND ${EXEC} CONF=1 autoreconf -fi && <SOURCE_DIR>/configure
-        --host=${TARGET_ARCH}
-        --prefix=${MINGW_INSTALL_PREFIX}
-        --disable-shared
+        ${autoreconf_conf_args}
         --disable-xz
         --disable-xzdec
         --disable-lzmadec
