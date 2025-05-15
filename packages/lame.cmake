@@ -9,7 +9,7 @@ ExternalProject_Add(lame
     GIT_REPOSITORY https://gitlab.com/shinchiro/lame.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
-    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/lame-fix-*.patch
+    PATCH_COMMAND ${EXEC} git am --3way ${CMAKE_CURRENT_SOURCE_DIR}/0001-fix-configure-step.patch
     UPDATE_COMMAND ""
     PATCH_COMMAND chmod 755 ${DEBPATCH} && ${DEBPATCH}
     CONFIGURE_COMMAND ${EXEC} autoupdate -f && autoreconf -fi && CONF=1 <SOURCE_DIR>/configure

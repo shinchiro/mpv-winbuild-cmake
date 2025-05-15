@@ -1,0 +1,26 @@
+From 5b2b921ab989737b1ec4f735b3f7d0ae729a7e6c Mon Sep 17 00:00:00 2001
+From: "Alex Mi." <43502191+mitzsch@users.noreply.github.com>
+Date: Thu, 15 May 2025 09:00:04 +0200
+Subject: [PATCH] fix configure step
+
+based on https://github.com/rorgoroth/mingw-cmake-env/commit/2f74fec6447ca8bf2ff1a758feea0b69c86e251f
+---
+ configure.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.in b/configure.in
+index 3f9fddb..335e502 100644
+--- a/configure.in
++++ b/configure.in
+@@ -422,7 +422,7 @@ AC_CHECK_LIB(termcap, initscr, HAVE_TERMCAP="termcap")
+ AC_CHECK_LIB(curses, initscr, HAVE_TERMCAP="curses")
+ AC_CHECK_LIB(ncurses, initscr, HAVE_TERMCAP="ncurses")
+ 
+-AM_ICONV
++#AM_ICONV
+ 
+ dnl math lib
+ AC_CHECK_LIB(m, cos, USE_LIBM="-lm")
+-- 
+2.45.1.windows.1
+
