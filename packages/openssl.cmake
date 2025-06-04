@@ -40,7 +40,6 @@ ExternalProject_Add(openssl
         no-mdc2
         no-idea
         no-cast
-        no-srtp
         no-seed
         no-aria
         no-err
