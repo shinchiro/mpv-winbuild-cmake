@@ -70,7 +70,6 @@ jobs:
           ref: master
 
       - name: Loading clang sysroot cache
-        id: load_clang_cache
         uses: actions/cache/restore@main
         with:
           path: |
@@ -191,22 +190,6 @@ jobs:
         with:
           path: release_${{ matrix.bit }}
           key: ${{ secrets.CACHE_VERSION }}-release_${{ matrix.bit }}-${{ github.run_id }}
-
-      - name: Delete previous cache
-        if: ${{ always() && matrix.bit == 'x86_64' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
-          CACHE_ID: ${{ steps.load_clang_cache.outputs.cache-matched-key }}
-          PREFIX: ${{ secrets.CACHE_VERSION }}
-        run: |
-          cache_key=${CACHE_ID##*-}
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-clang_root-$cache_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-repository-$cache_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-clang-i686_toolchain-$cache_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-clang-x86_64_toolchain-$cache_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-clang-x86_64_v3_toolchain-$cache_key
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-clang-aarch64_toolchain-$cache_key
 
   release:
     name: Upload releases

@@ -67,7 +67,6 @@ jobs:
           ref: master
 
       - name: Loading ${{ matrix.bit }} toolchain cache
-        id: load_gcc_cache
         uses: actions/cache/restore@main
         with:
           path: build_${{ matrix.bit }}
@@ -163,23 +162,19 @@ jobs:
           path: build_${{ matrix.bit }}
           key: ${{ secrets.CACHE_VERSION }}-gcc-${{ matrix.bit }}_toolchain-${{ github.run_id }}
 
+      - name: Saving repository cache
+        uses: actions/cache/save@main
+        if: false
+        with:
+          path: src_packages
+          key: ${{ secrets.CACHE_VERSION }}-repository-${{ github.run_id }}
+
       - name: Saving release_${{ matrix.bit }} cache
         uses: actions/cache/save@main
         if: ${{ github.event.inputs.github_release == 'true' }}
         with:
           path: release_${{ matrix.bit }}
           key: ${{ secrets.CACHE_VERSION }}-gcc-release_${{ matrix.bit }}-${{ github.run_id }}
-
-      - name: Delete previous cache
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CURL_RETRIES: "--connect-timeout 60 --retry 999 --retry-delay 5 --retry-all-errors"
-          CACHE_ID: ${{ steps.load_gcc_cache.outputs.cache-matched-key }}
-          PREFIX: ${{ secrets.CACHE_VERSION }}
-        run: |
-          cache_key=${CACHE_ID##*-}
-          curl -u shinchiro:$GH_TOKEN $CURL_RETRIES -s -o /dev/null -X DELETE -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/shinchiro/mpv-winbuild-cmake/actions/caches?key=$PREFIX-gcc-x86_64_toolchain-$cache_key
 
   release:
     name: Upload releases
