@@ -70,7 +70,6 @@ Example:
     cmake -DTARGET_ARCH=x86_64-w64-mingw32 \
     -DGCC_ARCH=x86-64-v3 \
     -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
-    -DRUSTUP_LOCATION="/home/user/install_rustup" \
     -G Ninja -B build64 -S mpv-winbuild-cmake
 
 This cmake command will create `build64` folder for `x86_64-w64-mingw32`. Set `-DTARGET_ARCH=i686-w64-mingw32` for compiling 32-bit.
@@ -108,7 +107,6 @@ Example:
     -DCOMPILER_TOOLCHAIN=clang \
     -DGCC_ARCH=x86-64-v3 \
     -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
-    -DRUSTUP_LOCATION="/home/user/install_rustup" \
     -DMINGW_INSTALL_PREFIX="/home/user/build_x86_64_v3/x86_64_v3-w64-mingw32" \
     -G Ninja -B build_x86_64_v3 -S mpv-winbuild-cmake
 
@@ -116,7 +114,6 @@ The cmake command will create `clang_root` as clang sysroot where llvm tools ins
 
     cd build_x86_64
     ninja llvm       # build LLVM (take around ~2 hours)
-    ninja rustup     # build rust toolchain
     ninja llvm-clang # build clang on specified target
     ninja mpv        # build mpv and all its dependencies
 
@@ -126,7 +123,6 @@ If you want add another target (ex. `i686-w64-mingw32`), change `TARGET_ARCH` an
     -DCMAKE_INSTALL_PREFIX="/home/user/clang_root" \
     -DCOMPILER_TOOLCHAIN=clang \
     -DSINGLE_SOURCE_LOCATION="/home/user/packages" \
-    -DRUSTUP_LOCATION="/home/user/install_rustup" \
     -DMINGW_INSTALL_PREFIX="/home/user/build_i686/i686-w64-mingw32" \
     -G Ninja -B build_i686 -S mpv-winbuild-cmake
     cd build_i686
@@ -216,7 +212,6 @@ to update flags which will pass on gcc, g++ and etc.
     - uavs3d
     - davs2
     - libsixel
-    - libdovi
     - libva
     - libzvbi
     - svtav1

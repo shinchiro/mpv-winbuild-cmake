@@ -84,6 +84,7 @@ jobs:
 
       - name: Loading rustup cache
         uses: actions/cache/restore@main
+        if: ${{ false }}
         with:
           path: |
             clang_root
@@ -98,7 +99,7 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
       - name: Building toolchain
@@ -151,7 +152,7 @@ jobs:
           rm -rf build_$BIT/mpv*
 
       - name: Cleaning rust toolchain directory
-        if: always()
+        if: ${{ false }}
         run: |
           ninja -C build_$BIT cargo-clean
 
