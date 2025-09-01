@@ -69,3 +69,8 @@ elseif(TARGET_CPU STREQUAL "aarch64")
     set(libvpx_target "arm64-win64-gcc")
     set(mpv_gl "-Dgl=disabled -Degl-angle=disabled")
 endif()
+
+# Specific packages branch for release version
+if(USE_RELEASE_TAG)
+    set(FFMPEG_TAG "release/7.1")
+endif()

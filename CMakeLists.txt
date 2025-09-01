@@ -126,7 +126,7 @@ if(TARGET_CPU STREQUAL "x86_64")
 endif()
 
 string(TIMESTAMP BUILDDATE "%Y%m%d" UTC)
-
+option(USE_RELEASE_TAG "Use defined branch" OFF)
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/publish.in)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/publish.in ${CMAKE_CURRENT_BINARY_DIR}/publish)
 endif()
