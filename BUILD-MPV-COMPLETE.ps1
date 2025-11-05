@@ -687,7 +687,7 @@ if (-not (Test-Path $configPath)) {
 Write-Step "Writing mpv.conf (optimized for 2K non-HDR + SVP)..."
 
 # MPV Configuration with full citations
-$mpvConf = @"
+$mpvConf = @'
 ################################################################################
 # MPV High-Fidelity Configuration
 # Optimized for 2K (2560x1440) Non-HDR Displays with SVP Support
@@ -1016,7 +1016,7 @@ slang=eng,en
 #   All technical decisions backed by academic papers and industry standards
 #   See header for complete citation list
 ################################################################################
-"@
+'@
 
 $mpvConf | Out-File -FilePath (Join-Path $configPath "mpv.conf") -Encoding UTF8
 Write-Success "mpv.conf created with citations"
@@ -1024,7 +1024,7 @@ Write-Success "mpv.conf created with citations"
 # SVP Integration configuration
 Write-Step "Writing svp-integration.conf..."
 
-$svpConf = @"
+$svpConf = @'
 ################################################################################
 # SVP Integration Configuration
 # Reference [7]: https://www.svp-team.com/wiki/SVP:mpv
@@ -1066,7 +1066,7 @@ deband-iterations=2
 ################################################################################
 # To enable: Add to mpv.conf: include="~~/svp-integration.conf"
 ################################################################################
-"@
+'@
 
 $svpConf | Out-File -FilePath (Join-Path $configPath "svp-integration.conf") -Encoding UTF8
 Write-Success "svp-integration.conf created"
@@ -1075,7 +1075,7 @@ Write-Success "svp-integration.conf created"
 Write-Step "Writing input.conf..."
 
 # (abbreviated for space - full input.conf from previous script)
-$inputConf = @"
+$inputConf = @'
 # MPV Input Configuration - High-Fidelity Controls
 # See HIGH-FIDELITY-SETUP.md for complete keybinding reference
 
@@ -1105,7 +1105,7 @@ F7                  change-list glsl-shaders toggle "~~/shaders/adaptive-sharpen
 F8                  change-list glsl-shaders toggle "~~/shaders/SSimDownscaler.glsl"
 F9                  change-list glsl-shaders toggle "~~/shaders/FSRCNNX_x2_16-0-4-1.glsl"
 F10                 change-list glsl-shaders clr ""
-"@
+'@
 
 $inputConf | Out-File -FilePath (Join-Path $configPath "input.conf") -Encoding UTF8
 Write-Success "input.conf created"
