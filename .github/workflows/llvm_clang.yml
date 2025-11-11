@@ -57,6 +57,14 @@ jobs:
           key: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v3_toolchain-${{ github.run_id }}
           restore-keys: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v3_toolchain
 
+      - name: Loading x86_64_v4 toolchain
+        id: x86_64_v4_cache
+        uses: actions/cache/restore@main
+        with:
+          path: build_x86_64_v4
+          key: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v4_toolchain-${{ github.run_id }}
+          restore-keys: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v4_toolchain
+
       - name: Loading i686 toolchain
         id: i686_cache
         uses: actions/cache/restore@main
@@ -105,6 +113,12 @@ jobs:
           cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DLLVM_ENABLE_PGO=GEN -DCOMPILER_TOOLCHAIN=clang -DGCC_ARCH=x86-64-v3 -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64_v3/x86_64_v3-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -B build_x86_64_v3 -S $PWD
           ninja -C build_x86_64_v3 llvm-clang
 
+      - name: Building x86_64-v4 toolchain
+        if: ${{ steps.x86_64_v4_cache.outputs.cache-matched-key == '' }}
+        run: |
+          cmake -DTARGET_ARCH=x86_64-w64-mingw32 -DLLVM_ENABLE_PGO=GEN -DCOMPILER_TOOLCHAIN=clang -DGCC_ARCH=x86-64-v4 -DCMAKE_INSTALL_PREFIX=$PWD/clang_root -DMINGW_INSTALL_PREFIX=$PWD/build_x86_64_v4/x86_64_v4-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -G Ninja -B build_x86_64_v4 -S $PWD
+          ninja -C build_x86_64_v4 llvm-clang
+
       - name: Building i686 toolchain
         if: ${{ steps.i686_cache.outputs.cache-matched-key == '' }}
         run: |
@@ -137,7 +151,7 @@ jobs:
 
       - name: Cleanup
         run: |
-          rm -rf {build_i686,build_x86_64,build_x86_64_v3,build_aarch64}/{toolchain,packages} || true
+          rm -rf {build_i686,build_x86_64,build_x86_64_v3,build_x86_64_v4,build_aarch64}/{toolchain,packages} || true
 
       - name: Collecting logs
         if: always()
@@ -180,6 +194,12 @@ jobs:
         with:
           path: build_x86_64_v3
           key: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v3_toolchain-${{ github.run_id }}
+
+      - name: Saving x86_64_v4 toolchain
+        uses: actions/cache/save@main
+        with:
+          path: build_x86_64_v4
+          key: ${{ secrets.CACHE_VERSION }}-clang-x86_64_v4_toolchain-${{ github.run_id }}
 
       - name: Saving i686 toolchain
         uses: actions/cache/save@main
