@@ -1,7 +1,7 @@
-From fb7701e1f00fb9145f0f5b88f7d67fd3931f1e1b Mon Sep 17 00:00:00 2001
+From 7b8ea613515294dd6945de094d095304c1f54ad7 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
 Date: Sat, 6 Apr 2024 11:38:08 +0800
-Subject: [PATCH] Do not use dirent.h
+Subject: [PATCH 2/2] Do not use dirent.h
 
 Because this causes some quirks on some partitions on Windows.
 Relevant issue: https://github.com/mpv-player/mpv/issues/10679
@@ -10,10 +10,10 @@ Relevant issue: https://github.com/mpv-player/mpv/issues/10679
  1 file changed, 1 deletion(-)
 
 diff --git a/meson.build b/meson.build
-index dd3cfe3..be3ea1e 100644
+index 7189f4b..25a4386 100644
 --- a/meson.build
 +++ b/meson.build
-@@ -84,7 +84,6 @@ python3 = import('python').find_installation()
+@@ -97,7 +97,6 @@ python3 = import('python').find_installation()
  pytest = find_program('pytest', required: false)
  
  check_headers = [
@@ -22,5 +22,5 @@ index dd3cfe3..be3ea1e 100644
    ['fcntl.h'],
    ['inttypes.h'],
 -- 
-2.47.0
+2.49.0
 
