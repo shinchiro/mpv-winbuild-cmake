@@ -1,19 +1,19 @@
-From aa46b1eb3b94e8d2d8d59c361f30a694d8689a81 Mon Sep 17 00:00:00 2001
+From 9d6c7fc1e7adacf2434f1d013358b85656c43ca5 Mon Sep 17 00:00:00 2001
 From: shinchiro <shinchiro@users.noreply.github.com>
-Date: Sat, 28 Jun 2025 07:18:49 +0800
+Date: Wed, 10 Dec 2025 22:10:00 +0800
 Subject: [PATCH] Custom changes for mpv builds
 
 Based on original lachs0r's patch for fontconfig
 ---
- src/fcdir.c  | 33 +++++++++++++++++++++++----------
+ src/fcdir.c  | 33 ++++++++++++++++++++++++---------
  src/fcinit.c | 35 +++++++++++++++++++++++++++++++++++
- 2 files changed, 58 insertions(+), 10 deletions(-)
+ 2 files changed, 59 insertions(+), 9 deletions(-)
 
 diff --git a/src/fcdir.c b/src/fcdir.c
-index 9527d94..64cdc5f 100644
+index c17875f..8348bf5 100644
 --- a/src/fcdir.c
 +++ b/src/fcdir.c
-@@ -76,11 +76,6 @@ FcFileScanFontConfig (FcFontSet     *set,
+@@ -80,10 +80,7 @@ FcFileScanFontConfig (FcFontSet     *set,
      int            old_nfont = set->nfont;
      const FcChar8 *sysroot = FcConfigGetSysRoot (config);
  
@@ -21,11 +21,11 @@ index 9527d94..64cdc5f 100644
 -	printf ("\tScanning file %s...", file);
 -	fflush (stdout);
 -    }
--
-     unsigned int (*query_function) (const FcChar8 *, unsigned int, FcBlanks *, int *, FcFontSet *) = FcFreeTypeQueryAll;
- #if ENABLE_FONTATIONS
-     if (getenv ("FC_FONTATIONS")) {
-@@ -90,9 +85,6 @@ FcFileScanFontConfig (FcFontSet     *set,
++
+ 
+     unsigned int (*query_function) (const FcChar8 *, unsigned int, FcBlanks *, int *, FcFontSet *) =
+ #if ENABLE_FONTATIONS && !defined(ENABLE_FREETYPE)
+@@ -100,9 +97,6 @@ FcFileScanFontConfig (FcFontSet     *set,
      if (!query_function (file, -1, NULL, NULL, set))
  	return FcFalse;
  
@@ -35,7 +35,7 @@ index 9527d94..64cdc5f 100644
      for (i = old_nfont; i < set->nfont; i++) {
  	FcPattern *font = set->fonts[i];
  
-@@ -233,7 +225,7 @@ FcDirScanConfig (FcFontSet     *set,
+@@ -243,7 +237,7 @@ FcDirScanConfig (FcFontSet     *set,
      base = file_prefix + strlen ((char *)file_prefix);
  
      if (FcDebug() & FC_DBG_SCAN)
@@ -44,7 +44,7 @@ index 9527d94..64cdc5f 100644
  
      d = opendir ((char *)s_dir);
      if (!d) {
-@@ -272,8 +264,29 @@ FcDirScanConfig (FcFontSet     *set,
+@@ -282,8 +276,29 @@ FcDirScanConfig (FcFontSet     *set,
      /*
       * Scan file files to build font patterns
       */
