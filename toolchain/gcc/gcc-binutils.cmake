@@ -1,6 +1,6 @@
 ExternalProject_Add(gcc-binutils
-    URL https://ftp.gnu.org/gnu/binutils/binutils-2.44.tar.xz
-    URL_HASH SHA512=b85d3bbc0e334cf67a96219d3c7c65fbf3e832b2c98a7417bf131f3645a0307057ec81cd2b29ff2563cec53e3d42f73e2c60cc5708e80d4a730efdcc6ae14ad7
+    URL https://ftp.gnu.org/gnu/binutils/binutils-2.45.1.tar.xz
+    URL_HASH SHA512=ea030419eba387579ab717be7e3223fc99e93b586860b06003c12489f93441640d4082736f76aa5e98233db4f46e232f536a45e471486de1f5b64e1b827c167e
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND <SOURCE_DIR>/configure
         --target=${TARGET_ARCH}
