@@ -9,7 +9,8 @@ ExternalProject_Add(openssl
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !test"
     GIT_SUBMODULES ""
     UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/Configure
+    CONFIGURE_COMMAND ${EXEC} sed -i [['/__int64 ossl_ssize_t/i #include <stdint.h>']] <SOURCE_DIR>/include/openssl/e_os2.h
+    COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/Configure
         --cross-compile-prefix=${TARGET_ARCH}-
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=lib
