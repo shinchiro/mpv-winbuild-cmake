@@ -67,7 +67,7 @@ jobs:
 
       - uses: actions/checkout@main
         with:
-          ref: ffmpeg7.1
+          ref: ffmpeg-release
 
       - name: Loading clang sysroot cache
         uses: actions/cache/restore@main

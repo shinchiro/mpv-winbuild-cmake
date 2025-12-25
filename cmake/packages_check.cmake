@@ -72,5 +72,5 @@ endif()
 
 # Specific packages branch for release version
 if(USE_RELEASE_TAG)
-    set(FFMPEG_TAG "release/7.1")
+    set(FFMPEG_TAG "release/8.0")
 endif()
