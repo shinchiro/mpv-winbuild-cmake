@@ -51,6 +51,10 @@ jobs:
             echo "arch=x86_64" >> $GITHUB_ENV
             echo "gcc_arch=-DGCC_ARCH=x86-64-v3" >> $GITHUB_ENV
             echo "x86_64_level=-v3" >> $GITHUB_ENV
+          elif [[ $BIT == "x86_64_v4" ]]; then
+            echo "arch=x86_64" >> $GITHUB_ENV
+            echo "gcc_arch=-DGCC_ARCH=x86-64-v4" >> $GITHUB_ENV
+            echo "x86_64_level=-v4" >> $GITHUB_ENV
           fi
 
       - name: Setup git config
@@ -221,8 +225,9 @@ jobs:
           sftp -i sf_key shinchiro@frs.sourceforge.net:/home/frs/project/mpv-player-windows <<END
           put release/mpv-dev*           libmpv
           put release/mpv-i686*          32bit
-          put release/mpv-x86_64-[!v3]*  64bit
+          put release/mpv-x86_64-!(v3|v4)*  64bit
           put release/mpv-x86_64-v3*     64bit-v3
+          put release/mpv-x86_64-v4*     64bit-v4
           put release/mpv-$MPV_VER*      release
           END
 
