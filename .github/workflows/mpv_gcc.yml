@@ -82,6 +82,15 @@ jobs:
           restore-keys: |
             ${{ secrets.CACHE_VERSION }}-repository
 
+      - name: Loading rustup cache
+        uses: actions/cache/restore@main
+        with:
+          path: |
+            clang_root
+          key: ${{ secrets.CACHE_VERSION }}-clang_root-${{ github.run_id }}
+          restore-keys: |
+            ${{ secrets.CACHE_VERSION }}-clang_root
+
       - name: Running custom command
         if: ${{ github.event.inputs.command != '' }}
         continue-on-error: true
@@ -89,7 +98,7 @@ jobs:
 
       - name: Downloading source
         run: |
-          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
+          cmake -DTARGET_ARCH=${{ env.arch }}-w64-mingw32 ${{ env.gcc_arch }} -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DRUSTUP_LOCATION=$PWD/clang_root/install_rustup -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
           ninja -C build_$BIT download || true
 
       - name: Building toolchain
@@ -140,6 +149,11 @@ jobs:
         if: always()
         run: |
           rm -rf build_$BIT/mpv*
+
+      - name: Cleaning rust toolchain directory
+        if: always()
+        run: |
+          ninja -C build_$BIT cargo-clean
 
       - name: Saving ${{ matrix.bit }} toolchain cache
         uses: actions/cache/save@main
