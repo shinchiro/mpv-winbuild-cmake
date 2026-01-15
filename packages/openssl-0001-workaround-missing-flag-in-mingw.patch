@@ -1,0 +1,26 @@
+From 9a711dd77f9d1805e25499c6af9b108bb96ea61a Mon Sep 17 00:00:00 2001
+From: shinchiro <shinchiro@users.noreply.github.com>
+Date: Thu, 15 Jan 2026 22:47:58 +0800
+Subject: [PATCH] Workaround missing flag in MinGW
+
+---
+ ssl/quic/quic_reactor.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/ssl/quic/quic_reactor.c b/ssl/quic/quic_reactor.c
+index a754f285b..a420018e7 100644
+--- a/ssl/quic/quic_reactor.c
++++ b/ssl/quic/quic_reactor.c
+@@ -15,6 +15,9 @@
+ #include <winsock2.h>
+ #include <mstcpip.h>
+ #include <mswsock.h>
++#if defined(__MINGW32__) && !defined(SIO_UDP_NETRESET)
++#define SIO_UDP_NETRESET _WSAIOW(IOC_VENDOR, 15)
++#endif
+ #endif
+ 
+ /*
+-- 
+2.49.0
+
