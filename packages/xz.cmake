@@ -1,9 +1,9 @@
 ExternalProject_Add(xz
-    GIT_REPOSITORY https://gitlab.com/shinchiro/xz.git
+    GIT_REPOSITORY https://github.com/tukaani-project/xz.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
     UPDATE_COMMAND ""
-    GIT_RESET 18b845e69752c975dfeda418ec00eda22605c2ee # v5.4.1
+    GIT_RESET 3d078b52adbff566ccfc51067dfbf742ecf3ef86 # v5.8.2
     CONFIGURE_COMMAND ${EXEC} CONF=1 autoreconf -fi && <SOURCE_DIR>/configure
         --host=${TARGET_ARCH}
         --prefix=${MINGW_INSTALL_PREFIX}
