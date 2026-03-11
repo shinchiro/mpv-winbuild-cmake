@@ -1,3 +1,11 @@
+set(FFMPEG_GIT_TAG "n7.1.3" CACHE STRING "FFmpeg git tag for AVS patch compatibility")
+set(FFMPEG_PATCH_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/patches/ffmpeg")
+set(CAVS_DRA_GIT_URL "https://github.com/maliwen2015/ffmpeg_cavs_dra.git")
+set(CAVS_DRA_GIT_REF "abae276fed97ce08928f25c8f5e03fd915687f54")
+set(CAVS_DRA_PATCH_NAME "ffmpeg-7.1.2_cavs_dra.patch")
+set(CAVS_DRA_CACHE_DIR "${CMAKE_CURRENT_BINARY_DIR}/cavs_dra")
+set(CAVS_DRA_PATCH_PATH "${CAVS_DRA_CACHE_DIR}/${CAVS_DRA_PATCH_NAME}")
+
 ExternalProject_Add(ffmpeg
     DEPENDS
         amf-headers
@@ -47,10 +55,12 @@ ExternalProject_Add(ffmpeg
         libva
         openal-soft
     GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
+    GIT_TAG ${FFMPEG_GIT_TAG}
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--sparse --filter=tree:0"
     GIT_CLONE_POST_COMMAND "sparse-checkout set --no-cone /* !tests/ref/fate"
     UPDATE_COMMAND ""
+    PATCH_COMMAND ${EXEC} bash ${PROJECT_SOURCE_DIR}/scripts/apply_ffmpeg_patches.sh <SOURCE_DIR> ${FFMPEG_PATCH_ROOT} ${CAVS_DRA_GIT_URL} ${CAVS_DRA_GIT_REF} ${CAVS_DRA_PATCH_PATH}
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         --cross-prefix=${TARGET_ARCH}-
         --prefix=${MINGW_INSTALL_PREFIX}

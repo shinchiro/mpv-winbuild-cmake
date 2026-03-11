@@ -1,0 +1,171 @@
+--- a/libavcodec/libcavs.h
++++ b/libavcodec/libcavs.h
+@@ -84,6 +84,8 @@
+     int b_accelerate; /* 0: off 1: on */
+ 
+     int output_type; /* mark output type, init as -1, I-0, P-1, B-2 */
++    int output_top_field_first; /* valid when current output is interlaced */
++    int output_interlaced; /* 1 when current output is interlaced */
+ }cavs_param;
+ 
+ /* creat handle of decoder */
+--- a/libavcodec/libcavs.c
++++ b/libavcodec/libcavs.c
+@@ -4622,7 +4622,6 @@
+     }
+     sh->b_interlaced = !h->b_picture_structure;
+     h->b_top_field_first = cavs_bitstream_get_bit1(s);
+-    h->b_top_field_first = !h->b_picture_structure; // FIXIT:not support 0
+     h->b_repeat_first_field = cavs_bitstream_get_bit1(s);
+     h->b_fixed_picture_qp = cavs_bitstream_get_bit1(s);
+     h->i_picture_qp = cavs_bitstream_get_bits(s, 6);
+@@ -4768,7 +4767,6 @@
+     }
+     sh->b_interlaced = !h->b_picture_structure;
+     h->b_top_field_first = cavs_bitstream_get_bit1(s);
+-    h->b_top_field_first = !h->b_picture_structure;// FIXIT:not support 0
+     h->b_repeat_first_field = cavs_bitstream_get_bit1(s);
+     h->b_fixed_picture_qp = cavs_bitstream_get_bit1(s);
+     h->i_picture_qp = cavs_bitstream_get_bits(s, 6);
+@@ -13528,6 +13526,8 @@
+ 
+ static void cavs_out_image_yuv420(cavs_decoder *p, cavs_image *p_cur, uint8_t *p_yuv_in[3], int b_bottom )
+ {
++    p->param.output_interlaced = !p_cur->b_picture_structure;
++    p->param.output_top_field_first = p_cur->b_top_field_first;
+     uint32_t j = 0;
+     unsigned char* p_bufimg;
+     uint8_t *p_yuv;
+@@ -16117,6 +16117,8 @@
+ 
+     p->param.b_accelerate = param->b_accelerate; 
+     p->param.output_type = param->output_type = -1;
++    p->param.output_top_field_first = param->output_top_field_first = 0;
++    p->param.output_interlaced = param->output_interlaced = 0;
+ 
+     cavs_decoder_init( p );
+ 
+@@ -16273,13 +16275,14 @@
+ int cavs_out_delay_frame(void *p_decoder, unsigned char *p_out_yuv[3])
+ {
+     cavs_decoder * p = (cavs_decoder *)p_decoder;
+-    int b_interlaced = p->param.b_interlaced;
++    int b_interlaced;
+ 
+ 	 /* B frame exists */
+     if ( !p->b_low_delay 
+ 		&& ((cavs_decoder *)p_decoder)->last_delayed_pframe /* delay frame exists */
+ 		)
+     {
++        b_interlaced = !((cavs_decoder *)p_decoder)->last_delayed_pframe->b_picture_structure;
+         if( !b_interlaced )
+             cavs_out_image_yuv420((cavs_decoder *)p_decoder, ((cavs_decoder *)p_decoder)->last_delayed_pframe, p_out_yuv, 0);
+         else
+@@ -16311,7 +16314,7 @@
+ int cavs_out_delay_frame_end(void *p_decoder, unsigned char *p_out_yuv[3])
+ {
+     cavs_decoder * p = (cavs_decoder *)p_decoder;
+-    int b_interlaced = p->param.b_interlaced;
++    int b_interlaced;
+     
+ 	if ( !/*p->vsh.b_low_delay*/p->b_low_delay ) /* B frame exists */
+     {
+@@ -16322,6 +16325,7 @@
+ 			return 0;
+ 		}
+ 
++        b_interlaced = !p->last_delayed_pframe->b_picture_structure;
+         if( !b_interlaced )
+             cavs_out_image_yuv420((cavs_decoder *)p_decoder, ((cavs_decoder *)p_decoder)->last_delayed_pframe, p_out_yuv, 0);
+         else
+--- a/libavcodec/libcavsdec.c
++++ b/libavcodec/libcavsdec.c
+@@ -171,6 +171,16 @@
+  *
+  ****************************************************************************/
+ 
++static void cavs_finalize_output_frame(AVFrame *frame, const cavs_param *param)
++{
++    frame->flags &= ~(AV_FRAME_FLAG_INTERLACED | AV_FRAME_FLAG_TOP_FIELD_FIRST);
++    frame->repeat_pict = 0;
++    if (param->output_interlaced)
++        frame->flags |= AV_FRAME_FLAG_INTERLACED;
++    if (param->output_interlaced && param->output_top_field_first)
++        frame->flags |= AV_FRAME_FLAG_TOP_FIELD_FIRST;
++}
++
+ static int decoder_get_cur_frame( AVFrame *frame, cavs_param * param)
+ {
+     int width;
+@@ -390,6 +400,8 @@
+     param->seqsize.lWidth = h->width;
+     param->seqsize.lHeight = h->height;
+     param->output_type = -1; /* -1 init, I-0, P-1 B-2 */
++    param->output_top_field_first = 0;
++    param->output_interlaced = 0;
+     
+     return 0;
+ }
+@@ -547,7 +559,7 @@
+                     *got_frame = 1;
+                     av_frame_move_ref(frame, h->cur.f);
+                      
+-					frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++				cavs_finalize_output_frame(frame, &h->param);
+ 	
+                     return 0;
+                }
+@@ -561,7 +573,7 @@
+                 decoder_get_cur_frame( h->DPB[0].f, &h->param );
+                 *got_frame = 1;
+                 av_frame_move_ref(frame, h->DPB[0].f);
+-				frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++				cavs_finalize_output_frame(frame, &h->param);
+             }
+         }
+ 
+@@ -698,7 +710,7 @@
+                         {
+                             return ret;
+                         }
+-						frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++					cavs_finalize_output_frame(frame, &h->param);
+                     }
+                     else
+                     {
+@@ -712,7 +724,7 @@
+                     if(h->output_type == AV_PICTURE_TYPE_B && *got_frame == 1)
+                     {   
+                         av_frame_move_ref(frame, h->cur.f);
+-						frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++					cavs_finalize_output_frame(frame, &h->param);
+                     } 
+                 }
+             }
+@@ -726,7 +738,7 @@
+                         {
+                             return ret;
+                         }
+-						frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++					cavs_finalize_output_frame(frame, &h->param);
+                     }
+                     else
+                     {
+@@ -739,7 +751,7 @@
+ 
+                             *got_frame = 1;
+                             av_frame_move_ref(frame, h->cur.f);
+-							frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++						cavs_finalize_output_frame(frame, &h->param);
+                         }
+                         else
+                         {
+@@ -752,7 +764,7 @@
+                     if(*got_frame == 1)
+                     {   
+                         av_frame_move_ref(frame, h->cur.f);
+-						frame->flags = h->b_interlaced ? AV_FRAME_FLAG_INTERLACED : 0;
++					cavs_finalize_output_frame(frame, &h->param);
+                     }
+                 }
+             }

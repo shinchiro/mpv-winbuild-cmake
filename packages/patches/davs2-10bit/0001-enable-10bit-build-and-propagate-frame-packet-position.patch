@@ -1,0 +1,206 @@
+diff --git a/build/linux/configure b/build/linux/configure
+index ac90f74..aa6ad38 100755
+--- a/build/linux/configure
++++ b/build/linux/configure
+@@ -465,11 +465,8 @@ for opt do
+             bit_depth="$optarg"
+             if [ "$bit_depth" -lt "8" -o "$bit_depth" -gt "10" ]; then
+                 echo "Supplied bit depth must be in range [8,10]."
+                 exit 1
+-            elif [[ "$bit_depth" = "9" || "$bit_depth" = "10" ]]; then
+-                echo "BitDepth $bit_depth not supported currently."
+-                exit 1
+             fi
+             bit_depth=`expr $bit_depth + 0`
+             ;;
+         --chroma-format=*)
+diff --git a/source/common/common.h b/source/common/common.h
+index 75a7ab3..a7fbfa4 100644
+--- a/source/common/common.h
++++ b/source/common/common.h
+@@ -692,6 +692,7 @@ typedef struct davs2_frame_t {
+     /* properties */
+     int64_t     i_pts;                /* user pts (presentation time stamp) */
+     int64_t     i_dts;                /* user dts (decoding time stamp) */
++    int64_t     i_pos;
+ 
+     int         i_type;               /* frame type */
+     int         i_qp;
+@@ -877,6 +878,7 @@ typedef struct es_unit_t {
+     davs2_bs_t    bs;                 /* bit-stream reader of this es_unit */
+     int64_t       pts;                /* presentation time stamp */
+     int64_t       dts;                /* decoding time stamp */
++    int64_t       pos;
+     int           len;                /* length of valid data in byte stream buffer */
+     int           size;               /* buffer size */
+     uint8_t       data[1];            /* byte stream buffer */
+diff --git a/source/common/davs2.cc b/source/common/davs2.cc
+index fc3479d..a44a592 100644
+--- a/source/common/davs2.cc
++++ b/source/common/davs2.cc
+@@ -80,6 +80,7 @@ es_unit_alloc(int buf_size)
+     es_unit->len  = 0;
+     es_unit->pts  = 0;
+     es_unit->dts  = 0;
++    es_unit->pos  = -1;
+ 
+     return es_unit;
+ }
+@@ -98,7 +99,7 @@ es_unit_free(es_unit_t *es_unit)
+  * push byte stream data of one frame to input list
+  */
+ static
+-es_unit_t *davs2_pack_es_unit(davs2_mgr_t *mgr, const uint8_t *data, int len, int64_t pts, int64_t dts)
++es_unit_t *davs2_pack_es_unit(davs2_mgr_t *mgr, const uint8_t *data, int len, int64_t pts, int64_t dts, int64_t pos)
+ {
+ #define DAVS2_ISUNIT(x) ((x) == 0xB0 || (x) == 0xB1 || (x) == 0xB7 || (x) == 0xB3 || (x) == 0xB6)
+     es_unit_t *es_unit     = NULL;
+@@ -140,6 +141,7 @@ es_unit_t *davs2_pack_es_unit(davs2_mgr_t *mgr, const uint8_t *data, int len, i
+         es_unit->len += len;
+         es_unit->pts  = pts;
+         es_unit->dts  = dts;
++        es_unit->pos  = pos;
+     }
+ 
+     /* check the pseudo start code */
+@@ -600,7 +601,7 @@ int decoder_decode_es_unit(davs2_mgr_t *mgr, es_unit_t *es_unit)
+     if (parse_header(h, &es_unit->bs) == 0) {
+         h->p_bs = &es_unit->bs;
+         /* prepare the reference list and the reconstruction buffer */
+-        if (task_get_references(h, es_unit->pts, es_unit->dts) == 0) {
++        if (task_get_references(h, es_unit->pts, es_unit->dts, es_unit->pos) == 0) {
+             b_wait_output = has_new_output_frame(mgr, h);
+             mgr->num_frames_in++;
+ 
+@@ -661,7 +662,7 @@ davs2_decoder_send_packet(void *decoder, davs2_packet_t *packet)
+     }
+ 
+     /* generate one es_unit for current byte-stream buffer */
+-    es_unit = davs2_pack_es_unit(mgr, packet->data, packet->len, packet->pts, packet->dts);
++    es_unit = davs2_pack_es_unit(mgr, packet->data, packet->len, packet->pts, packet->dts, packet->pos);
+     if (es_unit == NULL && mgr->es_unit == NULL) {
+         davs2_log(mgr, DAVS2_LOG_ERROR, "Failed to create an ES_UNIT, input Byte-Stream length %d",
+                   packet->len);
+diff --git a/source/common/decoder.h b/source/common/decoder.h
+index 86759c0..cf8c360 100644
+--- a/source/common/decoder.h
++++ b/source/common/decoder.h
+@@ -56,7 +56,7 @@ void decoder_free_extra_buffer(davs2_t *h);
+ void davs2_write_a_frame(davs2_picture_t *pic, davs2_frame_t *frame);
+ 
+ #define task_get_references FPFX(task_get_references)
+-int  task_get_references(davs2_t *h, int64_t pts, int64_t dts);
++int  task_get_references(davs2_t *h, int64_t pts, int64_t dts, int64_t pos);
+ 
+ #define task_unload_packet FPFX(task_unload_packet)
+ void task_unload_packet(davs2_t *h, es_unit_t *es_unit);
+diff --git a/source/common/frame.cc b/source/common/frame.cc
+index 4a82230..f3426ec 100644
+--- a/source/common/frame.cc
++++ b/source/common/frame.cc
+@@ -274,6 +274,8 @@ davs2_frame_t *davs2_frame_new(int width, int height, int chroma_format, uint8_
+ 
+     frame->i_type      = -1;
+     frame->i_pts       = -1;
++    frame->i_dts       = -1;
++    frame->i_pos       = -1;
+     frame->i_coi       = INVALID_FRAME;
+     frame->i_poc       = INVALID_FRAME;
+     frame->b_refered_by_others = 0;
+diff --git a/source/common/header.cc b/source/common/header.cc
+index b5dbdb5..b70b1fc 100644
+--- a/source/common/header.cc
++++ b/source/common/header.cc
+@@ -927,7 +927,7 @@ int create_dpb(davs2_mgr_t *mgr)
+ 
+ /* ---------------------------------------------------------------------------
+  */
+-static void init_fdec(davs2_t *h, int64_t pts, int64_t dts)
++static void init_fdec(davs2_t *h, int64_t pts, int64_t dts, int64_t pos)
+ {
+     int num_in_spu = h->i_width_in_spu * h->i_height_in_spu;
+     int i;
+@@ -940,6 +940,7 @@ static void init_fdec(davs2_t *h, int64_t pts, int64_t dts, int64_t pos)
+     h->fdec->i_decoded_line      = -1;
+     h->fdec->i_pts               = pts;
+     h->fdec->i_dts               = dts;
++    h->fdec->i_pos               = pos;
+ 
+     for (i = 0; i < AVS2_MAX_REFS; i++) {
+         h->fdec->dist_refs[i] = -1;
+@@ -1229,7 +1229,7 @@ int has_blocking(davs2_mgr_t *mgr)
+ 
+ /* ---------------------------------------------------------------------------
+  */
+-int task_get_references(davs2_t *h, int64_t pts, int64_t dts)
++int task_get_references(davs2_t *h, int64_t pts, int64_t dts, int64_t pos)
+ {
+     davs2_mgr_t    *mgr   = h->task_info.taskmgr;
+     davs2_frame_t **dpb   = mgr->dpb;
+@@ -1448,7 +1448,7 @@ int task_get_references(davs2_t *h, int64_t pts, int64_t dts)
+             davs2_thread_mutex_lock(&mgr->mutex_mgr);
+         }
+ 
+-        init_fdec(h, pts, dts);
++        init_fdec(h, pts, dts, pos);
+ 
+         if (h->i_frame_type == AVS2_S_SLICE) {
+             int num_in_spu = h->i_width_in_spu * h->i_height_in_spu;
+diff --git a/source/common/alf.cc b/source/common/alf.cc
+index 30e30f0..334ae7d 100644
+--- a/source/common/alf.cc
++++ b/source/common/alf.cc
+@@ -518,9 +518,6 @@ void davs2_alf_init(uint32_t cpuid, ao_funcs_t *fh)
+         if (cpuid & DAVS2_CPU_SSE4) {
+             fh->alf_block[0] = alf_filter_block_sse128_10bit;
+         }
+-        if (cpuid & (DAVS2_CPU_AVX2)) {
+-            fh->alf_block[0] = alf_filter_block_avx2_10bit;
+-        }
+ #else
+     if (cpuid & DAVS2_CPU_SSE4) {
+         fh->alf_block[0] = alf_filter_block_sse128;
+diff --git a/source/common/decoder.cc b/source/common/decoder.cc
+index 77943ff..3570e3f 100644
+--- a/source/common/decoder.cc
++++ b/source/common/decoder.cc
+@@ -1061,5 +1061,6 @@ void davs2_write_a_frame(davs2_picture_t *pic, davs2_frame_t *frame)
+     pic->qp              = frame->i_qp;
+     pic->pts             = frame->i_pts;
+     pic->dts             = frame->i_dts;
++    pic->pos             = frame->i_pos;
+     pic->pic_order_count = frame->i_poc;
+ }
+diff --git a/source/common/vec/intrinsic_intra-pred.cc b/source/common/vec/intrinsic_intra-pred.cc
+index 5a46584..0864d8f 100644
+--- a/source/common/vec/intrinsic_intra-pred.cc
++++ b/source/common/vec/intrinsic_intra-pred.cc
+@@ -8549,7 +8549,7 @@ void intra_pred_bilinear_sse128_10bit(pel_t* pSrc, pel_t* dst, int i_dst, int di
+     int x, y;
+     int ishift_x = tab_log2[iWidth];
+     int ishift_y = tab_log2[iHeight];
+-    int ishift = min(ishift_x, ishift_y);
++    int ishift = DAVS2_MIN(ishift_x, ishift_y);
+     int ishift_xy = ishift_x + ishift_y + 1;
+     int offset = 1 << (ishift_x + ishift_y);
+     int a, b, c, w, val;
+diff --git a/source/davs2.h b/source/davs2.h
+index d4b6811..e67ecc2 100644
+--- a/source/davs2.h
++++ b/source/davs2.h
+@@ -148,6 +148,7 @@ typedef struct davs2_packet_t {
+     int             len;              /* bytes of the bitstream */
+     int64_t         pts;              /* presentation time stamp */
+     int64_t         dts;              /* decoding time stamp */
++    int64_t         pos;
+ } davs2_packet_t;
+ 
+ /* ---------------------------------------------------------------------------
+@@ -165,6 +166,7 @@ typedef struct davs2_picture_t {
+     int             qp;               /* QP of the corresponding picture */
+     int64_t         pts;              /* presentation time stamp */
+     int64_t         dts;              /* decoding time stamp */
++    int64_t         pos;
+     int             num_planes;       /* number of planes */
+     int             bytes_per_sample; /* number of bytes for each sample */
+     int             bit_depth;        /* number of bytes for each sample */

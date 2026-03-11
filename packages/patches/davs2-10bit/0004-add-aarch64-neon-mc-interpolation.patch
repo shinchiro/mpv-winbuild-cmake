@@ -1,0 +1,210 @@
+--- a/source/common/mc.cc
++++ b/source/common/mc.cc
+@@ -366,8 +366,179 @@
+     }
+ 
+ #undef TMP_STRIDE
++}
++
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static inline uint16x8_t davs2_clip_int32x4x2_to_u16_neon(int32x4_t lo, int32x4_t hi)
++{
++    const int32x4_t zero = vdupq_n_s32(0);
++    const int32x4_t maxv = vdupq_n_s32(max_pel_value);
++    lo = vmaxq_s32(lo, zero);
++    hi = vmaxq_s32(hi, zero);
++    lo = vminq_s32(lo, maxv);
++    hi = vminq_s32(hi, maxv);
++    return vcombine_u16(vqmovun_s32(lo), vqmovun_s32(hi));
++}
++
++static void intpl_chroma_block_hor_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
++{
++    const int16_t c0 = coeff[0], c1 = coeff[1], c2 = coeff[2], c3 = coeff[3];
++    pel_t *src_base = src;
++    int x, y, v;
++    src -= 1;
++    for (y = 0; y < height; y++) {
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(src + x + 0));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(src + x + 1));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(src + x + 2));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(src + x + 3));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), c0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), c0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), c1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), c1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), c2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), c2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), c3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), c3);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(32)), 6);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(32)), 6);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_4TAP_HOR(src_base, x, coeff) + 32) >> 6;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        src += i_src;
++        src_base += i_src;
++        dst += i_dst;
++    }
++}
++
++static void intpl_chroma_block_ver_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
++{
++    const int16_t c0 = coeff[0], c1 = coeff[1], c2 = coeff[2], c3 = coeff[3];
++    int x, y, v;
++    for (y = 0; y < height; y++) {
++        pel_t *base = src - i_src;
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(base + x + 0 * i_src));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(base + x + 1 * i_src));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(base + x + 2 * i_src));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(base + x + 3 * i_src));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), c0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), c0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), c1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), c1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), c2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), c2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), c3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), c3);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(32)), 6);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(32)), 6);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_4TAP_VER(src, x, i_src, coeff) + 32) >> 6;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        src += i_src;
++        dst += i_dst;
++    }
++}
++
++static void intpl_luma_block_hor_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
++{
++    const int16_t c0 = coeff[0], c1 = coeff[1], c2 = coeff[2], c3 = coeff[3];
++    const int16_t c4 = coeff[4], c5 = coeff[5], c6 = coeff[6], c7 = coeff[7];
++    pel_t *src_base = src;
++    int x, y, v;
++    src -= 3;
++    for (y = 0; y < height; y++) {
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(src + x + 0));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(src + x + 1));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(src + x + 2));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(src + x + 3));
++            int16x8_t s4 = vreinterpretq_s16_u16(vld1q_u16(src + x + 4));
++            int16x8_t s5 = vreinterpretq_s16_u16(vld1q_u16(src + x + 5));
++            int16x8_t s6 = vreinterpretq_s16_u16(vld1q_u16(src + x + 6));
++            int16x8_t s7 = vreinterpretq_s16_u16(vld1q_u16(src + x + 7));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), c0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), c0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), c1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), c1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), c2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), c2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), c3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), c3);
++            lo = vmlal_n_s16(lo, vget_low_s16(s4), c4);
++            hi = vmlal_n_s16(hi, vget_high_s16(s4), c4);
++            lo = vmlal_n_s16(lo, vget_low_s16(s5), c5);
++            hi = vmlal_n_s16(hi, vget_high_s16(s5), c5);
++            lo = vmlal_n_s16(lo, vget_low_s16(s6), c6);
++            hi = vmlal_n_s16(hi, vget_high_s16(s6), c6);
++            lo = vmlal_n_s16(lo, vget_low_s16(s7), c7);
++            hi = vmlal_n_s16(hi, vget_high_s16(s7), c7);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(32)), 6);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(32)), 6);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_8TAP_HOR(src_base, x, coeff) + 32) >> 6;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        src += i_src;
++        src_base += i_src;
++        dst += i_dst;
++    }
+ }
+ 
++static void intpl_luma_block_ver_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, int8_t const *coeff)
++{
++    const int16_t c0 = coeff[0], c1 = coeff[1], c2 = coeff[2], c3 = coeff[3];
++    const int16_t c4 = coeff[4], c5 = coeff[5], c6 = coeff[6], c7 = coeff[7];
++    int x, y, v;
++    for (y = 0; y < height; y++) {
++        pel_t *base = src - 3 * i_src;
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(base + x + 0 * i_src));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(base + x + 1 * i_src));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(base + x + 2 * i_src));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(base + x + 3 * i_src));
++            int16x8_t s4 = vreinterpretq_s16_u16(vld1q_u16(base + x + 4 * i_src));
++            int16x8_t s5 = vreinterpretq_s16_u16(vld1q_u16(base + x + 5 * i_src));
++            int16x8_t s6 = vreinterpretq_s16_u16(vld1q_u16(base + x + 6 * i_src));
++            int16x8_t s7 = vreinterpretq_s16_u16(vld1q_u16(base + x + 7 * i_src));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), c0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), c0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), c1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), c1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), c2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), c2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), c3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), c3);
++            lo = vmlal_n_s16(lo, vget_low_s16(s4), c4);
++            hi = vmlal_n_s16(hi, vget_high_s16(s4), c4);
++            lo = vmlal_n_s16(lo, vget_low_s16(s5), c5);
++            hi = vmlal_n_s16(hi, vget_high_s16(s5), c5);
++            lo = vmlal_n_s16(lo, vget_low_s16(s6), c6);
++            hi = vmlal_n_s16(hi, vget_high_s16(s6), c6);
++            lo = vmlal_n_s16(lo, vget_low_s16(s7), c7);
++            hi = vmlal_n_s16(hi, vget_high_s16(s7), c7);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(32)), 6);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(32)), 6);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_8TAP_VER(src, x, i_src, coeff) + 32) >> 6;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        src += i_src;
++        dst += i_dst;
++    }
++}
++#endif
++
+ /* ---------------------------------------------------------------------------
+  */
+ #define INTERP_HOR_C(width, height) \
+@@ -758,6 +929,27 @@
+     pf->intpl_chroma_hor[1] = intpl_chroma_block_hor_c;
+     pf->intpl_chroma_ext[1] = intpl_chroma_block_ext_c;
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++    if (cpuid & DAVS2_CPU_NEON) {
++        pf->intpl_luma_ver[0][0] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_ver[0][1] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_ver[0][2] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_hor[0][0] = intpl_luma_block_hor_neon;
++        pf->intpl_luma_hor[0][1] = intpl_luma_block_hor_neon;
++        pf->intpl_luma_hor[0][2] = intpl_luma_block_hor_neon;
++        pf->intpl_chroma_ver[0] = intpl_chroma_block_ver_neon;
++        pf->intpl_chroma_hor[0] = intpl_chroma_block_hor_neon;
++        pf->intpl_luma_ver[1][0] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_ver[1][1] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_ver[1][2] = intpl_luma_block_ver_neon;
++        pf->intpl_luma_hor[1][0] = intpl_luma_block_hor_neon;
++        pf->intpl_luma_hor[1][1] = intpl_luma_block_hor_neon;
++        pf->intpl_luma_hor[1][2] = intpl_luma_block_hor_neon;
++        pf->intpl_chroma_ver[1] = intpl_chroma_block_ver_neon;
++        pf->intpl_chroma_hor[1] = intpl_chroma_block_hor_neon;
++    }
++#endif
++
+     /* init asm function handles */
+ #if HAVE_MMX
+     if (cpuid & DAVS2_CPU_SSE42) {

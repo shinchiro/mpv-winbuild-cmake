@@ -1,0 +1,175 @@
+--- a/source/common/mc.cc
++++ b/source/common/mc.cc
+@@ -537,6 +537,161 @@
+         dst += i_dst;
+     }
+ }
++
++static void intpl_chroma_block_ext_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
++{
++    ALIGN16(mct_t tmp_res[(32 + 3) * 32]);
++    mct_t *tmp = tmp_res;
++    const int shift2 = 20 - g_bit_depth;
++    const int add2   = 1 << (shift2 - 1);
++    const int16_t h0 = coeff_h[0], h1 = coeff_h[1], h2 = coeff_h[2], h3 = coeff_h[3];
++    const int16_t v0 = coeff_v[0], v1 = coeff_v[1], v2 = coeff_v[2], v3 = coeff_v[3];
++    int x, y, v;
++
++    src -= i_src;
++    for (y = -1; y < height + 2; y++) {
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(src + x - 1));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(src + x + 0));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(src + x + 1));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(src + x + 2));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), h0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), h0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), h1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), h1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), h2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), h2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), h3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), h3);
++            vst1q_s16(tmp + x, vcombine_s16(vqmovn_s32(vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(2)), 2)), vqmovn_s32(vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(2)), 2))));
++        }
++        for (; x < width; x++) {
++            v = FLT_4TAP_HOR(src, x, coeff_h);
++            tmp[x] = (mct_t)((v + 2) >> 2);
++        }
++        src += i_src;
++        tmp += 32;
++    }
++
++    tmp = tmp_res + 32;
++    for (y = 0; y < height; y++) {
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vld1q_s16(tmp + x - 32);
++            int16x8_t s1 = vld1q_s16(tmp + x + 0);
++            int16x8_t s2 = vld1q_s16(tmp + x + 32);
++            int16x8_t s3 = vld1q_s16(tmp + x + 64);
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), v0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), v0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), v1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), v1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), v2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), v2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), v3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), v3);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(add2)), 10);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(add2)), 10);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_4TAP_VER(tmp, x, 32, coeff_v) + add2) >> shift2;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        dst += i_dst;
++        tmp += 32;
++    }
++}
++
++static void intpl_luma_block_ext_neon(pel_t *dst, int i_dst, pel_t *src, int i_src, int width, int height, const int8_t *coeff_h, const int8_t *coeff_v)
++{
++#define TMP_STRIDE 64
++    const int shift2 = 20 - g_bit_depth;
++    const int add2   = 1 << (shift2 - 1);
++    const int16_t h0 = coeff_h[0], h1 = coeff_h[1], h2 = coeff_h[2], h3 = coeff_h[3];
++    const int16_t h4 = coeff_h[4], h5 = coeff_h[5], h6 = coeff_h[6], h7 = coeff_h[7];
++
++    ALIGN16(mct_t tmp_buf[(64 + 7) * TMP_STRIDE]);
++    mct_t *tmp = tmp_buf;
++    int x, y, v;
++
++    src -= 3 * i_src;
++    for (y = -3; y < height + 4; y++) {
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vreinterpretq_s16_u16(vld1q_u16(src + x - 3));
++            int16x8_t s1 = vreinterpretq_s16_u16(vld1q_u16(src + x - 2));
++            int16x8_t s2 = vreinterpretq_s16_u16(vld1q_u16(src + x - 1));
++            int16x8_t s3 = vreinterpretq_s16_u16(vld1q_u16(src + x + 0));
++            int16x8_t s4 = vreinterpretq_s16_u16(vld1q_u16(src + x + 1));
++            int16x8_t s5 = vreinterpretq_s16_u16(vld1q_u16(src + x + 2));
++            int16x8_t s6 = vreinterpretq_s16_u16(vld1q_u16(src + x + 3));
++            int16x8_t s7 = vreinterpretq_s16_u16(vld1q_u16(src + x + 4));
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), h0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), h0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), h1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), h1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), h2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), h2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), h3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), h3);
++            lo = vmlal_n_s16(lo, vget_low_s16(s4), h4);
++            hi = vmlal_n_s16(hi, vget_high_s16(s4), h4);
++            lo = vmlal_n_s16(lo, vget_low_s16(s5), h5);
++            hi = vmlal_n_s16(hi, vget_high_s16(s5), h5);
++            lo = vmlal_n_s16(lo, vget_low_s16(s6), h6);
++            hi = vmlal_n_s16(hi, vget_high_s16(s6), h6);
++            lo = vmlal_n_s16(lo, vget_low_s16(s7), h7);
++            hi = vmlal_n_s16(hi, vget_high_s16(s7), h7);
++            vst1q_s16(tmp + x, vcombine_s16(vqmovn_s32(vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(2)), 2)), vqmovn_s32(vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(2)), 2))));
++        }
++        for (; x < width; x++) {
++            v = FLT_8TAP_HOR(src, x, coeff_h);
++            tmp[x] = (mct_t)((v + 2) >> 2);
++        }
++        src += i_src;
++        tmp += TMP_STRIDE;
++    }
++
++    tmp = tmp_buf + 3 * TMP_STRIDE;
++    for (y = 0; y < height; y++) {
++        const int16_t v0 = coeff_v[0], v1 = coeff_v[1], v2 = coeff_v[2], v3 = coeff_v[3];
++        const int16_t v4 = coeff_v[4], v5 = coeff_v[5], v6 = coeff_v[6], v7 = coeff_v[7];
++        for (x = 0; x <= width - 8; x += 8) {
++            int16x8_t s0 = vld1q_s16(tmp + x - 3 * TMP_STRIDE);
++            int16x8_t s1 = vld1q_s16(tmp + x - 2 * TMP_STRIDE);
++            int16x8_t s2 = vld1q_s16(tmp + x - 1 * TMP_STRIDE);
++            int16x8_t s3 = vld1q_s16(tmp + x + 0 * TMP_STRIDE);
++            int16x8_t s4 = vld1q_s16(tmp + x + 1 * TMP_STRIDE);
++            int16x8_t s5 = vld1q_s16(tmp + x + 2 * TMP_STRIDE);
++            int16x8_t s6 = vld1q_s16(tmp + x + 3 * TMP_STRIDE);
++            int16x8_t s7 = vld1q_s16(tmp + x + 4 * TMP_STRIDE);
++            int32x4_t lo = vmull_n_s16(vget_low_s16(s0), v0);
++            int32x4_t hi = vmull_n_s16(vget_high_s16(s0), v0);
++            lo = vmlal_n_s16(lo, vget_low_s16(s1), v1);
++            hi = vmlal_n_s16(hi, vget_high_s16(s1), v1);
++            lo = vmlal_n_s16(lo, vget_low_s16(s2), v2);
++            hi = vmlal_n_s16(hi, vget_high_s16(s2), v2);
++            lo = vmlal_n_s16(lo, vget_low_s16(s3), v3);
++            hi = vmlal_n_s16(hi, vget_high_s16(s3), v3);
++            lo = vmlal_n_s16(lo, vget_low_s16(s4), v4);
++            hi = vmlal_n_s16(hi, vget_high_s16(s4), v4);
++            lo = vmlal_n_s16(lo, vget_low_s16(s5), v5);
++            hi = vmlal_n_s16(hi, vget_high_s16(s5), v5);
++            lo = vmlal_n_s16(lo, vget_low_s16(s6), v6);
++            hi = vmlal_n_s16(hi, vget_high_s16(s6), v6);
++            lo = vmlal_n_s16(lo, vget_low_s16(s7), v7);
++            hi = vmlal_n_s16(hi, vget_high_s16(s7), v7);
++            lo = vshrq_n_s32(vaddq_s32(lo, vdupq_n_s32(add2)), 10);
++            hi = vshrq_n_s32(vaddq_s32(hi, vdupq_n_s32(add2)), 10);
++            vst1q_u16(dst + x, davs2_clip_int32x4x2_to_u16_neon(lo, hi));
++        }
++        for (; x < width; x++) {
++            v = (FLT_8TAP_VER(tmp, x, TMP_STRIDE, coeff_v) + add2) >> shift2;
++            dst[x] = (pel_t)DAVS2_CLIP1(v);
++        }
++        dst += i_dst;
++        tmp += TMP_STRIDE;
++    }
++#undef TMP_STRIDE
++}
+ #endif
+ 
+ /* ---------------------------------------------------------------------------
+@@ -947,6 +1102,10 @@
+         pf->intpl_luma_hor[1][2] = intpl_luma_block_hor_neon;
+         pf->intpl_chroma_ver[1] = intpl_chroma_block_ver_neon;
+         pf->intpl_chroma_hor[1] = intpl_chroma_block_hor_neon;
++        pf->intpl_luma_ext[0] = intpl_luma_block_ext_neon;
++        pf->intpl_luma_ext[1] = intpl_luma_block_ext_neon;
++        pf->intpl_chroma_ext[0] = intpl_chroma_block_ext_neon;
++        pf->intpl_chroma_ext[1] = intpl_chroma_block_ext_neon;
+     }
+ #endif
+ 

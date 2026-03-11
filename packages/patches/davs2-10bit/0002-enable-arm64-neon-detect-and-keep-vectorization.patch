@@ -1,0 +1,86 @@
+--- a/build/linux/configure
++++ b/build/linux/configure
+@@ -1035,7 +1035,7 @@
+ fi
+ [ "$lto" = "auto" ] && lto="no"
+ 
+-if cc_check '' -fno-tree-vectorize ; then
++if [ "$ARCH" != "AARCH64" ] && [ "$ARCH" != "ARM" ] && cc_check '' -fno-tree-vectorize ; then
+     CFLAGS="$CFLAGS -fno-tree-vectorize"
+ fi
+ 
+--- a/source/common/cpu.cc
++++ b/source/common/cpu.cc
+@@ -50,7 +50,7 @@
+ #include <machine/cpu.h>
+ #endif
+ 
+-#if ARCH_ARM
++#if ARCH_ARM || ARCH_AARCH64
+ #include <signal.h>
+ #include <setjmp.h>
+ static sigjmp_buf jmpbuf;
+@@ -68,7 +68,7 @@
+     siglongjmp(jmpbuf, 1);
+ }
+ 
+-#endif // if ARCH_ARM
++#endif // if ARCH_ARM || ARCH_AARCH64
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -119,11 +119,11 @@
+     { "SlowShuffle",    DAVS2_CPU_SLOW_SHUFFLE },
+     { "UnalignedStack", DAVS2_CPU_STACK_MOD4 },
+ 
+-#elif ARCH_ARM
++#elif ARCH_ARM || ARCH_AARCH64
+     { "ARMv6",          DAVS2_CPU_ARMV6 },
+     { "NEON",           DAVS2_CPU_NEON },
+     { "FastNeonMRC",    DAVS2_CPU_FAST_NEON_MRC },
+-#endif // if DAVS2_ARCH_X86
++#endif // if ARCH_ARM || ARCH_AARCH64 / HAVE_MMX
+     { "", 0 }
+ };
+ 
+@@ -169,7 +169,25 @@
+ int  davs2_cpu_cpuid_test(void);
+ #endif
+ 
+-#if HAVE_MMX
++#if ARCH_ARM || ARCH_AARCH64
++/* ---------------------------------------------------------------------------
++ */
++uint32_t davs2_cpu_detect(void)
++{
++    uint32_t cpuid = 0;
++
++#if ARCH_AARCH64
++    cpuid |= DAVS2_CPU_NEON;
++#else
++    cpuid |= DAVS2_CPU_ARMV6;
++#if HAVE_NEON
++    cpuid |= DAVS2_CPU_NEON;
++#endif
++#endif
++
++    return cpuid;
++}
++#elif HAVE_MMX
+ /* ---------------------------------------------------------------------------
+  */
+ uint32_t davs2_cpu_detect(void)
+--- a/source/common/davs2.cc
++++ b/source/common/davs2.cc
+@@ -467,8 +467,10 @@
+     }
+ 
+     /* init all function handlers */
+-#if HAVE_MMX
++#if HAVE_MMX || ARCH_ARM || ARCH_AARCH64
+     cpuid = davs2_cpu_detect();
++#endif
++#if HAVE_MMX
+     if (param->disable_avx) {
+          cpuid &= ~(DAVS2_CPU_AVX | DAVS2_CPU_AVX2);
+     }

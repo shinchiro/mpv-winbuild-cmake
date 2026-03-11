@@ -1,0 +1,101 @@
+diff --git a/source/common/intra.cc b/source/common/intra.cc
+index 1093ff3..9caa732 100644
+--- a/source/common/intra.cc
++++ b/source/common/intra.cc
+@@ -675,6 +675,88 @@ static void intra_pred_plane_c(pel_t *src, pel_t *dst, int i_dst, int mode, int
+ 
+ /* ---------------------------------------------------------------------------
+  */
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static void intra_pred_bilinear_neon_10bit(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
++{
++    itr_t pTop[MAX_CU_SIZE];
++    itr_t pLeft[MAX_CU_SIZE];
++    itr_t pT[MAX_CU_SIZE];
++    itr_t pL[MAX_CU_SIZE];
++    itr_t wy[MAX_CU_SIZE];
++    int ishift_x  = tab_log2size[width];
++    int ishift_y  = tab_log2size[height];
++    int ishift    = DAVS2_MIN(ishift_x, ishift_y);
++    int ishift_xy = ishift_x + ishift_y + 1;
++    int offset    = 1 << (ishift_x + ishift_y);
++    int a, b, c, w, x, y;
++    int max_value = (1 << g_bit_depth) - 1;
++
++    UNUSED_PARAMETER(mode);
++
++    for (x = 0; x < width; x++) {
++        pTop[x] = src[1 + x];
++    }
++
++    for (y = 0; y < height; y++) {
++        pLeft[y] = src[-1 - y];
++    }
++
++    a = pTop[width - 1];
++    b = pLeft[height - 1];
++    c = (width == height) ? (a + b + 1) >> 1 : (((a << ishift_x) + (b << ishift_y)) * 13 + (1 << (ishift + 5))) >> (ishift + 6);
++    w = (c << 1) - a - b;
++
++    for (x = 0; x < width; x++) {
++        pT[x] = (itr_t)(b - pTop[x]);
++        pTop[x] <<= ishift_y;
++    }
++
++    {
++        int t = 0;
++        for (y = 0; y < height; y++) {
++            pL[y] = (itr_t)(a - pLeft[y]);
++            pLeft[y] <<= ishift_x;
++            wy[y] = (itr_t)t;
++            t += w;
++        }
++    }
++
++    for (y = 0; y < height; y++) {
++        int predx = pLeft[y];
++        int wxy = -wy[y];
++        int pl = pL[y];
++        int wy_row = wy[y];
++        int32x4_t pl_step = vdupq_n_s32(pl * 4);
++        int32x4_t wy_step = vdupq_n_s32(wy_row * 4);
++        int32x4_t top_shift = vdupq_n_s32(ishift_x);
++        int32x4_t pred_shift = vdupq_n_s32(ishift_y);
++        int32x4_t out_shift = vdupq_n_s32(-ishift_xy);
++        int32x4_t zero = vdupq_n_s32(0);
++        int32x4_t maxv = vdupq_n_s32(max_value);
++
++        for (x = 0; x <= width - 4; x += 4) {
++            int32x4_t topv = vld1q_s32(pTop + x);
++            int32x4_t ptv  = vld1q_s32(pT + x);
++            int32x4_t predv = { predx + pl, predx + pl * 2, predx + pl * 3, predx + pl * 4 };
++            int32x4_t wxyv  = { wxy + wy_row, wxy + wy_row * 2, wxy + wy_row * 3, wxy + wy_row * 4 };
++            topv = vaddq_s32(topv, ptv);
++            vst1q_s32(pTop + x, topv);
++            predv = vshlq_s32(predv, pred_shift);
++            topv = vshlq_s32(topv, top_shift);
++            topv = vaddq_s32(vaddq_s32(predv, topv), vaddq_s32(wxyv, vdupq_n_s32(offset)));
++            topv = vshlq_s32(topv, out_shift);
++            topv = vmaxq_s32(topv, zero);
++            topv = vminq_s32(topv, maxv);
++            vst1_u16(dst + x, vmovn_u32(vreinterpretq_u32_s32(topv)));
++            predx += pl * 4;
++            wxy += wy_row * 4;
++        }
++
++        dst += i_dst;
++    }
++}
++#endif
++
+ static void intra_pred_bilinear_c(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
+ {
+     itr_t pTop[MAX_CU_SIZE];
+@@ -2897,6 +2979,7 @@ void davs2_intra_pred_init(uint32_t cpuid, ao_funcs_t *pf)
+     if (cpuid & DAVS2_CPU_NEON) {
+         ipred[DC_PRED] = intra_pred_dc_neon_10bit;
+         ipred[PLANE_PRED] = intra_pred_plane_neon_10bit;
++        ipred[BI_PRED] = intra_pred_bilinear_neon_10bit;
+         ipred[HOR_PRED] = intra_pred_hor_neon_10bit;
+         ipred[VERT_PRED] = intra_pred_ver_neon_10bit;
+     }

@@ -1,0 +1,23 @@
+diff --git a/libavcodec/libcavs.c b/libavcodec/libcavs.c
+--- a/libavcodec/libcavs.c
++++ b/libavcodec/libcavs.c
+@@ -1,10 +1,13 @@
+ #include "config.h"
+ #ifdef _WIN32
+ #define SYS_WINDOWS 1
+ #define SYS_LINUX 0
++#elif defined(__linux__)
++#define SYS_WINDOWS 0
++#define SYS_LINUX 1
+ #else
+ #define SYS_WINDOWS 0
+-#define SYS_LINUX 1
++#define SYS_LINUX 0
+ #endif
+ 
+ #include "libcavs.h"
+@@ -7582,3 +7582,3 @@
+-void init_crop_table()
++static void init_crop_table()
+ {
+     int i;

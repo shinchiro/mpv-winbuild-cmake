@@ -11,7 +11,7 @@ if(POLICY CMP0135)
 endif()
 
 if(NOT CMAKE_GENERATOR STREQUAL "Ninja")
-    message(WARNING "Generator “${CMAKE_GENERATOR}” is unsupported!\nTry Ninja if you encounter problems.")
+    message(WARNING "Generator 鈥?{CMAKE_GENERATOR}鈥?is unsupported!\nTry Ninja if you encounter problems.")
 endif()
 # Supported arch: x86_64-w64-mingw32 , i686-w64-mingw32 , aarch64-w64-mingw32
 set(TARGET_ARCH "x86_64-w64-mingw32" CACHE STRING "The target architecture for this toolchain.")

@@ -1,0 +1,247 @@
+diff --git a/source/common/intra.cc b/source/common/intra.cc
+index ed760dc..1093ff3 100644
+--- a/source/common/intra.cc
++++ b/source/common/intra.cc
+@@ -34,6 +34,9 @@
+ #include "block_info.h"
+ #include "intra.h"
+ #include "vec/intrinsic.h"
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++#include <arm_neon.h>
++#endif
+ 
+ // ---------------------------------------------------------------------------
+ // disable warning
+@@ -322,6 +325,217 @@ static void ALWAYS_INLINE memcpy_vh_pp_c(pel_t *dst, pel_t *src, int i_src, size
+     }
+ }
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static ALWAYS_INLINE void davs2_intra_store_replicate_10bit_neon(pel_t *dst, int width, uint16x8_t v)
++{
++    switch (width) {
++    case 4:
++        vst1_u16(dst, vget_low_u16(v));
++        break;
++    case 8:
++        vst1q_u16(dst, v);
++        break;
++    case 16:
++        vst1q_u16(dst + 0, v);
++        vst1q_u16(dst + 8, v);
++        break;
++    case 32:
++        vst1q_u16(dst + 0, v);
++        vst1q_u16(dst + 8, v);
++        vst1q_u16(dst + 16, v);
++        vst1q_u16(dst + 24, v);
++        break;
++    case 64:
++        vst1q_u16(dst + 0, v);
++        vst1q_u16(dst + 8, v);
++        vst1q_u16(dst + 16, v);
++        vst1q_u16(dst + 24, v);
++        vst1q_u16(dst + 32, v);
++        vst1q_u16(dst + 40, v);
++        vst1q_u16(dst + 48, v);
++        vst1q_u16(dst + 56, v);
++        break;
++    default:
++        assert(0);
++        break;
++    }
++}
++
++static ALWAYS_INLINE int davs2_hsum_u16q_neon(uint16x8_t v)
++{
++    uint32x4_t sum32 = vpaddlq_u16(v);
++    uint64x2_t sum64 = vpaddlq_u32(sum32);
++    return (int)(vgetq_lane_u64(sum64, 0) + vgetq_lane_u64(sum64, 1));
++}
++
++static void intra_pred_ver_neon_10bit(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
++{
++    pel_t *top = src + 1;
++    int y;
++    UNUSED_PARAMETER(mode);
++    switch (width) {
++    case 4: {
++        uint16x4_t row = vld1_u16(top);
++        for (y = 0; y < height; y++) {
++            vst1_u16(dst, row);
++            dst += i_dst;
++        }
++        break;
++    }
++    case 8: {
++        uint16x8_t row = vld1q_u16(top);
++        for (y = 0; y < height; y++) {
++            vst1q_u16(dst, row);
++            dst += i_dst;
++        }
++        break;
++    }
++    case 16: {
++        uint16x8_t r0 = vld1q_u16(top + 0), r1 = vld1q_u16(top + 8);
++        for (y = 0; y < height; y++) {
++            vst1q_u16(dst + 0, r0);
++            vst1q_u16(dst + 8, r1);
++            dst += i_dst;
++        }
++        break;
++    }
++    case 32: {
++        uint16x8_t r0 = vld1q_u16(top + 0), r1 = vld1q_u16(top + 8), r2 = vld1q_u16(top + 16), r3 = vld1q_u16(top + 24);
++        for (y = 0; y < height; y++) {
++            vst1q_u16(dst + 0, r0);
++            vst1q_u16(dst + 8, r1);
++            vst1q_u16(dst + 16, r2);
++            vst1q_u16(dst + 24, r3);
++            dst += i_dst;
++        }
++        break;
++    }
++    case 64: {
++        uint16x8_t r0 = vld1q_u16(top + 0), r1 = vld1q_u16(top + 8), r2 = vld1q_u16(top + 16), r3 = vld1q_u16(top + 24);
++        uint16x8_t r4 = vld1q_u16(top + 32), r5 = vld1q_u16(top + 40), r6 = vld1q_u16(top + 48), r7 = vld1q_u16(top + 56);
++        for (y = 0; y < height; y++) {
++            vst1q_u16(dst + 0, r0);
++            vst1q_u16(dst + 8, r1);
++            vst1q_u16(dst + 16, r2);
++            vst1q_u16(dst + 24, r3);
++            vst1q_u16(dst + 32, r4);
++            vst1q_u16(dst + 40, r5);
++            vst1q_u16(dst + 48, r6);
++            vst1q_u16(dst + 56, r7);
++            dst += i_dst;
++        }
++        break;
++    }
++    default:
++        assert(0);
++        break;
++    }
++}
++
++static void intra_pred_hor_neon_10bit(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
++{
++    pel_t *left = src - 1;
++    int y;
++    UNUSED_PARAMETER(mode);
++    for (y = 0; y < height; y++) {
++        uint16x8_t v = vdupq_n_u16(left[-y]);
++        davs2_intra_store_replicate_10bit_neon(dst, width, v);
++        dst += i_dst;
++    }
++}
++
++static void intra_pred_dc_neon_10bit(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
++{
++    int b_top = mode >> 8;
++    int b_left = mode & 0xFF;
++    int dc_value = 0;
++    int x, y;
++    pel_t *p_src = src - 1;
++
++    if (b_left) {
++        if (height >= 8) {
++            for (y = 0; y <= height - 8; y += 8) {
++                uint16_t tmp[8] = { p_src[-(y + 0)], p_src[-(y + 1)], p_src[-(y + 2)], p_src[-(y + 3)], p_src[-(y + 4)], p_src[-(y + 5)], p_src[-(y + 6)], p_src[-(y + 7)] };
++                dc_value += davs2_hsum_u16q_neon(vld1q_u16(tmp));
++            }
++            for (; y < height; y++) dc_value += p_src[-y];
++        } else {
++            for (y = 0; y < height; y++) dc_value += p_src[-y];
++        }
++
++        p_src = src + 1;
++        if (b_top) {
++            for (x = 0; x <= width - 8; x += 8) dc_value += davs2_hsum_u16q_neon(vld1q_u16(p_src + x));
++            for (; x < width; x++) dc_value += p_src[x];
++            dc_value += ((width + height) >> 1);
++            dc_value = (dc_value * (512 / (width + height))) >> 9;
++        } else {
++            dc_value += height / 2;
++            dc_value /= height;
++        }
++    } else {
++        p_src = src + 1;
++        if (b_top) {
++            for (x = 0; x <= width - 8; x += 8) dc_value += davs2_hsum_u16q_neon(vld1q_u16(p_src + x));
++            for (; x < width; x++) dc_value += p_src[x];
++            dc_value += width / 2;
++            dc_value /= width;
++        } else {
++            dc_value = 1 << (g_bit_depth - 1);
++        }
++    }
++
++    dc_value = DAVS2_CLIP3(0, (1 << g_bit_depth) - 1, dc_value);
++    {
++        uint16x8_t v = vdupq_n_u16((uint16_t)dc_value);
++        for (y = 0; y < height; y++) {
++            davs2_intra_store_replicate_10bit_neon(dst, width, v);
++            dst += i_dst;
++        }
++    }
++}
++
++static void intra_pred_plane_neon_10bit(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
++{
++    int ib_mult[5] = { 13, 17, 5, 11, 23 };
++    int ib_shift[5] = { 7, 10, 11, 15, 19 };
++    int im_h = ib_mult[tab_log2size[width] - 2];
++    int im_v = ib_mult[tab_log2size[height] - 2];
++    int is_h = ib_shift[tab_log2size[width] - 2];
++    int is_v = ib_shift[tab_log2size[height] - 2];
++    int iW2 = width >> 1, iH2 = height >> 1;
++    int iH = 0, iV = 0, iA, iB, iC, x, y, iTmp, max_val = (1 << g_bit_depth) - 1;
++    pel_t *p_src;
++    UNUSED_PARAMETER(mode);
++
++    p_src = src + 1 + (iW2 - 1);
++    for (x = 1; x < iW2 + 1; x++) iH += x * (p_src[x] - p_src[-x]);
++    p_src = src - 1 - (iH2 - 1);
++    for (y = 1; y < iH2 + 1; y++) iV += y * (p_src[-y] - p_src[y]);
++
++    iA = (src[-1 - (height - 1)] + src[1 + width - 1]) << 4;
++    iB = ((iH << 5) * im_h + (1 << (is_h - 1))) >> is_h;
++    iC = ((iV << 5) * im_v + (1 << (is_v - 1))) >> is_v;
++
++    iTmp = iA - (iH2 - 1) * iC - (iW2 - 1) * iB + 16;
++    for (y = 0; y < height; y++) {
++        int row_base = iTmp;
++        int32x4_t base = { row_base, row_base + iB, row_base + iB * 2, row_base + iB * 3 };
++        int32x4_t step = vdupq_n_s32(iB * 4);
++        for (x = 0; x <= width - 4; x += 4) {
++            int32x4_t v = vshrq_n_s32(base, 5);
++            v = vmaxq_s32(v, vdupq_n_s32(0));
++            v = vminq_s32(v, vdupq_n_s32(max_val));
++            vst1_u16(dst + x, vmovn_u32(vreinterpretq_u32_s32(v)));
++            base = vaddq_s32(base, step);
++        }
++        for (; x < width; x++) dst[x] = (pel_t)DAVS2_CLIP3(0, max_val, (row_base + x * iB) >> 5);
++        dst += i_dst;
++        iTmp += iC;
++    }
++}
++#endif
++
+ /* ---------------------------------------------------------------------------
+  */
+ static void intra_pred_ver_c(pel_t *src, pel_t *dst, int i_dst, int mode, int width, int height)
+@@ -2679,6 +2893,14 @@ void davs2_intra_pred_init(uint32_t cpuid, ao_funcs_t *pf)
+         ipred[VERT_PRED] = intra_pred_ver_sse128_10bit;
+ #endif
+     }
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++    if (cpuid & DAVS2_CPU_NEON) {
++        ipred[DC_PRED] = intra_pred_dc_neon_10bit;
++        ipred[PLANE_PRED] = intra_pred_plane_neon_10bit;
++        ipred[HOR_PRED] = intra_pred_hor_neon_10bit;
++        ipred[VERT_PRED] = intra_pred_ver_neon_10bit;
++    }
++#endif
+ 
+     /* 8/10bit assemble*/
+     if (cpuid & DAVS2_CPU_AVX2 ) {

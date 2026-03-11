@@ -1,0 +1,83 @@
+diff --git a/libavcodec/libdavs2.c b/libavcodec/libdavs2.c
+--- a/libavcodec/libdavs2.c
++++ b/libavcodec/libdavs2.c
+@@ -38,6 +38,8 @@
+     davs2_picture_t  out_frame;  // output data, frame data
+     davs2_seq_info_t headerset;  // output data, sequence header
+ 
++    int64_t last_output_pts;
++    int64_t last_packet_pos;
+ }DAVS2Context;
+ 
+ static av_cold int davs2_init(AVCodecContext *avctx)
+@@ -58,7 +60,35 @@
+     }
+ 
+     av_log(avctx, AV_LOG_VERBOSE, "decoder created. %p\n", cad->decoder);
++    cad->last_output_pts = AV_NOPTS_VALUE;
++    cad->last_packet_pos = -1;
+     return 0;
++}
++
++static int64_t davs2_resolve_output_pts(AVCodecContext *avctx, DAVS2Context *cad, const davs2_picture_t *pic)
++{
++    int64_t pts = pic->pts;
++    int64_t step = 1;
++
++    if (pts == AV_NOPTS_VALUE)
++        pts = pic->dts;
++
++    if (avctx->framerate.num > 0 && avctx->framerate.den > 0 &&
++        avctx->pkt_timebase.num > 0 && avctx->pkt_timebase.den > 0) {
++        step = av_rescale_q(1, av_inv_q(avctx->framerate), avctx->pkt_timebase);
++        if (step <= 0)
++            step = 1;
++    }
++
++    if (pts != AV_NOPTS_VALUE &&
++        cad->last_output_pts != AV_NOPTS_VALUE &&
++        pts <= cad->last_output_pts)
++        pts = cad->last_output_pts + step;
++
++    if (pts != AV_NOPTS_VALUE)
++        cad->last_output_pts = pts;
++
++    return pts;
+ }
+ 
+ static int davs2_dump_frames(AVCodecContext *avctx, davs2_picture_t *pic, int *got_frame,
+@@ -132,8 +162,9 @@
+ 
+     frame->width     = cad->headerset.width;
+     frame->height    = cad->headerset.height;
+-    frame->pts       = cad->out_frame.pts;
++    frame->pts       = davs2_resolve_output_pts(avctx, cad, pic);
+     frame->format    = avctx->pix_fmt;
++    frame->pkt_pos   = cad->out_frame.pos;
+ 
+     *got_frame = 1;
+     return 0;
+@@ -152,6 +183,9 @@
+     if (ret == DAVS2_ERROR) {
+         av_log(avctx, AV_LOG_WARNING, "Decoder flushing failed.\n");
+     }
++
++    cad->last_output_pts = AV_NOPTS_VALUE;
++    cad->last_packet_pos = -1;
+ }
+ 
+ static int send_delayed_frame(AVCodecContext *avctx, AVFrame *frame, int *got_frame)
+@@ -202,6 +236,14 @@
+     cad->packet.len  = buf_size;
+     cad->packet.pts  = avpkt->pts;
+     cad->packet.dts  = avpkt->dts;
++    cad->packet.pos  = avpkt->pos;
++
++    if (cad->packet.pos >= 0 && cad->last_packet_pos >= 0 &&
++        cad->packet.pos < cad->last_packet_pos)
++        cad->last_output_pts = AV_NOPTS_VALUE;
++
++    if (cad->packet.pos >= 0)
++        cad->last_packet_pos = cad->packet.pos;
+ 
+     ret = davs2_decoder_send_packet(cad->decoder, &cad->packet);

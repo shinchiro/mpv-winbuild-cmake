@@ -1,0 +1,280 @@
+--- a/source/common/pixel.cc
++++ b/source/common/pixel.cc
+@@ -31,6 +31,9 @@
+  */
+ 
+ #include "common.h"
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++#include <arm_neon.h>
++#endif
+ #include "vec/intrinsic.h"
+ 
+ #ifdef __cplusplus
+@@ -138,6 +141,126 @@
+ BLOCK_OP_C( 4,  8)
+ BLOCK_OP_C( 4,  4)  /* 4x4 */
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static inline void davs2_blockcopy_pp_neon_row(pel_t *dst, const pel_t *src, int width)
++{
++    int x = 0;
++    for (; x <= width - 16; x += 16) {
++        vst1q_u16(dst + x, vld1q_u16(src + x));
++        vst1q_u16(dst + x + 8, vld1q_u16(src + x + 8));
++    }
++    for (; x <= width - 8; x += 8) {
++        vst1q_u16(dst + x, vld1q_u16(src + x));
++    }
++    for (; x < width; x++) {
++        dst[x] = src[x];
++    }
++}
++
++static inline void davs2_blockcopy_ss_neon_row(coeff_t *dst, const coeff_t *src, int width)
++{
++    int x = 0;
++    for (; x <= width - 16; x += 16) {
++        vst1q_s16(dst + x, vld1q_s16(src + x));
++        vst1q_s16(dst + x + 8, vld1q_s16(src + x + 8));
++    }
++    for (; x <= width - 8; x += 8) {
++        vst1q_s16(dst + x, vld1q_s16(src + x));
++    }
++    for (; x < width; x++) {
++        dst[x] = src[x];
++    }
++}
++
++static inline void davs2_pixel_add_ps_neon_row(pel_t *dst, const pel_t *b0, const coeff_t *b1, int width)
++{
++    int x = 0;
++    const int16x8_t zero = vdupq_n_s16(0);
++    const int16x8_t maxv = vdupq_n_s16((int16_t)max_pel_value);
++    for (; x <= width - 8; x += 8) {
++        int16x8_t src0 = vreinterpretq_s16_u16(vld1q_u16(b0 + x));
++        int16x8_t delta = vld1q_s16(b1 + x);
++        int16x8_t sum = vaddq_s16(src0, delta);
++        sum = vmaxq_s16(sum, zero);
++        sum = vminq_s16(sum, maxv);
++        vst1q_u16(dst + x, vreinterpretq_u16_s16(sum));
++    }
++    for (; x < width; x++) {
++        dst[x] = (pel_t)DAVS2_CLIP1(b0[x] + b1[x]);
++    }
++}
++
++#define PIXEL_ADD_PS_NEON(w, h) \
++static void davs2_pixel_add_ps_##w##x##h##_neon(pel_t *a, intptr_t dstride, const pel_t *b0, const coeff_t* b1, intptr_t sstride0, intptr_t sstride1)\
++{\
++    int y;\
++    for (y = 0; y < h; y++) {\
++        davs2_pixel_add_ps_neon_row(a, b0, b1, w);\
++        b0 += sstride0;\
++        b1 += sstride1;\
++        a  += dstride;\
++    }\
++}
++
++#define BLOCKCOPY_PP_NEON(w, h) \
++static void davs2_blockcopy_pp_##w##x##h##_neon(pel_t *a, intptr_t stridea, const pel_t *b, intptr_t strideb)\
++{\
++    int y;\
++    for (y = 0; y < h; y++) {\
++        davs2_blockcopy_pp_neon_row(a, b, w);\
++        a += stridea;\
++        b += strideb;\
++    }\
++}
++
++#define BLOCKCOPY_SS_NEON(w, h) \
++static void davs2_blockcopy_ss_##w##x##h##_neon(coeff_t *a, intptr_t stridea, const coeff_t *b, intptr_t strideb)\
++{\
++    int y;\
++    for (y = 0; y < h; y++) {\
++        davs2_blockcopy_ss_neon_row(a, b, w);\
++        a += stridea;\
++        b += strideb;\
++    }\
++}
++
++#define BLOCK_OP_NEON(w, h) \
++    PIXEL_ADD_PS_NEON(w, h); \
++    BLOCKCOPY_PP_NEON(w, h); \
++    BLOCKCOPY_SS_NEON(w, h);
++
++BLOCK_OP_NEON(64, 64)
++BLOCK_OP_NEON(64, 32)
++BLOCK_OP_NEON(32, 64)
++BLOCK_OP_NEON(64, 16)
++BLOCK_OP_NEON(64, 48)
++BLOCK_OP_NEON(16, 64)
++BLOCK_OP_NEON(48, 64)
++BLOCK_OP_NEON(32, 32)
++BLOCK_OP_NEON(32, 16)
++BLOCK_OP_NEON(16, 32)
++BLOCK_OP_NEON(32, 8)
++BLOCK_OP_NEON(32, 24)
++BLOCK_OP_NEON(8, 32)
++BLOCK_OP_NEON(24, 32)
++BLOCK_OP_NEON(16, 16)
++BLOCK_OP_NEON(16, 8)
++BLOCK_OP_NEON(8, 16)
++BLOCK_OP_NEON(16, 4)
++BLOCK_OP_NEON(16, 12)
++BLOCK_OP_NEON(4, 16)
++BLOCK_OP_NEON(12, 16)
++BLOCK_OP_NEON(8, 8)
++BLOCK_OP_NEON(8, 4)
++BLOCK_OP_NEON(4, 8)
++BLOCK_OP_NEON(4, 4)
++
++#undef BLOCK_OP_NEON
++#undef BLOCKCOPY_SS_NEON
++#undef BLOCKCOPY_PP_NEON
++#undef PIXEL_ADD_PS_NEON
++#endif
++
+ #define DECL_PIXELS(cpu) \
+     FUNCDEF_PU(void,        pixel_avg,    cpu, pel_t* dst, intptr_t dstride, const pel_t* src0, intptr_t sstride0, const pel_t* src1, intptr_t sstride1, int);\
+     FUNCDEF_PU(void,        pixel_add_ps, cpu, pel_t* a,   intptr_t dstride, const pel_t* b0, const int16_t* b1, intptr_t sstride0, intptr_t sstride1);\
+@@ -191,6 +314,14 @@
+     ALL_LUMA_PU(copy_pp, blockcopy_pp, );
+     ALL_LUMA_PU(copy_ss, blockcopy_ss, );
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++    if (cpuid & DAVS2_CPU_NEON) {
++        ALL_LUMA_PU(add_ps, pixel_add_ps, _neon);
++        ALL_LUMA_PU(copy_pp, blockcopy_pp, _neon);
++        ALL_LUMA_PU(copy_ss, blockcopy_ss, _neon);
++    }
++#endif
++
+ #if HAVE_MMX
+     if (cpuid & DAVS2_CPU_SSE2) {
+ #if HIGH_BIT_DEPTH
+--- a/source/common/mc.cc
++++ b/source/common/mc.cc
+@@ -34,6 +34,9 @@
+ #include <string.h>
+ #include "common.h"
+ #include "mc.h"
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++#include <arm_neon.h>
++#endif
+ 
+ #if HAVE_MMX
+ #include "vec/intrinsic.h"
+@@ -164,9 +167,61 @@
+             dst += i_dst;
+             src += i_src;
+         }
++    }
++}
++
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static inline void davs2_copy_block_pp_neon(pel_t *dst, intptr_t i_dst, pel_t *src, intptr_t i_src, int w, int h)
++{
++    int x;
++    while (h--) {
++        x = 0;
++        for (; x <= w - 16; x += 16) {
++            vst1q_u16(dst + x, vld1q_u16(src + x));
++            vst1q_u16(dst + x + 8, vld1q_u16(src + x + 8));
++        }
++        for (; x <= w - 8; x += 8) {
++            vst1q_u16(dst + x, vld1q_u16(src + x));
++        }
++        for (; x < w; x++) {
++            dst[x] = src[x];
++        }
++        dst += i_dst;
++        src += i_src;
++    }
++}
++
++static inline void davs2_copy_block_sc_neon(coeff_t *dst, intptr_t i_dst, int16_t *src, intptr_t i_src, int w, int h)
++{
++    int x;
++    while (h--) {
++        x = 0;
++        for (; x <= w - 16; x += 16) {
++            vst1q_s16(dst + x, vld1q_s16(src + x));
++            vst1q_s16(dst + x + 8, vld1q_s16(src + x + 8));
++        }
++        for (; x <= w - 8; x += 8) {
++            vst1q_s16(dst + x, vld1q_s16(src + x));
++        }
++        for (; x < w; x++) {
++            dst[x] = src[x];
++        }
++        dst += i_dst;
++        src += i_src;
+     }
+ }
+ 
++static void mc_block_copy_neon(pel_t *dst, intptr_t i_dst, pel_t *src, intptr_t i_src, int w, int h)
++{
++    davs2_copy_block_pp_neon(dst, i_dst, src, i_src, w, h);
++}
++
++static void mc_block_copy_sc_neon(coeff_t *dst, intptr_t i_dst, int16_t *src, intptr_t i_src, int w, int h)
++{
++    davs2_copy_block_sc_neon(dst, i_dst, src, i_src, w, h);
++}
++#endif
++
+ /* ---------------------------------------------------------------------------
+  */
+ static void
+@@ -576,6 +631,27 @@
+ 
+     for (i = 0; i < height; i++) {
+         for (j = 0; j < width; j++) {
++            dst[j] = (pel_t)((src0[j] + src1[j] + 1) >> 1);
++        }
++        dst  += i_dst;
++        src0 += i_src0;
++        src1 += i_src1;
++    }
++}
++
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static void davs2_pixel_average_neon(pel_t *dst, int i_dst, const pel_t *src0, int i_src0, const pel_t *src1, int i_src1, int width, int height)
++{
++    int i, j;
++    for (i = 0; i < height; i++) {
++        for (j = 0; j <= width - 16; j += 16) {
++            vst1q_u16(dst + j, vrhaddq_u16(vld1q_u16(src0 + j), vld1q_u16(src1 + j)));
++            vst1q_u16(dst + j + 8, vrhaddq_u16(vld1q_u16(src0 + j + 8), vld1q_u16(src1 + j + 8)));
++        }
++        for (; j <= width - 8; j += 8) {
++            vst1q_u16(dst + j, vrhaddq_u16(vld1q_u16(src0 + j), vld1q_u16(src1 + j)));
++        }
++        for (; j < width; j++) {
+             dst[j] = (pel_t)((src0[j] + src1[j] + 1) >> 1);
+         }
+         dst  += i_dst;
+@@ -583,6 +659,7 @@
+         src1 += i_src1;
+     }
+ }
++#endif
+ 
+ /**
+  * ===========================================================================
+@@ -642,6 +719,15 @@
+     /* block average */
+     pf->block_avg        = davs2_pixel_average_c;
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++    if (cpuid & DAVS2_CPU_NEON) {
++        pf->plane_copy       = mc_block_copy_neon;
++        pf->block_copy       = mc_block_copy_neon;
++        pf->block_coeff_copy = mc_block_copy_sc_neon;
++        pf->block_avg        = davs2_pixel_average_neon;
++    }
++#endif
++
+     /* interpolate */
+ #if USE_NEW_INTPL
+     ALL_LUMA_PU(block_intpl_luma_hor, interp_horiz_pp, c);

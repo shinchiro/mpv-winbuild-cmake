@@ -1,0 +1,172 @@
+diff --git a/source/common/deblock.cc b/source/common/deblock.cc
+index 2ff221f..dfa3114 100644
+--- a/source/common/deblock.cc
++++ b/source/common/deblock.cc
+@@ -510,6 +510,158 @@ static ALWAYS_INLINE void davs2_deblock_filter_luma_8x1_neon(uint16x8_t *L2, uin
+     *R2 = r2w;
+ }
+ 
++static ALWAYS_INLINE uint16x8_t davs2_deblock_chroma_flag_mask_u16(int flag0, int flag1)
++{
++    uint16_t mask[8] = {
++        (uint16_t)(flag0 ? 0xFFFFu : 0), (uint16_t)(flag0 ? 0xFFFFu : 0),
++        (uint16_t)(flag1 ? 0xFFFFu : 0), (uint16_t)(flag1 ? 0xFFFFu : 0),
++        (uint16_t)(flag0 ? 0xFFFFu : 0), (uint16_t)(flag0 ? 0xFFFFu : 0),
++        (uint16_t)(flag1 ? 0xFFFFu : 0), (uint16_t)(flag1 ? 0xFFFFu : 0)
++    };
++    return vld1q_u16(mask);
++}
++
++static ALWAYS_INLINE uint16x8_t davs2_deblock_load_uv4_neon(const pel_t *src_u, const pel_t *src_v)
++{
++    return vcombine_u16(vld1_u16(src_u), vld1_u16(src_v));
++}
++
++static ALWAYS_INLINE void davs2_deblock_store_uv4_neon(pel_t *src_u, pel_t *src_v, uint16x8_t value)
++{
++    vst1_u16(src_u, vget_low_u16(value));
++    vst1_u16(src_v, vget_high_u16(value));
++}
++
++static ALWAYS_INLINE uint16x4_t davs2_deblock_load_col4_neon(const pel_t *src, int stride)
++{
++    uint16_t tmp[4] = { src[0], src[stride], src[stride * 2], src[stride * 3] };
++    return vld1_u16(tmp);
++}
++
++static ALWAYS_INLINE void davs2_deblock_store_col4_neon(pel_t *src, int stride, uint16x4_t value)
++{
++    uint16_t tmp[4];
++    vst1_u16(tmp, value);
++    src[0] = tmp[0];
++    src[stride] = tmp[1];
++    src[stride * 2] = tmp[2];
++    src[stride * 3] = tmp[3];
++}
++
++static ALWAYS_INLINE void davs2_deblock_filter_chroma_uv_8x1_neon(uint16x8_t *L2, uint16x8_t *L1, uint16x8_t *L0,
++                                                                   uint16x8_t *R0, uint16x8_t *R1, uint16x8_t *R2,
++                                                                   int flag0, int flag1, int alpha, int beta)
++{
++    const uint16x8_t active = davs2_deblock_chroma_flag_mask_u16(flag0, flag1);
++    const uint16x8_t c0 = vdupq_n_u16(0);
++    const uint16x8_t c1 = vdupq_n_u16(1);
++    const uint16x8_t c2 = vdupq_n_u16(2);
++    const uint16x8_t c3 = vdupq_n_u16(3);
++    const uint16x8_t c4 = vdupq_n_u16(4);
++    const uint16x8_t c8 = vdupq_n_u16(8);
++    const uint16x8_t alpha_v = vdupq_n_u16((uint16_t)alpha);
++    const uint16x8_t beta_v = vdupq_n_u16((uint16_t)beta);
++
++    uint16x8_t l2 = *L2, l1 = *L1, l0 = *L0;
++    uint16x8_t r0 = *R0, r1 = *R1, r2 = *R2;
++    uint16x8_t abs_delta = vabdq_u16(l0, r0);
++    uint16x8_t base = vandq_u16(active, vandq_u16(vcgtq_u16(abs_delta, c1), vcltq_u16(abs_delta, alpha_v)));
++
++    uint16x8_t flat_l = vandq_u16(vcltq_u16(vabdq_u16(l1, l0), beta_v), c2);
++    uint16x8_t flat_r = vandq_u16(vcltq_u16(vabdq_u16(r1, r0), beta_v), c2);
++    flat_l = vaddq_u16(flat_l, vandq_u16(vcltq_u16(vabdq_u16(l2, l0), beta_v), c1));
++    flat_r = vaddq_u16(flat_r, vandq_u16(vcltq_u16(vabdq_u16(r2, r0), beta_v), c1));
++
++    uint16x8_t flt = vaddq_u16(flat_l, flat_r);
++    uint16x8_t eq_lr = vandq_u16(vceqq_u16(r0, r1), vceqq_u16(l0, l1));
++    uint16x8_t fs56 = vbslq_u16(eq_lr, vsubq_u16(flt, c3), vsubq_u16(flt, c4));
++    uint16x8_t fs4 = vbslq_u16(vceqq_u16(flat_l, c2), c1, c0);
++    uint16x8_t fs = c0;
++
++    fs = vbslq_u16(vcgtq_u16(flt, c4), fs56, fs);
++    fs = vbslq_u16(vceqq_u16(flt, c4), fs4, fs);
++    fs = vandq_u16(fs, base);
++
++    uint16x8_t l0w = l0, l1w = l1;
++    uint16x8_t r0w = r0, r1w = r1;
++    uint16x8_t mask;
++    uint16x8_t T0, T2, V0, V1, V2, V3;
++
++    T2 = vaddq_u16(vaddq_u16(l0, r0), c2);
++    V0 = vshrq_n_u16(vaddq_u16(vshlq_n_u16(l0, 1), T2), 2);
++    V1 = vshrq_n_u16(vaddq_u16(vshlq_n_u16(r0, 1), T2), 2);
++    mask = vceqq_u16(fs, c1);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++
++    T2 = vshlq_n_u16(T2, 1);
++    T0 = vaddq_u16(vshlq_n_u16(l1, 1), vaddq_u16(vaddq_u16(l1, r0), vaddq_u16(vshlq_n_u16(l0, 3), T2)));
++    V0 = vshrq_n_u16(vaddq_u16(T0, c4), 4);
++    T0 = vaddq_u16(vshlq_n_u16(r1, 1), vaddq_u16(vaddq_u16(r1, l0), vaddq_u16(vshlq_n_u16(r0, 3), T2)));
++    V1 = vshrq_n_u16(vaddq_u16(T0, c4), 4);
++    mask = vceqq_u16(fs, c2);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++
++    T2 = vshlq_n_u16(T2, 1);
++    T0 = vaddq_u16(vshlq_n_u16(l1, 2), vaddq_u16(vaddq_u16(l2, r1), vaddq_u16(vshlq_n_u16(l0, 1), T2)));
++    V0 = vshrq_n_u16(T0, 4);
++    T0 = vaddq_u16(vshlq_n_u16(r1, 2), vaddq_u16(vaddq_u16(r2, l1), vaddq_u16(vshlq_n_u16(r0, 1), T2)));
++    V1 = vshrq_n_u16(T0, 4);
++    T0 = vaddq_u16(vaddq_u16(vaddq_u16(l2, r0), vshlq_n_u16(l2, 1)), vaddq_u16(vshlq_n_u16(l1, 3), vshlq_n_u16(l0, 2)));
++    V2 = vshrq_n_u16(vaddq_u16(T0, c8), 4);
++    T0 = vaddq_u16(vaddq_u16(vaddq_u16(r2, l0), vshlq_n_u16(r2, 1)), vaddq_u16(vshlq_n_u16(r1, 3), vshlq_n_u16(r0, 2)));
++    V3 = vshrq_n_u16(vaddq_u16(T0, c8), 4);
++    mask = vceqq_u16(fs, c3);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++    l1w = vbslq_u16(mask, V2, l1w);
++    r1w = vbslq_u16(mask, V3, r1w);
++
++    *L1 = l1w;
++    *L0 = l0w;
++    *R0 = r0w;
++    *R1 = r1w;
++}
++
++static void deblock_edge_hor_c_neon_10bit(pel_t *src_u, pel_t *src_v, int stride, int alpha, int beta, uint8_t *flt_flag)
++{
++    uint16x8_t l2 = davs2_deblock_load_uv4_neon(src_u - 3 * stride, src_v - 3 * stride);
++    uint16x8_t l1 = davs2_deblock_load_uv4_neon(src_u - 2 * stride, src_v - 2 * stride);
++    uint16x8_t l0 = davs2_deblock_load_uv4_neon(src_u - stride, src_v - stride);
++    uint16x8_t r0 = davs2_deblock_load_uv4_neon(src_u, src_v);
++    uint16x8_t r1 = davs2_deblock_load_uv4_neon(src_u + stride, src_v + stride);
++    uint16x8_t r2 = davs2_deblock_load_uv4_neon(src_u + 2 * stride, src_v + 2 * stride);
++
++    davs2_deblock_filter_chroma_uv_8x1_neon(&l2, &l1, &l0, &r0, &r1, &r2, flt_flag[0], flt_flag[1], alpha, beta);
++
++    davs2_deblock_store_uv4_neon(src_u - 2 * stride, src_v - 2 * stride, l1);
++    davs2_deblock_store_uv4_neon(src_u - stride, src_v - stride, l0);
++    davs2_deblock_store_uv4_neon(src_u, src_v, r0);
++    davs2_deblock_store_uv4_neon(src_u + stride, src_v + stride, r1);
++}
++
++static void deblock_edge_ver_c_neon_10bit(pel_t *src_u, pel_t *src_v, int stride, int alpha, int beta, uint8_t *flt_flag)
++{
++    uint16x8_t l2 = vcombine_u16(davs2_deblock_load_col4_neon(src_u - 3, stride), davs2_deblock_load_col4_neon(src_v - 3, stride));
++    uint16x8_t l1 = vcombine_u16(davs2_deblock_load_col4_neon(src_u - 2, stride), davs2_deblock_load_col4_neon(src_v - 2, stride));
++    uint16x8_t l0 = vcombine_u16(davs2_deblock_load_col4_neon(src_u - 1, stride), davs2_deblock_load_col4_neon(src_v - 1, stride));
++    uint16x8_t r0 = vcombine_u16(davs2_deblock_load_col4_neon(src_u + 0, stride), davs2_deblock_load_col4_neon(src_v + 0, stride));
++    uint16x8_t r1 = vcombine_u16(davs2_deblock_load_col4_neon(src_u + 1, stride), davs2_deblock_load_col4_neon(src_v + 1, stride));
++    uint16x8_t r2 = vcombine_u16(davs2_deblock_load_col4_neon(src_u + 2, stride), davs2_deblock_load_col4_neon(src_v + 2, stride));
++
++    davs2_deblock_filter_chroma_uv_8x1_neon(&l2, &l1, &l0, &r0, &r1, &r2, flt_flag[0], flt_flag[1], alpha, beta);
++
++    davs2_deblock_store_col4_neon(src_u - 2, stride, vget_low_u16(l1));
++    davs2_deblock_store_col4_neon(src_v - 2, stride, vget_high_u16(l1));
++    davs2_deblock_store_col4_neon(src_u - 1, stride, vget_low_u16(l0));
++    davs2_deblock_store_col4_neon(src_v - 1, stride, vget_high_u16(l0));
++    davs2_deblock_store_col4_neon(src_u + 0, stride, vget_low_u16(r0));
++    davs2_deblock_store_col4_neon(src_v + 0, stride, vget_high_u16(r0));
++    davs2_deblock_store_col4_neon(src_u + 1, stride, vget_low_u16(r1));
++    davs2_deblock_store_col4_neon(src_v + 1, stride, vget_high_u16(r1));
++}
++
+ static void deblock_edge_hor_neon_10bit(pel_t *src, int stride, int alpha, int beta, uint8_t *flt_flag)
+ {
+     uint16x8_t l2 = vld1q_u16(src - 3 * stride);
+@@ -759,6 +911,8 @@ void davs2_deblock_init(uint32_t cpuid, ao_funcs_t* fh)
+     if ((cpuid & DAVS2_CPU_NEON) && !HDR_CHROMA_DELTA_QP) {
+         fh->deblock_luma[0] = deblock_edge_ver_neon_10bit;
+         fh->deblock_luma[1] = deblock_edge_hor_neon_10bit;
++        fh->deblock_chroma[0] = deblock_edge_ver_c_neon_10bit;
++        fh->deblock_chroma[1] = deblock_edge_hor_c_neon_10bit;
+     }
+ #endif
+ 

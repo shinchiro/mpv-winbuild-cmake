@@ -1,0 +1,226 @@
+diff --git a/source/common/deblock.cc b/source/common/deblock.cc
+index 8d60583..2b0bd4d 100644
+--- a/source/common/deblock.cc
++++ b/source/common/deblock.cc
+@@ -33,6 +33,9 @@
+ #include "common.h"
+ #include "deblock.h"
+ #include "quant.h"
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++#include <arm_neon.h>
++#endif
+ 
+ #if HAVE_MMX
+ #include "vec/intrinsic.h"
+@@ -361,6 +364,197 @@ static void lf_edge_core(pel_t *src, int b_chroma, int ptr_inc, int inc1, int al
+     }
+ }
+ 
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++static ALWAYS_INLINE uint16x8_t davs2_deblock_flag_mask_u16(int flag0, int flag1)
++{
++    return vcombine_u16(vdup_n_u16(flag0 ? 0xFFFFu : 0), vdup_n_u16(flag1 ? 0xFFFFu : 0));
++}
++
++static ALWAYS_INLINE void davs2_transpose_u16_8x8_neon(uint16x8_t *r0, uint16x8_t *r1, uint16x8_t *r2, uint16x8_t *r3,
++                                                        uint16x8_t *r4, uint16x8_t *r5, uint16x8_t *r6, uint16x8_t *r7)
++{
++    uint16x8x2_t t0 = vtrnq_u16(*r0, *r1);
++    uint16x8x2_t t1 = vtrnq_u16(*r2, *r3);
++    uint16x8x2_t t2 = vtrnq_u16(*r4, *r5);
++    uint16x8x2_t t3 = vtrnq_u16(*r6, *r7);
++
++    uint32x4x2_t u0 = vtrnq_u32(vreinterpretq_u32_u16(t0.val[0]), vreinterpretq_u32_u16(t1.val[0]));
++    uint32x4x2_t u1 = vtrnq_u32(vreinterpretq_u32_u16(t0.val[1]), vreinterpretq_u32_u16(t1.val[1]));
++    uint32x4x2_t u2 = vtrnq_u32(vreinterpretq_u32_u16(t2.val[0]), vreinterpretq_u32_u16(t3.val[0]));
++    uint32x4x2_t u3 = vtrnq_u32(vreinterpretq_u32_u16(t2.val[1]), vreinterpretq_u32_u16(t3.val[1]));
++
++    *r0 = vreinterpretq_u16_u32(vcombine_u32(vget_low_u32(u0.val[0]), vget_low_u32(u2.val[0])));
++    *r1 = vreinterpretq_u16_u32(vcombine_u32(vget_low_u32(u1.val[0]), vget_low_u32(u3.val[0])));
++    *r2 = vreinterpretq_u16_u32(vcombine_u32(vget_low_u32(u0.val[1]), vget_low_u32(u2.val[1])));
++    *r3 = vreinterpretq_u16_u32(vcombine_u32(vget_low_u32(u1.val[1]), vget_low_u32(u3.val[1])));
++    *r4 = vreinterpretq_u16_u32(vcombine_u32(vget_high_u32(u0.val[0]), vget_high_u32(u2.val[0])));
++    *r5 = vreinterpretq_u16_u32(vcombine_u32(vget_high_u32(u1.val[0]), vget_high_u32(u3.val[0])));
++    *r6 = vreinterpretq_u16_u32(vcombine_u32(vget_high_u32(u0.val[1]), vget_high_u32(u2.val[1])));
++    *r7 = vreinterpretq_u16_u32(vcombine_u32(vget_high_u32(u1.val[1]), vget_high_u32(u3.val[1])));
++}
++
++static ALWAYS_INLINE void davs2_deblock_filter_luma_8x1_neon(uint16x8_t *L2, uint16x8_t *L1, uint16x8_t *L0,
++                                                              uint16x8_t *R0, uint16x8_t *R1, uint16x8_t *R2,
++                                                              int flag0, int flag1, int alpha, int beta)
++{
++    const uint16x8_t active = davs2_deblock_flag_mask_u16(flag0, flag1);
++    const uint16x8_t c0 = vdupq_n_u16(0);
++    const uint16x8_t c1 = vdupq_n_u16(1);
++    const uint16x8_t c2 = vdupq_n_u16(2);
++    const uint16x8_t c3 = vdupq_n_u16(3);
++    const uint16x8_t c4 = vdupq_n_u16(4);
++    const uint16x8_t c8 = vdupq_n_u16(8);
++    const uint16x8_t c16 = vdupq_n_u16(16);
++    const uint16x8_t alpha_v = vdupq_n_u16((uint16_t)alpha);
++    const uint16x8_t beta_v = vdupq_n_u16((uint16_t)beta);
++
++    uint16x8_t l2 = *L2, l1 = *L1, l0 = *L0;
++    uint16x8_t r0 = *R0, r1 = *R1, r2 = *R2;
++    uint16x8_t abs_delta = vabdq_u16(l0, r0);
++    uint16x8_t base = vandq_u16(active, vandq_u16(vcgtq_u16(abs_delta, c1), vcltq_u16(abs_delta, alpha_v)));
++
++    uint16x8_t flat_l = vandq_u16(vcltq_u16(vabdq_u16(l1, l0), beta_v), c2);
++    uint16x8_t flat_r = vandq_u16(vcltq_u16(vabdq_u16(r1, r0), beta_v), c2);
++    flat_l = vaddq_u16(flat_l, vandq_u16(vcltq_u16(vabdq_u16(l2, l0), beta_v), c1));
++    flat_r = vaddq_u16(flat_r, vandq_u16(vcltq_u16(vabdq_u16(r2, r0), beta_v), c1));
++
++    uint16x8_t flt = vaddq_u16(flat_l, flat_r);
++    uint16x8_t eq_lr = vandq_u16(vceqq_u16(r0, r1), vceqq_u16(l0, l1));
++    uint16x8_t fs56 = vbslq_u16(eq_lr, vsubq_u16(flt, c2), vsubq_u16(flt, c3));
++    uint16x8_t fs4 = vbslq_u16(vceqq_u16(flat_l, c2), c2, c1);
++    uint16x8_t fs3 = vbslq_u16(vcltq_u16(vabdq_u16(l1, r1), beta_v), c1, c0);
++    uint16x8_t fs = c0;
++
++    fs = vbslq_u16(vcgtq_u16(flt, c4), fs56, fs);
++    fs = vbslq_u16(vceqq_u16(flt, c4), fs4, fs);
++    fs = vbslq_u16(vceqq_u16(flt, c3), fs3, fs);
++    fs = vandq_u16(fs, base);
++
++    uint16x8_t l0w = l0, l1w = l1, l2w = l2;
++    uint16x8_t r0w = r0, r1w = r1, r2w = r2;
++    uint16x8_t mask;
++    uint16x8_t T0, T2, V0, V1, V2, V3, V4, V5;
++
++    T2 = vaddq_u16(vaddq_u16(l0, r0), c2);
++    V0 = vshrq_n_u16(vaddq_u16(vshlq_n_u16(l0, 1), T2), 2);
++    V1 = vshrq_n_u16(vaddq_u16(vshlq_n_u16(r0, 1), T2), 2);
++    mask = vceqq_u16(fs, c1);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++
++    T2 = vshlq_n_u16(T2, 1);
++    T0 = vaddq_u16(vshlq_n_u16(l1, 1), vaddq_u16(vaddq_u16(l1, r0), vaddq_u16(vshlq_n_u16(l0, 3), T2)));
++    V0 = vshrq_n_u16(vaddq_u16(T0, c4), 4);
++    T0 = vaddq_u16(vshlq_n_u16(r1, 1), vaddq_u16(vaddq_u16(r1, l0), vaddq_u16(vshlq_n_u16(r0, 3), T2)));
++    V1 = vshrq_n_u16(vaddq_u16(T0, c4), 4);
++    mask = vceqq_u16(fs, c2);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++
++    T2 = vshlq_n_u16(T2, 1);
++    T0 = vaddq_u16(vshlq_n_u16(l1, 2), vaddq_u16(vaddq_u16(l2, r1), vaddq_u16(vshlq_n_u16(l0, 1), T2)));
++    V0 = vshrq_n_u16(T0, 4);
++    T0 = vaddq_u16(vshlq_n_u16(r1, 2), vaddq_u16(vaddq_u16(r2, l1), vaddq_u16(vshlq_n_u16(r0, 1), T2)));
++    V1 = vshrq_n_u16(T0, 4);
++    T0 = vaddq_u16(vaddq_u16(vaddq_u16(l2, r0), vshlq_n_u16(l2, 1)), vaddq_u16(vshlq_n_u16(l1, 3), vshlq_n_u16(l0, 2)));
++    V2 = vshrq_n_u16(vaddq_u16(T0, c8), 4);
++    T0 = vaddq_u16(vaddq_u16(vaddq_u16(r2, l0), vshlq_n_u16(r2, 1)), vaddq_u16(vshlq_n_u16(r1, 3), vshlq_n_u16(r0, 2)));
++    V3 = vshrq_n_u16(vaddq_u16(T0, c8), 4);
++    mask = vceqq_u16(fs, c3);
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++    l1w = vbslq_u16(mask, V2, l1w);
++    r1w = vbslq_u16(mask, V3, r1w);
++
++    mask = vceqq_u16(fs, c4);
++    T0 = vshlq_n_u16(vaddq_u16(vaddq_u16(l0, l2), r0), 3);
++    T0 = vaddq_u16(vaddq_u16(T0, c16), vaddq_u16(l0, l2));
++    T2 = vaddq_u16(vshlq_n_u16(r2, 1), vshlq_n_u16(r2, 2));
++    V0 = vshrq_n_u16(vaddq_u16(T0, T2), 5);
++
++    T0 = vshlq_n_u16(vaddq_u16(vaddq_u16(r0, r2), l0), 3);
++    T0 = vaddq_u16(vaddq_u16(T0, c16), vaddq_u16(r0, r2));
++    T2 = vaddq_u16(vshlq_n_u16(l2, 1), vshlq_n_u16(l2, 2));
++    V1 = vshrq_n_u16(vaddq_u16(T0, T2), 5);
++
++    T0 = vshlq_n_u16(vaddq_u16(l2, r0), 1);
++    T0 = vaddq_u16(T0, vsubq_u16(vshlq_n_u16(l0, 3), l0));
++    T2 = vaddq_u16(vshlq_n_u16(l2, 2), vaddq_u16(r0, c8));
++    V2 = vshrq_n_u16(vaddq_u16(T0, T2), 4);
++
++    T0 = vshlq_n_u16(vaddq_u16(r2, l0), 1);
++    T0 = vaddq_u16(T0, vsubq_u16(vshlq_n_u16(r0, 3), r0));
++    T2 = vaddq_u16(vshlq_n_u16(r2, 2), vaddq_u16(l0, c8));
++    V3 = vshrq_n_u16(vaddq_u16(T0, T2), 4);
++
++    T0 = vaddq_u16(vshlq_n_u16(l2, 1), l2);
++    T2 = vaddq_u16(vshlq_n_u16(l0, 2), r0);
++    V4 = vshrq_n_u16(vaddq_u16(vaddq_u16(T0, T2), c4), 3);
++
++    T0 = vaddq_u16(vshlq_n_u16(r2, 1), r2);
++    T2 = vaddq_u16(vshlq_n_u16(r0, 2), l0);
++    V5 = vshrq_n_u16(vaddq_u16(vaddq_u16(T0, T2), c4), 3);
++
++    l0w = vbslq_u16(mask, V0, l0w);
++    r0w = vbslq_u16(mask, V1, r0w);
++    l1w = vbslq_u16(mask, V2, l1w);
++    r1w = vbslq_u16(mask, V3, r1w);
++    l2w = vbslq_u16(mask, V4, l2w);
++    r2w = vbslq_u16(mask, V5, r2w);
++
++    *L2 = l2w;
++    *L1 = l1w;
++    *L0 = l0w;
++    *R0 = r0w;
++    *R1 = r1w;
++    *R2 = r2w;
++}
++
++static void deblock_edge_hor_neon_10bit(pel_t *src, int stride, int alpha, int beta, uint8_t *flt_flag)
++{
++    uint16x8_t l2 = vld1q_u16(src - 3 * stride);
++    uint16x8_t l1 = vld1q_u16(src - 2 * stride);
++    uint16x8_t l0 = vld1q_u16(src - stride);
++    uint16x8_t r0 = vld1q_u16(src);
++    uint16x8_t r1 = vld1q_u16(src + stride);
++    uint16x8_t r2 = vld1q_u16(src + 2 * stride);
++
++    davs2_deblock_filter_luma_8x1_neon(&l2, &l1, &l0, &r0, &r1, &r2, flt_flag[0], flt_flag[1], alpha, beta);
++
++    vst1q_u16(src - 3 * stride, l2);
++    vst1q_u16(src - 2 * stride, l1);
++    vst1q_u16(src - stride, l0);
++    vst1q_u16(src, r0);
++    vst1q_u16(src + stride, r1);
++    vst1q_u16(src + 2 * stride, r2);
++}
++
++static void deblock_edge_ver_neon_10bit(pel_t *src, int stride, int alpha, int beta, uint8_t *flt_flag)
++{
++    uint16x8_t r0 = vld1q_u16(src - 3 + 0 * stride);
++    uint16x8_t r1 = vld1q_u16(src - 3 + 1 * stride);
++    uint16x8_t r2 = vld1q_u16(src - 3 + 2 * stride);
++    uint16x8_t r3 = vld1q_u16(src - 3 + 3 * stride);
++    uint16x8_t r4 = vld1q_u16(src - 3 + 4 * stride);
++    uint16x8_t r5 = vld1q_u16(src - 3 + 5 * stride);
++    uint16x8_t r6 = vld1q_u16(src - 3 + 6 * stride);
++    uint16x8_t r7 = vld1q_u16(src - 3 + 7 * stride);
++
++    davs2_transpose_u16_8x8_neon(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
++    davs2_deblock_filter_luma_8x1_neon(&r0, &r1, &r2, &r3, &r4, &r5, flt_flag[0], flt_flag[1], alpha, beta);
++    davs2_transpose_u16_8x8_neon(&r0, &r1, &r2, &r3, &r4, &r5, &r6, &r7);
++
++    vst1q_u16(src - 3 + 0 * stride, r0);
++    vst1q_u16(src - 3 + 1 * stride, r1);
++    vst1q_u16(src - 3 + 2 * stride, r2);
++    vst1q_u16(src - 3 + 3 * stride, r3);
++    vst1q_u16(src - 3 + 4 * stride, r4);
++    vst1q_u16(src - 3 + 5 * stride, r5);
++    vst1q_u16(src - 3 + 6 * stride, r6);
++    vst1q_u16(src - 3 + 7 * stride, r7);
++}
++#endif
++
+ /* ---------------------------------------------------------------------------
+  */
+ static void deblock_edge_hor(pel_t *src, int stride, int alpha, int beta, uint8_t *flt_flag)
+@@ -561,6 +755,13 @@ void davs2_deblock_init(uint32_t cpuid, ao_funcs_t* fh)
+     fh->set_deblock_const = NULL;
+ 
+     /* init asm function handles */
++#if ARCH_AARCH64 && HIGH_BIT_DEPTH
++    if ((cpuid & DAVS2_CPU_NEON) && !HDR_CHROMA_DELTA_QP) {
++        fh->deblock_luma[0] = deblock_edge_ver_neon_10bit;
++        fh->deblock_luma[1] = deblock_edge_hor_neon_10bit;
++    }
++#endif
++
+ #if HAVE_MMX
+     if ((cpuid & DAVS2_CPU_SSE4) && !HDR_CHROMA_DELTA_QP) {
+ #if !HIGH_BIT_DEPTH
