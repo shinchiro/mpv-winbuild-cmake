@@ -9,3 +9,16 @@
  
  dnl Default CFLAGS -- Big impact on overall speed
  our_cflags_defaults="-Wall"
+
+
+--- src/encoder.h	2026-03-27 21:19:38.519038920 -0400
++++ src/encoder.h	2026-03-27 21:20:51.462035395 -0400
+@@ -42,7 +42,7 @@
+  * Types
+  ****************************************************************************/
+
+-typedef int bool;
++//typedef int bool;
+
+ /*****************************************************************************
+  * Structures
