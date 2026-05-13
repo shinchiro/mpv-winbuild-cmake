@@ -87,6 +87,9 @@ list(APPEND ep
     libaribcaption
     libsixel
     ffmpeg
+    ngtcp2
+    nghttp3
+    nghttp2
     c-ares
     libpsl
     curl
