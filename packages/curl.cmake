@@ -1,6 +1,7 @@
 ExternalProject_Add(curl
     DEPENDS
         brotli
+        c-ares
         libpsl
         libssh
         openssl
@@ -31,6 +32,7 @@ ExternalProject_Add(curl
         -DCURL_USE_LIBSSH2=OFF
         -DCURL_USE_OPENSSL=ON
         -DCURL_ZSTD=ON
+        -DENABLE_ARES=ON
         -DENABLE_CURL_MANUAL=OFF
         -DENABLE_UNICODE=ON
         -DENABLE_THREADED_RESOLVER=ON
