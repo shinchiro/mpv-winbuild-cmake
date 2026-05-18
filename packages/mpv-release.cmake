@@ -13,6 +13,15 @@ file(COPY ${PREFIX_DIR}/get_latest_tag.sh
 execute_process(COMMAND ${PREFIX_DIR}/src/get_latest_tag.sh
                 OUTPUT_VARIABLE LINK)
 
+# Force the build+install chain to re-run every cmake configure. The workflow
+# cleans build_$BIT/mpv* after packaging, which removes the output folder
+# (mpv-<TAG>-<arch>/) but leaves ExternalProject stamps intact in the toolchain
+# cache. Without this, ninja skips build/copy steps on subsequent runs, leaving
+# no folder for the packaging script to archive.
+foreach(_stamp build install strip-binary copy-binary copy-versionfile copy-package-dir)
+    file(REMOVE ${PREFIX_DIR}/src/mpv-release-stamp/mpv-release-${_stamp})
+endforeach()
+
 # Wrapper around `meson setup` that drops any -D<name>=<value> whose <name>
 # is not declared in the tarball's meson.options/meson_options.txt. Lets us
 # build older stable releases even after master adds new meson options.
