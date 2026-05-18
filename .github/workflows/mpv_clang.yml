@@ -111,8 +111,13 @@ jobs:
           MPV_TARBALL: ${{ github.event.inputs.mpv_tarball }}
         run: |
           ninja -C build_$BIT update
-          $MPV_TARBALL && ninja -C build_$BIT mpv-release || ninja -C build_$BIT mpv
-          $MPV_TARBALL && echo "mpv_ver=$(cat build_$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT || echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
+          if [[ "$MPV_TARBALL" == "true" ]]; then
+            ninja -C build_$BIT mpv-release
+            echo "mpv_ver=$(cat build_$BIT/packages/mpv-release-prefix/VERSION)" >> $GITHUB_OUTPUT
+          else
+            ninja -C build_$BIT mpv
+            echo "mpv_ver=UNKNOWN" >> $GITHUB_OUTPUT
+          fi
 
       - name: Packaging mpv
         run: |
