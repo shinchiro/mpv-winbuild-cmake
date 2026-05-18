@@ -154,6 +154,7 @@ jobs:
 
       - name: Uploading ${{ matrix.bit }} debug
         uses: actions/upload-artifact@master
+        if: ${{ github.event.inputs.mpv_tarball != 'true' }}
         with:
           name: mpv-${{ matrix.bit }}-debug
           path: release_${{ matrix.bit }}/mpv-debug-${{ env.arch }}*
