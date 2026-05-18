@@ -13,6 +13,46 @@ file(COPY ${PREFIX_DIR}/get_latest_tag.sh
 execute_process(COMMAND ${PREFIX_DIR}/src/get_latest_tag.sh
                 OUTPUT_VARIABLE LINK)
 
+# Wrapper around `meson setup` that drops any -D<name>=<value> whose <name>
+# is not declared in the tarball's meson.options/meson_options.txt. Lets us
+# build older stable releases even after master adds new meson options.
+file(WRITE ${PREFIX_DIR}/meson_setup_filtered.sh
+"#!/bin/bash
+set -e
+SRC=\"$1\"; shift
+BUILD=\"$1\"; shift
+
+OPTS_FILE=\"\"
+for f in \"$SRC/meson.options\" \"$SRC/meson_options.txt\"; do
+  [ -f \"$f\" ] && { OPTS_FILE=\"$f\"; break; }
+done
+
+if [ -z \"$OPTS_FILE\" ]; then
+  echo \"meson_setup_filtered.sh: no options file in $SRC; passing through\" >&2
+  exec meson setup \"$BUILD\" \"$SRC\" \"$@\"
+fi
+
+KNOWN=$(perl -0777 -ne 'while(/option\\s*\\(\\s*[\\x27\\x22]([a-zA-Z0-9_-]+)[\\x27\\x22]/g){print \"$1\\n\"}' \"$OPTS_FILE\")
+
+FILTERED=()
+for arg in \"$@\"; do
+  if [[ \"$arg\" =~ ^-D([a-zA-Z0-9_-]+)= ]]; then
+    name=\"\${BASH_REMATCH[1]}\"
+    if ! grep -qx \"$name\" <<< \"$KNOWN\"; then
+      echo \"meson_setup_filtered.sh: skipping unsupported -D$name (not in $OPTS_FILE)\" >&2
+      continue
+    fi
+  fi
+  FILTERED+=(\"$arg\")
+done
+
+exec meson setup \"$BUILD\" \"$SRC\" \"\${FILTERED[@]}\"
+")
+
+file(COPY ${PREFIX_DIR}/meson_setup_filtered.sh
+     DESTINATION ${PREFIX_DIR}/src
+     FILE_PERMISSIONS OWNER_EXECUTE OWNER_READ)
+
 ExternalProject_Add(mpv-release
     DEPENDS
         angle-headers
@@ -41,7 +81,7 @@ ExternalProject_Add(mpv-release
         libsixel
     URL ${LINK}
     SOURCE_DIR ${SOURCE_LOCATION}
-    CONFIGURE_COMMAND ${EXEC} CONF=1 meson setup <BINARY_DIR> <SOURCE_DIR>
+    CONFIGURE_COMMAND ${EXEC} CONF=1 bash ${PREFIX_DIR}/src/meson_setup_filtered.sh <SOURCE_DIR> <BINARY_DIR>
         --prefix=${MINGW_INSTALL_PREFIX}
         --libdir=${MINGW_INSTALL_PREFIX}/lib
         --cross-file=${MESON_CROSS}
