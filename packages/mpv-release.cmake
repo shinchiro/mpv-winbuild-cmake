@@ -114,4 +114,5 @@ ExternalProject_Add_Step(mpv-release copy-package-dir
     LOG 1
 )
 
+force_meson_configure(mpv-release)
 cleanup(mpv-release copy-package-dir)
