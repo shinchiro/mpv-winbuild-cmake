@@ -7,7 +7,7 @@ if [ -d $dir ] && [[ $dir =~ mpv-$3.*-git-* ]]; then
     cp -r $1/mpv-root/* $1/$3/d3dcompiler_43.dll $dir
     7z a -m0=lzma2 -mx=9 -ms=on $dir.7z $dir/* -x!*.7z
 elif [ -d $dir ] && [[ $dir =~ mpv-.*$3$ ]]; then
-    cp -r $1/mpv-root/mpv $1/mpv-root/fonts $1/$3/d3dcompiler_43.dll $dir
+    cp -r $1/mpv-root/* $1/$3/d3dcompiler_43.dll $dir
     7z a -m0=lzma2 -mx=9 -ms=on $dir.7z $dir/* -x!*.7z
 elif [ -d $dir ]; then
     7z a -m0=lzma2 -mx=9 -ms=on $dir.7z $dir/* -x!*.7z
