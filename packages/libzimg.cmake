@@ -5,7 +5,7 @@ ExternalProject_Add(libzimg
     GIT_REPOSITORY https://github.com/sekrit-twc/zimg.git
     SOURCE_DIR ${SOURCE_LOCATION}
     GIT_CLONE_FLAGS "--filter=tree:0"
-    GIT_SUBMODULES ""
+    GIT_SUBMODULES_RECURSE TRUE
     PATCH_COMMAND ${EXEC} sed -i "s/Windows.h/windows.h/g" src/zimg/common/arm/cpuinfo_arm.cpp
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
