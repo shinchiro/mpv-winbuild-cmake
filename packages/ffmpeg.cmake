@@ -100,7 +100,6 @@ ExternalProject_Add(ffmpeg
         --enable-libvpl
         --enable-libjxl
         --enable-libplacebo
-        --enable-libshaderc
         --enable-libzvbi
         --enable-libaribcaption
         ${ffmpeg_cuda}
