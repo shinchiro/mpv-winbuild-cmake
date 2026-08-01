@@ -19,7 +19,7 @@ ExternalProject_Add(libbluray
         -Dbdj_jar=disabled
         -Dfreetype=enabled
         -Dlibxml2=enabled
-        "-Dc_args='-Ddec_init=libbluray_dec_init'"
+        "-Dc_args='-Ddec_init=libbluray_dec_init -Ddir_open_default=libbluray_dir_open_default -Dfile_open_default=libbluray_file_open_default'"
     BUILD_COMMAND ${EXEC} ninja -C <BINARY_DIR>
     INSTALL_COMMAND ${EXEC} ninja -C <BINARY_DIR> install
     COMMAND ${EXEC} sed -i [['s/-lbluray/-lbluray -lgdi32/']] ${MINGW_INSTALL_PREFIX}/lib/pkgconfig/libbluray.pc
