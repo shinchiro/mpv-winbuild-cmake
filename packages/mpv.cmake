@@ -91,7 +91,7 @@ set(RENAME ${CMAKE_CURRENT_BINARY_DIR}/mpv-prefix/src/rename.sh)
 file(WRITE ${RENAME}
 "#!/bin/bash
 cd $1
-GIT=$(git rev-parse --short=7 HEAD)
+GIT=$(git rev-parse --short=10 HEAD)
 mv $2 $2-git-\${GIT}")
 
 ExternalProject_Add_Step(mpv copy-package-dir
