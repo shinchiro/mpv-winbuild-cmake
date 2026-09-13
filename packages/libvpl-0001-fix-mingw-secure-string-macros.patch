@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: zhongfly <11155705+zhongfly@users.noreply.github.com>
+Date: Sun, 13 Sep 2026 13:29:32 +0800
+Subject: [PATCH] Fix MinGW secure string macro conflicts
+
+MinGW provides wcscpy_s and wcscat_s. Restrict the compatibility macros to
+old MSVC so they do not break calls in newer MinGW Windows headers.
+---
+ libvpl/src/windows/mfx_dispatcher_defs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libvpl/src/windows/mfx_dispatcher_defs.h b/libvpl/src/windows/mfx_dispatcher_defs.h
+index 38fd221..a23f1ce 100644
+--- a/libvpl/src/windows/mfx_dispatcher_defs.h
++++ b/libvpl/src/windows/mfx_dispatcher_defs.h
+@@ -20,2 +20,2 @@
+-#if _MSC_VER < 1400
++#if defined(_MSC_VER) && _MSC_VER < 1400
+     #define wcscpy_s(to, to_size, from) \
