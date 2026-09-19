@@ -1,0 +1,23 @@
+From f0af7fa91c93065430197c2ac4a96f2f8124b1dd Mon Sep 17 00:00:00 2001
+From: zhongfly <11155705+zhongfly@users.noreply.github.com>
+Date: Tue, 15 Sep 2026 15:10:55 +0000
+Subject: [PATCH] libssh: include SCP declarations
+
+---
+ lib/vssh/ssh.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lib/vssh/ssh.h b/lib/vssh/ssh.h
+index b1071419fd..09267c1a0f 100644
+--- a/lib/vssh/ssh.h
++++ b/lib/vssh/ssh.h
+@@ -38,6 +38,7 @@ extern const struct Curl_protocol Curl_protocol_scp;
+ /* in 0.10.0 or later, ignore deprecated warnings */
+ #define SSH_SUPPRESS_DEPRECATED
+ #include <libssh/libssh.h>
++#include <libssh/scp.h>
+ #include <libssh/sftp.h>
+ #endif
+ 
+-- 
+2.55.0
