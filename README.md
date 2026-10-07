@@ -264,6 +264,23 @@ Place the file on specified location to limit ram & cpu usage to avoid getting s
     swap=0
     pageReporting=false
 
+## Slim audio-only libmpv (`AUDIO_ONLY`)
+
+For music players that only need `libmpv-2.dll`, configure with `-DAUDIO_ONLY=ON` and build the `mpv` target:
+
+    cmake -DAUDIO_ONLY=ON -DTARGET_ARCH=x86_64-w64-mingw32 -G Ninja -B build_x86_64 -S $PWD
+    ninja -C build_x86_64 gcc      # toolchain, first time only
+    ninja -C build_x86_64 mpv      # produces build_x86_64/mpv-dev-x86_64-<date>-git-<hash>.7z
+
+Or run the **libmpv audio** workflow (`.github/workflows/libmpv_audio.yml`) from the Actions tab; the 7z is attached to the run as an artifact.
+
+What it changes compared to the normal build:
+
+- Only 16 packages are built (see `packages/CMakeLists.txt`); `packages/*-audio.cmake` replace `ffmpeg`, `libass`, `libplacebo` and `mpv`.
+- FFmpeg starts from `--disable-everything` and white-lists audio decoders/demuxers/parsers, a few protocols and filters, and the muxers `mp3 flac ogg opus ipod matroska wav adts`. No encoders and no GPL libraries are linked, so the result is LGPL.
+- mpv is built with `-Dgpl=false -Dcplayer=false` and with scripting, video output (OpenGL/D3D11/Vulkan), hardware decoding, libcurl, libarchive, etc. disabled. mpv 0.41 still requires `libass` and `libplacebo` at configure time, so they stay, built without font providers other than DirectWrite and without any GPU backend.
+- To change the muxers, edit `ffmpeg_audio_muxers` in `packages/ffmpeg-audio.cmake` (names can be checked with `./configure --list-muxers` in FFmpeg). Audio *encoders* (for transcoding) are not enabled.
+
 ## Acknowledgements
 
 This project was originally created and maintained [lachs0r](https://github.com/lachs0r/mingw-w64-cmake). Since then, it heavily modified to suit my own need.

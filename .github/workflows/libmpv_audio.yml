@@ -1,0 +1,94 @@
+name: libmpv audio
+defaults:
+  run:
+    shell: bash
+
+# Builds the slim, audio-only libmpv-2.dll (cmake -DAUDIO_ONLY=ON, target "mpv").
+# The result is uploaded as a workflow artifact; nothing is published anywhere.
+on:
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Run custom command before building'
+        required: false
+        type: string
+
+jobs:
+  build_libmpv:
+    name: Building libmpv (audio only)
+    runs-on: ubuntu-latest
+    env:
+      BIT: x86_64
+    container:
+      image: docker://ghcr.io/shinchiro/archlinux:latest
+    steps:
+      - name: Setup git config
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global pull.rebase true
+          git config --global rebase.autoStash true
+          git config --global fetch.prune true
+          git config --global --add safe.directory $PWD
+
+      - uses: actions/checkout@main
+
+      - name: Loading toolchain cache
+        uses: actions/cache/restore@main
+        with:
+          path: build_${{ env.BIT }}
+          key: libmpv-audio-gcc-${{ env.BIT }}_toolchain-${{ github.run_id }}
+          restore-keys: |
+            libmpv-audio-gcc-${{ env.BIT }}_toolchain
+
+      - name: Running custom command
+        if: ${{ github.event.inputs.command != '' }}
+        continue-on-error: true
+        run: ${{ github.event.inputs.command }}
+
+      - name: Downloading source
+        run: |
+          cmake -DAUDIO_ONLY=ON -DTARGET_ARCH=${{ env.BIT }}-w64-mingw32 -DSINGLE_SOURCE_LOCATION=$PWD/src_packages -DENABLE_CCACHE=ON --fresh -G Ninja -B build_$BIT -S $PWD
+          ninja -C build_$BIT download || true
+
+      - name: Building toolchain
+        run: |
+          if [[ ! -f "build_$BIT/install/bin/cross-gcc" ]]; then ninja -C build_$BIT gcc && rm -rf build_$BIT/toolchain; fi
+
+      - name: Saving toolchain cache
+        uses: actions/cache/save@main
+        with:
+          path: build_${{ env.BIT }}
+          key: libmpv-audio-gcc-${{ env.BIT }}_toolchain-${{ github.run_id }}
+
+      - name: Building libmpv
+        run: |
+          ninja -C build_$BIT update
+          ninja -C build_$BIT mpv
+
+      - name: Collecting build
+        run: |
+          mkdir -p release_$BIT
+          mv build_$BIT/mpv-dev-*.7z release_$BIT/
+          ls -l release_$BIT
+
+      - name: Collecting logs
+        if: always()
+        run: |
+          mkdir -p build_${BIT}_logs
+          cp -fr $(find build_$BIT -type f -iname "*-*.log" -or -wholename "*/ffbuild/config.log") build_${BIT}_logs || true
+          7z a -m0=lzma2 -mx=9 -ms=on logs.7z build*logs
+
+      - name: Uploading logs
+        uses: actions/upload-artifact@main
+        if: always()
+        with:
+          name: libmpv-audio-${{ env.BIT }}-logs
+          path: logs.7z
+          retention-days: 7
+
+      - name: Uploading libmpv
+        uses: actions/upload-artifact@main
+        with:
+          name: libmpv-audio-${{ env.BIT }}
+          path: release_${{ env.BIT }}/mpv-dev-*.7z

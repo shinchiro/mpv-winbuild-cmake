@@ -108,11 +108,39 @@ list(APPEND ep
     libsodium
     megasdk
 )
+if(AUDIO_ONLY)
+    # Slim libmpv: only what an audio-only mpv/ffmpeg needs. mpv still hard-requires
+    # libass and libplacebo, so those stay (without any GPU/font-provider backends).
+    # Order matters: glad and fast_float must be included before libplacebo.
+    set(ep
+        zlib
+        zstd
+        brotli
+        libiconv
+        libpng
+        fribidi
+        freetype2
+        harfbuzz
+        libass
+        xxhash
+        glad
+        fast_float
+        libplacebo
+        openssl
+        ffmpeg
+        mpv
+    )
+endif()
 foreach(package IN LISTS ep)
     if(NOT ${SINGLE_SOURCE_LOCATION} STREQUAL "")
         set(SOURCE_LOCATION "${SINGLE_SOURCE_LOCATION}/${package}")
     endif()
-    include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
+    # AUDIO_ONLY swaps in packages/<name>-audio.cmake where a slim variant exists
+    if(AUDIO_ONLY AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${package}-audio.cmake)
+        include(${CMAKE_CURRENT_SOURCE_DIR}/${package}-audio.cmake)
+    else()
+        include(${CMAKE_CURRENT_SOURCE_DIR}/${package}.cmake)
+    endif()
     set(SOURCE_LOCATION "")
 
     get_property(_git_repository TARGET ${package} PROPERTY _EP_GIT_REPOSITORY)
