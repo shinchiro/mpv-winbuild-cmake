@@ -3,12 +3,12 @@ if(CYGWIN OR MSYS)
 endif()
 
 # libarchive required 3rd party iconv.pc when linking
-set(VERSION "1.18")
+set(VERSION "1.19.1")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libiconv.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libiconv.pc @ONLY)
 
 ExternalProject_Add(libiconv
-    URL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz
-    URL_HASH SHA256=3B08F5F4F9B4EB82F151A7040BFD6FE6C6FB922EFE4B1659C66EA933276965E8
+    URL https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.19.1.tar.gz
+    URL_HASH SHA256=9A06844846D664D7122161700C10A64480D7C7BCEAD3091925A785B38C91EDAB
     DOWNLOAD_DIR ${SOURCE_LOCATION}
     CONFIGURE_COMMAND ${EXEC} CONF=1 <SOURCE_DIR>/configure
         ${build}
